@@ -49,7 +49,7 @@ def update_dashboard():
         scalper_state.get("last_update", "N/A")
     )
 
-with gr.Blocks(theme=gr.themes.Monochrome(), title="Polymarket Bot Dashboard") as demo:
+with gr.Blocks(theme="monochrome", title="Polymarket Bot Dashboard") as demo:
     gr.Markdown("# 🤖 Polymarket Bots Monitoring")
     
     with gr.Row():
@@ -57,21 +57,21 @@ with gr.Blocks(theme=gr.themes.Monochrome(), title="Polymarket Bot Dashboard") a
         last_upd = gr.Textbox(label="Last Scalper Refresh", value="N/A", interactive=False)
 
     with gr.Row():
-        with gr.Column(variant="panel"):
+        with gr.Column():
             gr.Markdown("### 🛡️ Safe Agent (Polling)")
             s_status = gr.Textbox(label="Current Status", interactive=False)
             s_decision = gr.Textbox(label="Last Decision", interactive=False)
             s_conf = gr.Textbox(label="LLM Confidence", interactive=False)
             
-        with gr.Column(variant="panel"):
+        with gr.Column():
             gr.Markdown("### ⚡ Crypto Scalper (WS)")
             sc_prices = gr.Markdown("Waiting for prices...")
             sc_trade = gr.Textbox(label="Last Trade", interactive=False)
 
-    # Auto-refresh logic
+    # Auto-refresh logic (Gradio 3 style)
     demo.load(update_dashboard, None, [balance_val, s_status, s_decision, s_conf, sc_prices, sc_trade, last_upd], every=5)
 
 if __name__ == "__main__":
     # Fly.io expects 0.0.0.0 and port 8080 or as configured
     port = int(os.getenv("PORT", 7860))
-    demo.launch(server_name="0.0.0.0", server_port=port)
+    demo.queue().launch(server_name="0.0.0.0", server_port=port)
