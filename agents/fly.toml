@@ -12,8 +12,15 @@ primary_region = "ams"
 [processes]
   safe = "python3 -m agents.application.pyml_trader"
   scalper = "python3 pyml_ws_scalper.py --live"
+  dashboard = "python3 dashboard.py"
 
- # Dummy to satisfy fly.io app structure if needed, or remove if worker-only
+[http_service]
+  internal_port = 7860
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["dashboard"]
 
 [[vm]]
 size = "shared-cpu-1x"

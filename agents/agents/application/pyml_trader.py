@@ -226,12 +226,21 @@ class Bot:
                     is_valid, reason, conf = self.validator.validate(opp)
                     
                     if is_valid:
-                        logger.info(f"!!! TRADING OPPORTUNITY: {opp['market'].question} !!!")
+                        self.save_state({
+                            "last_decision": f"BET: {opp['market'].question[:50]}...",
+                            "confidence": conf,
+                            "reason": reason
+                        })
                         if not dry_run:
                             self.execute_trade(opp)
                         else:
                             logger.info("Dry Run: Would trade.")
                     else:
+                        self.save_state({
+                            "last_decision": f"PASS: {opp['market'].question[:50]}...",
+                            "confidence": conf,
+                            "reason": reason
+                        })
                         logger.info(f"Skipped: {reason}")
                 
                 # Process Arb
@@ -242,6 +251,12 @@ class Bot:
                      else:
                          logger.info("Dry Run: Would arb.")
 
+                self.save_state({
+                    "last_scan": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "high_prob_count": len(high_prob),
+                    "arb_count": len(arb),
+                    "status": "Scanning Complete"
+                })
                 logger.info("Sleeping for 30 minutes...")
                 time.sleep(1800)
                 
@@ -250,7 +265,21 @@ class Bot:
                 break
             except Exception as e:
                 logger.error(f"Main Loop Error: {e}")
+                self.save_state({"status": f"Error: {str(e)}"})
                 time.sleep(60)
+
+    def save_state(self, update: Dict):
+        state_file = "safe_state.json"
+        try:
+            current = {}
+            if os.path.exists(state_file):
+                with open(state_file, "r") as f:
+                    current = json.load(f)
+            current.update(update)
+            with open(state_file, "w") as f:
+                json.dump(current, f)
+        except Exception as e:
+            logger.error(f"Failed to save state: {e}")
 
     def execute_trade(self, opportunity):
         # Implement size calculation and order execution

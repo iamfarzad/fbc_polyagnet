@@ -88,6 +88,11 @@ class WS_CryptoScalper:
                                 mid = (best_bid + best_ask) / 2
                                 self.current_prices[tid] = mid
                                 self.check_opportunity(tid)
+                                # Throttled state save (every message might be too much, but for 4 assets it's okay)
+                                self.save_state({
+                                    "prices": {self.active_markets[m_id].question[:10]: mid for m_id, m in self.active_markets.items() if m.clob_token_ids and tid in ast.literal_eval(m.clob_token_ids)},
+                                    "last_update": datetime.datetime.now().strftime("%H:%M:%S")
+                                })
         except Exception as e:
             # print(f"Msg error: {e}")
             pass
@@ -154,8 +159,32 @@ class WS_CryptoScalper:
             signed = self.pm.client.create_order(order_args)
             resp = self.pm.client.post_order(signed)
             print(f"  Order Result: {resp}")
+            self.save_state({
+                "last_trade": f"{side_label} @ ${amount_usd} ({datetime.datetime.now().strftime('%H:%M:%S')})",
+                "last_trade_status": str(resp)
+            })
         except Exception as e:
             print(f"  Order Failed: {e}")
+            self.save_state({"last_trade_status": f"Failed: {str(e)}"})
+
+    def save_state(self, update: dict):
+        state_file = "scalper_state.json"
+        try:
+            current = {}
+            if os.path.exists(state_file):
+                with open(state_file, "r") as f:
+                    current = json.load(f)
+            
+            # Special handling for prices to merge them
+            if "prices" in update and "prices" in current:
+                current["prices"].update(update["prices"])
+                del update["prices"]
+                
+            current.update(update)
+            with open(state_file, "w") as f:
+                json.dump(current, f)
+        except Exception as e:
+            pass
 
     def on_open(self, ws):
         print("WS Connected. Authenticating...")
