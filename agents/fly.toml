@@ -10,8 +10,8 @@ primary_region = "ams"
   PYTHONUNBUFFERED = "1"
 
 [processes]
-safe = "python3 agents/application/pyml_trader.py"
-scalper = "python3 pyml_ws_scalper.py --live"
+  safe = "python3 -m agents.application.pyml_trader"
+  scalper = "python3 pyml_ws_scalper.py --live"
 
 [http_service]
 internal_port = 8080
