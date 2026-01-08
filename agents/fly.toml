@@ -5,6 +5,9 @@ primary_region = "ams"
 
 [build]
 
+[env]
+  PYTHONPATH = "."
+
 [processes]
 safe = "python3 agents/application/pyml_trader.py"
 scalper = "python3 pyml_ws_scalper.py --live"
