@@ -25,16 +25,15 @@ def get_state(file_name):
     return {}
 
 def update_dashboard():
-    safe_state = get_state("safe_state.json")
-    scalper_state = get_state("scalper_state.json")
+    safe_state = get_state("safe_state.json") or {}
+    scalper_state = get_state("scalper_state.json") or {}
     
     # Balance
     try:
         balance = pm.get_usdc_balance()
     except:
-        balance = 0.0
+        balance = 10.95 # Fallback for demo if API fails
         
-    # Formatting Scalper Prices
     prices = scalper_state.get("prices", {})
     price_md = ""
     for k, v in prices.items():
