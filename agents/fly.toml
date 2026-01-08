@@ -7,6 +7,7 @@ primary_region = "ams"
 
 [env]
   PYTHONPATH = "."
+  PYTHONUNBUFFERED = "1"
 
 [processes]
 safe = "python3 agents/application/pyml_trader.py"
