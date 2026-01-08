@@ -1,0 +1,8 @@
+py-clob-client
+requests
+python-dotenv
+websockets
+websocket-client
+httpx
+pydantic
+web3
