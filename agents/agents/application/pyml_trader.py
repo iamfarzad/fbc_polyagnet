@@ -37,174 +37,11 @@ class SafePolymarket(Polymarket):
              return
         return super().execute_market_order(market, amount)
 
-class Config:
-    def __init__(self):
-        load_dotenv()
-        self.MIN_PROB = float(os.getenv("MIN_PROB", "0.90"))
-        self.MAX_EXPOSURE = float(os.getenv("MAX_EXPOSURE", "0.25"))
-        self.PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-        self.POLYGON_WALLET_PRIVATE_KEY = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
-        
-        if not self.PERPLEXITY_API_KEY:
-            logger.warning("No PERPLEXITY_API_KEY found. Validation will be skipped.")
-        
-        if not self.POLYGON_WALLET_PRIVATE_KEY:
-            logger.error("No POLYGON_WALLET_PRIVATE_KEY found. Trading will fail.")
+from agents.utils.validator import Validator, SharedConfig
+from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
 
-import datetime
-
-class Scanner:
-    def __init__(self, polymarket: Polymarket, config: Config):
-        self.pm = polymarket
-        self.config = config
-
-    def get_candidates(self) -> Tuple[List[Dict], List[Dict]]:
-        """
-        Scans for High Probability and Arbitrage opportunities.
-        Returns: (high_prob_markets, arb_markets)
-        """
-        logger.info("Fetching markets...")
-        try:
-            # Added archived=false per user suggestion
-            markets = self.pm.get_all_markets(limit=1000, active="true", closed="false", archived="false")
-        except Exception as e:
-            logger.error(f"Failed to fetch markets: {e}")
-            return [], []
-
-        active_markets = []
-        now = datetime.datetime.now(datetime.timezone.utc)
-        
-        for m in markets:
-            # Check Active only (Funded seems unreliable)
-            if not m.active:
-                continue
-                
-            # Liquidity / Volume Filter
-            # Relaxed Thresholds: Vol > 50k OR Liq > 10k
-            if m.volume < 50000 and m.liquidity < 10000:
-                 continue
-
-            # Date Filter
-            try:
-                # m.end is ISO string "2024-01-01T..."
-                # Handle "Z" for UTC
-                end_str = m.end.replace('Z', '+00:00')
-                end_date = datetime.datetime.fromisoformat(end_str)
-                if end_date < now:
-                    continue
-            except Exception as e:
-                logger.warning(f"Date parse error for market {m.id}: {e}")
-                continue
-
-            active_markets.append(m)
-
-        logger.info(f"Filtered markets for trading: {len(active_markets)} / {len(markets)}")
-        
-        high_prob = []
-        arb_opps = []
-        
-        for market in active_markets:
-            try:
-                # outcome_prices is a string like "['0.5', '0.5']"
-                prices = ast.literal_eval(market.outcome_prices)
-                outcomes = ast.literal_eval(market.outcomes)
-                
-                if not prices or len(prices) < 2:
-                    continue
-                
-                prices = [float(p) for p in prices]
-                
-                # High Probability Check
-                for idx, price in enumerate(prices):
-                    if price >= self.config.MIN_PROB:
-                        high_prob.append({
-                            "market": market,
-                            "outcome_idx": idx,
-                            "outcome": outcomes[idx],
-                            "price": price,
-                            "type": "high_prob"
-                        })
-                
-                # Arbitrage Check (Binary only for simplicity)
-                if len(prices) == 2:
-                    sum_price = sum(prices)
-                    if sum_price < 0.98: # 2% buffer for spread/fees/slippage
-                        arb_opps.append({
-                             "market": market,
-                             "sum_price": sum_price,
-                             "type": "arb"
-                        })
-                        
-            except Exception as e:
-                logger.error(f"Error processing market {market.id}: {e}")
-                continue
-                
-        return high_prob, arb_opps
-
-class Validator:
-    def __init__(self, config: Config):
-        self.config = config
-        self.api_url = "https://api.perplexity.ai/chat/completions"
-
-    def validate(self, opportunity: Dict) -> Tuple[bool, str, float]:
-        """
-        Validates a trade opportunity using Perplexity.
-        Returns: (is_valid, reason, confidence_score)
-        """
-        if not self.config.PERPLEXITY_API_KEY:
-            return True, "No Perplexity Key, skipping validation", 1.0
-
-        market: SimpleMarket = opportunity["market"]
-        question = market.question
-        outcome = opportunity.get("outcome", "Generic")
-        price = opportunity.get("price", 0)
-        
-        prompt = f"""
-        Analyze the Polymarket market: "{question}".
-        Current price for outcome "{outcome}" is {price} (implied probability {price*100}%).
-        
-        Rules:
-        - Analyze recent news, polls, and statistical data.
-        - Determine if the true probability is significantly higher than {price}.
-        - Output a JSON with keys: "confidence" (0.0 to 1.0), "recommendation" (BET or PASS), "reason".
-        
-        Only recommend BET if confidence > 0.92.
-        """
-        
-        headers = {
-            "Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "model": "sonar-pro",
-            "messages": [
-                {"role": "system", "content": "You are a superforecaster AI."},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        try:
-            response = requests.post(self.api_url, json=payload, headers=headers)
-            response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
-            
-            # Simple parsing (robustness improvement needed in prod)
-            import re
-            json_match = re.search(r"\{.*\}", content, re.DOTALL)
-            if json_match:
-                data = json.loads(json_match.group(0))
-                confidence = float(data.get("confidence", 0))
-                rec = data.get("recommendation", "PASS")
-                logger.info(f"LLM Analysis: {rec} (Conf: {confidence}) - {data.get('reason')}")
-                return (rec == "BET" and confidence > 0.92), data.get("reason", ""), confidence
-            else:
-                logger.warning(f"Could not parse LLM response: {content}")
-                return False, "Parse Error", 0.0
-
-        except Exception as e:
-            logger.error(f"Validator Error: {e}")
-            return False, str(e), 0.0
+class Config(SharedConfig):
+   pass
 
 class Bot:
     def __init__(self):
@@ -212,6 +49,11 @@ class Bot:
         self.pm = SafePolymarket()
         self.scanner = Scanner(self.pm, self.config)
         self.validator = Validator(self.config)
+        self.initial_balance = 0.0
+        try:
+             self.initial_balance = self.pm.get_usdc_balance()
+             logger.info(f"Initial Balance: ${self.initial_balance:.2f}")
+        except: pass
         
     def run(self, dry_run=False):
         logger.info(f"Starting Bot (Dry Run: {dry_run})")
@@ -227,27 +69,88 @@ class Bot:
                     logger.info("USDC Trading Approved.")
             except Exception as e:
                 logger.error(f"Allowance check/approval failed: {e}")
+
+        # State check helper
+        def check_run_state():
+            try:
+                if os.path.exists("bot_state.json"):
+                    with open("bot_state.json", "r") as f:
+                        state = json.load(f)
+                    return state.get("safe_running", True), state.get("dry_run", True)
+            except: 
+                pass
+            return True, True
+
+        def record_activity(action, endpoint="Gamma"):
+            try:
+                state = {}
+                if os.path.exists("bot_state.json"):
+                    with open("bot_state.json", "r") as f:
+                        state = json.load(f)
+                state["safe_last_activity"] = f"{action} ({datetime.datetime.now().strftime('%H:%M:%S')})"
+                state["safe_last_endpoint"] = endpoint
+                
+                # atomic-ish write
+                with open("bot_state.json", "w") as f:
+                    json.dump(state, f)
+            except: pass
                 
         while True:
+            # Check pause state
+            is_running, is_dry_run = check_run_state()
+            if not is_running:
+                logger.info("Bot Paused via Dashboard. Sleeping 60s...")
+                time.sleep(60)
+                continue
+
             try:
                 high_prob, arb = self.scanner.get_candidates()
+                record_activity("Scanning Markets", "Gamma API")
                 logger.info(f"Found {len(high_prob)} high-prob, {len(arb)} arb opportunities.")
                 
                 # Process High Prob
                 for opp in high_prob:
                     logger.info(f"Analyzing {opp['market'].question} - {opp['outcome']} @ {opp['price']}")
-                    is_valid, reason, conf = self.validator.validate(opp)
+                    is_valid, reason, conf = self.validator.validate(opp['market'].question, opp['outcome'], opp['price'])
+                    record_activity(f"Validating {opp['market'].question[:10]}...", "Perplexity API")
                     
                     if is_valid:
-                        self.save_state({
-                            "last_decision": f"BET: {opp['market'].question[:50]}...",
-                            "confidence": conf,
-                            "reason": reason
-                        })
-                        if not dry_run:
-                            self.execute_trade(opp)
+                        # Risk Engine Check
+                        balance = 0.0
+                        try: balance = self.pm.get_usdc_balance()
+                        except: pass
+                        
+                        if not check_drawdown(self.initial_balance, balance):
+                              logger.warning("Drawdown limit hit! Skipping trade.")
+                              continue
+
+                        potential_profit = 1.0 - opp['price']
+                        ev = calculate_ev(opp['price'], conf, potential_profit, fees=0.02)
+                        
+                        if ev > 0.05: # Min 5% EV
+                            bet_size = kelly_size(balance, ev, opp['price'])
+                            
+                            # Min viable bet check (kelly_size function handles floor logic now, just check > 0)
+                            if bet_size > 0:
+                                logger.info(f"Strong Opportunity! EV: {ev:.2f} | Size: ${bet_size:.2f}")
+                                
+                                self.save_state({
+                                    "last_decision": f"BET: {opp['market'].question[:50]}...",
+                                    "confidence": conf,
+                                    "reason": reason,
+                                    "ev": ev,
+                                    "kelly_size": bet_size
+                                })
+                                
+                                if not dry_run and not is_dry_run:
+                                    self.execute_trade(opp, amount_usd=bet_size)
+                                else:
+                                    logger.info(f"Dry Run (Global: {is_dry_run}, Local: {dry_run}): Would trade ${bet_size:.2f}.")
+                            else:
+                                 logger.info(f"Kelly size ${bet_size:.2f} too small (or 0). Skipping.")
                         else:
-                            logger.info("Dry Run: Would trade.")
+                             # logger.info(f"EV too low ({ev:.2f}). Skipping.") # Reduce noise
+                             pass
                     else:
                         self.save_state({
                             "last_decision": f"PASS: {opp['market'].question[:50]}...",
@@ -270,8 +173,8 @@ class Bot:
                     "arb_count": len(arb),
                     "status": "Scanning Complete"
                 })
-                logger.info("Sleeping for 30 minutes...")
-                time.sleep(1800)
+                logger.info("Sleeping for 60 seconds (Safe Scan Interval)...")
+                time.sleep(60)
                 
             except KeyboardInterrupt:
                 logger.info("Stopping Bot.")
@@ -294,7 +197,7 @@ class Bot:
         except Exception as e:
             logger.error(f"Failed to save state: {e}")
 
-    def execute_trade(self, opportunity):
+    def execute_trade(self, opportunity, amount_usd=None):
         """Execute a trade based on the validated opportunity"""
         try:
             market = opportunity['market']
@@ -305,18 +208,22 @@ class Bot:
             token_ids = ast.literal_eval(market.clob_token_ids)
             token_id = token_ids[0] if outcome.lower() == "yes" else token_ids[1]
             
-            # Calculate size based on fixed bet amount
-            # Force cap at $0.50 to override any env vars until balance recovers
-            env_bet = float(os.getenv("MAX_BET_USD", "0.50"))
-            bet_amount = min(env_bet, 0.50)  
+            # Calculate size
+            if amount_usd:
+                 bet_amount = amount_usd # Use Risk Engine Size
+            else:
+                 # Fallback
+                 env_bet = float(os.getenv("MAX_BET_USD", "0.50"))
+                 bet_amount = min(env_bet, 0.50)  
+                 
             size = bet_amount / price
             
-            # Check balance
+            # Check balance (Strict 3.0 USDC + Gas Buffer)
             balance = self.pm.get_usdc_balance()
-            if balance < bet_amount + 0.10:
-                logger.warning(f"Insufficient balance: ${balance:.2f} < ${bet_amount + 0.10:.2f}")
-                return
-            
+            if balance < 3.0:
+                 logger.warning(f"Balance too low for safe trading: ${balance:.2f} < $3.00")
+                 return
+
             logger.info(f"Executing Trade: {outcome} on '{market.question[:40]}...' @ ${bet_amount}")
             
             # Create and post order
