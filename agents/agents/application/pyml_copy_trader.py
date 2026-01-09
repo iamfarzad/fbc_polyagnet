@@ -12,6 +12,7 @@ from py_clob_client.order_builder.constants import BUY
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
+from agents.utils.context import get_context, Position, Trade
 
 load_dotenv()
 
@@ -31,16 +32,20 @@ class CopyConfig(SharedConfig):
 
 
 class CopyTrader:
+    AGENT_NAME = "copy"
+    
     def __init__(self):
         self.config = CopyConfig()
         self.pm = Polymarket()
-        self.validator = Validator(self.config)
+        self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
+        self.context = get_context()  # Shared context
         self.state_file = "copy_state.json"
         self.DATA_API_URL = "https://data-api.polymarket.com"
         self.MAX_POSITIONS_PER_USER = 3
         self.initial_balance = 0.0
         try:
             self.initial_balance = self.pm.get_usdc_balance()
+            self.context.update_balance(self.initial_balance)
             logger.info(f"Initial Balance: ${self.initial_balance:.2f}")
         except:
             pass
@@ -120,7 +125,7 @@ class CopyTrader:
             pass
         return 5.0
 
-    def execute_trade(self, token_id: str, amount_usd: float, outcome: str):
+    def execute_trade(self, token_id: str, amount_usd: float, outcome: str, market_id: str = "", question: str = ""):
         """Execute a copy trade using CLOB API"""
         try:
             balance = self.pm.get_usdc_balance()
@@ -143,6 +148,28 @@ class CopyTrader:
             resp = self.pm.client.post_order(signed)
             
             logger.info(f"Order Executed: {outcome} ${amount_usd} -> {resp}")
+            
+            # === RECORD IN SHARED CONTEXT ===
+            self.context.add_position(Position(
+                market_id=market_id or token_id,
+                market_question=question or "Copy Trade",
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                entry_price=agg_price,
+                size_usd=amount_usd,
+                timestamp=datetime.datetime.now().isoformat(),
+                token_id=token_id
+            ))
+            self.context.add_trade(Trade(
+                market_id=market_id or token_id,
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                size_usd=amount_usd,
+                price=agg_price,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="filled"
+            ))
+            
             self.save_state({
                 "last_trade": f"{outcome} @ ${amount_usd} ({datetime.datetime.now().strftime('%H:%M:%S')})",
                 "last_trade_result": str(resp)
@@ -151,6 +178,15 @@ class CopyTrader:
             
         except Exception as e:
             logger.error(f"Trade Execution Failed: {e}")
+            self.context.add_trade(Trade(
+                market_id=market_id or token_id,
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                size_usd=amount_usd,
+                price=0,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="failed"
+            ))
             self.save_state({"last_trade_error": str(e)})
             return None
 
@@ -181,6 +217,7 @@ class CopyTrader:
                         outcome = pos.get("outcome")
                         price = float(pos.get("price", pos.get("currentPrice", 0)))
                         token_id = pos.get("asset_id", pos.get("tokenId"))
+                        market_id = pos.get("market_id", pos.get("conditionId", token_id))
                         
                         if not question or not outcome or price <= 0:
                             continue
@@ -189,8 +226,25 @@ class CopyTrader:
                         if price > 0.95 or price < 0.05:
                             continue
                         
-                        context = f"This position is held by a top gainer on the 24h leaderboard (User: {address[:6]})."
-                        is_valid, reason, conf = self.validator.validate(question, outcome, price, additional_context=context)
+                        # === CONTEXT CHECK: Can we trade this market? ===
+                        balance = self.initial_balance
+                        try:
+                            balance = self.pm.get_usdc_balance()
+                        except:
+                            pass
+                        
+                        max_bet = self.get_dynamic_max_bet()
+                        can_trade, ctx_reason = self.context.can_trade(
+                            self.AGENT_NAME, market_id, max_bet, balance
+                        )
+                        if not can_trade:
+                            logger.info(f"Skipping {question[:30]}... - {ctx_reason}")
+                            continue
+                        
+                        self.context.update_agent_status(self.AGENT_NAME, f"Analyzing: {question[:25]}...")
+                        
+                        ctx_info = f"This position is held by a top gainer on the 24h leaderboard (User: {address[:6]})."
+                        is_valid, reason, conf = self.validator.validate(question, outcome, price, additional_context=ctx_info)
                         
                         if is_valid:
                             logger.info(f"COPY SIGNAL: {question} ({outcome}) @ {price}")
@@ -198,8 +252,14 @@ class CopyTrader:
                              
                             if not is_dry_run:
                                 if token_id:
-                                    max_bet = self.get_dynamic_max_bet()
-                                    self.execute_trade(token_id, max_bet, outcome)
+                                    result = self.execute_trade(token_id, max_bet, outcome, market_id, question)
+                                    if result:
+                                        # Broadcast to other agents
+                                        self.context.broadcast(
+                                            self.AGENT_NAME,
+                                            f"Copy trade: {outcome} on {question[:30]}",
+                                            {"market_id": market_id, "whale": address[:10], "price": price}
+                                        )
                                 else:
                                     logger.warning("No Token ID found in position data.")
                             else:

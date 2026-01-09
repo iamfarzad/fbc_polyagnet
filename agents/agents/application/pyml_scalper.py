@@ -12,6 +12,7 @@ import websocket
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
+from agents.utils.context import get_context, Position, Trade
 
 load_dotenv()
 
@@ -40,9 +41,12 @@ class CryptoScalper:
     3. RTDS provides 3-4 price updates per second
     """
     
+    AGENT_NAME = "scalper"
+    
     def __init__(self, dry_run=True):
         self.pm = Polymarket()
         self.dry_run = dry_run
+        self.context = get_context()  # Shared context
         
         # Market tracking
         self.active_markets = {}      # market_id -> market object
@@ -60,6 +64,7 @@ class CryptoScalper:
         print(f"Crypto Scalper Initialized (Dry Run: {self.dry_run})")
         try:
             self.initial_balance = self.pm.get_usdc_balance()
+            self.context.update_balance(self.initial_balance)
             print(f"Initial Balance: ${self.initial_balance:.2f}")
         except:
             pass
@@ -184,6 +189,19 @@ class CryptoScalper:
                 dynamic_max_bet = float(state.get("dynamic_max_bet", MAX_BET_USD))
         except:
             pass
+        
+        # === CONTEXT CHECK: Can we trade this market? ===
+        balance = 0
+        try:
+            balance = self.pm.get_usdc_balance()
+        except:
+            balance = self.initial_balance
+            
+        can_trade, ctx_reason = self.context.can_trade(
+            self.AGENT_NAME, market_id, dynamic_max_bet, balance
+        )
+        if not can_trade:
+            return  # Another agent already has position or other restriction
             
         # Rate limit: 1 trade per market per 60s
         last_trade = self.last_trade_times.get(market_id, 0)
@@ -291,6 +309,29 @@ class CryptoScalper:
             print(f"  ✅ Order: {resp}")
             self.last_trade_times[market_id] = time.time()
             
+            # === RECORD IN SHARED CONTEXT ===
+            market_data = self.active_markets.get(market_id, {})
+            market = market_data.get("market")
+            self.context.add_position(Position(
+                market_id=market_id,
+                market_question=market.question if market else "15-min crypto",
+                agent=self.AGENT_NAME,
+                outcome=side_label,
+                entry_price=agg_price,
+                size_usd=amount_usd,
+                timestamp=datetime.datetime.now().isoformat(),
+                token_id=token_id
+            ))
+            self.context.add_trade(Trade(
+                market_id=market_id,
+                agent=self.AGENT_NAME,
+                outcome=side_label,
+                size_usd=amount_usd,
+                price=agg_price,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="filled"
+            ))
+            
             self.save_state({
                 "last_trade": f"{side_label} @ ${amount_usd:.2f} ({datetime.datetime.now().strftime('%H:%M:%S')})",
                 "last_trade_status": str(resp)
@@ -298,6 +339,15 @@ class CryptoScalper:
             
         except Exception as e:
             print(f"  ❌ Order Failed: {e}")
+            self.context.add_trade(Trade(
+                market_id=market_id,
+                agent=self.AGENT_NAME,
+                outcome=side_label,
+                size_usd=amount_usd,
+                price=0,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="failed"
+            ))
             self.save_state({"last_trade_status": f"Failed: {str(e)}"})
 
     def save_state(self, update: dict):

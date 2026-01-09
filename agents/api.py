@@ -18,14 +18,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
     from agents.polymarket.polymarket import Polymarket
     from agents.utils.risk_engine import check_drawdown
+    from agents.utils.context import get_context
 except ImportError:
     try:
         from agents.agents.polymarket.polymarket import Polymarket
         from agents.agents.utils.risk_engine import check_drawdown
+        from agents.agents.utils.context import get_context
     except ImportError:
         # Fallback: define stub
         Polymarket = None
-        check_drawdown = lambda *args: False 
+        check_drawdown = lambda *args: False
+        get_context = None 
 
 # Setup Logging
 print("VERSION DEBUG: MAX BET ENABLED")
@@ -312,6 +315,47 @@ def emergency_stop():
     state["copy_trader_running"] = False
     save_state(state)
     return {"status": "stopped"}
+
+
+# --- LLM Activity Endpoints ---
+
+@app.get("/api/llm-activity")
+def get_llm_activity(limit: int = 50, agent: Optional[str] = None):
+    """Get recent LLM activity across all agents."""
+    if not get_context:
+        return {"activities": [], "stats": {}}
+    
+    try:
+        ctx = get_context()
+        activities = ctx.get_llm_activity(limit=limit, agent=agent)
+        stats = ctx.get_llm_stats()
+        return {
+            "activities": activities,
+            "stats": stats
+        }
+    except Exception as e:
+        logger.error(f"Error fetching LLM activity: {e}")
+        return {"activities": [], "stats": {}, "error": str(e)}
+
+
+@app.get("/api/context-summary")
+def get_context_summary():
+    """Get shared context summary (positions, allocation, etc.)."""
+    if not get_context:
+        return {"error": "Context not available"}
+    
+    try:
+        ctx = get_context()
+        return {
+            "summary": ctx.get_summary(),
+            "positions": ctx.get_open_positions(),
+            "recent_trades": ctx.get_recent_trades(20),
+            "broadcasts": ctx.get_broadcasts("api", unread_only=False)[-10:]
+        }
+    except Exception as e:
+        logger.error(f"Error fetching context: {e}")
+        return {"error": str(e)}
+
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,98 @@
+{
+  "positions": [],
+  "recent_trades": [],
+  "blacklist": [],
+  "allocation": {
+    "safe": 0.5,
+    "scalper": 0.3,
+    "copy": 0.2
+  },
+  "total_balance": 0.0,
+  "last_update": "2026-01-09T20:26:46.569802",
+  "agent_status": {
+    "safe": {
+      "active": true,
+      "last_action": null
+    },
+    "scalper": {
+      "active": true,
+      "last_action": null
+    },
+    "copy": {
+      "active": true,
+      "last_action": null
+    }
+  },
+  "broadcasts": [
+    {
+      "from": "safe",
+      "message": "Found high-confidence opportunity",
+      "data": {
+        "market": "market_789",
+        "conf": 0.95
+      },
+      "timestamp": "2026-01-09T20:21:27.088135",
+      "read_by": [
+        "scalper"
+      ]
+    }
+  ],
+  "llm_activity": [
+    {
+      "id": "8e6b074c",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:26:46.568978",
+      "action_type": "validate",
+      "market_question": "Will Bitcoin hit $100k by March 2026?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: BTC rallied 15% this week after ETF inflows... | Factors: ETF demand, halving effect | Edge: Market may be underpricing momentum",
+      "conclusion": "BET",
+      "confidence": 0.94,
+      "data_sources": [
+        "CoinDesk",
+        "Bloomberg Crypto",
+        "Glassnode"
+      ],
+      "duration_ms": 2340,
+      "tokens_used": 1250,
+      "cost_usd": 0.00625
+    },
+    {
+      "id": "422fa93a",
+      "agent": "copy",
+      "timestamp": "2026-01-09T20:26:46.569007",
+      "action_type": "discover",
+      "market_question": "Top Polymarket Traders Discovery",
+      "prompt_summary": "Search for top performing traders on leaderboard",
+      "reasoning": "Found 8 traders from LLM search. Top performers: kch123, SeriouslySirius",
+      "conclusion": "FOUND_8",
+      "confidence": 0.85,
+      "data_sources": [
+        "Polymarket Leaderboard",
+        "Twitter/X"
+      ],
+      "duration_ms": 3200,
+      "tokens_used": 1800,
+      "cost_usd": 0.009
+    },
+    {
+      "id": "13b5d9eb",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:26:46.569013",
+      "action_type": "validate",
+      "market_question": "Will Trump win 2024 election?",
+      "prompt_summary": "Evaluate YES @ $0.52 (52% implied)",
+      "reasoning": "News: Polls show tight race... | Factors: Swing state polling, turnout models | Edge: No clear edge identified",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "538",
+        "RealClearPolitics",
+        "NYT Polls"
+      ],
+      "duration_ms": 1890,
+      "tokens_used": 980,
+      "cost_usd": 0.0049
+    }
+  ]
+}

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Activity, Zap, Wallet, ExternalLink } from "lucide-react"
+import { RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Activity, Zap, Wallet, ExternalLink, Brain } from "lucide-react"
+import { LLMActivityFeed } from "@/components/llm-activity-feed"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 
@@ -385,6 +386,9 @@ export default function PolymarketDashboard() {
           </Card>
 
         </div>
+
+        {/* LLM Activity Feed - Full Width */}
+        <LLMActivityFeed />
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="border-border/50 bg-card/50 backdrop-blur">

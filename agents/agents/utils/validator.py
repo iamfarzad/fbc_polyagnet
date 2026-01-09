@@ -3,10 +3,20 @@ import requests
 import json
 import logging
 import re
+import time
+import uuid
+from datetime import datetime
 from dotenv import load_dotenv
-from typing import Tuple
+from typing import Tuple, List
 
 logger = logging.getLogger("PyMLBot")
+
+# Import context for LLM activity logging
+try:
+    from agents.utils.context import get_context, LLMActivity
+    HAS_CONTEXT = True
+except ImportError:
+    HAS_CONTEXT = False
 
 
 class SharedConfig:
@@ -32,9 +42,11 @@ class Validator:
     4. Evaluate if there's an edge vs current market price
     """
     
-    def __init__(self, config: SharedConfig):
+    def __init__(self, config: SharedConfig, agent_name: str = "safe"):
         self.config = config
+        self.agent_name = agent_name
         self.api_url = "https://api.perplexity.ai/chat/completions"
+        self.context = get_context() if HAS_CONTEXT else None
 
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "") -> Tuple[bool, str, float]:
         """
@@ -118,10 +130,21 @@ CRITICAL RULES:
             "max_tokens": 1000
         }
         
+        start_time = time.time()
+        
         try:
             response = requests.post(self.api_url, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
-            content = response.json()["choices"][0]["message"]["content"]
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+            
+            # Calculate tokens and cost
+            usage = result.get("usage", {})
+            tokens_used = usage.get("total_tokens", 0)
+            # Perplexity sonar-pro: ~$5/1M tokens
+            cost_usd = tokens_used * 0.000005
+            
+            duration_ms = int((time.time() - start_time) * 1000)
             
             # Parse JSON from response
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
@@ -132,10 +155,30 @@ CRITICAL RULES:
                 reason = data.get("reason", "")
                 estimated_prob = float(data.get("estimated_true_prob", 0))
                 news = data.get("recent_news", "")
+                key_factors = data.get("key_factors", "")
+                edge_analysis = data.get("edge_analysis", "")
                 
                 logger.info(f"LLM Research: {rec} | Conf: {confidence:.2f} | Est Prob: {estimated_prob:.2f}")
                 logger.info(f"  News: {news[:100]}...")
                 logger.info(f"  Reason: {reason}")
+                
+                # Log to context for UI
+                if self.context and HAS_CONTEXT:
+                    self.context.log_llm_activity(LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent=self.agent_name,
+                        timestamp=datetime.now().isoformat(),
+                        action_type="validate",
+                        market_question=market_question[:100],
+                        prompt_summary=f"Evaluate {outcome} @ ${price:.2f} ({implied_prob:.0f}% implied)",
+                        reasoning=f"News: {news[:150]}... | Factors: {key_factors[:100]}... | Edge: {edge_analysis[:100]}...",
+                        conclusion=rec,
+                        confidence=confidence,
+                        data_sources=[s.strip() for s in news.split(",")[:3]] if news else ["No sources"],
+                        duration_ms=duration_ms,
+                        tokens_used=tokens_used,
+                        cost_usd=cost_usd
+                    ))
                 
                 # Validate the recommendation
                 is_valid = (
@@ -147,10 +190,42 @@ CRITICAL RULES:
                 return is_valid, reason, confidence
             else:
                 logger.warning(f"Could not parse LLM response: {content[:200]}")
+                if self.context and HAS_CONTEXT:
+                    self.context.log_llm_activity(LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent=self.agent_name,
+                        timestamp=datetime.now().isoformat(),
+                        action_type="validate",
+                        market_question=market_question[:100],
+                        prompt_summary=f"Evaluate {outcome} @ ${price:.2f}",
+                        reasoning=f"Parse error: {content[:100]}...",
+                        conclusion="ERROR",
+                        confidence=0.0,
+                        data_sources=[],
+                        duration_ms=duration_ms,
+                        tokens_used=tokens_used,
+                        cost_usd=cost_usd
+                    ))
                 return False, "Parse Error", 0.0
 
         except requests.exceptions.Timeout:
             logger.error("Perplexity API timeout")
+            if self.context and HAS_CONTEXT:
+                self.context.log_llm_activity(LLMActivity(
+                    id=str(uuid.uuid4())[:8],
+                    agent=self.agent_name,
+                    timestamp=datetime.now().isoformat(),
+                    action_type="validate",
+                    market_question=market_question[:100],
+                    prompt_summary=f"Evaluate {outcome} @ ${price:.2f}",
+                    reasoning="API request timed out after 30s",
+                    conclusion="TIMEOUT",
+                    confidence=0.0,
+                    data_sources=[],
+                    duration_ms=30000,
+                    tokens_used=0,
+                    cost_usd=0.0
+                ))
             return False, "API Timeout", 0.0
         except Exception as e:
             logger.error(f"Validator Error: {e}")
@@ -229,15 +304,40 @@ Return JSON with trader names and any addresses you find:
                 "max_tokens": 2000
             }
             
+            start_time = time.time()
             try:
                 response = requests.post(self.api_url, json=payload, headers=headers, timeout=60)
                 response.raise_for_status()
-                content = response.json()["choices"][0]["message"]["content"]
+                result = response.json()
+                content = result["choices"][0]["message"]["content"]
+                
+                usage = result.get("usage", {})
+                tokens_used = usage.get("total_tokens", 0)
+                cost_usd = tokens_used * 0.000005
+                duration_ms = int((time.time() - start_time) * 1000)
                 
                 json_match = re.search(r"\{.*\}", content, re.DOTALL)
                 if json_match:
                     data = json.loads(json_match.group(0))
                     llm_traders = data.get("traders", [])
+                    
+                    # Log LLM activity
+                    if self.context and HAS_CONTEXT:
+                        self.context.log_llm_activity(LLMActivity(
+                            id=str(uuid.uuid4())[:8],
+                            agent=self.agent_name,
+                            timestamp=datetime.now().isoformat(),
+                            action_type="discover",
+                            market_question="Top Polymarket Traders Discovery",
+                            prompt_summary="Search for top performing traders on leaderboard",
+                            reasoning=f"Found {len(llm_traders)} traders from LLM search",
+                            conclusion=f"FOUND_{len(llm_traders)}",
+                            confidence=0.8 if llm_traders else 0.2,
+                            data_sources=["Polymarket Leaderboard", "Twitter/X", "News"],
+                            duration_ms=duration_ms,
+                            tokens_used=tokens_used,
+                            cost_usd=cost_usd
+                        ))
                     
                     for t in llm_traders:
                         name = t.get("name", "")

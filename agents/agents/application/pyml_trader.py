@@ -11,6 +11,7 @@ from typing import List, Dict, Tuple
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.objects import SimpleMarket
+from agents.utils.context import get_context, Position, Trade
 
 # Configure logging
 logging.basicConfig(
@@ -112,14 +113,18 @@ class Config(SharedConfig):
    pass
 
 class Bot:
+    AGENT_NAME = "safe"
+    
     def __init__(self):
         self.config = Config()
         self.pm = SafePolymarket()
         self.scanner = Scanner(self.pm, self.config)
-        self.validator = Validator(self.config)
+        self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
+        self.context = get_context()  # Shared context
         self.initial_balance = 0.0
         try:
              self.initial_balance = self.pm.get_usdc_balance()
+             self.context.update_balance(self.initial_balance)
              logger.info(f"Initial Balance: ${self.initial_balance:.2f}")
         except: pass
         
@@ -178,9 +183,21 @@ class Bot:
                 
                 # Process High Prob
                 for opp in high_prob:
-                    logger.info(f"Analyzing {opp['market'].question} - {opp['outcome']} @ {opp['price']}")
-                    is_valid, reason, conf = self.validator.validate(opp['market'].question, opp['outcome'], opp['price'])
-                    record_activity(f"Validating {opp['market'].question[:10]}...", "Perplexity API")
+                    market = opp['market']
+                    
+                    # === CONTEXT CHECK: Can we trade this? ===
+                    can_trade, ctx_reason = self.context.can_trade(
+                        self.AGENT_NAME, market.id, 1.0, balance if balance > 0 else self.initial_balance
+                    )
+                    if not can_trade:
+                        logger.info(f"Skipping {market.question[:30]}... - {ctx_reason}")
+                        continue
+                    
+                    self.context.update_agent_status(self.AGENT_NAME, f"Analyzing: {market.question[:25]}...")
+                    
+                    logger.info(f"Analyzing {market.question} - {opp['outcome']} @ {opp['price']}")
+                    is_valid, reason, conf = self.validator.validate(market.question, opp['outcome'], opp['price'])
+                    record_activity(f"Validating {market.question[:10]}...", "Perplexity API")
                     
                     if is_valid:
                         # Risk Engine Check
@@ -328,6 +345,35 @@ class Bot:
             result = self.pm.client.post_order(signed_order)
             
             logger.info(f"Order Result: {result}")
+            
+            # === RECORD IN SHARED CONTEXT ===
+            self.context.add_position(Position(
+                market_id=market.id,
+                market_question=market.question,
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                entry_price=price,
+                size_usd=bet_amount,
+                timestamp=datetime.datetime.now().isoformat(),
+                token_id=token_id
+            ))
+            self.context.add_trade(Trade(
+                market_id=market.id,
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                size_usd=bet_amount,
+                price=price,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="filled"
+            ))
+            
+            # Broadcast to other agents
+            self.context.broadcast(
+                self.AGENT_NAME,
+                f"Opened position: {outcome} on {market.question[:30]}",
+                {"market_id": market.id, "price": price, "size": bet_amount}
+            )
+            
             self.save_state({
                 "last_trade": f"{outcome} @ ${bet_amount} on '{market.question[:30]}...'",
                 "last_trade_result": str(result),
@@ -336,6 +382,15 @@ class Bot:
             
         except Exception as e:
             logger.error(f"Trade Execution Failed: {e}")
+            self.context.add_trade(Trade(
+                market_id=market.id,
+                agent=self.AGENT_NAME,
+                outcome=outcome,
+                size_usd=bet_amount,
+                price=price,
+                timestamp=datetime.datetime.now().isoformat(),
+                status="failed"
+            ))
             self.save_state({"last_trade_error": str(e)})
 
 
