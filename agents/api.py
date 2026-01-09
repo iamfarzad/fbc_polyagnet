@@ -49,26 +49,67 @@ app.add_middleware(
 )
 
 # --- State Management ---
-STATE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bot_state.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATE_FILE = os.path.join(BASE_DIR, "bot_state.json")
+SAFE_STATE_FILE = os.path.join(BASE_DIR, "safe_state.json")
+SCALPER_STATE_FILE = os.path.join(BASE_DIR, "scalper_state.json")
+COPY_STATE_FILE = os.path.join(BASE_DIR, "copy_state.json")
+
+def load_agent_state(filepath: str) -> Dict[str, Any]:
+    """Load state from an agent-specific file."""
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except:
+            pass
+    return {}
 
 def load_state() -> Dict[str, Any]:
+    """Load and aggregate state from all sources."""
+    # Load master state (control flags)
+    master = {}
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, 'r') as f:
-                return json.load(f)
+                master = json.load(f)
         except Exception as e:
             logger.error(f"Failed to load state: {e}")
-    # Default State
+    
+    # Load individual agent states
+    safe_state = load_agent_state(SAFE_STATE_FILE)
+    scalper_state = load_agent_state(SCALPER_STATE_FILE)
+    copy_state = load_agent_state(COPY_STATE_FILE)
+    
+    # Aggregate into unified state
     return {
-        "safe_running": False,
-        "scalper_running": False,
-        "copy_trader_running": False,
-        "dry_run": True,
-        "safe_last_activity": "Idle",
-        "safe_last_endpoint": "-",
-        "scalper_last_activity": "Idle",
-        "scalper_last_endpoint": "-",
-        "last_signal": "None"
+        # Control flags from master
+        "safe_running": master.get("safe_running", False),
+        "scalper_running": master.get("scalper_running", False),
+        "copy_trader_running": master.get("copy_trader_running", False),
+        "dry_run": master.get("dry_run", True),
+        "dynamic_max_bet": master.get("dynamic_max_bet", 0.50),
+        
+        # Safe agent activity
+        "safe_last_activity": safe_state.get("last_decision", 
+                             safe_state.get("status", 
+                             master.get("safe_last_activity", "Idle"))),
+        "safe_last_endpoint": safe_state.get("safe_last_endpoint", 
+                             master.get("safe_last_endpoint", "Gamma API")),
+        
+        # Scalper activity
+        "scalper_last_activity": scalper_state.get("scalper_last_activity",
+                                scalper_state.get("last_trade",
+                                master.get("scalper_last_activity", "Idle"))),
+        "scalper_last_endpoint": scalper_state.get("scalper_last_endpoint",
+                                master.get("scalper_last_endpoint", "-")),
+        "scalper_prices": scalper_state.get("prices", {}),
+        "scalper_markets": scalper_state.get("active_markets", 0),
+        
+        # Copy trader activity  
+        "last_signal": copy_state.get("last_signal",
+                      master.get("last_signal", "None")),
+        "copy_last_scan": copy_state.get("last_scan", "-"),
     }
 
 def save_state(state: Dict[str, Any]):
@@ -224,21 +265,34 @@ def get_dashboard():
     # For now, return 0.0 or last known
     gas_spent = 0.0 # Setup proper tracking later
     
-    # 7. Agents
+    # 7. Agents - with richer data
+    scalper_activity = state.get("scalper_last_activity", "Idle")
+    scalper_markets = state.get("scalper_markets", 0)
+    scalper_prices = state.get("scalper_prices", {})
+    
+    # Format scalper activity with live data
+    if scalper_markets > 0 and scalper_prices:
+        price_summary = ", ".join([f"{k.split('/')[0].upper()}: ${v:,.0f}" if v > 100 else f"{k.split('/')[0].upper()}: ${v:.2f}" 
+                                   for k, v in list(scalper_prices.items())[:2]])
+        scalper_activity = f"{scalper_activity} | {scalper_markets} markets | {price_summary}"
+    
     agents_data = {
         "safe": {
             "running": state.get("safe_running", False),
             "activity": state.get("safe_last_activity", "Idle"),
-            "endpoint": state.get("safe_last_endpoint", "-")
+            "endpoint": state.get("safe_last_endpoint", "Gamma API")
         },
         "scalper": {
             "running": state.get("scalper_running", False),
-            "activity": state.get("scalper_last_activity", "Idle"),
-            "endpoint": state.get("scalper_last_endpoint", "-")
+            "activity": scalper_activity,
+            "endpoint": state.get("scalper_last_endpoint", "RTDS WebSocket"),
+            "markets": scalper_markets,
+            "prices": scalper_prices
         },
         "copyTrader": {
             "running": state.get("copy_trader_running", False),
-            "lastSignal": state.get("last_signal", "None")
+            "lastSignal": state.get("last_signal", "None"),
+            "lastScan": state.get("copy_last_scan", "-")
         }
     }
 

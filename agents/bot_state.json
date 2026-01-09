@@ -1,1 +1,1 @@
-{"safe_running": false, "scalper_running": false}
+{"safe_running": false, "scalper_running": true, "copy_trader_running": false, "dry_run": true}
