@@ -12,14 +12,20 @@ from dotenv import load_dotenv
 # Import existing agent logic
 import sys
 # Ensure agents package is resolvable
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-# Correct Import Path based on `find` result
-from agents.agents.polymarket.polymarket import Polymarket
-# We might need risk engine logic if not fully embedded in agents yet, 
-# but dashboard just reads state/balance usually.
-from agents.agents.utils.risk_engine import check_drawdown 
+# Import Polymarket - try different paths for local vs Fly.io
+try:
+    from agents.polymarket.polymarket import Polymarket
+    from agents.utils.risk_engine import check_drawdown
+except ImportError:
+    try:
+        from agents.agents.polymarket.polymarket import Polymarket
+        from agents.agents.utils.risk_engine import check_drawdown
+    except ImportError:
+        # Fallback: define stub
+        Polymarket = None
+        check_drawdown = lambda *args: False 
 
 # Setup Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
