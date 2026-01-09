@@ -311,8 +311,8 @@ class Bot:
             
             # Check balance
             balance = self.pm.get_usdc_balance()
-            if balance < bet_amount + 1:
-                logger.warning(f"Insufficient balance: ${balance:.2f} < ${bet_amount + 1:.2f}")
+            if balance < bet_amount + 0.10:
+                logger.warning(f"Insufficient balance: ${balance:.2f} < ${bet_amount + 0.10:.2f}")
                 return
             
             logger.info(f"Executing Trade: {outcome} on '{market.question[:40]}...' @ ${bet_amount}")
