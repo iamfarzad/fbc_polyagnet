@@ -100,6 +100,7 @@ class DashboardData(BaseModel):
     stats: Dict[str, Any]
     dryRun: bool
     lastUpdate: str
+    walletAddress: str  # Bot's wallet address
 
 # --- Helper Functions ---
 def fetch_positions_helper():
@@ -222,6 +223,13 @@ def get_dashboard():
         }
     }
 
+    # Get wallet address
+    wallet_address = ""
+    if pm:
+        try:
+            wallet_address = pm.get_address_for_private_key()
+        except: pass
+
     return {
         "balance": balance,
         "equity": equity,
@@ -239,7 +247,8 @@ def get_dashboard():
             "volume24h": vol_24h
         },
         "dryRun": state.get("dry_run", True),
-        "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+        "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "walletAddress": wallet_address
     }
 
 @app.post("/api/toggle-agent")

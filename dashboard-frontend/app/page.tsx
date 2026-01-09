@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Activity, Zap } from "lucide-react"
+import { RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, Activity, Zap, Wallet, ExternalLink } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 
@@ -40,6 +40,7 @@ interface DashboardData {
   }
   dryRun: boolean
   lastUpdate: string
+  walletAddress: string
 }
 
 export default function PolymarketDashboard() {
@@ -116,13 +117,27 @@ export default function PolymarketDashboard() {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="font-mono text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                Farzad Bayat Polymarked AGENT 
+                Farzad Bayat Polymarked AGENT
               </h1>
               <Badge variant={data.dryRun ? "secondary" : "destructive"} className="font-mono text-xs">
                 {data.dryRun ? "🧪 DRY RUN" : "💸 LIVE"}
               </Badge>
             </div>
-            <p className="mt-1 font-mono text-xs text-muted-foreground">{data.lastUpdate}</p>
+            <div className="mt-1 flex items-center gap-2">
+              <p className="font-mono text-xs text-muted-foreground">{data.lastUpdate}</p>
+              {data.walletAddress && (
+                <a
+                  href={`https://polymarket.com/profile/${data.walletAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 font-mono text-xs text-primary hover:underline"
+                >
+                  <Wallet className="h-3 w-3" />
+                  {data.walletAddress.slice(0, 6)}...{data.walletAddress.slice(-4)}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
