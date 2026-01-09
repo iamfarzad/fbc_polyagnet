@@ -28,7 +28,9 @@ load_dotenv()
 
 # Config
 MAX_POSITIONS = 3
-BET_SIZE_USD = float(os.getenv("SCALPER_BET_SIZE", "2.0"))
+BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.30"))  # 30% of total equity per position (90% total)
+MIN_BET_USD = 1.0   # Minimum bet size
+MAX_BET_USD = 100.0 # Maximum bet size (safety cap)
 ASSETS = ["bitcoin", "ethereum", "solana", "xrp"]
 CHECK_INTERVAL = 60  # Check positions every 60 seconds
 
@@ -62,12 +64,13 @@ class CryptoScalper:
         self.address = ""
         
         print(f"=" * 60)
-        print(f"15-MIN CRYPTO SCALPER")
+        print(f"15-MIN CRYPTO SCALPER - COMPOUND MODE")
         print(f"=" * 60)
         print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE TRADING'}")
         print(f"Max Positions: {MAX_POSITIONS}")
-        print(f"Bet Size: ${BET_SIZE_USD}")
+        print(f"Bet Size: {BET_PERCENT*100:.0f}% of available capital (${MIN_BET_USD}-${MAX_BET_USD})")
         print(f"Assets: {', '.join(ASSETS)}")
+        print(f"Strategy: COMPOUND GAINS - reinvest all profits")
         print()
         
         try:
@@ -178,8 +181,39 @@ class CryptoScalper:
         # Default: slight bullish bias for crypto
         return "UP"
 
+    def get_current_balance(self):
+        """Get current USDC balance."""
+        try:
+            return self.pm.get_usdc_balance()
+        except:
+            return self.initial_balance
+    
+    def calculate_bet_size(self):
+        """
+        Calculate bet size based on TOTAL EQUITY (compound strategy).
+        As you win, bets get proportionally larger.
+        
+        Formula: bet_size = total_equity * BET_PERCENT
+        With 30% and 3 positions = 90% of equity in play
+        """
+        current_balance = self.get_current_balance()
+        
+        # Get total equity (cash + position values)
+        positions = self.get_open_positions()
+        position_value = sum(float(p.get("currentValue", 0)) for p in positions)
+        total_equity = current_balance + position_value
+        
+        # Bet size = percentage of TOTAL EQUITY (this is the compound magic)
+        # As you win, total_equity grows, so bet_size grows
+        bet_size = total_equity * BET_PERCENT
+        
+        # Apply min/max limits
+        bet_size = max(MIN_BET_USD, min(bet_size, MAX_BET_USD))
+        
+        return bet_size, current_balance, total_equity
+
     def open_position(self, market):
-        """Open a new position on a market."""
+        """Open a new position on a market with compound sizing."""
         market_id = market["id"]
         question = market["question"]
         asset = market["asset"]
@@ -188,16 +222,21 @@ class CryptoScalper:
         if market_id in self.traded_markets:
             return False
         
+        # Calculate bet size based on current capital (COMPOUND!)
+        bet_size, current_balance, available = self.calculate_bet_size()
+        
         # Get direction based on momentum
         direction = self.get_trade_direction(asset)
         token_id = market["up_token"] if direction == "UP" else market["down_token"]
         
         # Price: slightly aggressive to ensure fill
         price = 0.52 if direction == "UP" else 0.52
-        size = BET_SIZE_USD / price
+        size = bet_size / price
         
         print(f"📈 Opening: {question[:45]}...")
-        print(f"   Direction: {direction} @ ${price:.2f} (${BET_SIZE_USD:.2f})")
+        print(f"   Equity: ${available:.2f} | Cash: ${current_balance:.2f}")
+        print(f"   Bet: ${bet_size:.2f} ({BET_PERCENT*100:.0f}% of equity - COMPOUND)")
+        print(f"   Direction: {direction} @ ${price:.2f}")
         
         if self.dry_run:
             print(f"   [DRY RUN] Would place order")
@@ -219,7 +258,7 @@ class CryptoScalper:
             status = result.get("status", "unknown")
             
             if success or status == "matched":
-                print(f"   ✅ FILLED!")
+                print(f"   ✅ FILLED! (${bet_size:.2f} compounded)")
                 self.traded_markets.add(market_id)
                 
                 # Record in context
@@ -229,7 +268,7 @@ class CryptoScalper:
                     agent=self.AGENT_NAME,
                     outcome=direction,
                     entry_price=price,
-                    size_usd=BET_SIZE_USD,
+                    size_usd=bet_size,
                     timestamp=datetime.datetime.now().isoformat(),
                     token_id=token_id
                 ))
@@ -237,7 +276,7 @@ class CryptoScalper:
                     market_id=market_id,
                     agent=self.AGENT_NAME,
                     outcome=direction,
-                    size_usd=BET_SIZE_USD,
+                    size_usd=bet_size,
                     price=price,
                     timestamp=datetime.datetime.now().isoformat(),
                     status="filled"
@@ -255,20 +294,41 @@ class CryptoScalper:
     def check_and_rebalance(self):
         """
         Main loop: check positions and open new ones if needed.
+        Shows compound growth stats.
         """
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] Checking positions...")
+        
+        # Get current balance and calculate growth
+        current_balance = self.get_current_balance()
+        growth = current_balance - self.initial_balance
+        growth_pct = (growth / self.initial_balance * 100) if self.initial_balance > 0 else 0
         
         # Get current positions
         positions = self.get_open_positions()
         num_positions = len(positions)
+        position_value = sum(float(p.get("currentValue", 0)) for p in positions)
+        total_equity = current_balance + position_value
         
-        print(f"   Open 15-min positions: {num_positions}/{MAX_POSITIONS}")
+        print(f"   💰 Balance: ${current_balance:.2f} | Positions: ${position_value:.2f} | Total: ${total_equity:.2f}")
+        print(f"   📈 Growth: ${growth:+.2f} ({growth_pct:+.1f}%) from ${self.initial_balance:.2f}")
+        print(f"   📊 Open positions: {num_positions}/{MAX_POSITIONS}")
+        
+        # Calculate next bet size (based on total equity for compound)
+        next_bet, _, equity = self.calculate_bet_size()
+        print(f"   🎯 Next bet: ${next_bet:.2f} ({BET_PERCENT*100:.0f}% of ${equity:.2f} equity)")
         
         # Update state file
         self.save_state({
             "open_positions": num_positions,
             "max_positions": MAX_POSITIONS,
             "last_check": datetime.datetime.now().strftime("%H:%M:%S"),
+            "current_balance": current_balance,
+            "initial_balance": self.initial_balance,
+            "growth_usd": growth,
+            "growth_pct": growth_pct,
+            "total_equity": total_equity,
+            "next_bet_size": next_bet,
+            "compound_mode": True,
         })
         
         # If we have fewer than MAX, open more
@@ -322,7 +382,7 @@ class CryptoScalper:
             print(f"   ✓ Positions at max capacity")
 
     def save_state(self, update: dict):
-        """Save state for dashboard."""
+        """Save state for dashboard with compound stats."""
         state_file = "scalper_state.json"
         try:
             current = {}
@@ -331,9 +391,20 @@ class CryptoScalper:
                     current = json.load(f)
             
             current.update(update)
-            current["scalper_last_activity"] = f"Monitoring {update.get('open_positions', 0)}/{MAX_POSITIONS} positions"
-            current["scalper_last_endpoint"] = "RTDS + Data API"
-            current["mode"] = "DRY RUN" if self.dry_run else "LIVE"
+            
+            # Rich activity message showing compound status
+            growth = update.get("growth_usd", 0)
+            growth_pct = update.get("growth_pct", 0)
+            next_bet = update.get("next_bet_size", MIN_BET_USD)
+            positions = update.get("open_positions", 0)
+            
+            if growth >= 0:
+                current["scalper_last_activity"] = f"🔄 {positions}/{MAX_POSITIONS} pos | ${growth:+.2f} ({growth_pct:+.1f}%) | Next: ${next_bet:.2f}"
+            else:
+                current["scalper_last_activity"] = f"🔄 {positions}/{MAX_POSITIONS} pos | ${growth:.2f} ({growth_pct:.1f}%) | Next: ${next_bet:.2f}"
+            
+            current["scalper_last_endpoint"] = "COMPOUND MODE"
+            current["mode"] = "DRY RUN" if self.dry_run else "LIVE COMPOUND"
             
             with open(state_file, "w") as f:
                 json.dump(current, f)
