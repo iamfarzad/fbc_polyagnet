@@ -91,22 +91,35 @@ td {
 
 def fetch_positions():
     try:
-        url = f"https://gamma-api.polymarket.com/portfolio?user={pm.public_key}"
+        # Changed from /portfolio to /positions
+        url = f"https://gamma-api.polymarket.com/positions?user={pm.public_key}"
+        print(f"Fetching positions from: {url}")
         resp = requests.get(url, timeout=5)
+        print(f"Positions Status: {resp.status_code}")
         if resp.status_code == 200:
-            return resp.json()
-    except:
-        pass
+            data = resp.json()
+            print(f"Positions Data Count: {len(data)}")
+            return data
+        else:
+            print(f"Positions Error: {resp.text[:200]}")
+    except Exception as e:
+        print(f"Fetch Positions Exception: {e}")
     return []
 
 def fetch_trades():
     try:
-        url = f"https://gamma-api.polymarket.com/trades?user={pm.public_key}&limit=10"
+        url = f"https://gamma-api.polymarket.com/trades?user={pm.public_key}&limit=20"
+        print(f"Fetching trades from: {url}")
         resp = requests.get(url, timeout=5)
+        print(f"Trades Status: {resp.status_code}")
         if resp.status_code == 200:
-            return resp.json()
-    except:
-        pass
+            data = resp.json()
+            print(f"Trades Data Count: {len(data)}")
+            return data
+        else:
+            print(f"Trades Error: {resp.text[:200]}")
+    except Exception as e:
+        print(f"Fetch Trades Exception: {e}")
     return []
 
 # Cache for allowance to avoid spamming RPC
