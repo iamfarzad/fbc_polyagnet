@@ -1,7 +1,1 @@
-{
-  "safe_running": false,
-  "scalper_running": true,
-  "copy_trader_running": false,
-  "dry_run": false,
-  "dynamic_max_bet": 2.0
-}
+{"safe_running": true, "scalper_running": true, "copy_trader_running": false, "dry_run": false, "dynamic_max_bet": 2.0, "safe_last_activity": "Scanning Markets (21:46:20)", "safe_last_endpoint": "Gamma API"}

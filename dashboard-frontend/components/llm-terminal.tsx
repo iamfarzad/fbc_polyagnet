@@ -199,7 +199,7 @@ export function LLMTerminal() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       const response = await fetch(`${apiUrl}/api/llm-activity?limit=50`)
       const json = await response.json()
       setData(json)

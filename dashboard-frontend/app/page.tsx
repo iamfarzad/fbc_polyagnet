@@ -87,7 +87,7 @@ export default function PolymarketDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       const response = await fetch(`${apiUrl}/api/dashboard`)
       const json = await response.json()
       setData(json)
@@ -101,7 +101,7 @@ export default function PolymarketDashboard() {
 
   const toggleAgent = async (agent: "safe" | "scalper" | "copyTrader") => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/toggle-agent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -115,7 +115,7 @@ export default function PolymarketDashboard() {
 
   const emergencyStop = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
       fetchDashboardData()
     } catch (error) {
@@ -125,7 +125,7 @@ export default function PolymarketDashboard() {
 
   const toggleDryRun = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/toggle-dry-run`, { method: "POST" })
       fetchDashboardData()
     } catch (error) {
@@ -136,7 +136,7 @@ export default function PolymarketDashboard() {
   const updateMaxBet = async () => {
     setUpdatingConfig(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || ""
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/update-config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
