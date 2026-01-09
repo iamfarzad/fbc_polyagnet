@@ -1,0 +1,674 @@
+"""
+FBP Agent - Farzad's Polymarket Bot Agent
+
+A conversational AI agent with full context and tool calling capabilities.
+Uses Perplexity API with custom tool execution layer.
+"""
+
+import os
+import re
+import json
+import logging
+import requests
+from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+from dotenv import load_dotenv
+
+from agents.polymarket.polymarket import Polymarket
+from agents.utils.context import get_context
+from agents.utils.validator import Validator, SharedConfig
+
+load_dotenv()
+logger = logging.getLogger("FBP")
+
+# Initialize Polymarket client
+pm = Polymarket()
+config = SharedConfig()
+validator = Validator(config, agent_name="fbp")
+context = get_context()
+
+
+# =============================================================================
+# TOOL DEFINITIONS
+# =============================================================================
+
+TOOLS = {
+    "get_balance": {
+        "description": "Get current USDC balance and wallet address",
+        "params": []
+    },
+    "get_positions": {
+        "description": "Get all open positions with current value and P&L",
+        "params": []
+    },
+    "get_agents": {
+        "description": "Get status of all 3 trading agents (safe, scalper, copyTrader)",
+        "params": []
+    },
+    "search_markets": {
+        "description": "Search Polymarket for markets by keyword",
+        "params": ["query"]
+    },
+    "get_market_details": {
+        "description": "Get detailed info about a specific market including prices and volume",
+        "params": ["market_id"]
+    },
+    "research": {
+        "description": "Use web search to research a topic for trading decisions",
+        "params": ["topic"]
+    },
+    "analyze_market": {
+        "description": "Analyze a market using LLM to estimate true probability vs market price",
+        "params": ["market_question", "current_price"]
+    },
+    "open_trade": {
+        "description": "Open a new position (buy shares)",
+        "params": ["market_id", "outcome", "amount_usd"]
+    },
+    "close_position": {
+        "description": "Close/sell an existing position",
+        "params": ["market_id"]
+    },
+    "toggle_agent": {
+        "description": "Turn a trading agent on or off",
+        "params": ["agent", "enabled"]
+    },
+    "get_prices": {
+        "description": "Get current crypto prices from Binance (BTC, ETH, SOL, XRP)",
+        "params": []
+    },
+    "get_llm_activity": {
+        "description": "Get recent LLM decisions and reasoning from all agents",
+        "params": ["limit"]
+    }
+}
+
+
+# =============================================================================
+# TOOL IMPLEMENTATIONS
+# =============================================================================
+
+def tool_get_balance() -> str:
+    """Get USDC balance."""
+    try:
+        balance = pm.get_usdc_balance()
+        address = pm.get_address_for_private_key()
+        return json.dumps({
+            "balance_usdc": round(balance, 2),
+            "wallet": address[:10] + "..." + address[-4:]
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_get_positions() -> str:
+    """Get all open positions."""
+    try:
+        address = pm.get_address_for_private_key()
+        url = f"https://data-api.polymarket.com/positions?user={address}"
+        resp = requests.get(url, timeout=10)
+        positions = resp.json()
+        
+        result = []
+        total_value = 0
+        total_pnl = 0
+        
+        for p in positions:
+            value = float(p.get("currentValue", 0))
+            pnl = float(p.get("cashPnl", 0))
+            total_value += value
+            total_pnl += pnl
+            
+            result.append({
+                "title": p.get("title", "")[:50],
+                "outcome": p.get("outcome"),
+                "size": round(float(p.get("size", 0)), 2),
+                "value": round(value, 2),
+                "pnl": round(pnl, 2),
+                "market_id": p.get("conditionId", "")[:12]
+            })
+        
+        return json.dumps({
+            "positions": result,
+            "total_value": round(total_value, 2),
+            "total_pnl": round(total_pnl, 2),
+            "count": len(result)
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_get_agents() -> str:
+    """Get status of all trading agents."""
+    try:
+        with open("bot_state.json", "r") as f:
+            state = json.load(f)
+        
+        return json.dumps({
+            "safe": {
+                "running": state.get("safe_running", False),
+                "activity": state.get("safe_last_activity", "Idle")
+            },
+            "scalper": {
+                "running": state.get("scalper_running", False),
+                "activity": state.get("scalper_last_activity", "Idle")
+            },
+            "copyTrader": {
+                "running": state.get("copy_trader_running", False),
+                "activity": state.get("last_signal", "None")
+            },
+            "dry_run": state.get("dry_run", True)
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_search_markets(query: str) -> str:
+    """Search for markets."""
+    try:
+        url = "https://gamma-api.polymarket.com/markets"
+        params = {
+            "limit": 10,
+            "active": "true",
+            "closed": "false"
+        }
+        resp = requests.get(url, params=params, timeout=10)
+        markets = resp.json()
+        
+        # Filter by query
+        query_lower = query.lower()
+        matches = []
+        for m in markets:
+            q = m.get("question", "").lower()
+            if query_lower in q:
+                try:
+                    prices = json.loads(m.get("outcomePrices", "[]")) if m.get("outcomePrices") else []
+                    yes_price = float(prices[0]) if prices else 0
+                except:
+                    yes_price = 0
+                
+                matches.append({
+                    "id": m.get("id", "")[:12],
+                    "question": m.get("question", "")[:80],
+                    "yes_price": round(yes_price, 3),
+                    "volume": m.get("volume", 0)
+                })
+        
+        return json.dumps({
+            "markets": matches[:5],
+            "count": len(matches)
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_get_market_details(market_id: str) -> str:
+    """Get detailed market info."""
+    try:
+        url = f"https://gamma-api.polymarket.com/markets/{market_id}"
+        resp = requests.get(url, timeout=10)
+        m = resp.json()
+        
+        try:
+            prices = json.loads(m.get("outcomePrices", "[]")) if m.get("outcomePrices") else []
+            yes_price = float(prices[0]) if prices else 0
+            no_price = float(prices[1]) if len(prices) > 1 else 1 - yes_price
+        except:
+            yes_price = 0
+            no_price = 0
+        
+        return json.dumps({
+            "question": m.get("question", ""),
+            "yes_price": round(yes_price, 3),
+            "no_price": round(no_price, 3),
+            "volume": m.get("volume", 0),
+            "liquidity": m.get("liquidity", 0),
+            "end_date": m.get("endDate", ""),
+            "condition_id": m.get("conditionId", "")
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_research(topic: str) -> str:
+    """Research a topic using Perplexity."""
+    try:
+        api_key = config.PERPLEXITY_API_KEY
+        if not api_key:
+            return json.dumps({"error": "No Perplexity API key"})
+        
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "sonar",
+            "messages": [
+                {"role": "user", "content": f"Research this topic briefly (2-3 sentences): {topic}"}
+            ],
+            "max_tokens": 300
+        }
+        
+        resp = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            json=payload,
+            headers=headers,
+            timeout=30
+        )
+        result = resp.json()
+        content = result["choices"][0]["message"]["content"]
+        
+        return json.dumps({"research": content})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_analyze_market(market_question: str, current_price: float) -> str:
+    """Analyze a market using LLM."""
+    try:
+        is_valid, reason, confidence = validator.validate(
+            market_question, "YES", current_price
+        )
+        
+        return json.dumps({
+            "recommendation": "BET" if is_valid else "PASS",
+            "reason": reason,
+            "confidence": round(confidence, 2),
+            "market_price": current_price,
+            "edge": round((confidence - current_price) * 100, 1) if is_valid else 0
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_open_trade(market_id: str, outcome: str, amount_usd: float) -> str:
+    """Open a new trade."""
+    try:
+        # Get market details first
+        url = f"https://gamma-api.polymarket.com/markets/{market_id}"
+        resp = requests.get(url, timeout=10)
+        market = resp.json()
+        
+        clob_ids = market.get("clobTokenIds")
+        if not clob_ids:
+            return json.dumps({"error": "Market has no CLOB tokens"})
+        
+        tokens = json.loads(clob_ids) if isinstance(clob_ids, str) else clob_ids
+        token_id = tokens[0] if outcome.upper() == "YES" else tokens[1]
+        
+        # Get current price
+        prices = json.loads(market.get("outcomePrices", "[]"))
+        price = float(prices[0]) if outcome.upper() == "YES" else float(prices[1])
+        
+        # Calculate size
+        size = amount_usd / price
+        
+        # Place order
+        from py_clob_client.clob_types import OrderArgs
+        from py_clob_client.order_builder.constants import BUY
+        
+        order_args = OrderArgs(
+            token_id=str(token_id),
+            price=price,
+            size=size,
+            side=BUY
+        )
+        
+        signed = pm.client.create_order(order_args)
+        result = pm.client.post_order(signed)
+        
+        if result.get("success") or result.get("status") == "matched":
+            return json.dumps({
+                "status": "success",
+                "market": market.get("question", "")[:50],
+                "outcome": outcome,
+                "amount": round(amount_usd, 2),
+                "price": round(price, 3),
+                "shares": round(size, 2)
+            })
+        else:
+            return json.dumps({"error": f"Order failed: {result.get('status', 'unknown')}"})
+            
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_close_position(market_id: str) -> str:
+    """Close a position."""
+    try:
+        # Get current positions
+        address = pm.get_address_for_private_key()
+        url = f"https://data-api.polymarket.com/positions?user={address}"
+        resp = requests.get(url, timeout=10)
+        positions = resp.json()
+        
+        # Find the position
+        position = None
+        for p in positions:
+            if market_id in p.get("conditionId", "") or market_id in p.get("title", ""):
+                position = p
+                break
+        
+        if not position:
+            return json.dumps({"error": f"Position not found for {market_id}"})
+        
+        # Get token to sell
+        token_id = position.get("asset")
+        size = float(position.get("size", 0))
+        price = float(position.get("curPrice", 0.5))
+        
+        # Place sell order
+        from py_clob_client.clob_types import OrderArgs
+        from py_clob_client.order_builder.constants import SELL
+        
+        order_args = OrderArgs(
+            token_id=str(token_id),
+            price=price,
+            size=size,
+            side=SELL
+        )
+        
+        signed = pm.client.create_order(order_args)
+        result = pm.client.post_order(signed)
+        
+        if result.get("success") or result.get("status") == "matched":
+            return json.dumps({
+                "status": "success",
+                "market": position.get("title", "")[:50],
+                "shares_sold": round(size, 2),
+                "price": round(price, 3),
+                "value": round(size * price, 2)
+            })
+        else:
+            return json.dumps({"error": f"Sell failed: {result.get('status', 'unknown')}"})
+            
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_toggle_agent(agent: str, enabled: bool) -> str:
+    """Toggle an agent on/off."""
+    try:
+        with open("bot_state.json", "r") as f:
+            state = json.load(f)
+        
+        key_map = {
+            "safe": "safe_running",
+            "scalper": "scalper_running",
+            "copyTrader": "copy_trader_running"
+        }
+        
+        if agent not in key_map:
+            return json.dumps({"error": f"Unknown agent: {agent}"})
+        
+        state[key_map[agent]] = enabled
+        
+        with open("bot_state.json", "w") as f:
+            json.dump(state, f, indent=2)
+        
+        return json.dumps({
+            "status": "success",
+            "agent": agent,
+            "enabled": enabled
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_get_prices() -> str:
+    """Get current crypto prices from Binance."""
+    try:
+        symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT"]
+        prices = {}
+        
+        for symbol in symbols:
+            url = f"https://api.binance.com/api/v3/ticker/price?symbol={symbol}"
+            resp = requests.get(url, timeout=5)
+            data = resp.json()
+            price = float(data.get("price", 0))
+            prices[symbol.replace("USDT", "")] = round(price, 2) if price < 1000 else round(price, 0)
+        
+        return json.dumps(prices)
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+def tool_get_llm_activity(limit: int = 10) -> str:
+    """Get recent LLM activity."""
+    try:
+        activities = context.get_llm_activity(limit=limit)
+        
+        result = []
+        for a in activities:
+            result.append({
+                "agent": a.get("agent"),
+                "action": a.get("action_type"),
+                "market": a.get("market_question", "")[:40],
+                "result": a.get("conclusion"),
+                "confidence": a.get("confidence"),
+                "time": a.get("timestamp", "")[:19]
+            })
+        
+        return json.dumps({"activities": result})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+# Tool executor map
+TOOL_EXECUTORS = {
+    "get_balance": lambda p: tool_get_balance(),
+    "get_positions": lambda p: tool_get_positions(),
+    "get_agents": lambda p: tool_get_agents(),
+    "search_markets": lambda p: tool_search_markets(p.get("query", "")),
+    "get_market_details": lambda p: tool_get_market_details(p.get("market_id", "")),
+    "research": lambda p: tool_research(p.get("topic", "")),
+    "analyze_market": lambda p: tool_analyze_market(p.get("market_question", ""), float(p.get("current_price", 0.5))),
+    "open_trade": lambda p: tool_open_trade(p.get("market_id", ""), p.get("outcome", "YES"), float(p.get("amount_usd", 1))),
+    "close_position": lambda p: tool_close_position(p.get("market_id", "")),
+    "toggle_agent": lambda p: tool_toggle_agent(p.get("agent", ""), p.get("enabled", False)),
+    "get_prices": lambda p: tool_get_prices(),
+    "get_llm_activity": lambda p: tool_get_llm_activity(int(p.get("limit", 10)))
+}
+
+
+# =============================================================================
+# AGENT CHAT
+# =============================================================================
+
+def build_system_prompt() -> str:
+    """Build the system prompt with current context."""
+    
+    # Get current state for context
+    try:
+        balance = pm.get_usdc_balance()
+    except:
+        balance = 0
+    
+    tools_desc = "\n".join([
+        f"- {name}: {info['description']} | params: {info['params']}"
+        for name, info in TOOLS.items()
+    ])
+    
+    return f"""You are FBP (Farzad's Polymarket Bot), an elite AI trading assistant.
+
+PERSONALITY:
+- Direct, no BS, treat user as expert trader
+- Quantitative: always cite probabilities, prices, expected values
+- Risk-aware: warn about risks, size positions appropriately
+- Proactive: suggest opportunities when you see them
+
+CURRENT STATE:
+- Balance: ${balance:.2f} USDC
+- Time: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+
+AVAILABLE TOOLS:
+{tools_desc}
+
+TOOL CALLING FORMAT:
+When you need to use a tool, output EXACTLY:
+<tool>tool_name</tool>
+<params>{{"param1": "value1"}}</params>
+
+Wait for the result before continuing. You can chain multiple tools.
+
+EXAMPLES:
+
+User: "What's my balance?"
+You: Let me check.
+<tool>get_balance</tool>
+<params>{{}}</params>
+
+User: "Find BTC markets"
+You: <tool>search_markets</tool>
+<params>{{"query": "bitcoin"}}</params>
+
+User: "Open a $5 YES position on market abc123"
+You: <tool>open_trade</tool>
+<params>{{"market_id": "abc123", "outcome": "YES", "amount_usd": 5}}</params>
+
+TRADING RULES:
+- Only recommend trades with >10% edge
+- Never risk more than 20% of balance on one trade
+- Always explain your reasoning
+- If unsure, recommend PASS
+
+Be concise but thorough. Let's trade!"""
+
+
+def execute_tool(tool_name: str, params: dict) -> str:
+    """Execute a tool and return the result."""
+    if tool_name not in TOOL_EXECUTORS:
+        return json.dumps({"error": f"Unknown tool: {tool_name}"})
+    
+    try:
+        result = TOOL_EXECUTORS[tool_name](params)
+        logger.info(f"Tool {tool_name}: {result[:100]}...")
+        return result
+    except Exception as e:
+        logger.error(f"Tool {tool_name} error: {e}")
+        return json.dumps({"error": str(e)})
+
+
+def parse_tool_call(text: str) -> Optional[Tuple[str, dict]]:
+    """Parse tool call from model output."""
+    tool_match = re.search(r"<tool>(\w+)</tool>", text)
+    params_match = re.search(r"<params>(\{.*?\})</params>", text, re.DOTALL)
+    
+    if tool_match:
+        tool_name = tool_match.group(1)
+        try:
+            params = json.loads(params_match.group(1)) if params_match else {}
+        except:
+            params = {}
+        return tool_name, params
+    
+    return None
+
+
+def chat(messages: List[Dict[str, str]], max_iterations: int = 5) -> Dict[str, Any]:
+    """
+    Main chat function with tool execution loop.
+    
+    Args:
+        messages: List of {"role": "user"|"assistant", "content": "..."}
+        max_iterations: Max tool calls per turn
+        
+    Returns:
+        {"response": "...", "tool_calls": [...]}
+    """
+    api_key = config.PERPLEXITY_API_KEY
+    if not api_key:
+        return {"response": "Error: No Perplexity API key configured", "tool_calls": []}
+    
+    system_prompt = build_system_prompt()
+    tool_calls = []
+    
+    # Build conversation
+    conv_messages = [{"role": "system", "content": system_prompt}]
+    conv_messages.extend(messages)
+    
+    for i in range(max_iterations):
+        # Call Perplexity
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "sonar-pro",
+            "messages": conv_messages,
+            "temperature": 0.3,
+            "max_tokens": 1000
+        }
+        
+        try:
+            resp = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                json=payload,
+                headers=headers,
+                timeout=60
+            )
+            result = resp.json()
+            assistant_msg = result["choices"][0]["message"]["content"]
+        except Exception as e:
+            logger.error(f"Perplexity API error: {e}")
+            return {"response": f"API Error: {e}", "tool_calls": tool_calls}
+        
+        # Check for tool call
+        tool_call = parse_tool_call(assistant_msg)
+        
+        if tool_call:
+            tool_name, params = tool_call
+            logger.info(f"Executing tool: {tool_name}({params})")
+            
+            # Execute tool
+            tool_result = execute_tool(tool_name, params)
+            
+            # Record tool call
+            tool_calls.append({
+                "tool": tool_name,
+                "params": params,
+                "result": json.loads(tool_result) if tool_result.startswith("{") else tool_result
+            })
+            
+            # Add to conversation and continue
+            conv_messages.append({"role": "assistant", "content": assistant_msg})
+            conv_messages.append({"role": "user", "content": f"[Tool Result: {tool_result}]"})
+        else:
+            # No tool call, return final response
+            # Clean up any partial tool tags
+            clean_response = re.sub(r"<tool>.*?</tool>", "", assistant_msg)
+            clean_response = re.sub(r"<params>.*?</params>", "", clean_response, flags=re.DOTALL)
+            
+            return {
+                "response": clean_response.strip(),
+                "tool_calls": tool_calls
+            }
+    
+    # Max iterations reached
+    return {
+        "response": "I've reached the maximum number of tool calls. Here's what I found so far.",
+        "tool_calls": tool_calls
+    }
+
+
+# =============================================================================
+# TEST
+# =============================================================================
+
+if __name__ == "__main__":
+    # Test the agent
+    logging.basicConfig(level=logging.INFO)
+    
+    test_messages = [
+        {"role": "user", "content": "What's my balance and positions?"}
+    ]
+    
+    result = chat(test_messages)
+    print("\n" + "="*60)
+    print("RESPONSE:")
+    print(result["response"])
+    print("\nTOOL CALLS:")
+    for tc in result["tool_calls"]:
+        print(f"  - {tc['tool']}: {tc['result']}")

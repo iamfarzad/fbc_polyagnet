@@ -9,6 +9,7 @@ import {
   BarChart3, Clock, Target, Users, Layers, Settings, PieChart
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
+import { FBPChat } from "@/components/fbp-chat"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -83,6 +84,7 @@ export default function PolymarketDashboard() {
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
+  const [rightPanel, setRightPanel] = useState<"terminal" | "chat">("terminal")
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -733,9 +735,38 @@ export default function PolymarketDashboard() {
           </div>
         </main>
 
-        {/* Right Panel - LLM Terminal */}
+        {/* Right Panel - LLM Terminal / FBP Chat */}
         <aside className="border-l border-border/30 flex flex-col min-h-0">
-          <LLMTerminal />
+          {/* Panel Toggle */}
+          <div className="flex border-b border-border/30 bg-zinc-950/50">
+            <button
+              onClick={() => setRightPanel("terminal")}
+              className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
+                rightPanel === "terminal"
+                  ? "bg-zinc-900 text-zinc-100 border-b-2 border-emerald-500"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5 inline mr-1.5" />
+              LLM Activity
+            </button>
+            <button
+              onClick={() => setRightPanel("chat")}
+              className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
+                rightPanel === "chat"
+                  ? "bg-zinc-900 text-zinc-100 border-b-2 border-violet-500"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+              }`}
+            >
+              <Brain className="w-3.5 h-3.5 inline mr-1.5" />
+              FBP Agent
+            </button>
+          </div>
+          
+          {/* Panel Content */}
+          <div className="flex-1 min-h-0">
+            {rightPanel === "terminal" ? <LLMTerminal /> : <FBPChat />}
+          </div>
         </aside>
       </div>
     </div>

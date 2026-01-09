@@ -411,6 +411,93 @@ def get_context_summary():
         return {"error": str(e)}
 
 
+# =============================================================================
+# FBP AGENT CHAT
+# =============================================================================
+
+class ChatMessage(BaseModel):
+    role: str  # "user" or "assistant"
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+
+# Store conversation history per session (in-memory for now)
+chat_sessions: Dict[str, List[Dict[str, str]]] = {}
+
+@app.post("/api/chat")
+async def fbp_chat(request: ChatRequest):
+    """
+    FBP Agent chat endpoint with tool calling.
+    """
+    try:
+        # Ensure we can import from the current directory
+        import importlib.util
+        fbp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fbp_agent.py")
+        spec = importlib.util.spec_from_file_location("fbp_agent", fbp_path)
+        fbp_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fbp_module)
+        fbp_chat_fn = fbp_module.chat
+    except Exception as e:
+        logger.error(f"Failed to import FBP Agent: {e}")
+        return {
+            "response": f"FBP Agent not available - {str(e)}",
+            "tool_calls": []
+        }
+    
+    # Convert to dict format
+    messages = [{"role": m.role, "content": m.content} for m in request.messages]
+    
+    # Execute chat with tool calling
+    result = fbp_chat_fn(messages)
+    
+    return result
+
+
+@app.post("/api/chat/{session_id}")
+async def fbp_chat_session(session_id: str, request: ChatRequest):
+    """
+    FBP Agent chat with session history.
+    """
+    try:
+        import importlib.util
+        fbp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fbp_agent.py")
+        spec = importlib.util.spec_from_file_location("fbp_agent", fbp_path)
+        fbp_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fbp_module)
+        fbp_chat_fn = fbp_module.chat
+    except Exception as e:
+        logger.error(f"Failed to import FBP Agent: {e}")
+        return {
+            "response": f"FBP Agent not available - {str(e)}",
+            "tool_calls": []
+        }
+    
+    # Get or create session
+    if session_id not in chat_sessions:
+        chat_sessions[session_id] = []
+    
+    # Add new messages to session
+    for m in request.messages:
+        chat_sessions[session_id].append({"role": m.role, "content": m.content})
+    
+    # Execute with full history
+    result = fbp_chat_fn(chat_sessions[session_id])
+    
+    # Store assistant response
+    chat_sessions[session_id].append({"role": "assistant", "content": result["response"]})
+    
+    return result
+
+
+@app.delete("/api/chat/{session_id}")
+async def clear_chat_session(session_id: str):
+    """Clear a chat session."""
+    if session_id in chat_sessions:
+        del chat_sessions[session_id]
+    return {"status": "cleared"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
