@@ -109,6 +109,20 @@ def fetch_trades():
         pass
     return []
 
+# Cache for allowance to avoid spamming RPC
+_allowance_cache = {"value": None, "last_updated": 0}
+
+def get_cached_allowance():
+    now = time.time()
+    if _allowance_cache["value"] is None or (now - _allowance_cache["last_updated"] > 300):
+        try:
+            val = pm.get_usdc_allowance()
+            _allowance_cache["value"] = val
+            _allowance_cache["last_updated"] = now
+        except:
+            return 0.0
+    return _allowance_cache["value"]
+
 def update_dashboard():
     now = datetime.utcnow().strftime("%H:%M:%S UTC")
     
@@ -118,7 +132,7 @@ def update_dashboard():
         balance = 0.0
         
     try:
-        allowance = pm.get_usdc_allowance()
+        allowance = get_cached_allowance()
         status = "✅ Active" if allowance > 500 else "⚠️ Approval Needed"
     except:
         status = "Unknown"
@@ -129,14 +143,18 @@ def update_dashboard():
     
     if positions:
         for p in positions[:10]:
-            market = p.get("title", p.get("question", "Unknown"))[:35]
-            side = p.get("outcome", "?")
-            size = float(p.get("size", 0))
-            value = float(p.get("currentValue", p.get("value", 0)))
-            cost = float(p.get("cost", size))
-            pnl = value - cost
-            unrealized += pnl
-            pos_data.append([market, side, f"${cost:.2f}", f"${value:.2f}", f"${pnl:+.2f}"])
+            try:
+                market = p.get("title", p.get("question", "Unknown"))[:35]
+                side = p.get("outcome", "?")
+                size = float(p.get("size", 0))
+                value = float(p.get("currentValue", p.get("value", 0)))
+                cost = float(p.get("cost", size)) # Fallback if cost missing
+                pnl = value - cost
+                unrealized += pnl
+                pos_data.append([market, side, f"${cost:.2f}", f"${value:.2f}", f"${pnl:+.2f}"])
+            except Exception as e:
+                print(f"Error parsing position: {e}")
+                continue
     
     if not pos_data:
         positions_md = "*No open positions*"
@@ -151,11 +169,14 @@ def update_dashboard():
     if trades:
         trades_md = "| Time | Market | Side | Size |\n|:-----|:-------|:-----|-----:|\n"
         for t in trades[:6]:
-            ts = t.get("timestamp", "")[:16]
-            market = t.get("title", t.get("question", "N/A"))[:20]
-            side = t.get("side", t.get("outcome", "?"))
-            amt = float(t.get("amount", t.get("size", 0)))
-            trades_md += f"| {ts} | {market}... | {side} | ${amt:.2f} |\n"
+            try:
+                ts = t.get("timestamp", "")[:16]
+                market = t.get("title", t.get("question", "N/A"))[:20]
+                side = t.get("side", t.get("outcome", "?"))
+                amt = float(t.get("amount", t.get("size", 0)))
+                trades_md += f"| {ts} | {market}... | {side} | ${amt:.2f} |\n"
+            except:
+                continue
     else:
         trades_md = "*No recent trades*"
     

@@ -306,7 +306,9 @@ class Bot:
             token_id = token_ids[0] if outcome.lower() == "yes" else token_ids[1]
             
             # Calculate size based on fixed bet amount
-            bet_amount = float(os.getenv("MAX_BET_USD", "0.50"))  # Small default for safety
+            # Force cap at $0.50 to override any env vars until balance recovers
+            env_bet = float(os.getenv("MAX_BET_USD", "0.50"))
+            bet_amount = min(env_bet, 0.50)  
             size = bet_amount / price
             
             # Check balance
