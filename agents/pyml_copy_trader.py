@@ -35,7 +35,6 @@ class CopyTrader:
         self.DATA_API_URL = "https://data-api.polymarket.com"
         
         # Risk Limits
-        self.MAX_COPY_AMOUNT = 5.0 # Max $5 per trade
         self.MAX_POSITIONS_PER_USER = 3
         
     def fetch_top_gainers(self, limit=10, period="24h"):
@@ -143,9 +142,17 @@ class CopyTrader:
                                  if token_id:
                                       # Place Order
                                       # Reuse OrderArgs logic...
-                                      # For now, just log and skip execution implementation until strictly tested
-                                      logger.info("Executing Copy Trade (Placeholder)...")
-                                      pass
+                                      
+                                      # Check Dynamic Config
+                                      max_bet = 5.0 # Default
+                                      try:
+                                          if os.path.exists("bot_state.json"):
+                                              with open("bot_state.json", "r") as f:
+                                                  state = json.load(f)
+                                              max_bet = float(state.get("dynamic_max_bet", 5.0))
+                                      except: pass
+                                      
+                                      logger.info(f"Executing Copy Trade (Placeholder) Size: ${max_bet}...")
                                  else:
                                      logger.warning("No Token ID found in position data.")
                              else:

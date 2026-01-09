@@ -41,11 +41,14 @@ interface DashboardData {
   dryRun: boolean
   lastUpdate: string
   walletAddress: string
+  maxBetAmount?: number
 }
 
 export default function PolymarketDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [maxBet, setMaxBet] = useState(0.50)
+  const [updatingConfig, setUpdatingConfig] = useState(false)
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -53,6 +56,7 @@ export default function PolymarketDashboard() {
       const response = await fetch("/api/dashboard")
       const json = await response.json()
       setData(json)
+      if (json.maxBetAmount !== undefined) setMaxBet(json.maxBetAmount)
     } catch (error) {
       console.error("[v0] Failed to fetch dashboard data:", error)
     } finally {
@@ -91,6 +95,22 @@ export default function PolymarketDashboard() {
     }
   }
 
+  const updateMaxBet = async () => {
+    setUpdatingConfig(true)
+    try {
+      await fetch("/api/update-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "max_bet", value: Number(maxBet) }),
+      })
+      fetchDashboardData()
+    } catch (error) {
+      console.error("[v0] Failed to update config:", error)
+    } finally {
+      setUpdatingConfig(false)
+    }
+  }
+
   useEffect(() => {
     fetchDashboardData()
     const interval = setInterval(fetchDashboardData, 30000)
@@ -119,9 +139,6 @@ export default function PolymarketDashboard() {
               <h1 className="font-mono text-2xl font-bold tracking-tight text-foreground md:text-3xl">
                 Farzad Bayat Polymarked AGENT
               </h1>
-              <Badge variant={data.dryRun ? "secondary" : "destructive"} className="font-mono text-xs">
-                {data.dryRun ? "🧪 DRY RUN" : "💸 LIVE"}
-              </Badge>
             </div>
             <div className="mt-1 flex items-center gap-2">
               <p className="font-mono text-xs text-muted-foreground">{data.lastUpdate}</p>
@@ -140,6 +157,33 @@ export default function PolymarketDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-md border border-input bg-card/50 p-1 px-2">
+              <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">Max Bet: $</span>
+              <input
+                type="number"
+                step="0.1"
+                className="h-6 w-12 bg-transparent font-mono text-xs focus:outline-none"
+                value={maxBet}
+                onChange={(e) => setMaxBet(parseFloat(e.target.value))}
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 px-2 text-xs"
+                onClick={updateMaxBet}
+                disabled={updatingConfig}
+              >
+                Set
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2 rounded-md border border-input bg-card/50 p-1 px-2">
+              <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                {data.dryRun ? "🧪 Sim" : "💸 Real"}
+              </span>
+              <Switch checked={data.dryRun} onCheckedChange={toggleDryRun} className="scale-75" />
+            </div>
+
             <Button
               onClick={fetchDashboardData}
               disabled={loading}
@@ -340,22 +384,6 @@ export default function PolymarketDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="font-mono text-sm font-semibold">Settings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="font-mono text-sm font-medium text-foreground">Dry Run Mode</div>
-                  <div className="font-mono text-xs text-muted-foreground">
-                    {data.dryRun ? "Simulation active" : "Real money trading"}
-                  </div>
-                </div>
-                <Switch checked={data.dryRun} onCheckedChange={toggleDryRun} />
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">

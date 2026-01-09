@@ -45,6 +45,8 @@ class Scanner:
     def __init__(self, pm, config):
         self.pm = pm
         self.config = config
+        # Risk Limits
+        self.MAX_POSITIONS_PER_USER = 3
         self.min_volume = getattr(config, 'MIN_VOLUME', 1000)
         self.high_prob_threshold = getattr(config, 'HIGH_PROB_THRESHOLD', 0.85)
         
@@ -209,6 +211,18 @@ class Bot:
                                 })
                                 
                                 if not dry_run and not is_dry_run:
+                                    # Check Dynamic Config for Cap
+                                    dynamic_max = 0.50 # Default
+                                    try:
+                                        if os.path.exists("bot_state.json"):
+                                            with open("bot_state.json", "r") as f:
+                                                state = json.load(f)
+                                            dynamic_max = float(state.get("dynamic_max_bet", 0.50))
+                                    except: pass
+                                    
+                                    bet_size = min(bet_size, dynamic_max)
+                                    
+                                    logger.info(f"Executing Trade Size: ${bet_size:.2f}...")
                                     self.execute_trade(opp, amount_usd=bet_size)
                                 else:
                                     logger.info(f"Dry Run (Global: {is_dry_run}, Local: {dry_run}): Would trade ${bet_size:.2f}.")
@@ -278,9 +292,17 @@ class Bot:
             if amount_usd:
                  bet_amount = amount_usd # Use Risk Engine Size
             else:
-                 # Fallback
-                 env_bet = float(os.getenv("MAX_BET_USD", "0.50"))
-                 bet_amount = min(env_bet, 0.50)  
+                 # Fallback - Check Dynamic Config
+                 dynamic_max_bet = float(os.getenv("MAX_BET_USD", "0.50"))
+                 try:
+                     if os.path.exists("bot_state.json"):
+                         with open("bot_state.json", "r") as f:
+                             state = json.load(f)
+                         dynamic_max_bet = float(state.get("dynamic_max_bet", dynamic_max_bet))
+                 except: pass
+                 
+                 bet_amount = min(dynamic_max_bet, 0.50)  
+
                  
             size = bet_amount / price
             

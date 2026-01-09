@@ -263,7 +263,8 @@ def get_dashboard():
         },
         "dryRun": state.get("dry_run", True),
         "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "walletAddress": wallet_address
+        "walletAddress": wallet_address,
+        "maxBetAmount": state.get("dynamic_max_bet", 0.50) # Default 0.50 per manual override
     }
 
 @app.post("/api/toggle-agent")
@@ -277,6 +278,20 @@ def toggle_agent(req: AgentToggleRequest):
         state["scalper_running"] = not state.get("scalper_running", False)
     elif target == "copyTrader":
         state["copy_trader_running"] = not state.get("copy_trader_running", False)
+    
+    save_state(state)
+    return {"status": "success", "state": state}
+
+class ConfigUpdateRequest(BaseModel):
+    key: str
+    value: float
+
+@app.post("/api/update-config")
+def update_config(req: ConfigUpdateRequest):
+    state = load_state()
+    # Map friendly keys to state keys
+    if req.key == "max_bet":
+        state["dynamic_max_bet"] = req.value
     
     save_state(state)
     return {"status": "success", "state": state}

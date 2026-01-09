@@ -158,7 +158,8 @@ class WS_CryptoScalper:
         market = self.active_markets.get(m_id)
         if not market: return
         
-        # Check Control Flag
+        # Check Control Flag & Config
+        dynamic_max_bet = MAX_BET_USD
         try:
             if os.path.exists("bot_state.json"):
                 with open("bot_state.json", "r") as f:
@@ -166,6 +167,8 @@ class WS_CryptoScalper:
                 if not state.get("scalper_running", True):
                     # print("Scalper Paused") 
                     return
+                # Update Max Bet from State if Set
+                dynamic_max_bet = float(state.get("dynamic_max_bet", MAX_BET_USD))
         except: pass
 
             
@@ -203,8 +206,8 @@ class WS_CryptoScalper:
             # Since arb is theoretically 100% win if atomic (it's not here), we stick to fixed or aggressive logic.
             # Let's keep existing logic but just check 'ev' effectively via threshold.
             print(f"[{market.question[:20]}] ARB: {sum_prob:.3f}. Buying Both.")
-            self.place_order(token_ids[0], MAX_BET_USD/2, "YES (Arb)")
-            self.place_order(token_ids[1], MAX_BET_USD/2, "NO (Arb)")
+            self.place_order(token_ids[0], dynamic_max_bet/2, "YES (Arb)")
+            self.place_order(token_ids[1], dynamic_max_bet/2, "NO (Arb)")
             self.current_prices[token_ids[0]] = None # Cooldown
             return
 
@@ -214,7 +217,7 @@ class WS_CryptoScalper:
              if ev > 0.05:
                  size = kelly_size(balance, ev, price)
                  # Cap at MAX_BET_USD for safety
-                 size = min(size, MAX_BET_USD)
+                 size = min(size, dynamic_max_bet)
                  if size >= 0.50:
                       return size, ev
              return 0.0, 0.0
