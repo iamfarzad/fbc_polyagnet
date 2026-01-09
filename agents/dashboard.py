@@ -209,13 +209,23 @@ with gr.Blocks(theme=gr.themes.Glass(), css=custom_css, title="Polymarket Dashbo
             gr.Markdown("### Recent Trades")
             trades_md = gr.Markdown("*Loading...*")
     
-    refresh_time = gr.Markdown("*Connecting...*", elem_classes="footer")
+    with gr.Row():
+        refresh_btn = gr.Button("🔄 Refresh Data", variant="primary", scale=1)
+        
+    refresh_time = gr.Markdown("*Ready to connect*", elem_classes="footer")
     
+    # Manual refresh only to avoid WebSocket/Session timeouts on Fly.io
+    refresh_btn.click(
+        fn=update_dashboard,
+        inputs=None,
+        outputs=[balance_box, equity_box, pnl_box, status_box, positions_md, trades_md, refresh_time]
+    )
+    
+    # Load once on startup
     demo.load(
-        update_dashboard,
-        None,
-        [balance_box, equity_box, pnl_box, status_box, positions_md, trades_md, refresh_time],
-        every=10
+        fn=update_dashboard,
+        inputs=None,
+        outputs=[balance_box, equity_box, pnl_box, status_box, positions_md, trades_md, refresh_time]
     )
 
 if __name__ == "__main__":
