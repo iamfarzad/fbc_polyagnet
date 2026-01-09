@@ -136,12 +136,30 @@ def get_cached_allowance():
             return 0.0
     return _allowance_cache["value"]
 
+def fetch_open_orders():
+    try:
+        url = f"https://gamma-api.polymarket.com/orders?user={pm.public_key}&status=OPEN"
+        print(f"Fetching open orders from: {url}")
+        resp = requests.get(url, timeout=5)
+        print(f"Open Orders Status: {resp.status_code}")
+        if resp.status_code == 200:
+            data = resp.json()
+            print(f"Open Orders Count: {len(data)}")
+            return data
+        else:
+            print(f"Open Orders Error: {resp.text[:200]}")
+    except Exception as e:
+        print(f"Fetch Open Orders Exception: {e}")
+    return []
+
 def update_dashboard():
     now = datetime.utcnow().strftime("%H:%M:%S UTC")
     
     try:
         balance = pm.get_usdc_balance()
-    except:
+        print(f"Raw Balance: {balance}")
+    except Exception as e:
+        print(f"Balance fetch error: {e}")
         balance = 0.0
         
     try:
@@ -151,9 +169,12 @@ def update_dashboard():
         status = "Unknown"
     
     positions = fetch_positions()
+    open_orders = fetch_open_orders() # New check
+    
     unrealized = 0.0
     pos_data = []
     
+    # Process Positions
     if positions:
         for p in positions[:10]:
             try:
@@ -161,7 +182,7 @@ def update_dashboard():
                 side = p.get("outcome", "?")
                 size = float(p.get("size", 0))
                 value = float(p.get("currentValue", p.get("value", 0)))
-                cost = float(p.get("cost", size)) # Fallback if cost missing
+                cost = float(p.get("cost", size)) 
                 pnl = value - cost
                 unrealized += pnl
                 pos_data.append([market, side, f"${cost:.2f}", f"${value:.2f}", f"${pnl:+.2f}"])
@@ -169,8 +190,21 @@ def update_dashboard():
                 print(f"Error parsing position: {e}")
                 continue
     
+    # Add Open Orders to positions table for visibility if any
+    if open_orders:
+        for o in open_orders[:5]:
+            try:
+                market = o.get("market", {}).get("question", "Checking Orders...")[:35]
+                side = o.get("outcome", "?")
+                size = float(o.get("size", 0))
+                price = float(o.get("price", 0))
+                # Add as a special row
+                pos_data.append([f"[OPEN ORDER] {market}", side, f"${size*price:.2f}", "Locked", "$0.00"])
+            except:
+                continue
+
     if not pos_data:
-        positions_md = "*No open positions*"
+        positions_md = "*No open positions or orders*"
     else:
         positions_md = "| Market | Side | Cost | Value | PnL |\n|:-------|:-----|-----:|------:|----:|\n"
         for row in pos_data:
