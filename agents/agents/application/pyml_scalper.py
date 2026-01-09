@@ -1,3 +1,13 @@
+"""
+15-Minute Crypto Scalper
+
+Automatically trades 15-minute "Up or Down" crypto markets on Polymarket.
+- Maintains N open positions at all times
+- When a position resolves, opens a new one
+- Uses RTDS for real-time Chainlink prices to inform direction
+- Cycles through BTC, ETH, SOL, XRP
+"""
+
 import os
 import sys
 import time
@@ -5,40 +15,32 @@ import json
 import ast
 import threading
 import datetime
+import requests
 from dotenv import load_dotenv
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY
 import websocket
 
 from agents.polymarket.polymarket import Polymarket
-from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
 from agents.utils.context import get_context, Position, Trade
 
 load_dotenv()
 
-# Thresholds
-DUMP_THRESHOLD = float(os.getenv("DUMP_THRESHOLD", "0.32"))
-SKEW_THRESHOLD = float(os.getenv("SKEW_THRESHOLD", "0.78"))
-ARB_THRESHOLD = float(os.getenv("ARB_THRESHOLD", "0.97"))
-MAX_BET_USD = float(os.getenv("MAX_BET_USD", "3.0"))
-
-# Asset mapping: Chainlink symbol -> Polymarket asset names
-ASSET_MAP = {
-    "btc/usd": ["bitcoin", "btc"],
-    "eth/usd": ["ethereum", "eth"],
-    "sol/usd": ["solana", "sol"],
-    "xrp/usd": ["xrp"],
-}
+# Config
+MAX_POSITIONS = 3
+BET_SIZE_USD = float(os.getenv("SCALPER_BET_SIZE", "2.0"))
+ASSETS = ["bitcoin", "ethereum", "solana", "xrp"]
+CHECK_INTERVAL = 60  # Check positions every 60 seconds
 
 
 class CryptoScalper:
     """
-    Scalper for 15-min crypto "Up or Down" markets.
+    Automated 15-minute crypto scalper.
     
-    Uses RTDS (Real-Time Data Socket) for Chainlink prices since:
-    1. 15-min markets are resolved via Chainlink oracles
-    2. CLOB orderbooks are empty for these markets
-    3. RTDS provides 3-4 price updates per second
+    Keeps MAX_POSITIONS open at all times by:
+    1. Checking for resolved positions
+    2. Opening new positions on the next available 15-min market
+    3. Using real-time Chainlink prices to decide UP vs DOWN
     """
     
     AGENT_NAME = "scalper"
@@ -46,366 +48,330 @@ class CryptoScalper:
     def __init__(self, dry_run=True):
         self.pm = Polymarket()
         self.dry_run = dry_run
-        self.context = get_context()  # Shared context
+        self.context = get_context()
         
-        # Market tracking
-        self.active_markets = {}      # market_id -> market object
-        self.asset_to_markets = {}    # "btc/usd" -> [market_ids]
-        self.market_prices = {}       # market_id -> {"up": price, "down": price}
+        # Price tracking from RTDS
+        self.chainlink_prices = {}  # asset -> current price
+        self.price_history = {}     # asset -> list of recent prices
         
-        # Chainlink prices
-        self.chainlink_prices = {}    # "btc/usd" -> current_price
-        self.price_at_start = {}      # market_id -> price when market opened
+        # Position tracking
+        self.open_positions = {}    # market_id -> position data
+        self.traded_markets = set() # Markets we've already traded (avoid duplicates)
         
-        # Trading state
-        self.last_trade_times = {}
         self.initial_balance = 0.0
+        self.address = ""
         
-        print(f"Crypto Scalper Initialized (Dry Run: {self.dry_run})")
+        print(f"=" * 60)
+        print(f"15-MIN CRYPTO SCALPER")
+        print(f"=" * 60)
+        print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE TRADING'}")
+        print(f"Max Positions: {MAX_POSITIONS}")
+        print(f"Bet Size: ${BET_SIZE_USD}")
+        print(f"Assets: {', '.join(ASSETS)}")
+        print()
+        
         try:
             self.initial_balance = self.pm.get_usdc_balance()
+            self.address = self.pm.get_address_for_private_key()
             self.context.update_balance(self.initial_balance)
-            print(f"Initial Balance: ${self.initial_balance:.2f}")
-        except:
-            pass
-            
-        self.bootstrap_markets()
+            print(f"Wallet: {self.address[:10]}...")
+            print(f"Balance: ${self.initial_balance:.2f}")
+        except Exception as e:
+            print(f"Warning: Could not get balance: {e}")
+        
+        print(f"=" * 60)
+        print()
 
-    def bootstrap_markets(self):
-        """Find live 15-min crypto 'Up or Down' markets."""
-        print("Bootstrapping 15-min crypto markets...")
-        
-        markets = self.pm.get_all_markets(
-            limit=500,
-            active="true",
-            closed="false",
-            archived="false",
-            order="createdAt",
-            ascending="false"
-        )
-        
-        self.active_markets = {}
-        self.asset_to_markets = {k: [] for k in ASSET_MAP.keys()}
-        
-        for m in markets:
-            q = m.question.lower()
+    def get_open_positions(self):
+        """Fetch current open positions from Polymarket."""
+        try:
+            url = f"https://data-api.polymarket.com/positions?user={self.address}"
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                positions = resp.json()
+                # Filter for 15-min crypto markets
+                crypto_positions = []
+                for p in positions:
+                    title = p.get("title", "").lower()
+                    if "up or down" in title:
+                        crypto_positions.append(p)
+                return crypto_positions
+        except Exception as e:
+            print(f"Error fetching positions: {e}")
+        return []
+
+    def get_available_markets(self):
+        """Get 15-min crypto markets that are accepting orders."""
+        try:
+            url = "https://gamma-api.polymarket.com/markets"
+            params = {
+                "limit": 100,
+                "active": "true",
+                "closed": "false",
+                "order": "createdAt",
+                "ascending": "false"
+            }
+            resp = requests.get(url, params=params, timeout=10)
+            markets = resp.json()
             
-            if "up or down" not in q:
-                continue
-                
-            # Find which asset this market is for
-            asset_symbol = None
-            for symbol, names in ASSET_MAP.items():
-                if any(name in q for name in names):
-                    asset_symbol = symbol
-                    break
-                    
-            if not asset_symbol:
-                continue
-                
-            # Check if accepting orders
-            if hasattr(m, 'accepting_orders') and not m.accepting_orders:
-                continue
-                
-            try:
-                token_ids = ast.literal_eval(m.clob_token_ids) if isinstance(m.clob_token_ids, str) else m.clob_token_ids
-                if not token_ids or len(token_ids) < 2:
+            available = []
+            for m in markets:
+                q = m.get("question", "").lower()
+                if "up or down" not in q:
                     continue
-                    
-                self.active_markets[m.id] = {
-                    "market": m,
-                    "asset": asset_symbol,
-                    "token_ids": token_ids,
-                    "up_token": token_ids[0],
-                    "down_token": token_ids[1],
-                }
+                if not m.get("acceptingOrders", False):
+                    continue
                 
-                self.asset_to_markets[asset_symbol].append(m.id)
+                clob_ids = m.get("clobTokenIds")
+                if not clob_ids or clob_ids == "[]":
+                    continue
                 
-                # Store initial prices from Gamma API
-                best_bid = getattr(m, 'best_bid', None)
-                if best_bid:
-                    self.market_prices[m.id] = {"up": float(best_bid), "down": 1.0 - float(best_bid)}
-                    
-                print(f"  ✓ {m.question[:50]}... ({asset_symbol})")
+                # Check which asset
+                asset = None
+                for a in ASSETS:
+                    if a in q:
+                        asset = a
+                        break
                 
-            except Exception as e:
-                print(f"  ✗ Error: {e}")
+                if not asset:
+                    continue
                 
-        total = len(self.active_markets)
-        print(f"Tracking {total} markets across {len([k for k, v in self.asset_to_markets.items() if v])} assets")
-
-    def on_rtds_message(self, ws, message):
-        """Handle RTDS price updates."""
-        try:
-            data = json.loads(message)
+                try:
+                    tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                    if len(tokens) >= 2:
+                        available.append({
+                            "id": m.get("id"),
+                            "question": m.get("question"),
+                            "asset": asset,
+                            "up_token": tokens[0],
+                            "down_token": tokens[1],
+                            "condition_id": m.get("conditionId"),
+                            "end_date": m.get("endDate"),
+                        })
+                except:
+                    pass
             
-            if data.get("topic") != "crypto_prices_chainlink":
-                return
-                
-            payload = data.get("payload", {})
-            symbol = payload.get("symbol", "").lower()
-            price = payload.get("value")
-            
-            if not symbol or not price:
-                return
-                
-            # Update Chainlink price
-            old_price = self.chainlink_prices.get(symbol)
-            self.chainlink_prices[symbol] = float(price)
-            
-            # Check opportunities for all markets of this asset
-            if symbol in self.asset_to_markets:
-                for market_id in self.asset_to_markets[symbol]:
-                    self.check_opportunity(market_id, old_price, float(price))
-                    
-            # Update state
-            self.save_state({
-                "last_update": datetime.datetime.now().strftime("%H:%M:%S"),
-                "prices": {symbol: float(price)},
-                "active_markets": len(self.active_markets)
-            })
-            
+            return available
         except Exception as e:
-            pass
+            print(f"Error fetching markets: {e}")
+        return []
 
-    def check_opportunity(self, market_id, old_price, new_price):
-        """Check if there's a trading opportunity based on price movement."""
-        market_data = self.active_markets.get(market_id)
-        if not market_data:
-            return
-            
-        market = market_data["market"]
-        asset = market_data["asset"]
+    def get_trade_direction(self, asset):
+        """
+        Decide UP or DOWN based on recent price momentum.
+        Returns: ("UP", up_token) or ("DOWN", down_token)
+        """
+        history = self.price_history.get(asset, [])
         
-        # Read dynamic config
-        dynamic_max_bet = MAX_BET_USD
-        try:
-            if os.path.exists("bot_state.json"):
-                with open("bot_state.json", "r") as f:
-                    state = json.load(f)
-                if not state.get("scalper_running", True):
-                    return
-                dynamic_max_bet = float(state.get("dynamic_max_bet", MAX_BET_USD))
-        except:
-            pass
+        if len(history) >= 2:
+            recent = history[-1]
+            older = history[-5] if len(history) >= 5 else history[0]
+            
+            change_pct = (recent - older) / older * 100 if older > 0 else 0
+            
+            # If price rising, bet UP; if falling, bet DOWN
+            if change_pct > 0.05:
+                return "UP"
+            elif change_pct < -0.05:
+                return "DOWN"
         
-        # === CONTEXT CHECK: Can we trade this market? ===
-        balance = 0
-        try:
-            balance = self.pm.get_usdc_balance()
-        except:
-            balance = self.initial_balance
-            
-        can_trade, ctx_reason = self.context.can_trade(
-            self.AGENT_NAME, market_id, dynamic_max_bet, balance
-        )
-        if not can_trade:
-            return  # Another agent already has position or other restriction
-            
-        # Rate limit: 1 trade per market per 60s
-        last_trade = self.last_trade_times.get(market_id, 0)
-        if time.time() - last_trade < 60:
-            return
-            
-        # Get balance and check drawdown
-        try:
-            balance = self.pm.get_usdc_balance()
-        except:
-            balance = 0
-            
-        if not check_drawdown(self.initial_balance, balance):
-            print("  [RISK] Drawdown limit hit. Pausing trades.")
-            return
-            
-        # Get market prices (Up/Down odds)
-        prices = self.market_prices.get(market_id, {})
-        p_up = prices.get("up")
-        p_down = prices.get("down")
-        
-        if not p_up or not p_down:
-            return
-            
-        # Strategy: Bet on momentum
-        # If price is rising rapidly, bet UP
-        # If price is falling rapidly, bet DOWN
-        if old_price and new_price:
-            price_change_pct = (new_price - old_price) / old_price * 100
-            
-            # Strong upward momentum (>0.1% in one tick)
-            if price_change_pct > 0.1 and p_up < 0.70:
-                ev = calculate_ev(p_up, 0.65, 1.0 - p_up, fees=0.015)
-                if ev > 0.03:
-                    size = min(kelly_size(balance, ev, p_up), dynamic_max_bet)
-                    if size >= 1.0:
-                        print(f"[{market.question[:25]}] 📈 UP Momentum: +{price_change_pct:.2f}%")
-                        self.place_order(market_data["up_token"], size, "UP", market_id)
-                        return
-                        
-            # Strong downward momentum (<-0.1% in one tick)
-            elif price_change_pct < -0.1 and p_down < 0.70:
-                ev = calculate_ev(p_down, 0.65, 1.0 - p_down, fees=0.015)
-                if ev > 0.03:
-                    size = min(kelly_size(balance, ev, p_down), dynamic_max_bet)
-                    if size >= 1.0:
-                        print(f"[{market.question[:25]}] 📉 DOWN Momentum: {price_change_pct:.2f}%")
-                        self.place_order(market_data["down_token"], size, "DOWN", market_id)
-                        return
-        
-        # Arbitrage check
-        if p_up + p_down < ARB_THRESHOLD:
-            print(f"[{market.question[:25]}] ARB: {p_up + p_down:.3f}")
-            self.place_order(market_data["up_token"], dynamic_max_bet/2, "UP (Arb)", market_id)
-            self.place_order(market_data["down_token"], dynamic_max_bet/2, "DOWN (Arb)", market_id)
-            return
-            
-        # Dump detection (one side extremely cheap)
-        if p_up <= DUMP_THRESHOLD:
-            ev = calculate_ev(p_up, 0.80, 1.0 - p_up, fees=0.015)
-            if ev > 0.05:
-                size = min(kelly_size(balance, ev, p_up), dynamic_max_bet)
-                if size >= 0.50:
-                    print(f"[{market.question[:25]}] UP Dump: {p_up:.2f}")
-                    self.place_order(market_data["up_token"], size, "UP", market_id)
-                    
-        elif p_down <= DUMP_THRESHOLD:
-            ev = calculate_ev(p_down, 0.80, 1.0 - p_down, fees=0.015)
-            if ev > 0.05:
-                size = min(kelly_size(balance, ev, p_down), dynamic_max_bet)
-                if size >= 0.50:
-                    print(f"[{market.question[:25]}] DOWN Dump: {p_down:.2f}")
-                    self.place_order(market_data["down_token"], size, "DOWN", market_id)
+        # Default: slight bullish bias for crypto
+        return "UP"
 
-    def place_order(self, token_id, amount_usd, side_label, market_id):
-        """Place a trade order."""
-        # Check dry run mode
-        try:
-            if os.path.exists("bot_state.json"):
-                with open("bot_state.json", "r") as f:
-                    state = json.load(f)
-                if state.get("dry_run", True):
-                    print(f"  [DRY RUN] Would buy {side_label} ${amount_usd:.2f}")
-                    return
-        except:
-            pass
-
+    def open_position(self, market):
+        """Open a new position on a market."""
+        market_id = market["id"]
+        question = market["question"]
+        asset = market["asset"]
+        
+        # Skip if already traded this market
+        if market_id in self.traded_markets:
+            return False
+        
+        # Get direction based on momentum
+        direction = self.get_trade_direction(asset)
+        token_id = market["up_token"] if direction == "UP" else market["down_token"]
+        
+        # Price: slightly aggressive to ensure fill
+        price = 0.52 if direction == "UP" else 0.52
+        size = BET_SIZE_USD / price
+        
+        print(f"📈 Opening: {question[:45]}...")
+        print(f"   Direction: {direction} @ ${price:.2f} (${BET_SIZE_USD:.2f})")
+        
         if self.dry_run:
-            print(f"  [DRY RUN] Buy {side_label} ${amount_usd:.2f}")
-            return
-
+            print(f"   [DRY RUN] Would place order")
+            self.traded_markets.add(market_id)
+            return True
+        
         try:
-            balance = self.pm.get_usdc_balance()
-            if balance < 3.0:
-                print(f"  [SAFETY] Low balance (${balance:.2f}). Skipping.")
-                return
-                
-            agg_price = 0.999
-            size = amount_usd / agg_price
+            order_args = OrderArgs(
+                token_id=str(token_id),
+                price=price,
+                size=size,
+                side=BUY
+            )
             
-            order_args = OrderArgs(token_id=token_id, price=agg_price, size=size, side=BUY)
             signed = self.pm.client.create_order(order_args)
-            resp = self.pm.client.post_order(signed)
+            result = self.pm.client.post_order(signed)
             
-            print(f"  ✅ Order: {resp}")
-            self.last_trade_times[market_id] = time.time()
+            success = result.get("success", False)
+            status = result.get("status", "unknown")
             
-            # === RECORD IN SHARED CONTEXT ===
-            market_data = self.active_markets.get(market_id, {})
-            market = market_data.get("market")
-            self.context.add_position(Position(
-                market_id=market_id,
-                market_question=market.question if market else "15-min crypto",
-                agent=self.AGENT_NAME,
-                outcome=side_label,
-                entry_price=agg_price,
-                size_usd=amount_usd,
-                timestamp=datetime.datetime.now().isoformat(),
-                token_id=token_id
-            ))
-            self.context.add_trade(Trade(
-                market_id=market_id,
-                agent=self.AGENT_NAME,
-                outcome=side_label,
-                size_usd=amount_usd,
-                price=agg_price,
-                timestamp=datetime.datetime.now().isoformat(),
-                status="filled"
-            ))
-            
-            self.save_state({
-                "last_trade": f"{side_label} @ ${amount_usd:.2f} ({datetime.datetime.now().strftime('%H:%M:%S')})",
-                "last_trade_status": str(resp)
-            })
-            
+            if success or status == "matched":
+                print(f"   ✅ FILLED!")
+                self.traded_markets.add(market_id)
+                
+                # Record in context
+                self.context.add_position(Position(
+                    market_id=market_id,
+                    market_question=question,
+                    agent=self.AGENT_NAME,
+                    outcome=direction,
+                    entry_price=price,
+                    size_usd=BET_SIZE_USD,
+                    timestamp=datetime.datetime.now().isoformat(),
+                    token_id=token_id
+                ))
+                self.context.add_trade(Trade(
+                    market_id=market_id,
+                    agent=self.AGENT_NAME,
+                    outcome=direction,
+                    size_usd=BET_SIZE_USD,
+                    price=price,
+                    timestamp=datetime.datetime.now().isoformat(),
+                    status="filled"
+                ))
+                
+                return True
+            else:
+                print(f"   ⚠️ Order status: {status}")
+                return False
+                
         except Exception as e:
-            print(f"  ❌ Order Failed: {e}")
-            self.context.add_trade(Trade(
-                market_id=market_id,
-                agent=self.AGENT_NAME,
-                outcome=side_label,
-                size_usd=amount_usd,
-                price=0,
-                timestamp=datetime.datetime.now().isoformat(),
-                status="failed"
-            ))
-            self.save_state({"last_trade_status": f"Failed: {str(e)}"})
+            print(f"   ❌ Error: {e}")
+            return False
+
+    def check_and_rebalance(self):
+        """
+        Main loop: check positions and open new ones if needed.
+        """
+        print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] Checking positions...")
+        
+        # Get current positions
+        positions = self.get_open_positions()
+        num_positions = len(positions)
+        
+        print(f"   Open 15-min positions: {num_positions}/{MAX_POSITIONS}")
+        
+        # Update state file
+        self.save_state({
+            "open_positions": num_positions,
+            "max_positions": MAX_POSITIONS,
+            "last_check": datetime.datetime.now().strftime("%H:%M:%S"),
+        })
+        
+        # If we have fewer than MAX, open more
+        if num_positions < MAX_POSITIONS:
+            needed = MAX_POSITIONS - num_positions
+            print(f"   Need to open {needed} new position(s)")
+            
+            # Get available markets
+            markets = self.get_available_markets()
+            print(f"   Available markets: {len(markets)}")
+            
+            # Filter out markets we already have positions in
+            position_assets = set()
+            for p in positions:
+                title = p.get("title", "").lower()
+                for asset in ASSETS:
+                    if asset in title:
+                        position_assets.add(asset)
+            
+            # Open positions on different assets
+            opened = 0
+            for market in markets:
+                if opened >= needed:
+                    break
+                
+                # Prefer diversification across assets
+                if market["asset"] in position_assets:
+                    continue
+                
+                if market["id"] in self.traded_markets:
+                    continue
+                
+                if self.open_position(market):
+                    opened += 1
+                    position_assets.add(market["asset"])
+                    time.sleep(2)  # Rate limit
+            
+            # If still need more, allow same asset
+            if opened < needed:
+                for market in markets:
+                    if opened >= needed:
+                        break
+                    if market["id"] in self.traded_markets:
+                        continue
+                    if self.open_position(market):
+                        opened += 1
+                        time.sleep(2)
+            
+            print(f"   Opened {opened} new position(s)")
+        else:
+            print(f"   ✓ Positions at max capacity")
 
     def save_state(self, update: dict):
-        """Save state to file for dashboard."""
+        """Save state for dashboard."""
         state_file = "scalper_state.json"
         try:
             current = {}
             if os.path.exists(state_file):
                 with open(state_file, "r") as f:
                     current = json.load(f)
-                    
-            if "prices" in update and "prices" in current:
-                current["prices"].update(update["prices"])
-                del update["prices"]
-                
+            
             current.update(update)
-            current["scalper_last_activity"] = "Processing RTDS Feed"
-            current["scalper_last_endpoint"] = "RTDS Chainlink"
+            current["scalper_last_activity"] = f"Monitoring {update.get('open_positions', 0)}/{MAX_POSITIONS} positions"
+            current["scalper_last_endpoint"] = "RTDS + Data API"
+            current["mode"] = "DRY RUN" if self.dry_run else "LIVE"
             
             with open(state_file, "w") as f:
                 json.dump(current, f)
         except:
             pass
 
-    def refresh_markets(self):
-        """Periodically refresh markets and Gamma API prices."""
-        while True:
-            time.sleep(30)
-            try:
-                # Refresh market list
-                self.bootstrap_markets()
-                
-                # Update market prices from Gamma API
-                markets = self.pm.get_all_markets(
-                    limit=100,
-                    active="true",
-                    closed="false",
-                    order="createdAt",
-                    ascending="false"
-                )
-                
-                for m in markets:
-                    if m.id in self.active_markets:
-                        best_bid = getattr(m, 'best_bid', None)
-                        if best_bid:
-                            self.market_prices[m.id] = {
-                                "up": float(best_bid),
-                                "down": 1.0 - float(best_bid)
-                            }
-                            
-            except Exception as e:
-                print(f"Refresh error: {e}")
+    def on_rtds_message(self, ws, message):
+        """Handle RTDS price updates."""
+        try:
+            data = json.loads(message)
+            if data.get("topic") != "crypto_prices_chainlink":
+                return
+            
+            payload = data.get("payload", {})
+            symbol = payload.get("symbol", "").lower()
+            price = payload.get("value")
+            
+            if not symbol or not price:
+                return
+            
+            price = float(price)
+            self.chainlink_prices[symbol] = price
+            
+            # Track history for momentum
+            if symbol not in self.price_history:
+                self.price_history[symbol] = []
+            self.price_history[symbol].append(price)
+            
+            # Keep last 100 prices
+            if len(self.price_history[symbol]) > 100:
+                self.price_history[symbol] = self.price_history[symbol][-100:]
+            
+        except:
+            pass
 
     def on_rtds_open(self, ws):
-        """Handle RTDS connection open."""
-        print("RTDS Connected!")
-        
-        # Subscribe to Chainlink crypto prices
+        """Handle RTDS connection."""
+        print("📡 RTDS Connected - receiving Chainlink prices")
         sub = {
             "action": "subscribe",
             "subscriptions": [{
@@ -415,45 +381,76 @@ class CryptoScalper:
             }]
         }
         ws.send(json.dumps(sub))
-        print("  Subscribed to Chainlink prices (BTC, ETH, SOL, XRP)")
-        
-        # Start ping thread
-        def ping():
-            while True:
-                time.sleep(30)
-                try:
-                    ws.send(json.dumps({"action": "ping"}))
-                except:
-                    break
-        threading.Thread(target=ping, daemon=True).start()
 
     def run(self):
         """Main run loop."""
-        # Start market refresh thread
-        threading.Thread(target=self.refresh_markets, daemon=True).start()
+        # Start RTDS connection for price data
+        def run_rtds():
+            while True:
+                try:
+                    ws = websocket.WebSocketApp(
+                        "wss://ws-live-data.polymarket.com",
+                        on_message=self.on_rtds_message,
+                        on_open=self.on_rtds_open,
+                        on_error=lambda ws, e: None,
+                        on_close=lambda ws, c, m: None
+                    )
+                    ws.run_forever()
+                except:
+                    pass
+                time.sleep(5)
         
-        # Connect to RTDS for real-time Chainlink prices
-        rtds_url = "wss://ws-live-data.polymarket.com"
+        threading.Thread(target=run_rtds, daemon=True).start()
         
-        print(f"Connecting to RTDS: {rtds_url}")
+        # Wait for initial price data
+        print("Waiting for price data...")
+        time.sleep(5)
+        
+        # Main loop
+        print(f"\n🚀 Starting automated trading loop (check every {CHECK_INTERVAL}s)")
+        print()
         
         while True:
             try:
-                ws = websocket.WebSocketApp(
-                    rtds_url,
-                    on_message=self.on_rtds_message,
-                    on_error=lambda ws, e: print(f"RTDS Error: {e}"),
-                    on_close=lambda ws, c, m: print("RTDS Closed - reconnecting..."),
-                    on_open=self.on_rtds_open
-                )
-                ws.run_forever()
+                # Check if enabled
+                try:
+                    with open("bot_state.json", "r") as f:
+                        state = json.load(f)
+                    if not state.get("scalper_running", True):
+                        print("Scalper paused via dashboard. Sleeping...")
+                        time.sleep(60)
+                        continue
+                    self.dry_run = state.get("dry_run", True)
+                except:
+                    pass
                 
+                # Check and rebalance positions
+                self.check_and_rebalance()
+                
+                # Log current prices
+                if self.chainlink_prices:
+                    prices_str = " | ".join([
+                        f"{k.split('/')[0].upper()}: ${v:,.0f}" if v > 100 else f"{k.split('/')[0].upper()}: ${v:.2f}"
+                        for k, v in list(self.chainlink_prices.items())[:4]
+                    ])
+                    print(f"   Prices: {prices_str}")
+                
+                # Save state
+                self.save_state({
+                    "prices": self.chainlink_prices,
+                    "last_update": datetime.datetime.now().strftime("%H:%M:%S"),
+                })
+                
+                # Sleep until next check
+                print(f"   Next check in {CHECK_INTERVAL}s...")
+                time.sleep(CHECK_INTERVAL)
+                
+            except KeyboardInterrupt:
+                print("\nStopping scalper...")
+                break
             except Exception as e:
-                print(f"RTDS connection error: {e}")
-                
-            # Reconnect after 5 seconds
-            print("Reconnecting in 5s...")
-            time.sleep(5)
+                print(f"Error in main loop: {e}")
+                time.sleep(30)
 
 
 if __name__ == "__main__":

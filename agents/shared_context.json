@@ -1,18 +1,30 @@
 {
   "positions": [],
-  "recent_trades": [],
+  "recent_trades": [
+    {
+      "market_id": 1144795,
+      "agent": "scalper",
+      "outcome": "UP",
+      "size_usd": 0.5,
+      "price": 0,
+      "timestamp": "2026-01-09T20:46:35.603530",
+      "status": "failed",
+      "pnl": 0.0
+    }
+  ],
   "blacklist": [],
   "allocation": {
-    "safe": 0.5,
-    "scalper": 0.3,
-    "copy": 0.2
+    "safe": 0.1,
+    "scalper": 0.8,
+    "copy": 0.1
   },
-  "total_balance": 1.968267,
-  "last_update": "2026-01-09T20:39:21.009118",
+  "total_balance": 5.065347,
+  "last_update": "2026-01-09T20:50:30.241207",
   "agent_status": {
     "safe": {
       "active": true,
-      "last_action": null
+      "last_action": "Analyzing: Will Donald Trump be inau...",
+      "timestamp": "2026-01-09T20:43:30.445442"
     },
     "scalper": {
       "active": true,
@@ -93,6 +105,190 @@
       "duration_ms": 1890,
       "tokens_used": 980,
       "cost_usd": 0.0049
+    },
+    {
+      "id": "5cd027e9",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:42:27.203466",
+      "action_type": "validate",
+      "market_question": "Will Kim Kardashian and Kanye West divorce before Jan 1, 2021?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: Kim Kardashian and Kanye West legally finalized their divorce in late 2022, with a settlement including joint custody and $200,000 per month in child ... | Factors: The market resolves on whether they divorced before Jan 1, 2021; the couple separated in late 2020 b... | Edge: Because the divorce filing occurred in February 2021 and the legal dissolution was completed in 2022...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "Kim Kardashian and Kanye West legally finalized their divorce in late 2022",
+        "with a settlement including joint custody and $200",
+        "000 per month in child support"
+      ],
+      "duration_ms": 4911,
+      "tokens_used": 729,
+      "cost_usd": 0.0036450000000000002
+    },
+    {
+      "id": "280f60dc",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:42:33.468638",
+      "action_type": "validate",
+      "market_question": "Will Coinbase begin publicly trading before Jan 1, 2021?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: Coinbase\u2019s own announcements and market records show its Class A common stock began trading on Nasdaq via direct listing on April 14, 2021, well after... | Factors: Coinbase confidentially filed a draft S-1 in December 2020 and only announced a proposed direct list... | Edge: The outcome 'No' is already resolved and certain, with Coinbase first trading publicly on April 14, ...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "Coinbase\u2019s own announcements and market records show its Class A common stock began trading on Nasdaq via direct listing on April 14",
+        "2021",
+        "well after Jan 1"
+      ],
+      "duration_ms": 6256,
+      "tokens_used": 695,
+      "cost_usd": 0.0034750000000000002
+    },
+    {
+      "id": "2a560508",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:42:38.994875",
+      "action_type": "validate",
+      "market_question": "Will Trump win the 2020 U.S. presidential election?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: The 2020 U.S. presidential election concluded with Joe Biden winning 306 electoral votes to Donald Trump\u2019s 232, and all subsequent legal challenges fa... | Factors: The election is historically complete and certified, the Electoral College and Congress have confirm... | Edge: The market price of $1.00 for 'No' already fully reflects the true 100% probability that Trump did n...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "The 2020 U.S. presidential election concluded with Joe Biden winning 306 electoral votes to Donald Trump\u2019s 232",
+        "and all subsequent legal challenges failed; Congress certified Biden\u2019s victory and Trump left office at the end of his term."
+      ],
+      "duration_ms": 5518,
+      "tokens_used": 661,
+      "cost_usd": 0.003305
+    },
+    {
+      "id": "b1f44a66",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:42:53.224144",
+      "action_type": "validate",
+      "market_question": "How many confirmed Coronavirus cases will there be at EOY in the USA?",
+      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
+      "reasoning": "News: Recent surveillance reports indicate the U.S. is in the middle of a 12th COVID wave with **low but increasing** levels; data quality is poor due to ho... | Factors: 1) SARS-CoV-2 remains endemic with ongoing transmission and multiple projected activity peaks throug... | Edge: The outcome 'How many confirmed Coronavirus cases will there be at EOY in the USA?' being framed as ...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "Recent surveillance reports indicate the U.S. is in the middle of a 12th COVID wave with **low but increasing** levels; data quality is poor due to holiday delays",
+        "but no source disputes that there are currently many confirmed COVID-19 cases in the U.S.[1][5][6][8] Global and U.S. dashboards (WHO",
+        "KFF"
+      ],
+      "duration_ms": 14220,
+      "tokens_used": 982,
+      "cost_usd": 0.00491
+    },
+    {
+      "id": "d2c5ca30",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:02.319262",
+      "action_type": "validate",
+      "market_question": "Will there be a federal charge filed against Hunter Biden before 2021?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: Hunter Biden has already faced multiple federal indictments and convictions (gun and tax cases) well after 2021, and there is no indication in current... | Factors: The resolution hinges entirely on historical fact: whether any federal charge was filed against Hunt... | Edge: Given that the question concerns a now\u2011fixed past event and all available public records and major m...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "Hunter Biden has already faced multiple federal indictments and convictions (gun and tax cases) well after 2021",
+        "and there is no indication in current reporting of any newly discovered pre\u20112021 federal charging action that would alter the historical record.[1][2][3]"
+      ],
+      "duration_ms": 9085,
+      "tokens_used": 720,
+      "cost_usd": 0.0036000000000000003
+    },
+    {
+      "id": "b99f18d3",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:05.982372",
+      "action_type": "validate",
+      "market_question": "Will Donald Trump tweet announcing that he won the election before November 5th 2020?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: This market is about a historical event from 2020; there is no new information in the last 48 hours that can change whether Trump did or did not tweet... | Factors: Historical tweet logs and archives show Trump\u2019s actual statements and their timestamps; the question... | Edge: The market is priced at $1.00 for 'No', which matches the true probability (a fully resolved histori...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "This market is about a historical event from 2020; there is no new information in the last 48 hours that can change whether Trump did or did not tweet a victory claim before November 5",
+        "2020."
+      ],
+      "duration_ms": 3653,
+      "tokens_used": 662,
+      "cost_usd": 0.0033100000000000004
+    },
+    {
+      "id": "e16f54db",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:10.729581",
+      "action_type": "validate",
+      "market_question": "Will the Ethereum 2.0 Genesis Event happen successfully on December 1st, 2020?",
+      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
+      "reasoning": "News: Ethereum 2.0\u2019s Phase 0 Beacon Chain (the so\u2011called Ethereum 2.0 Genesis) successfully launched on December 1, 2020, with the required deposit contract... | Factors: The event is historical and already resolved in reality; the Beacon Chain genesis occurred on Decemb... | Edge: The market is priced at $1.00 (100%), which matches the true probability of an already\u2011happened, una...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "Ethereum 2.0\u2019s Phase 0 Beacon Chain (the so\u2011called Ethereum 2.0 Genesis) successfully launched on December 1",
+        "2020",
+        "with the required deposit contract threshold reached in advance and the chain running as planned"
+      ],
+      "duration_ms": 4740,
+      "tokens_used": 717,
+      "cost_usd": 0.003585
+    },
+    {
+      "id": "aeca0688",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:14.784272",
+      "action_type": "validate",
+      "market_question": "Will $BTC break $20k before 2021?",
+      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
+      "reasoning": "News: This is a fully resolved historical question: BTC first broke above $20k on December 16\u201317, 2020 on major exchanges such as Coinbase and Bitstamp, and... | Factors: The only relevant factor is historical BTC price data for late 2020, which clearly shows BTC exceedi... | Edge: Because this is a settled historical fact with zero uncertainty, the true probability of the 'Yes' o...",
+      "conclusion": "PASS",
+      "confidence": 1.0,
+      "data_sources": [
+        "This is a fully resolved historical question: BTC first broke above $20k on December 16\u201317",
+        "2020 on major exchanges such as Coinbase and Bitstamp",
+        "and then continued to trade above that level into 2021"
+      ],
+      "duration_ms": 4047,
+      "tokens_used": 682,
+      "cost_usd": 0.0034100000000000003
+    },
+    {
+      "id": "de932b32",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:23.709256",
+      "action_type": "validate",
+      "market_question": "Will Donald Trump formally concede the 2020 US Election before December 1st, 2020?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: There is no recent news in the last 48 hours suggesting Donald Trump has ever formally conceded the 2020 election; major retrospectives continue to no... | Factors: Historical record shows Trump did not concede at any point in November 2020, instead refusing to acc... | Edge: The market is priced at $1.00 for 'No' and the historical record establishes with certainty that Tru...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "There is no recent news in the last 48 hours suggesting Donald Trump has ever formally conceded the 2020 election; major retrospectives continue to note that he has *never* accepted the 2020 result and continues to claim it was rigged.[1][2]"
+      ],
+      "duration_ms": 8920,
+      "tokens_used": 733,
+      "cost_usd": 0.0036650000000000003
+    },
+    {
+      "id": "a64bf385",
+      "agent": "safe",
+      "timestamp": "2026-01-09T20:43:30.441692",
+      "action_type": "validate",
+      "market_question": "Will Donald Trump attend Joe Biden\u2019s inauguration ceremony in person?",
+      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
+      "reasoning": "News: There is no recent news suggesting any possibility that Donald Trump will retroactively attend Joe Biden\u2019s January 20, 2021 inauguration; historical r... | Factors: The inauguration occurred on January 20, 2021; Donald Trump explicitly announced he would not attend... | Edge: This is a resolved historical event with certainty that Trump did not attend Biden\u2019s inauguration; a...",
+      "conclusion": "PASS",
+      "confidence": 0.99,
+      "data_sources": [
+        "There is no recent news suggesting any possibility that Donald Trump will retroactively attend Joe Biden\u2019s January 20",
+        "2021 inauguration; historical records uniformly state that Trump did *not* attend and instead left Washington hours before the ceremony.[1][2][3]"
+      ],
+      "duration_ms": 6727,
+      "tokens_used": 679,
+      "cost_usd": 0.0033950000000000004
     }
   ]
 }
