@@ -264,7 +264,6 @@ CRITICAL RULES:
             try:
                 with open(cache_file, "r") as f:
                     cache = json.load(f)
-                import time
                 if time.time() - cache.get("timestamp", 0) < 86400:  # 24 hours
                     logger.info(f"Using cached whale list ({len(cache.get('traders', []))} addresses)")
                     return cache.get("traders", [])
@@ -371,7 +370,6 @@ Return JSON with trader names and any addresses you find:
                 traders.append({"name": name, "address": addr, "reason": "Known top trader"})
         
         # Cache results
-        import time
         cache_data = {"timestamp": time.time(), "traders": traders}
         try:
             with open(cache_file, "w") as f:

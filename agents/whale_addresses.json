@@ -1,75 +1,75 @@
 {
-  "timestamp": 1767985525.220974,
+  "timestamp": 1767992025.134346,
   "traders": [
     {
       "name": "kch123",
       "address": "0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee",
-      "reason": "Ranked #1 on Polymarket\u2019s all\u2011time profit leaderboard by overall PnL.[1]"
+      "reason": "Currently #1 on Polymarket\u2019s overall profit leaderboard by PnL, with over $3M realized profit, making them the top performing trader by total profit.[1]"
     },
     {
       "name": "SeriouslySirius",
       "address": "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881",
-      "reason": "Ranked #2 on the overall Polymarket profit leaderboard.[1]"
+      "reason": "Ranked #2 on Polymarket\u2019s overall profit leaderboard with more than $1.25M profit, consistently referenced as a top profitable trader.[1]"
     },
     {
       "name": "DrPufferfish",
       "address": "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e",
-      "reason": "Ranked #3 on the overall Polymarket profit leaderboard.[1]"
+      "reason": "Ranked #3 on Polymarket\u2019s overall profit leaderboard with over $1.18M profit.[1]"
     },
     {
       "name": "0x006cc834Cc092684F1B56626E23BEdB3835c16ea-1729683673397",
       "address": "0x006cc834cc092684f1b56626e23bedb3835c16ea",
-      "reason": "Anon wallet-form username ranked #4 on the overall profit leaderboard; explicit 0x-style address in username.[1]"
+      "reason": "Ranked #4 on Polymarket\u2019s profit leaderboard; shown as a wallet-address-style username with over $1.0M profit, indicating a large on-chain whale account.[1]"
     },
     {
       "name": "SemyonMarmeladov",
       "address": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
-      "reason": "Ranked #5 on the overall Polymarket profit leaderboard.[1]"
+      "reason": "Ranked #5 on Polymarket\u2019s profit leaderboard with just under $1M in realized profit.[1]"
     },
     {
       "name": "212121212121212121212",
       "address": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
-      "reason": "Ranked #6 on the overall profit leaderboard.[1]"
+      "reason": "Ranked #6 overall by profit with more than $800k PnL.[1]"
     },
     {
       "name": "GamblingIsAllYouNeed",
       "address": "0x507e52ef684ca2dd91f90a9d26d149dd3288beae",
-      "reason": "Ranked #7 on the overall profit leaderboard.[1]"
+      "reason": "Ranked #7 on the Polymarket leaderboard with over $800k profit.[1]"
     },
     {
       "name": "swisstony",
       "address": "0x204f72f35326db932158cba6adff0b9a1da95e14",
-      "reason": "Ranked #8 on the overall profit leaderboard.[1]"
+      "reason": "Ranked #8 by overall profit on Polymarket with more than $700k PnL.[1]"
     },
     {
       "name": "Ems123",
       "address": "0xb889590a2fab0c810584a660518c4c020325a430",
-      "reason": "Ranked #9 on the overall profit leaderboard.[1]"
+      "reason": "Appears in the top 10 of Polymarket\u2019s profit leaderboard (around #9) with more than $540k profit.[1]"
     },
     {
       "name": "gmanas",
       "address": "0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2",
-      "reason": "Ranked #10 on the overall profit leaderboard.[1]"
+      "reason": "Very close in profit to Ems123, ranked around #10 by overall PnL on the leaderboard.[1]"
     },
     {
       "name": "RN1",
       "address": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
-      "reason": "Ranked #11 on the overall profit leaderboard.[1]"
+      "reason": "High-ranking trader on the leaderboard (around #11) with over $450k profit.[1]"
     },
     {
       "name": "0xe74A4446EfD66A4de690962938F550D8921A40Ee-1764438981358",
       "address": "0xe74a4446efd66a4de690962938f550d8921a40ee",
-      "reason": "Wallet-form username ranked #12 on the overall profit leaderboard; contains full 0x address.[1]"
+      "reason": "A top-15 Polymarket trader identified primarily by their 0x wallet address, with over $430k profit, fitting the profile of a Polymarket whale.[1]"
     },
     {
       "name": "0x31a56e9E61eD21De08Cbe9524Cdb8eD9-0765984",
       "address": "0x31a56e9e61ed21de08cbe9524cdb8ed9-0765984",
-      "reason": "Wallet-form username ranked #13 on the overall profit leaderboard; contains 0x address.[1]"
+      "reason": "Another pseudonymous top-15 trader whose displayed name is a wallet address plus suffix, with over $400k profit.[1]"
     },
     {
       "name": "BlueHorseshoe86",
       "address": "0x44de2a52d8d2d3ddcf39d58e315a10df53ba9c08",
-      "reason": "Ranked #14 on the overall profit leaderboard.[1]"
+      "reason": "In the #14 range on the overall leaderboard with more than $300k profit.[1]"
     }
   ]
 }
