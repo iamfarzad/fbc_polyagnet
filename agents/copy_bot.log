@@ -1,0 +1,13 @@
+2026-01-09 20:38:25,788 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 13
+2026-01-09 20:38:25,901 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-09 20:38:25,975 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-09 20:38:26,659 - CopyBot - INFO - Initial Balance: $1.97
+2026-01-09 20:38:26,659 - CopyBot - INFO - Starting Copy Trader...
+2026-01-09 20:38:26,659 - PyMLBot - INFO - Using cached whale list (14 addresses)
+2026-01-09 20:38:26,659 - CopyBot - INFO - LLM discovered 14 top traders
+2026-01-09 20:38:26,659 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-09 20:38:26,834 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-09 20:38:27,032 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-09 20:38:27,188 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-09 20:38:27,312 - CopyBot - INFO - User 0x006c... has 90 positions.
+2026-01-09 20:38:27,452 - CopyBot - INFO - User 0x37e4... has 100 positions.

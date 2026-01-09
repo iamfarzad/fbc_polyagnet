@@ -181,13 +181,20 @@ class Bot:
                 record_activity("Scanning Markets", "Gamma API")
                 logger.info(f"Found {len(high_prob)} high-prob, {len(arb)} arb opportunities.")
                 
+                # Get current balance for risk checks
+                balance = self.initial_balance
+                try:
+                    balance = self.pm.get_usdc_balance()
+                except:
+                    pass
+                
                 # Process High Prob
                 for opp in high_prob:
                     market = opp['market']
                     
                     # === CONTEXT CHECK: Can we trade this? ===
                     can_trade, ctx_reason = self.context.can_trade(
-                        self.AGENT_NAME, market.id, 1.0, balance if balance > 0 else self.initial_balance
+                        self.AGENT_NAME, market.id, 1.0, balance
                     )
                     if not can_trade:
                         logger.info(f"Skipping {market.question[:30]}... - {ctx_reason}")
@@ -201,9 +208,6 @@ class Bot:
                     
                     if is_valid:
                         # Risk Engine Check
-                        balance = 0.0
-                        try: balance = self.pm.get_usdc_balance()
-                        except: pass
                         
                         if not check_drawdown(self.initial_balance, balance):
                               logger.warning("Drawdown limit hit! Skipping trade.")
