@@ -10,3 +10,5 @@ pydantic
 web3==6.11.0
 eth-account==0.13.7
 py-order-utils==0.3.2
+fastapi
+uvicorn
