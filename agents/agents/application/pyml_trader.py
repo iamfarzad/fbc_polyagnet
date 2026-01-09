@@ -4,6 +4,7 @@ import time
 import ast
 import json
 import logging
+import datetime
 import requests
 from dotenv import load_dotenv
 from typing import List, Dict, Tuple
@@ -282,10 +283,52 @@ class Bot:
             logger.error(f"Failed to save state: {e}")
 
     def execute_trade(self, opportunity):
-        # Implement size calculation and order execution
-        # Use simple fixed size for now
-        # self.pm.execute_market_order(...)
-        pass
+        """Execute a trade based on the validated opportunity"""
+        try:
+            market = opportunity['market']
+            outcome = opportunity['outcome']  # "Yes" or "No"
+            price = opportunity['price']
+            
+            # Get token ID for the outcome
+            token_ids = ast.literal_eval(market.clob_token_ids)
+            token_id = token_ids[0] if outcome.lower() == "yes" else token_ids[1]
+            
+            # Calculate size based on fixed bet amount
+            bet_amount = float(os.getenv("MAX_BET_USD", "1.0"))
+            size = bet_amount / price
+            
+            # Check balance
+            balance = self.pm.get_usdc_balance()
+            if balance < bet_amount + 1:
+                logger.warning(f"Insufficient balance: ${balance:.2f} < ${bet_amount + 1:.2f}")
+                return
+            
+            logger.info(f"Executing Trade: {outcome} on '{market.question[:40]}...' @ ${bet_amount}")
+            
+            # Create and post order
+            from py_clob_client.clob_types import OrderArgs
+            from py_clob_client.order_builder.constants import BUY
+            
+            order_args = OrderArgs(
+                token_id=token_id,
+                price=price,
+                size=size,
+                side=BUY
+            )
+            signed_order = self.pm.client.create_order(order_args)
+            result = self.pm.client.post_order(signed_order)
+            
+            logger.info(f"Order Result: {result}")
+            self.save_state({
+                "last_trade": f"{outcome} @ ${bet_amount} on '{market.question[:30]}...'",
+                "last_trade_result": str(result),
+                "last_trade_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            
+        except Exception as e:
+            logger.error(f"Trade Execution Failed: {e}")
+            self.save_state({"last_trade_error": str(e)})
+
 
 if __name__ == "__main__":
     import argparse
