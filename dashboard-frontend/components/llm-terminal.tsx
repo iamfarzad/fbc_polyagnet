@@ -102,57 +102,57 @@ function TerminalEntry({
   return (
     <button 
       type="button"
-      className="terminal-entry border-b border-zinc-800/50 hover:bg-zinc-900/50 cursor-pointer transition-colors w-full text-left"
+      className="terminal-entry hover:bg-secondary/30 cursor-pointer transition-colors w-full text-left"
       onClick={onToggle}
     >
       {/* Main line */}
       <div className="flex items-start gap-2 px-3 py-2">
-        <span className="text-zinc-600 font-mono text-[10px] shrink-0">
+        <span className="text-muted-foreground/60 font-mono text-[10px] shrink-0">
           [{formatTime(activity.timestamp)}]
         </span>
         <span className={`font-mono text-[10px] font-bold uppercase shrink-0 ${agentStyle.color}`}>
           {activity.agent}
         </span>
-        <span className="text-zinc-500 font-mono text-[10px]">▸</span>
-        <span className="text-zinc-300 font-mono text-[10px] uppercase">
+        <span className="text-muted-foreground font-mono text-[10px]">▸</span>
+        <span className="text-foreground/80 font-mono text-[10px] uppercase">
           {activity.action_type}
         </span>
         <div className="flex-1" />
         {expanded ? (
-          <ChevronUp className="h-3 w-3 text-zinc-600" />
+          <ChevronUp className="h-3 w-3 text-muted-foreground" />
         ) : (
-          <ChevronDown className="h-3 w-3 text-zinc-600" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
         )}
       </div>
       
       {/* Market question */}
       <div className="px-3 pb-2">
-        <p className="font-mono text-[11px] text-zinc-400 truncate pl-[72px]">
+        <p className="font-mono text-[11px] text-muted-foreground truncate pl-[72px]">
           {activity.market_question}
         </p>
       </div>
       
       {/* Result line */}
       <div className="flex items-center gap-2 px-3 pb-2 pl-[84px]">
-        <span className="text-zinc-500 font-mono text-[10px]">►</span>
+        <span className="text-muted-foreground font-mono text-[10px]">►</span>
         <span className={`font-mono text-[10px] font-bold ${conclusionColor}`}>
           {activity.conclusion}
         </span>
-        <span className="text-zinc-500 font-mono text-[10px]">
+        <span className="text-muted-foreground font-mono text-[10px]">
           ({(activity.confidence * 100).toFixed(0)}%)
         </span>
-        <span className="text-zinc-600 font-mono text-[10px]">
+        <span className="text-muted-foreground/60 font-mono text-[10px]">
           {activity.duration_ms}ms
         </span>
       </div>
       
       {/* Expanded details */}
       {expanded && (
-        <div className="bg-zinc-950/50 border-t border-zinc-800/30 px-3 py-2 space-y-2">
+        <div className="bg-secondary/20 border-t border-border/30 px-3 py-2.5 space-y-2.5 animate-fade-in">
           {/* Reasoning */}
           <div className="pl-[72px]">
-            <span className="text-zinc-600 font-mono text-[9px] uppercase">Reasoning</span>
-            <p className="font-mono text-[10px] text-zinc-400 mt-1 whitespace-pre-wrap">
+            <span className="text-muted-foreground/60 font-mono text-[9px] uppercase">Reasoning</span>
+            <p className="font-mono text-[10px] text-muted-foreground mt-1 whitespace-pre-wrap">
               {activity.reasoning}
             </p>
           </div>
@@ -160,13 +160,13 @@ function TerminalEntry({
           {/* Data sources */}
           {activity.data_sources && activity.data_sources.length > 0 && (
             <div className="pl-[72px]">
-              <span className="text-zinc-600 font-mono text-[9px] uppercase">Sources</span>
+              <span className="text-muted-foreground/60 font-mono text-[9px] uppercase">Sources</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {activity.data_sources.map((source, i) => (
                   <Badge 
                     key={i} 
                     variant="secondary" 
-                    className="font-mono text-[9px] bg-zinc-800 text-zinc-400 h-4"
+                    className="font-mono text-[9px] bg-secondary text-muted-foreground h-4 rounded"
                   >
                     {source}
                   </Badge>
@@ -177,10 +177,10 @@ function TerminalEntry({
           
           {/* Metrics */}
           <div className="flex items-center gap-4 pl-[72px] pt-1">
-            <span className="font-mono text-[9px] text-zinc-600">
+            <span className="font-mono text-[9px] text-muted-foreground/60">
               {activity.tokens_used} tokens
             </span>
-            <span className="font-mono text-[9px] text-zinc-600">
+            <span className="font-mono text-[9px] text-muted-foreground/60">
               ${activity.cost_usd.toFixed(4)}
             </span>
           </div>
@@ -228,17 +228,17 @@ export function LLMTerminal() {
   const activities = data?.activities || []
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0c] font-mono">
+    <div className="h-full flex flex-col bg-background font-mono">
       {/* Terminal Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-zinc-800/50 bg-zinc-900/30">
+      <div className="shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-border/40 glass">
         <div className="flex items-center gap-2">
-          <Terminal className="h-3.5 w-3.5 text-zinc-500" />
-          <span className="text-[11px] font-semibold text-zinc-300">LLM TERMINAL</span>
+          <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-[11px] font-semibold text-foreground">LLM TERMINAL</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <Circle className={`h-2 w-2 ${loading ? "text-amber-400" : "text-emerald-400"} fill-current`} />
-            <span className="text-[9px] text-zinc-500">
+            <span className="text-[9px] text-muted-foreground">
               {loading ? "syncing" : "live"}
             </span>
           </div>
@@ -247,9 +247,9 @@ export function LLMTerminal() {
             disabled={loading}
             size="sm"
             variant="ghost"
-            className="h-6 w-6 p-0"
+            className="h-6 w-6 p-0 hover:bg-secondary"
           >
-            <RefreshCw className={`h-3 w-3 text-zinc-500 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3 w-3 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
       </div>
@@ -260,15 +260,15 @@ export function LLMTerminal() {
         className="flex-1 overflow-y-auto overflow-x-hidden terminal-scroll"
       >
         {activities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-zinc-600">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground animate-fade-in">
             <Brain className="h-8 w-8 mb-2 opacity-30" />
             <p className="text-[11px]">No LLM activity yet</p>
-            <p className="text-[9px] text-zinc-700 mt-1">
+            <p className="text-[9px] text-muted-foreground/60 mt-1">
               Activity appears when agents research
             </p>
           </div>
         ) : (
-          <div>
+          <div className="divide-y divide-border/30">
             {activities.map((activity) => (
               <TerminalEntry
                 key={activity.id}
@@ -285,23 +285,23 @@ export function LLMTerminal() {
 
       {/* Terminal Footer - Stats */}
       {stats && (
-        <div className="shrink-0 border-t border-zinc-800/50 bg-zinc-900/30 px-3 py-2">
+        <div className="shrink-0 border-t border-border/40 glass px-3 py-2">
           <div className="flex items-center justify-between text-[9px]">
             <div className="flex items-center gap-3">
-              <span className="text-zinc-500">
-                Calls: <span className="text-zinc-300">{stats.total_calls}</span>
+              <span className="text-muted-foreground">
+                Calls: <span className="text-foreground">{stats.total_calls}</span>
               </span>
-              <span className="text-zinc-500">
-                Tokens: <span className="text-zinc-300">{(stats.total_tokens / 1000).toFixed(1)}k</span>
+              <span className="text-muted-foreground">
+                Tokens: <span className="text-foreground">{(stats.total_tokens / 1000).toFixed(1)}k</span>
               </span>
-              <span className="text-zinc-500">
+              <span className="text-muted-foreground">
                 Cost: <span className="text-amber-400">${stats.total_cost_usd?.toFixed(3) || "0.000"}</span>
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-emerald-400">{stats.decisions?.BET || 0} BET</span>
-              <span className="text-zinc-600">|</span>
-              <span className="text-zinc-500">{stats.decisions?.PASS || 0} PASS</span>
+              <span className="text-border">|</span>
+              <span className="text-muted-foreground">{stats.decisions?.PASS || 0} PASS</span>
             </div>
           </div>
         </div>

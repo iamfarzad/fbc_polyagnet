@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -160,11 +161,13 @@ export default function PolymarketDashboard() {
 
   if (!data) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0a0a0f]">
-        <div className="flex flex-col items-center gap-4">
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4 animate-fade-in">
           <div className="relative">
-            <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-            <Brain className="absolute inset-0 m-auto h-5 w-5 text-primary" />
+            <div className="h-14 w-14 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Brain className="h-6 w-6 text-primary animate-pulse" />
+            </div>
           </div>
           <span className="font-mono text-sm text-muted-foreground">Initializing agents...</span>
         </div>
@@ -176,15 +179,15 @@ export default function PolymarketDashboard() {
   const activeAgentCount = [data.agents.safe.running, data.agents.scalper.running, data.agents.copyTrader.running].filter(Boolean).length
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#0a0a0f] text-foreground">
+    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
       {/* Top Status Bar - Fixed Height */}
-      <div className="h-12 shrink-0 border-b border-border/30 bg-[#0a0a0f]/80 backdrop-blur-xl z-50">
+      <div className="h-12 shrink-0 border-b border-border/40 glass-strong z-50">
         <div className="h-full mx-auto max-w-[1800px] px-4 flex items-center">
           <div className="flex-1 flex items-center justify-between">
             {/* Left: Branding + Status */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
                   <Brain className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div>
@@ -193,12 +196,12 @@ export default function PolymarketDashboard() {
                 </div>
               </div>
               
-              <Separator orientation="vertical" className="h-8" />
+              <Separator orientation="vertical" className="h-8 bg-border/40" />
               
               {/* Quick Stats */}
               <div className="hidden md:flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${data.riskStatus.safe ? "bg-emerald-500" : "bg-red-500"} animate-pulse`} />
+                  <div className={`h-2 w-2 rounded-full ${data.riskStatus.safe ? "bg-emerald-500 glow-emerald" : "bg-red-500 glow-red"}`} />
                   <span className="font-mono text-xs text-muted-foreground">
                     {data.riskStatus.safe ? "Systems Normal" : "Risk Alert"}
                   </span>
@@ -210,7 +213,7 @@ export default function PolymarketDashboard() {
                 <div className="font-mono text-xs">
                   <span className="text-muted-foreground">Mode: </span>
                   <Badge variant={data.dryRun ? "secondary" : "default"} className="text-[10px] h-5">
-                    {data.dryRun ? "🧪 SIMULATION" : "💸 LIVE"}
+                    {data.dryRun ? "🧪 SIM" : "💸 LIVE"}
                   </Badge>
                 </div>
               </div>
@@ -223,7 +226,7 @@ export default function PolymarketDashboard() {
                   href={`https://polymarket.com/profile/${data.walletAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden sm:flex items-center gap-1.5 rounded-md border border-border/50 bg-card/30 px-2.5 py-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+                  className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border/40 bg-secondary/50 px-2.5 py-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:border-border/60 hover:bg-secondary transition-all"
                 >
                   <Wallet className="h-3 w-3" />
                   {data.walletAddress.slice(0, 6)}...{data.walletAddress.slice(-4)}
@@ -231,12 +234,14 @@ export default function PolymarketDashboard() {
                 </a>
               )}
               
+              <ThemeToggle />
+              
               <Button
                 onClick={fetchDashboardData}
                 disabled={loading}
                 size="sm"
                 variant="ghost"
-                className="h-8 gap-1.5"
+                className="h-8 gap-1.5 hover:bg-secondary"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
                 <span className="hidden sm:inline text-xs">Refresh</span>
@@ -246,7 +251,7 @@ export default function PolymarketDashboard() {
                 onClick={emergencyStop} 
                 size="sm" 
                 variant="destructive" 
-                className="h-8 gap-1.5"
+                className="h-8 gap-1.5 shadow-lg shadow-destructive/20"
               >
                 <AlertTriangle className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline text-xs">STOP ALL</span>
@@ -259,62 +264,62 @@ export default function PolymarketDashboard() {
       {/* Main Content Grid - Fills remaining height */}
       <div className="flex-1 grid grid-cols-[1fr_380px] min-h-0">
         {/* Left Panel - Dashboard with tabs */}
-        <main className="overflow-y-auto">
+        <main className="overflow-y-auto scrollbar-thin">
           <div className="max-w-[1400px] p-4 md:p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
           {/* Tab Navigation */}
-          <TabsList className="bg-card/30 border border-border/30 p-1">
-            <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary/20">
+          <TabsList className="glass border border-border/40 p-1 rounded-xl">
+            <TabsTrigger value="overview" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
               <Gauge className="h-4 w-4" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="agents" className="gap-2 data-[state=active]:bg-primary/20">
+            <TabsTrigger value="agents" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
               <Brain className="h-4 w-4" />
               Agents
             </TabsTrigger>
-            <TabsTrigger value="positions" className="gap-2 data-[state=active]:bg-primary/20">
+            <TabsTrigger value="positions" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
               <BarChart3 className="h-4 w-4" />
               Positions
             </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2 data-[state=active]:bg-primary/20">
+            <TabsTrigger value="settings" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
               <Settings className="h-4 w-4" />
               Settings
             </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-5 animate-fade-in">
             {/* Portfolio Stats Row */}
-            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-              <Card className="border-border/30 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur">
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 stagger">
+              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
                       <p className="font-mono text-2xl font-bold mt-1">${data.balance.toFixed(2)}</p>
                     </div>
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                       <DollarSign className="h-5 w-5 text-primary" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-border/30 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur">
+              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Equity</p>
                       <p className="font-mono text-2xl font-bold mt-1">${data.equity.toFixed(2)}</p>
                     </div>
-                    <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                       <TrendingUp className="h-5 w-5 text-blue-400" />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-border/30 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur">
+              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -323,7 +328,7 @@ export default function PolymarketDashboard() {
                         {pnlIsPositive ? "+" : ""}${data.unrealizedPnl.toFixed(2)}
                       </p>
                     </div>
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${pnlIsPositive ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${pnlIsPositive ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
                       {pnlIsPositive ? (
                         <TrendingUp className="h-5 w-5 text-emerald-400" />
                       ) : (
@@ -334,7 +339,7 @@ export default function PolymarketDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className={`border-border/30 backdrop-blur ${data.riskStatus.safe ? "bg-gradient-to-br from-emerald-500/5 to-emerald-500/0" : "bg-gradient-to-br from-red-500/10 to-red-500/0"}`}>
+              <Card className={`border-border/40 glass dot-texture animate-float-up ${data.riskStatus.safe ? "bg-emerald-500/5" : "bg-red-500/5"}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -344,7 +349,7 @@ export default function PolymarketDashboard() {
                       </p>
                       <p className="font-mono text-[10px] text-muted-foreground mt-0.5">{data.riskStatus.message}</p>
                     </div>
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${data.riskStatus.safe ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
+                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${data.riskStatus.safe ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
                       <Shield className={`h-5 w-5 ${data.riskStatus.safe ? "text-emerald-400" : "text-red-400"}`} />
                     </div>
                   </div>
@@ -353,7 +358,7 @@ export default function PolymarketDashboard() {
             </div>
 
             {/* Agent Status Row */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-3 stagger">
               {[
                 { key: "safe", name: "Safe Agent", data: data.agents.safe, theme: AGENT_THEMES.safe },
                 { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
@@ -362,12 +367,12 @@ export default function PolymarketDashboard() {
                 const Icon = theme.icon
                 const isRunning = agentData.running
                 return (
-                  <Card key={key} className={`border-border/30 ${theme.bg} transition-all hover:border-border/50`}>
+                  <Card key={key} className={`border-border/40 ${theme.bg} glass transition-all hover:border-border/60 hover:scale-[1.01] animate-float-up`}>
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className={`h-7 w-7 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                            <Icon className={`h-3.5 w-3.5 ${theme.text}`} />
+                          <div className={`h-8 w-8 rounded-xl ${theme.bg} border ${theme.border} flex items-center justify-center`}>
+                            <Icon className={`h-4 w-4 ${theme.text}`} />
                           </div>
                           <div>
                             <p className="font-mono text-xs font-semibold">{name}</p>
@@ -382,7 +387,7 @@ export default function PolymarketDashboard() {
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px] h-5">
+                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px] h-5 rounded-md">
                           {isRunning ? "ACTIVE" : "PAUSED"}
                         </Badge>
                         <span className="font-mono text-[9px] text-muted-foreground truncate max-w-[120px]">
@@ -396,7 +401,7 @@ export default function PolymarketDashboard() {
             </div>
 
             {/* 24h Stats Mini */}
-            <Card className="border-border/30 bg-card/30">
+            <Card className="border-border/40 bg-card/60 glass">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -423,14 +428,14 @@ export default function PolymarketDashboard() {
 
             {/* Positions & Trades Row - Compact */}
             <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="border-border/30 bg-card/30">
+              <Card className="border-border/40 bg-card/60 glass">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Target className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono text-xs font-medium">Open Positions</span>
                     </div>
-                    <Badge variant="secondary" className="text-[9px] h-5">
+                    <Badge variant="secondary" className="text-[9px] h-5 rounded-md">
                       {data.positions.length}
                     </Badge>
                   </div>
@@ -441,7 +446,7 @@ export default function PolymarketDashboard() {
                   ) : (
                     <div className="space-y-1.5">
                       {data.positions.slice(0, 4).map((pos, i) => (
-                        <div key={`pos-${pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 px-2 py-1.5">
+                        <div key={`pos-${pos.market}-${i}`} className="flex items-center justify-between rounded-lg border border-border/40 bg-secondary/30 px-2.5 py-2 transition-colors hover:bg-secondary/50">
                           <p className="font-mono text-[10px] truncate max-w-[180px]">{pos.market}</p>
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-[10px]">${pos.value.toFixed(2)}</span>
@@ -456,14 +461,14 @@ export default function PolymarketDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="border-border/30 bg-card/30">
+              <Card className="border-border/40 bg-card/60 glass">
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono text-xs font-medium">Recent Trades</span>
                     </div>
-                    <Badge variant="secondary" className="text-[9px] h-5">
+                    <Badge variant="secondary" className="text-[9px] h-5 rounded-md">
                       {data.trades.length}
                     </Badge>
                   </div>
@@ -474,13 +479,13 @@ export default function PolymarketDashboard() {
                   ) : (
                     <div className="space-y-1.5">
                       {data.trades.slice(0, 4).map((trade, i) => (
-                        <div key={`trade-${trade.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 px-2 py-1.5">
+                        <div key={`trade-${trade.market}-${i}`} className="flex items-center justify-between rounded-lg border border-border/40 bg-secondary/30 px-2.5 py-2 transition-colors hover:bg-secondary/50">
                           <div className="flex-1 min-w-0">
                             <p className="font-mono text-[10px] truncate max-w-[180px]">{trade.market}</p>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-[10px]">${trade.amount.toFixed(2)}</span>
-                            <Badge variant="outline" className="text-[8px] h-4 px-1">{trade.side}</Badge>
+                            <Badge variant="outline" className="text-[8px] h-4 px-1.5 rounded">{trade.side}</Badge>
                           </div>
                         </div>
                       ))}
@@ -736,15 +741,15 @@ export default function PolymarketDashboard() {
         </main>
 
         {/* Right Panel - LLM Terminal / FBP Chat */}
-        <aside className="border-l border-border/30 flex flex-col min-h-0">
+        <aside className="border-l border-border/40 flex flex-col min-h-0 bg-card/30">
           {/* Panel Toggle */}
-          <div className="flex border-b border-border/30 bg-zinc-950/50">
+          <div className="flex border-b border-border/40 glass-strong">
             <button
               onClick={() => setRightPanel("terminal")}
               className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
                 rightPanel === "terminal"
-                  ? "bg-zinc-900 text-zinc-100 border-b-2 border-emerald-500"
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+                  ? "bg-secondary text-foreground border-b-2 border-emerald-500"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
               }`}
             >
               <Activity className="w-3.5 h-3.5 inline mr-1.5" />
@@ -754,8 +759,8 @@ export default function PolymarketDashboard() {
               onClick={() => setRightPanel("chat")}
               className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
                 rightPanel === "chat"
-                  ? "bg-zinc-900 text-zinc-100 border-b-2 border-violet-500"
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+                  ? "bg-secondary text-foreground border-b-2 border-violet-500"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
               }`}
             >
               <Brain className="w-3.5 h-3.5 inline mr-1.5" />
