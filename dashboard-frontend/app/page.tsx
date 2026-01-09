@@ -355,7 +355,7 @@ export default function PolymarketDashboard() {
               {[
                 { key: "safe", name: "Safe Agent", data: data.agents.safe, theme: AGENT_THEMES.safe },
                 { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                { key: "copy", name: "Copy Trader", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+                { key: "copyTrader", name: "Copy Trader", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
               ].map(({ key, name, data: agentData, theme }) => {
                 const Icon = theme.icon
                 const isRunning = agentData.running

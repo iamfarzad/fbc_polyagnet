@@ -1,1 +1,20 @@
-{"safe_running": true, "scalper_running": true, "copy_trader_running": true, "dry_run": false, "dynamic_max_bet": 2.0, "safe_last_activity": "Scanning Markets (21:54:23)", "safe_last_endpoint": "Gamma API"}
+{
+    "safe_running": false,
+    "scalper_running": true,
+    "copy_trader_running": true,
+    "dry_run": false,
+    "dynamic_max_bet": 2.0,
+    "safe_last_activity": "PASS: Will Donald Trump attend Joe Biden\u2019s inauguration ...",
+    "safe_last_endpoint": "Gamma API",
+    "scalper_last_activity": "\ud83d\udd25 0/3 | $+0.00 (+0.0%) | $1.00/trade",
+    "scalper_last_endpoint": "BINANCE ARB + CHAINLINK",
+    "scalper_prices": {
+        "sol/usd": 135.5716405086456,
+        "btc/usd": 90374.88582190817,
+        "xrp/usd": 2.084892,
+        "eth/usd": 3081.5672871981415
+    },
+    "scalper_markets": 60,
+    "last_signal": "None",
+    "copy_last_scan": "2026-01-09 21:53:45"
+}
