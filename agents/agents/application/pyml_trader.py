@@ -216,6 +216,18 @@ class Bot:
     def run(self, dry_run=False):
         logger.info(f"Starting Bot (Dry Run: {dry_run})")
         
+        # Check and fix allowance
+        if not dry_run:
+            try:
+                allowance = self.pm.get_usdc_allowance()
+                if allowance < 500:
+                    logger.info(f"USDC allowance {allowance} < 500. Approving trading...")
+                    self.pm.approve_trading()
+                else:
+                    logger.info("USDC Trading Approved.")
+            except Exception as e:
+                logger.error(f"Allowance check/approval failed: {e}")
+                
         while True:
             try:
                 high_prob, arb = self.scanner.get_candidates()
@@ -294,7 +306,7 @@ class Bot:
             token_id = token_ids[0] if outcome.lower() == "yes" else token_ids[1]
             
             # Calculate size based on fixed bet amount
-            bet_amount = float(os.getenv("MAX_BET_USD", "1.0"))
+            bet_amount = float(os.getenv("MAX_BET_USD", "0.50"))  # Small default for safety
             size = bet_amount / price
             
             # Check balance

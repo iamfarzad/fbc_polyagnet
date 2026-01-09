@@ -77,6 +77,22 @@ class Polymarket:
         self.client.set_api_creds(self.credentials)
         # print(self.credentials)
 
+    def get_usdc_allowance(self) -> float:
+        """Check USDC allowance for the exchange"""
+        try:
+            pub_key = self.get_address_for_private_key()
+            allowance = self.usdc.functions.allowance(pub_key, self.exchange_address).call()
+            return float(allowance) / 10**6
+        except Exception as e:
+            print(f"Allowance check failed: {e}")
+            return 0.0
+
+    def approve_trading(self) -> None:
+        """Approve USDC spending for the exchange (one-time setup)"""
+        print("Approving USDC spending...")
+        self._init_approvals(run=True)
+        print("USDC Approved!")
+
     def _init_approvals(self, run: bool = False) -> None:
         if not run:
             return

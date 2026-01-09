@@ -116,6 +116,12 @@ def update_dashboard():
         balance = pm.get_usdc_balance()
     except:
         balance = 0.0
+        
+    try:
+        allowance = pm.get_usdc_allowance()
+        status = "✅ Active" if allowance > 500 else "⚠️ Approval Needed"
+    except:
+        status = "Unknown"
     
     positions = fetch_positions()
     unrealized = 0.0
@@ -159,6 +165,7 @@ def update_dashboard():
         f"${balance:.2f}",
         f"${equity:.2f}",
         pnl_display,
+        status,
         positions_md,
         trades_md,
         f"Updated {now}"
@@ -171,6 +178,7 @@ with gr.Blocks(theme=gr.themes.Glass(), css=custom_css, title="Polymarket Dashbo
         balance_box = gr.Textbox(label="USDC Balance", value="...", interactive=False, elem_classes="stat-card")
         equity_box = gr.Textbox(label="Total Equity", value="...", interactive=False, elem_classes="stat-card")
         pnl_box = gr.Textbox(label="Unrealized PnL", value="...", interactive=False, elem_classes="stat-card")
+        status_box = gr.Textbox(label="Trading Status", value="Checking...", interactive=False, elem_classes="stat-card")
     
     with gr.Row():
         with gr.Column(scale=1):
@@ -185,7 +193,7 @@ with gr.Blocks(theme=gr.themes.Glass(), css=custom_css, title="Polymarket Dashbo
     demo.load(
         update_dashboard,
         None,
-        [balance_box, equity_box, pnl_box, positions_md, trades_md, refresh_time],
+        [balance_box, equity_box, pnl_box, status_box, positions_md, trades_md, refresh_time],
         every=10
     )
 
