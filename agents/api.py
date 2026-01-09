@@ -28,7 +28,8 @@ except ImportError:
         check_drawdown = lambda *args: False 
 
 # Setup Logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+print("VERSION DEBUG: MAX BET ENABLED")
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("API")
 
 load_dotenv()
