@@ -40,6 +40,72 @@ class SafePolymarket(Polymarket):
 from agents.utils.validator import Validator, SharedConfig
 from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
 
+class Scanner:
+    """Scans Polymarket for trading opportunities."""
+    def __init__(self, pm, config):
+        self.pm = pm
+        self.config = config
+        self.min_volume = getattr(config, 'MIN_VOLUME', 1000)
+        self.high_prob_threshold = getattr(config, 'HIGH_PROB_THRESHOLD', 0.85)
+        
+    def get_candidates(self):
+        """Returns (high_prob_opportunities, arbitrage_opportunities)"""
+        high_prob = []
+        arb_opportunities = []
+        
+        try:
+            markets = self.pm.get_all_markets(limit=50, active=True)
+            tradeable = self.pm.filter_markets_for_trading(markets)
+            
+            for market in tradeable:
+                # Skip low volume markets
+                if market.volume < self.min_volume:
+                    continue
+                    
+                try:
+                    # Parse prices
+                    import ast
+                    prices_str = market.outcome_prices
+                    prices = ast.literal_eval(prices_str) if prices_str else []
+                    if len(prices) < 2:
+                        continue
+                    
+                    yes_price = float(prices[0])
+                    no_price = float(prices[1])
+                    
+                    # High probability opportunities (outcome likely to win)
+                    if yes_price >= self.high_prob_threshold:
+                        high_prob.append({
+                            'market': market,
+                            'outcome': 'Yes',
+                            'price': yes_price
+                        })
+                    elif no_price >= self.high_prob_threshold:
+                        high_prob.append({
+                            'market': market,
+                            'outcome': 'No',
+                            'price': no_price
+                        })
+                    
+                    # Arbitrage check: if sum of prices < 1.0 or > 1.0
+                    price_sum = yes_price + no_price
+                    if price_sum < 0.98:  # Sum should be ~1.0, significant deviation = arb
+                        arb_opportunities.append({
+                            'market': market,
+                            'sum_price': price_sum,
+                            'yes_price': yes_price,
+                            'no_price': no_price
+                        })
+                        
+                except Exception as e:
+                    logger.debug(f"Error parsing market {market.question[:30]}: {e}")
+                    continue
+                    
+        except Exception as e:
+            logger.error(f"Scanner error: {e}")
+            
+        return high_prob, arb_opportunities
+
 class Config(SharedConfig):
    pass
 
