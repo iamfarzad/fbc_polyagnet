@@ -139,26 +139,41 @@ def fetch_positions_helper():
 def fetch_trades_helper(limit=50):
     if not pm: return []
     try:
-        url = f"https://data-api.polymarket.com/trades?user={pm.get_address_for_private_key()}&limit={limit}"
+        # Use Activity Endpoint (trades endpoint often returns empty for bot trades)
+        url = f"https://data-api.polymarket.com/activity?user={pm.get_address_for_private_key()}&limit={limit}&offset=0"
         import requests
         resp = requests.get(url, timeout=5)
+        
         if resp.status_code == 200:
             raw = resp.json()
             trades = []
             for t in raw:
                 try:
-                    ts = t.get("timestamp", str(datetime.now()))
-                    # Format timestamp if needed, or pass raw string
-                    # API returns Unix or ISO? Check docs/dash. Usually ISO or int.
-                    # Previous dashboard code implies it's a timestamp string.
+                    # Filter for TRADE type only
+                    if t.get("type") != "TRADE":
+                        continue
+                        
+                    # Parse timestamp (Unix int -> readable string)
+                    ts_int = t.get("timestamp")
+                    ts_str = str(datetime.fromtimestamp(ts_int)) if ts_int else str(datetime.now())
+                    
+                    market_title = t.get("title", "N/A")
+                    outcome = t.get("outcome", "")
+                    
+                    # Construct Side (e.g. "Buy No")
+                    side = t.get("side", "UNKNOWN")
+                    if outcome:
+                        side = f"{side} {outcome}"
+                        
                     trades.append({
-                        "time": str(ts), 
-                        "market": t.get("title", t.get("question", "N/A")),
-                        "side": t.get("side", t.get("outcome", "?")),
-                        "amount": float(t.get("amount", t.get("size", 0))) * float(t.get("price", 0)) # Value? Or just amount?
-                        # user interface expects "amount" (USD value usually)
+                        "time": ts_str, 
+                        "market": market_title,
+                        "side": side,
+                        "amount": float(t.get("usdcSize", 0)) # Use USD size
                     })
-                except: continue
+                except Exception as e: 
+                    # logger.error(f"Error parsing trade: {e}")
+                    continue
             return trades
     except Exception as e:
         logger.error(f"Error fetching trades: {e}")
