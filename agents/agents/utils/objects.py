@@ -43,6 +43,9 @@ class SimpleMarket(BaseModel):
     outcomes: str
     outcome_prices: str
     clob_token_ids: Optional[str]
+    best_bid: Optional[float] = None
+    best_ask: Optional[float] = None
+    accepting_orders: Optional[bool] = None
 
 
 class ClobReward(BaseModel):

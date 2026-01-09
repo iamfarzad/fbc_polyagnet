@@ -2,11 +2,12 @@ import os
 import requests
 import json
 import logging
-import datetime
+import re
 from dotenv import load_dotenv
-from typing import Dict, Tuple
+from typing import Tuple
 
 logger = logging.getLogger("PyMLBot")
+
 
 class SharedConfig:
     def __init__(self):
@@ -17,10 +18,20 @@ class SharedConfig:
         self.POLYGON_WALLET_PRIVATE_KEY = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
         
         if not self.PERPLEXITY_API_KEY:
-             # logger might not be configured yet in some contexts, but okay for now
-             print("Warning: No PERPLEXITY_API_KEY found.")
+            print("Warning: No PERPLEXITY_API_KEY found.")
+
 
 class Validator:
+    """
+    Validates trading opportunities using Perplexity AI for research.
+    
+    The LLM is instructed to:
+    1. Search for recent news and developments
+    2. Analyze relevant statistics and polls
+    3. Consider market sentiment and expert opinions
+    4. Evaluate if there's an edge vs current market price
+    """
+    
     def __init__(self, config: SharedConfig):
         self.config = config
         self.api_url = "https://api.perplexity.ai/chat/completions"
@@ -28,25 +39,70 @@ class Validator:
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "") -> Tuple[bool, str, float]:
         """
         Validates a trade opportunity using Perplexity.
-        Returns: (is_valid, reason, confidence_score)
+        
+        Args:
+            market_question: The Polymarket question text
+            outcome: YES or NO
+            price: Current market price (0.0-1.0)
+            additional_context: Extra info (e.g., "copy trading signal")
+            
+        Returns:
+            (is_valid, reason, confidence_score)
         """
         if not self.config.PERPLEXITY_API_KEY:
             return True, "No Perplexity Key, skipping validation", 1.0
 
-        prompt = f"""
-        Analyze the Polymarket market: "{market_question}".
-        Current price for outcome "{outcome}" is {price} (implied probability {price*100}%).
+        implied_prob = price * 100
         
-        {additional_context}
-        
-        Rules:
-        - Analyze recent news, polls, and statistical data.
-        - Determine if the true probability is significantly higher than {price} (for YES) or lower (for NO).
-        - Output a JSON with keys: "confidence" (0.0 to 1.0), "recommendation" (BET or PASS), "reason".
-        
-        Only recommend BET if confidence > 0.92.
-        """
-        
+        system_prompt = """You are an elite superforecaster AI specialized in prediction markets.
+
+Your task is to research and analyze betting opportunities on Polymarket.
+You have access to real-time web search - USE IT to gather the latest information.
+
+For each market, you must:
+1. SEARCH for the most recent news articles (last 24-48 hours)
+2. FIND relevant statistics, polls, or expert predictions
+3. IDENTIFY any breaking developments that affect the outcome
+4. COMPARE your estimated true probability vs the market price
+5. DETERMINE if there's a profitable edge (true prob significantly > market price)
+
+Be rigorous. Most opportunities are NOT good bets. Only recommend betting when:
+- You have HIGH confidence based on concrete evidence
+- The true probability is meaningfully higher than the market price
+- Recent news/data strongly supports the outcome"""
+
+        user_prompt = f"""MARKET ANALYSIS REQUEST
+
+Question: "{market_question}"
+Outcome to evaluate: {outcome}
+Current market price: ${price:.2f} (implied {implied_prob:.1f}% probability)
+
+{f"Additional context: {additional_context}" if additional_context else ""}
+
+RESEARCH INSTRUCTIONS:
+1. Search for the latest news about this topic (last 48 hours)
+2. Find any relevant polls, statistics, or expert opinions
+3. Identify key factors that will determine the outcome
+4. Estimate the TRUE probability based on your research
+5. Calculate if there's a profitable edge vs the ${price:.2f} market price
+
+OUTPUT FORMAT (JSON only):
+{{
+  "recent_news": "Brief summary of latest developments you found",
+  "key_factors": "Main factors affecting the outcome",
+  "estimated_true_prob": 0.XX,
+  "edge_analysis": "Why the market may be mispriced (or not)",
+  "confidence": 0.XX,
+  "recommendation": "BET" or "PASS",
+  "reason": "One sentence summary"
+}}
+
+CRITICAL RULES:
+- Only recommend BET if confidence > 0.92 AND estimated_true_prob > {price + 0.05:.2f}
+- If news is unclear or mixed, recommend PASS
+- If you can't find recent relevant news, recommend PASS
+- Be conservative - capital preservation is priority"""
+
         headers = {
             "Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}",
             "Content-Type": "application/json"
@@ -55,29 +111,173 @@ class Validator:
         payload = {
             "model": "sonar-pro",
             "messages": [
-                {"role": "system", "content": "You are a superforecaster AI."},
-                {"role": "user", "content": prompt}
-            ]
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": 0.1,
+            "max_tokens": 1000
         }
         
         try:
-            response = requests.post(self.api_url, json=payload, headers=headers)
+            response = requests.post(self.api_url, json=payload, headers=headers, timeout=30)
             response.raise_for_status()
             content = response.json()["choices"][0]["message"]["content"]
             
-            # Simple parsing
-            import re
+            # Parse JSON from response
             json_match = re.search(r"\{.*\}", content, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group(0))
                 confidence = float(data.get("confidence", 0))
                 rec = data.get("recommendation", "PASS")
-                logger.info(f"LLM Analysis: {rec} (Conf: {confidence}) - {data.get('reason')}")
-                return (rec == "BET" and confidence > 0.92), data.get("reason", ""), confidence
+                reason = data.get("reason", "")
+                estimated_prob = float(data.get("estimated_true_prob", 0))
+                news = data.get("recent_news", "")
+                
+                logger.info(f"LLM Research: {rec} | Conf: {confidence:.2f} | Est Prob: {estimated_prob:.2f}")
+                logger.info(f"  News: {news[:100]}...")
+                logger.info(f"  Reason: {reason}")
+                
+                # Validate the recommendation
+                is_valid = (
+                    rec == "BET" and 
+                    confidence > 0.92 and 
+                    estimated_prob > (price + 0.05)
+                )
+                
+                return is_valid, reason, confidence
             else:
-                logger.warning(f"Could not parse LLM response: {content}")
+                logger.warning(f"Could not parse LLM response: {content[:200]}")
                 return False, "Parse Error", 0.0
 
+        except requests.exceptions.Timeout:
+            logger.error("Perplexity API timeout")
+            return False, "API Timeout", 0.0
         except Exception as e:
             logger.error(f"Validator Error: {e}")
             return False, str(e), 0.0
+
+    def discover_top_traders(self, cache_file: str = "whale_addresses.json") -> list[dict]:
+        """
+        Use Perplexity to research top Polymarket traders + known address mappings.
+        
+        Strategy:
+        1. LLM searches for trader names and any addresses mentioned in news
+        2. Map known trader names to their addresses (from leaderboard profile URLs)
+        3. Combine both sources
+        
+        Returns:
+            List of {"address": "0x...", "name": "...", "reason": "..."}
+        """
+        # Known top trader name -> address mapping (from polymarket.com/leaderboard profile URLs)
+        # Updated: These can be refreshed by visiting the leaderboard page
+        KNOWN_TRADERS = {
+            "kch123": "0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee",
+            "SeriouslySirius": "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881",
+            "DrPufferfish": "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e",
+            "SemyonMarmeladov": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
+            "212121212121212121212": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
+            "GamblingIsAllYouNeed": "0x507e52ef684ca2dd91f90a9d26d149dd3288beae",
+            "swisstony": "0x204f72f35326db932158cba6adff0b9a1da95e14",
+            "Ems123": "0xb889590a2fab0c810584a660518c4c020325a430",
+            "gmanas": "0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2",
+            "RN1": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
+            "BlueHorseshoe86": "0x44de2a52d8d2d3ddcf39d58e315a10df53ba9c08",
+        }
+        
+        # Check cache first (refresh every 24 hours)
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, "r") as f:
+                    cache = json.load(f)
+                import time
+                if time.time() - cache.get("timestamp", 0) < 86400:  # 24 hours
+                    logger.info(f"Using cached whale list ({len(cache.get('traders', []))} addresses)")
+                    return cache.get("traders", [])
+            except:
+                pass
+        
+        traders = []
+        
+        # Step 1: Use LLM to find any new traders or addresses
+        if self.config.PERPLEXITY_API_KEY:
+            logger.info("Researching top Polymarket traders via LLM...")
+            
+            prompt = """Find the current TOP PERFORMING traders on Polymarket.
+
+Search for:
+1. The Polymarket leaderboard - who are the top 10-15 traders by profit?
+2. Any Twitter/X discussions about Polymarket whales
+3. News articles about successful Polymarket traders
+4. Any wallet addresses (0x format) mentioned
+
+Return JSON with trader names and any addresses you find:
+{
+  "traders": [
+    {"name": "trader name", "address": "0x... or null", "pnl": "$X profit", "reason": "why notable"}
+  ]
+}"""
+
+            headers = {
+                "Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": "sonar-pro",
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.1,
+                "max_tokens": 2000
+            }
+            
+            try:
+                response = requests.post(self.api_url, json=payload, headers=headers, timeout=60)
+                response.raise_for_status()
+                content = response.json()["choices"][0]["message"]["content"]
+                
+                json_match = re.search(r"\{.*\}", content, re.DOTALL)
+                if json_match:
+                    data = json.loads(json_match.group(0))
+                    llm_traders = data.get("traders", [])
+                    
+                    for t in llm_traders:
+                        name = t.get("name", "")
+                        addr = t.get("address")
+                        reason = t.get("reason", t.get("pnl", "Top trader"))
+                        
+                        # If LLM found an address, use it
+                        if addr and addr.startswith("0x") and len(addr) == 42:
+                            traders.append({"name": name, "address": addr.lower(), "reason": reason})
+                            logger.info(f"  LLM found: {name} -> {addr[:12]}...")
+                        # Otherwise, try to map name to known address
+                        elif name in KNOWN_TRADERS:
+                            traders.append({
+                                "name": name, 
+                                "address": KNOWN_TRADERS[name], 
+                                "reason": reason
+                            })
+                            logger.info(f"  Mapped: {name} -> {KNOWN_TRADERS[name][:12]}...")
+                        # Check if name IS an address
+                        elif name.startswith("0x") and len(name) == 42:
+                            traders.append({"name": name, "address": name.lower(), "reason": reason})
+                            logger.info(f"  Address-name: {name[:12]}...")
+                            
+            except Exception as e:
+                logger.error(f"LLM trader discovery error: {e}")
+        
+        # Step 2: Add known traders not already found
+        found_addrs = {t["address"].lower() for t in traders}
+        for name, addr in KNOWN_TRADERS.items():
+            if addr.lower() not in found_addrs:
+                traders.append({"name": name, "address": addr, "reason": "Known top trader"})
+        
+        # Cache results
+        import time
+        cache_data = {"timestamp": time.time(), "traders": traders}
+        try:
+            with open(cache_file, "w") as f:
+                json.dump(cache_data, f, indent=2)
+        except:
+            pass
+        
+        logger.info(f"Total traders discovered: {len(traders)}")
+        return traders

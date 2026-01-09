@@ -233,26 +233,30 @@ class Polymarket:
             return self.map_api_to_market(market, token_id)
 
     def map_api_to_market(self, market, token_id: str = "") -> SimpleMarket:
-        market = {
+        market_data = {
             "id": int(market["id"]),
             "question": market["question"],
             "end": market["endDate"],
-            "description": market["description"],
+            "description": market.get("description", ""),
             "active": market["active"],
             # "deployed": market["deployed"],
-            "funded": market["funded"],
-            "rewardsMinSize": float(market["rewardsMinSize"]),
-            "rewardsMaxSpread": float(market["rewardsMaxSpread"]),
-            "volume": float(market.get("volume", 0)),
-            "liquidity": float(market.get("liquidity", 0)),
-            "spread": float(market["spread"]),
-            "outcomes": str(market["outcomes"]),
-            "outcome_prices": str(market["outcomePrices"]),
-            "clob_token_ids": str(market["clobTokenIds"]),
+            "funded": market.get("funded", False),
+            "rewardsMinSize": float(market.get("rewardsMinSize", 0) or 0),
+            "rewardsMaxSpread": float(market.get("rewardsMaxSpread", 0) or 0),
+            "volume": float(market.get("volume", 0) or 0),
+            "liquidity": float(market.get("liquidity", 0) or 0),
+            "spread": float(market.get("spread", 0) or 0),
+            "outcomes": str(market.get("outcomes", "[]")),
+            "outcome_prices": str(market.get("outcomePrices", "[]") or "[]"),
+            "clob_token_ids": str(market.get("clobTokenIds", "[]")),
+            # Add trading fields for crypto scalper
+            "best_bid": float(market["bestBid"]) if market.get("bestBid") else None,
+            "best_ask": float(market["bestAsk"]) if market.get("bestAsk") else None,
+            "accepting_orders": market.get("acceptingOrders", False),
         }
         if token_id:
-            market["clob_token_ids"] = token_id
-        return market
+            market_data["clob_token_ids"] = token_id
+        return market_data
 
     def get_all_events(self) -> "list[SimpleEvent]":
         events = []
