@@ -1,10 +1,11 @@
 """
-15-Minute Crypto Scalper
+15-Minute Crypto Scalper with Binance Arbitrage
 
 Automatically trades 15-minute "Up or Down" crypto markets on Polymarket.
 - Maintains N open positions at all times
 - When a position resolves, opens a new one
-- Uses RTDS for real-time Chainlink prices to inform direction
+- Uses BINANCE WebSocket for fastest momentum signal (arbitrage edge)
+- Falls back to Chainlink RTDS for confirmation
 - Cycles through BTC, ETH, SOL, XRP
 """
 
@@ -16,6 +17,7 @@ import ast
 import threading
 import datetime
 import requests
+from collections import deque
 from dotenv import load_dotenv
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY
@@ -28,11 +30,22 @@ load_dotenv()
 
 # Config
 MAX_POSITIONS = 3
-BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.30"))  # 30% of total equity per position (90% total)
+BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.30"))  # 30% of total equity per position
 MIN_BET_USD = 1.0   # Minimum bet size
 MAX_BET_USD = 100.0 # Maximum bet size (safety cap)
 ASSETS = ["bitcoin", "ethereum", "solana", "xrp"]
 CHECK_INTERVAL = 60  # Check positions every 60 seconds
+
+# Binance WebSocket config
+BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
+BINANCE_SYMBOLS = {
+    "btcusdt": "bitcoin",
+    "ethusdt": "ethereum",
+    "solusdt": "solana",
+    "xrpusdt": "xrp"
+}
+MOMENTUM_WINDOW = 60  # Track last 60 seconds of prices
+MOMENTUM_THRESHOLD = 0.10  # 0.10% momentum = signal
 
 
 class CryptoScalper:
@@ -63,14 +76,24 @@ class CryptoScalper:
         self.initial_balance = 0.0
         self.address = ""
         
+        # Binance price tracking (FAST - arbitrage edge)
+        self.binance_prices = {}      # symbol -> current price
+        self.binance_history = {}     # symbol -> deque of (timestamp, price)
+        self.binance_momentum = {}    # symbol -> momentum %
+        self.binance_connected = False
+        
+        for symbol in BINANCE_SYMBOLS:
+            self.binance_history[symbol] = deque(maxlen=MOMENTUM_WINDOW * 10)  # ~10 updates/sec
+        
         print(f"=" * 60)
-        print(f"15-MIN CRYPTO SCALPER - COMPOUND MODE")
+        print(f"15-MIN CRYPTO SCALPER - BINANCE ARBITRAGE MODE")
         print(f"=" * 60)
         print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE TRADING'}")
         print(f"Max Positions: {MAX_POSITIONS}")
-        print(f"Bet Size: {BET_PERCENT*100:.0f}% of available capital (${MIN_BET_USD}-${MAX_BET_USD})")
+        print(f"Bet Size: {BET_PERCENT*100:.0f}% of equity (${MIN_BET_USD}-${MAX_BET_USD})")
         print(f"Assets: {', '.join(ASSETS)}")
-        print(f"Strategy: COMPOUND GAINS - reinvest all profits")
+        print(f"Strategy: COMPOUND + BINANCE ARBITRAGE")
+        print(f"Edge: Binance WS (~50ms) vs Chainlink (~500ms)")
         print()
         
         try:
@@ -159,26 +182,74 @@ class CryptoScalper:
             print(f"Error fetching markets: {e}")
         return []
 
+    def calculate_binance_momentum(self, symbol):
+        """
+        Calculate momentum from Binance price history.
+        Returns: momentum % (positive = UP, negative = DOWN)
+        """
+        history = self.binance_history.get(symbol, deque())
+        if len(history) < 10:
+            return 0.0
+        
+        # Get oldest and newest prices in window
+        oldest_time, oldest_price = history[0]
+        newest_time, newest_price = history[-1]
+        
+        if oldest_price <= 0:
+            return 0.0
+        
+        momentum = ((newest_price - oldest_price) / oldest_price) * 100
+        return momentum
+
     def get_trade_direction(self, asset):
         """
-        Decide UP or DOWN based on recent price momentum.
-        Returns: ("UP", up_token) or ("DOWN", down_token)
-        """
-        history = self.price_history.get(asset, [])
+        Decide UP or DOWN based on BINANCE momentum (fastest signal).
+        Falls back to Chainlink if Binance unavailable.
         
+        ARBITRAGE LOGIC:
+        - Binance updates ~50ms, Chainlink ~500ms
+        - We see momentum 400ms before Polymarket settlement oracle
+        - If momentum > threshold, bet in that direction
+        """
+        # Map asset name to Binance symbol
+        symbol_map = {
+            "bitcoin": "btcusdt",
+            "ethereum": "ethusdt",
+            "solana": "solusdt",
+            "xrp": "xrpusdt"
+        }
+        symbol = symbol_map.get(asset, "")
+        
+        # Check Binance momentum (PRIMARY - fastest)
+        if symbol and symbol in self.binance_history:
+            momentum = self.calculate_binance_momentum(symbol)
+            self.binance_momentum[symbol] = momentum
+            
+            if momentum > MOMENTUM_THRESHOLD:
+                print(f"   🚀 BINANCE ARB: {asset.upper()} momentum +{momentum:.3f}% → UP")
+                return "UP"
+            elif momentum < -MOMENTUM_THRESHOLD:
+                print(f"   🚀 BINANCE ARB: {asset.upper()} momentum {momentum:.3f}% → DOWN")
+                return "DOWN"
+        
+        # Fallback to Chainlink (SECONDARY)
+        history = self.price_history.get(asset, [])
         if len(history) >= 2:
             recent = history[-1]
             older = history[-5] if len(history) >= 5 else history[0]
-            
             change_pct = (recent - older) / older * 100 if older > 0 else 0
             
-            # If price rising, bet UP; if falling, bet DOWN
             if change_pct > 0.05:
+                print(f"   📡 CHAINLINK: {asset.upper()} +{change_pct:.3f}% → UP")
                 return "UP"
             elif change_pct < -0.05:
+                print(f"   📡 CHAINLINK: {asset.upper()} {change_pct:.3f}% → DOWN")
                 return "DOWN"
         
-        # Default: slight bullish bias for crypto
+        # No clear signal - use Binance current price vs 30s ago
+        if symbol and len(self.binance_history.get(symbol, [])) > 0:
+            print(f"   ⚖️ NO CLEAR SIGNAL: {asset.upper()} → defaulting UP")
+        
         return "UP"
 
     def get_current_balance(self):
@@ -382,7 +453,7 @@ class CryptoScalper:
             print(f"   ✓ Positions at max capacity")
 
     def save_state(self, update: dict):
-        """Save state for dashboard with compound stats."""
+        """Save state for dashboard with compound + arbitrage stats."""
         state_file = "scalper_state.json"
         try:
             current = {}
@@ -392,27 +463,98 @@ class CryptoScalper:
             
             current.update(update)
             
-            # Rich activity message showing compound status
+            # Rich activity message showing compound + arbitrage status
             growth = update.get("growth_usd", 0)
             growth_pct = update.get("growth_pct", 0)
             next_bet = update.get("next_bet_size", MIN_BET_USD)
             positions = update.get("open_positions", 0)
+            binance_ok = "🔥" if self.binance_connected else "⚠️"
             
             if growth >= 0:
-                current["scalper_last_activity"] = f"🔄 {positions}/{MAX_POSITIONS} pos | ${growth:+.2f} ({growth_pct:+.1f}%) | Next: ${next_bet:.2f}"
+                current["scalper_last_activity"] = f"{binance_ok} {positions}/{MAX_POSITIONS} | ${growth:+.2f} ({growth_pct:+.1f}%) | ${next_bet:.2f}/trade"
             else:
-                current["scalper_last_activity"] = f"🔄 {positions}/{MAX_POSITIONS} pos | ${growth:.2f} ({growth_pct:.1f}%) | Next: ${next_bet:.2f}"
+                current["scalper_last_activity"] = f"{binance_ok} {positions}/{MAX_POSITIONS} | ${growth:.2f} ({growth_pct:.1f}%) | ${next_bet:.2f}/trade"
             
-            current["scalper_last_endpoint"] = "COMPOUND MODE"
-            current["mode"] = "DRY RUN" if self.dry_run else "LIVE COMPOUND"
+            current["scalper_last_endpoint"] = "BINANCE ARB + CHAINLINK" if self.binance_connected else "CHAINLINK ONLY"
+            current["mode"] = "DRY RUN" if self.dry_run else "LIVE ARB"
             
             with open(state_file, "w") as f:
                 json.dump(current, f)
         except:
             pass
 
+    # =========================================================================
+    # BINANCE WEBSOCKET (PRIMARY - FASTEST ~50ms)
+    # =========================================================================
+    
+    def on_binance_message(self, ws, message):
+        """Handle Binance real-time price updates."""
+        try:
+            data = json.loads(message)
+            
+            # Handle individual symbol updates
+            if "s" in data and "c" in data:  # Ticker format
+                symbol = data["s"].lower()
+                price = float(data["c"])
+                
+                self.binance_prices[symbol] = price
+                if symbol in self.binance_history:
+                    self.binance_history[symbol].append((time.time(), price))
+            
+            # Handle combined stream format
+            elif "stream" in data and "data" in data:
+                stream_data = data["data"]
+                symbol = stream_data.get("s", "").lower()
+                price = float(stream_data.get("c", 0))
+                
+                if symbol and price:
+                    self.binance_prices[symbol] = price
+                    if symbol in self.binance_history:
+                        self.binance_history[symbol].append((time.time(), price))
+                    
+        except Exception as e:
+            pass
+
+    def on_binance_open(self, ws):
+        """Handle Binance connection."""
+        self.binance_connected = True
+        print("🔥 BINANCE WS Connected - ARBITRAGE MODE ACTIVE (~50ms latency)")
+
+    def on_binance_close(self, ws, close_status, close_msg):
+        """Handle Binance disconnect."""
+        self.binance_connected = False
+        print("⚠️ Binance WS disconnected, reconnecting...")
+
+    def on_binance_error(self, ws, error):
+        """Handle Binance error."""
+        pass
+
+    def run_binance_ws(self):
+        """Run Binance WebSocket in background thread."""
+        # Combined streams for all symbols
+        streams = "/".join([f"{s}@ticker" for s in BINANCE_SYMBOLS.keys()])
+        url = f"wss://stream.binance.com:9443/stream?streams={streams}"
+        
+        while True:
+            try:
+                ws = websocket.WebSocketApp(
+                    url,
+                    on_message=self.on_binance_message,
+                    on_open=self.on_binance_open,
+                    on_close=self.on_binance_close,
+                    on_error=self.on_binance_error
+                )
+                ws.run_forever(ping_interval=30)
+            except Exception as e:
+                print(f"Binance WS error: {e}")
+            time.sleep(5)
+
+    # =========================================================================
+    # CHAINLINK RTDS (SECONDARY - ~500ms, settlement oracle)
+    # =========================================================================
+
     def on_rtds_message(self, ws, message):
-        """Handle RTDS price updates."""
+        """Handle RTDS Chainlink price updates."""
         try:
             data = json.loads(message)
             if data.get("topic") != "crypto_prices_chainlink":
@@ -428,7 +570,7 @@ class CryptoScalper:
             price = float(price)
             self.chainlink_prices[symbol] = price
             
-            # Track history for momentum
+            # Track history for momentum (fallback)
             if symbol not in self.price_history:
                 self.price_history[symbol] = []
             self.price_history[symbol].append(price)
@@ -442,7 +584,7 @@ class CryptoScalper:
 
     def on_rtds_open(self, ws):
         """Handle RTDS connection."""
-        print("📡 RTDS Connected - receiving Chainlink prices")
+        print("📡 CHAINLINK RTDS Connected - settlement oracle (~500ms)")
         sub = {
             "action": "subscribe",
             "subscriptions": [{
@@ -454,8 +596,12 @@ class CryptoScalper:
         ws.send(json.dumps(sub))
 
     def run(self):
-        """Main run loop."""
-        # Start RTDS connection for price data
+        """Main run loop with dual WebSocket feeds."""
+        
+        # Start BINANCE WebSocket (PRIMARY - fastest for arbitrage)
+        threading.Thread(target=self.run_binance_ws, daemon=True).start()
+        
+        # Start RTDS Chainlink (SECONDARY - settlement oracle)
         def run_rtds():
             while True:
                 try:
@@ -473,9 +619,17 @@ class CryptoScalper:
         
         threading.Thread(target=run_rtds, daemon=True).start()
         
-        # Wait for initial price data
-        print("Waiting for price data...")
-        time.sleep(5)
+        # Wait for connections
+        print("Connecting to price feeds...")
+        time.sleep(3)
+        
+        # Verify Binance connection
+        if self.binance_connected:
+            print("✅ Binance arbitrage feed active")
+        else:
+            print("⚠️ Binance not connected yet, will retry...")
+        
+        time.sleep(2)
         
         # Main loop
         print(f"\n🚀 Starting automated trading loop (check every {CHECK_INTERVAL}s)")
@@ -498,18 +652,31 @@ class CryptoScalper:
                 # Check and rebalance positions
                 self.check_and_rebalance()
                 
-                # Log current prices
-                if self.chainlink_prices:
-                    prices_str = " | ".join([
-                        f"{k.split('/')[0].upper()}: ${v:,.0f}" if v > 100 else f"{k.split('/')[0].upper()}: ${v:.2f}"
-                        for k, v in list(self.chainlink_prices.items())[:4]
-                    ])
-                    print(f"   Prices: {prices_str}")
+                # Calculate and log Binance momentum (arbitrage data)
+                if self.binance_prices:
+                    print(f"   📊 BINANCE ARBITRAGE FEED:")
+                    for symbol, asset in BINANCE_SYMBOLS.items():
+                        price = self.binance_prices.get(symbol, 0)
+                        # Calculate momentum NOW
+                        momentum = self.calculate_binance_momentum(symbol)
+                        self.binance_momentum[symbol] = momentum
+                        
+                        if price > 0:
+                            direction = "📈" if momentum > MOMENTUM_THRESHOLD else "📉" if momentum < -MOMENTUM_THRESHOLD else "➡️"
+                            signal = "SIGNAL!" if abs(momentum) > MOMENTUM_THRESHOLD else ""
+                            if price > 100:
+                                print(f"      {asset.upper()}: ${price:,.0f} {direction} {momentum:+.3f}% {signal}")
+                            else:
+                                print(f"      {asset.upper()}: ${price:.4f} {direction} {momentum:+.3f}% {signal}")
                 
-                # Save state
+                # Save state with arbitrage info
                 self.save_state({
-                    "prices": self.chainlink_prices,
+                    "binance_prices": self.binance_prices,
+                    "binance_momentum": self.binance_momentum,
+                    "chainlink_prices": self.chainlink_prices,
+                    "binance_connected": self.binance_connected,
                     "last_update": datetime.datetime.now().strftime("%H:%M:%S"),
+                    "arbitrage_mode": True,
                 })
                 
                 # Sleep until next check

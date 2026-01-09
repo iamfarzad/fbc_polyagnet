@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
   RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, 
   Activity, Zap, Wallet, ExternalLink, Brain, Shield, Gauge,
   BarChart3, Clock, Target, Users, Layers, Settings, PieChart
 } from "lucide-react"
-import { LLMActivityFeed } from "@/components/llm-activity-feed"
+import { LLMTerminal } from "@/components/llm-terminal"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -158,7 +158,7 @@ export default function PolymarketDashboard() {
 
   if (!data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0f]">
+      <div className="flex h-screen items-center justify-center bg-[#0a0a0f]">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="h-12 w-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
@@ -171,15 +171,14 @@ export default function PolymarketDashboard() {
   }
 
   const pnlIsPositive = data.unrealizedPnl >= 0
-  const totalAllocation = data.balance
   const activeAgentCount = [data.agents.safe.running, data.agents.scalper.running, data.agents.copyTrader.running].filter(Boolean).length
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-foreground">
-      {/* Top Status Bar */}
-      <div className="border-b border-border/30 bg-[#0a0a0f]/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="mx-auto max-w-[1800px] px-4 py-3">
-          <div className="flex items-center justify-between">
+    <div className="h-screen flex flex-col overflow-hidden bg-[#0a0a0f] text-foreground">
+      {/* Top Status Bar - Fixed Height */}
+      <div className="h-12 shrink-0 border-b border-border/30 bg-[#0a0a0f]/80 backdrop-blur-xl z-50">
+        <div className="h-full mx-auto max-w-[1800px] px-4 flex items-center">
+          <div className="flex-1 flex items-center justify-between">
             {/* Left: Branding + Status */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
@@ -255,9 +254,12 @@ export default function PolymarketDashboard() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-[1800px] p-4 md:p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      {/* Main Content Grid - Fills remaining height */}
+      <div className="flex-1 grid grid-cols-[1fr_380px] min-h-0">
+        {/* Left Panel - Dashboard with tabs */}
+        <main className="overflow-y-auto">
+          <div className="max-w-[1400px] p-4 md:p-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           {/* Tab Navigation */}
           <TabsList className="bg-card/30 border border-border/30 p-1">
             <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-primary/20">
@@ -348,131 +350,102 @@ export default function PolymarketDashboard() {
               </Card>
             </div>
 
-            {/* Two Column Layout */}
-            <div className="grid gap-6 lg:grid-cols-3">
-              {/* Left Column - Agents Overview */}
-              <div className="lg:col-span-1 space-y-4">
-                <h2 className="font-mono text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                  <Brain className="h-4 w-4" />
-                  AGENT STATUS
-                </h2>
-                
-                {/* Agent Cards */}
-                {[
-                  { key: "safe", name: "Safe Agent", data: data.agents.safe, theme: AGENT_THEMES.safe },
-                  { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                  { key: "copy", name: "Copy Trader", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
-                ].map(({ key, name, data: agentData, theme }) => {
-                  const Icon = theme.icon
-                  const isRunning = agentData.running
-                  return (
-                    <Card key={key} className={`border-border/30 ${theme.bg} transition-all hover:border-border/50`}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <div className={`h-8 w-8 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                              <Icon className={`h-4 w-4 ${theme.text}`} />
-                            </div>
-                            <div>
-                              <p className="font-mono text-sm font-semibold">{name}</p>
-                              <p className="font-mono text-[10px] text-muted-foreground">
-                                {theme.allocation}% allocation
-                              </p>
-                            </div>
-                          </div>
-                          <Switch 
-                            checked={isRunning} 
-                            onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader")} 
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] text-muted-foreground">Status</span>
-                            <Badge variant={isRunning ? "default" : "secondary"} className="text-[10px]">
-                              {isRunning ? "ACTIVE" : "PAUSED"}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-mono text-[10px] text-muted-foreground">Capital</span>
-                            <span className="font-mono text-xs font-semibold">
-                              ${(data.balance * theme.allocation / 100).toFixed(2)}
-                            </span>
+            {/* Agent Status Row */}
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { key: "safe", name: "Safe Agent", data: data.agents.safe, theme: AGENT_THEMES.safe },
+                { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
+                { key: "copy", name: "Copy Trader", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+              ].map(({ key, name, data: agentData, theme }) => {
+                const Icon = theme.icon
+                const isRunning = agentData.running
+                return (
+                  <Card key={key} className={`border-border/30 ${theme.bg} transition-all hover:border-border/50`}>
+                    <CardContent className="p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-7 w-7 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center`}>
+                            <Icon className={`h-3.5 w-3.5 ${theme.text}`} />
                           </div>
                           <div>
-                            <span className="font-mono text-[10px] text-muted-foreground">Activity</span>
-                            <p className="font-mono text-[11px] text-foreground/80 truncate mt-0.5">
-                              {'activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')}
+                            <p className="font-mono text-xs font-semibold">{name}</p>
+                            <p className="font-mono text-[9px] text-muted-foreground">
+                              {theme.allocation}% · ${(data.balance * theme.allocation / 100).toFixed(2)}
                             </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-
-                {/* 24h Stats */}
-                <Card className="border-border/30 bg-card/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="font-mono text-xs font-medium flex items-center gap-2">
-                      <Activity className="h-4 w-4" />
-                      24H ACTIVITY
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-muted-foreground">Trades</span>
-                      <span className="font-mono text-lg font-bold">{data.stats.tradeCount}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-muted-foreground">Volume</span>
-                      <span className="font-mono text-lg font-bold">${data.stats.volume24h.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-muted-foreground">Gas Used</span>
-                      <span className="font-mono text-sm">{data.gasSpent.toFixed(4)} POL</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Right Column - LLM Activity */}
-              <div className="lg:col-span-2">
-                <LLMActivityFeed />
-              </div>
+                        <Switch 
+                          checked={isRunning} 
+                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader")} 
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px] h-5">
+                          {isRunning ? "ACTIVE" : "PAUSED"}
+                        </Badge>
+                        <span className="font-mono text-[9px] text-muted-foreground truncate max-w-[120px]">
+                          {'activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
 
-            {/* Positions & Trades Row */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            {/* 24h Stats Mini */}
+            <Card className="border-border/30 bg-card/30">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono text-xs font-medium text-muted-foreground">24H ACTIVITY</span>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <span className="font-mono text-[10px] text-muted-foreground">Trades</span>
+                      <p className="font-mono text-sm font-bold">{data.stats.tradeCount}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-[10px] text-muted-foreground">Volume</span>
+                      <p className="font-mono text-sm font-bold">${data.stats.volume24h.toFixed(2)}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono text-[10px] text-muted-foreground">Gas</span>
+                      <p className="font-mono text-sm font-bold">{data.gasSpent.toFixed(4)} POL</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Positions & Trades Row - Compact */}
+            <div className="grid gap-4 lg:grid-cols-2">
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm font-semibold flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Open Positions
-                  </CardTitle>
-                  <CardDescription className="font-mono text-xs">
-                    {data.positions.length} active position{data.positions.length !== 1 ? "s" : ""}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-mono text-xs font-medium">Open Positions</span>
+                    </div>
+                    <Badge variant="secondary" className="text-[9px] h-5">
+                      {data.positions.length}
+                    </Badge>
+                  </div>
                   {data.positions.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <Layers className="h-8 w-8 mb-2 opacity-30" />
-                      <p className="font-mono text-xs">No open positions</p>
+                    <div className="flex items-center justify-center py-4 text-muted-foreground">
+                      <p className="font-mono text-[10px]">No open positions</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      {data.positions.slice(0, 5).map((pos, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-lg border border-border/30 bg-background/50 p-3">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-mono text-xs font-medium truncate">{pos.market}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground">{pos.side}</p>
-                          </div>
-                          <div className="text-right ml-4">
-                            <p className="font-mono text-xs font-medium">${pos.value.toFixed(2)}</p>
-                            <p className={`font-mono text-[10px] ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {pos.pnl >= 0 ? "+" : ""}${pos.pnl.toFixed(2)}
-                            </p>
+                    <div className="space-y-1.5">
+                      {data.positions.slice(0, 4).map((pos, i) => (
+                        <div key={`pos-${pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 px-2 py-1.5">
+                          <p className="font-mono text-[10px] truncate max-w-[180px]">{pos.market}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px]">${pos.value.toFixed(2)}</span>
+                            <span className={`font-mono text-[10px] ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                              {pos.pnl >= 0 ? "+" : ""}{pos.pnl.toFixed(2)}
+                            </span>
                           </div>
                         </div>
                       ))}
@@ -482,32 +455,30 @@ export default function PolymarketDashboard() {
               </Card>
 
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm font-semibold flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Recent Trades
-                  </CardTitle>
-                  <CardDescription className="font-mono text-xs">
-                    Last {data.trades.length} trades
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-mono text-xs font-medium">Recent Trades</span>
+                    </div>
+                    <Badge variant="secondary" className="text-[9px] h-5">
+                      {data.trades.length}
+                    </Badge>
+                  </div>
                   {data.trades.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <BarChart3 className="h-8 w-8 mb-2 opacity-30" />
-                      <p className="font-mono text-xs">No recent trades</p>
+                    <div className="flex items-center justify-center py-4 text-muted-foreground">
+                      <p className="font-mono text-[10px]">No recent trades</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      {data.trades.slice(0, 5).map((trade, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-lg border border-border/30 bg-background/50 p-3">
+                    <div className="space-y-1.5">
+                      {data.trades.slice(0, 4).map((trade, i) => (
+                        <div key={`trade-${trade.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 px-2 py-1.5">
                           <div className="flex-1 min-w-0">
-                            <p className="font-mono text-xs font-medium truncate">{trade.market}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground">{trade.time}</p>
+                            <p className="font-mono text-[10px] truncate max-w-[180px]">{trade.market}</p>
                           </div>
-                          <div className="text-right ml-4">
-                            <p className="font-mono text-xs font-medium">${trade.amount.toFixed(2)}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground">{trade.side}</p>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px]">${trade.amount.toFixed(2)}</span>
+                            <Badge variant="outline" className="text-[8px] h-4 px-1">{trade.side}</Badge>
                           </div>
                         </div>
                       ))}
@@ -519,8 +490,8 @@ export default function PolymarketDashboard() {
           </TabsContent>
 
           {/* Agents Tab */}
-          <TabsContent value="agents" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-3">
+          <TabsContent value="agents" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
               {[
                 { key: "safe", name: "Safe Agent", desc: "High-probability LLM-validated trades", data: data.agents.safe, theme: AGENT_THEMES.safe },
                 { key: "scalper", name: "Crypto Scalper", desc: "15-min crypto volatility trading via RTDS", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
@@ -530,50 +501,45 @@ export default function PolymarketDashboard() {
                 const isRunning = agentData.running
                 return (
                   <Card key={key} className={`border-border/30 ${theme.bg}`}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div className={`h-12 w-12 rounded-xl ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                          <Icon className={`h-6 w-6 ${theme.text}`} />
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className={`h-10 w-10 rounded-xl ${theme.bg} border ${theme.border} flex items-center justify-center`}>
+                            <Icon className={`h-5 w-5 ${theme.text}`} />
+                          </div>
+                          <div>
+                            <p className="font-mono text-sm font-semibold">{name}</p>
+                            <p className="font-mono text-[10px] text-muted-foreground">{desc}</p>
+                          </div>
                         </div>
                         <Switch 
                           checked={isRunning} 
                           onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader")} 
                         />
                       </div>
-                      <CardTitle className="font-mono text-base mt-4">{name}</CardTitle>
-                      <CardDescription className="font-mono text-xs">{desc}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="font-mono text-muted-foreground">Capital Allocation</span>
-                          <span className="font-mono font-semibold">{theme.allocation}%</span>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <div className="flex justify-between text-[10px] mb-1">
+                            <span className="font-mono text-muted-foreground">Capital Allocation</span>
+                            <span className="font-mono font-semibold">{theme.allocation}% · ${(data.balance * theme.allocation / 100).toFixed(2)}</span>
+                          </div>
+                          <Progress value={theme.allocation} className="h-1.5" />
                         </div>
-                        <Progress value={theme.allocation} className="h-2" />
-                        <p className="font-mono text-xs text-right text-muted-foreground">
-                          ${(data.balance * theme.allocation / 100).toFixed(2)} USDC
-                        </p>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono text-xs text-muted-foreground">Status</span>
-                          <Badge variant={isRunning ? "default" : "secondary"}>
+                        
+                        <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                          <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px]">
                             {isRunning ? "RUNNING" : "STOPPED"}
                           </Badge>
-                        </div>
-                        <div>
-                          <span className="font-mono text-[10px] text-muted-foreground">Last Activity</span>
-                          <p className="font-mono text-xs mt-1">
+                          <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[150px]">
                             {'activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')}
-                          </p>
+                          </span>
                         </div>
+                        
                         {'endpoint' in agentData && (
-                          <div>
-                            <span className="font-mono text-[10px] text-muted-foreground">API Endpoint</span>
-                            <p className="font-mono text-xs mt-1 truncate">{agentData.endpoint}</p>
+                          <div className="pt-2 border-t border-border/30">
+                            <span className="font-mono text-[9px] text-muted-foreground">Endpoint: </span>
+                            <span className="font-mono text-[9px] text-foreground/70 truncate">{agentData.endpoint}</span>
                           </div>
                         )}
                       </div>
@@ -582,44 +548,41 @@ export default function PolymarketDashboard() {
                 )
               })}
             </div>
-            
-            {/* Full LLM Activity on Agents Tab */}
-            <LLMActivityFeed />
           </TabsContent>
 
           {/* Positions Tab */}
-          <TabsContent value="positions" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-2">
+          <TabsContent value="positions" className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-2">
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    All Open Positions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-mono text-xs font-medium">All Open Positions</span>
+                    </div>
+                    <Badge variant="secondary" className="text-[9px]">{data.positions.length}</Badge>
+                  </div>
                   {data.positions.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <Layers className="h-12 w-12 mb-3 opacity-30" />
-                      <p className="font-mono text-sm">No open positions</p>
-                      <p className="font-mono text-xs text-muted-foreground/70 mt-1">Positions will appear when agents open trades</p>
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <Layers className="h-8 w-8 mb-2 opacity-30" />
+                      <p className="font-mono text-xs">No open positions</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
                       {data.positions.map((pos, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-lg border border-border/30 bg-background/50 p-4">
+                        <div key={`pos-full-${pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5">
                           <div className="flex-1 min-w-0">
-                            <p className="font-mono text-sm font-medium">{pos.market}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-[10px]">{pos.side}</Badge>
-                              <span className="font-mono text-[10px] text-muted-foreground">
+                            <p className="font-mono text-xs font-medium truncate">{pos.market}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <Badge variant="outline" className="text-[9px] h-4">{pos.side}</Badge>
+                              <span className="font-mono text-[9px] text-muted-foreground">
                                 Cost: ${pos.cost.toFixed(2)}
                               </span>
                             </div>
                           </div>
-                          <div className="text-right ml-4">
-                            <p className="font-mono text-sm font-semibold">${pos.value.toFixed(2)}</p>
-                            <p className={`font-mono text-xs ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          <div className="text-right ml-3">
+                            <p className="font-mono text-xs font-semibold">${pos.value.toFixed(2)}</p>
+                            <p className={`font-mono text-[10px] ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                               {pos.pnl >= 0 ? "+" : ""}{((pos.pnl / pos.cost) * 100).toFixed(1)}%
                             </p>
                           </div>
@@ -631,29 +594,30 @@ export default function PolymarketDashboard() {
               </Card>
 
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Trade History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-mono text-xs font-medium">Trade History</span>
+                    </div>
+                    <Badge variant="secondary" className="text-[9px]">{data.trades.length}</Badge>
+                  </div>
                   {data.trades.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <BarChart3 className="h-12 w-12 mb-3 opacity-30" />
-                      <p className="font-mono text-sm">No trade history</p>
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <BarChart3 className="h-8 w-8 mb-2 opacity-30" />
+                      <p className="font-mono text-xs">No trade history</p>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
                       {data.trades.map((trade, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-lg border border-border/30 bg-background/50 p-4">
+                        <div key={`trade-full-${trade.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5">
                           <div className="flex-1 min-w-0">
-                            <p className="font-mono text-sm font-medium">{trade.market}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground mt-1">{trade.time}</p>
+                            <p className="font-mono text-xs font-medium truncate">{trade.market}</p>
+                            <p className="font-mono text-[9px] text-muted-foreground mt-0.5">{trade.time}</p>
                           </div>
-                          <div className="text-right ml-4">
-                            <p className="font-mono text-sm font-semibold">${trade.amount.toFixed(2)}</p>
-                            <Badge variant="outline" className="text-[10px]">{trade.side}</Badge>
+                          <div className="text-right ml-3">
+                            <p className="font-mono text-xs font-semibold">${trade.amount.toFixed(2)}</p>
+                            <Badge variant="outline" className="text-[9px] h-4">{trade.side}</Badge>
                           </div>
                         </div>
                       ))}
@@ -665,106 +629,88 @@ export default function PolymarketDashboard() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
+          <TabsContent value="settings" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    Trading Configuration
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-4 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono text-xs font-medium">Trading Configuration</span>
+                  </div>
+                  
                   {/* Max Bet */}
-                  <div className="space-y-2">
-                    <label className="font-mono text-xs text-muted-foreground">Maximum Bet Size (USDC)</label>
+                  <div className="space-y-1.5">
+                    <span className="font-mono text-[10px] text-muted-foreground">Maximum Bet Size (USDC)</span>
                     <div className="flex items-center gap-2">
                       <input
                         type="number"
                         step="0.1"
                         min="0.1"
-                        className="flex-1 h-10 rounded-md border border-border/50 bg-background px-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        className="flex-1 h-8 rounded-md border border-border/50 bg-background px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/50"
                         value={maxBet}
                         onChange={(e) => setMaxBet(parseFloat(e.target.value) || 0)}
                       />
                       <Button 
                         onClick={updateMaxBet} 
                         disabled={updatingConfig}
-                        className="h-10"
+                        size="sm"
+                        className="h-8"
                       >
-                        {updatingConfig ? "Saving..." : "Update"}
+                        {updatingConfig ? "..." : "Update"}
                       </Button>
                     </div>
-                    <p className="font-mono text-[10px] text-muted-foreground">
-                      Controls the maximum bet size per trade for all agents
-                    </p>
                   </div>
 
                   <Separator />
 
                   {/* Trading Mode */}
-                  <div className="space-y-2">
-                    <label className="font-mono text-xs text-muted-foreground">Trading Mode</label>
-                    <div className="flex items-center justify-between rounded-lg border border-border/50 bg-background p-4">
-                      <div>
-                        <p className="font-mono text-sm font-semibold">
-                          {data.dryRun ? "🧪 Simulation Mode" : "💸 Live Trading"}
-                        </p>
-                        <p className="font-mono text-[10px] text-muted-foreground mt-1">
-                          {data.dryRun 
-                            ? "Trades are simulated, no real money at risk" 
-                            : "Real trades will be executed on Polymarket"}
-                        </p>
-                      </div>
-                      <Switch 
-                        checked={!data.dryRun} 
-                        onCheckedChange={toggleDryRun}
-                      />
+                  <div className="flex items-center justify-between rounded border border-border/50 bg-background p-3">
+                    <div>
+                      <p className="font-mono text-xs font-semibold">
+                        {data.dryRun ? "🧪 Simulation" : "💸 Live"}
+                      </p>
+                      <p className="font-mono text-[9px] text-muted-foreground mt-0.5">
+                        {data.dryRun ? "No real money at risk" : "Real trades on Polymarket"}
+                      </p>
                     </div>
+                    <Switch 
+                      checked={!data.dryRun} 
+                      onCheckedChange={toggleDryRun}
+                    />
                   </div>
 
                   <Separator />
 
                   {/* Emergency Stop */}
-                  <div className="space-y-2">
-                    <label className="font-mono text-xs text-muted-foreground">Emergency Controls</label>
-                    <Button 
-                      onClick={emergencyStop} 
-                      variant="destructive" 
-                      className="w-full h-12 gap-2"
-                    >
-                      <AlertTriangle className="h-5 w-5" />
-                      EMERGENCY STOP ALL AGENTS
-                    </Button>
-                    <p className="font-mono text-[10px] text-muted-foreground text-center">
-                      Immediately stops all trading activity
-                    </p>
-                  </div>
+                  <Button 
+                    onClick={emergencyStop} 
+                    variant="destructive" 
+                    className="w-full h-10 gap-2"
+                  >
+                    <AlertTriangle className="h-4 w-4" />
+                    EMERGENCY STOP
+                  </Button>
                 </CardContent>
               </Card>
 
               <Card className="border-border/30 bg-card/30">
-                <CardHeader>
-                  <CardTitle className="font-mono text-sm flex items-center gap-2">
-                    <PieChart className="h-4 w-4" />
-                    Capital Allocation
-                  </CardTitle>
-                  <CardDescription className="font-mono text-xs">
-                    How your capital is distributed across agents
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <PieChart className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-mono text-xs font-medium">Capital Allocation</span>
+                  </div>
+                  
                   {[
                     { name: "Safe Agent", pct: 50, theme: AGENT_THEMES.safe },
                     { name: "Scalper", pct: 30, theme: AGENT_THEMES.scalper },
                     { name: "Copy Trader", pct: 20, theme: AGENT_THEMES.copy },
                   ].map(({ name, pct, theme }) => (
-                    <div key={name} className="space-y-2">
+                    <div key={name} className="space-y-1">
                       <div className="flex justify-between">
-                        <span className="font-mono text-xs">{name}</span>
-                        <span className="font-mono text-xs font-semibold">{pct}% (${(data.balance * pct / 100).toFixed(2)})</span>
+                        <span className="font-mono text-[10px]">{name}</span>
+                        <span className="font-mono text-[10px] font-semibold">{pct}% · ${(data.balance * pct / 100).toFixed(2)}</span>
                       </div>
-                      <div className="h-3 rounded-full bg-background overflow-hidden">
+                      <div className="h-2 rounded-full bg-background overflow-hidden">
                         <div 
                           className={`h-full rounded-full ${theme.text.replace('text-', 'bg-')}`}
                           style={{ width: `${pct}%` }}
@@ -773,17 +719,24 @@ export default function PolymarketDashboard() {
                     </div>
                   ))}
                   
-                  <Separator className="my-4" />
+                  <Separator className="my-2" />
                   
-                  <div className="rounded-lg border border-border/30 bg-background/50 p-4">
-                    <p className="font-mono text-xs text-muted-foreground mb-2">Total Balance</p>
-                    <p className="font-mono text-2xl font-bold">${data.balance.toFixed(2)}</p>
+                  <div className="rounded border border-border/30 bg-background/50 p-3">
+                    <p className="font-mono text-[10px] text-muted-foreground">Total Balance</p>
+                    <p className="font-mono text-xl font-bold">${data.balance.toFixed(2)}</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </div>
+        </main>
+
+        {/* Right Panel - LLM Terminal */}
+        <aside className="border-l border-border/30 flex flex-col min-h-0">
+          <LLMTerminal />
+        </aside>
       </div>
     </div>
   )
