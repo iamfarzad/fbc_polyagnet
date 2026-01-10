@@ -1,12 +1,12 @@
 """
-15-Minute Crypto Scalper with Binance Arbitrage
+HIGH-FREQUENCY Crypto Scalper with Binance Arbitrage
 
-Automatically trades 15-minute "Up or Down" crypto markets on Polymarket.
-- Maintains N open positions at all times
-- When a position resolves, opens a new one
+Actively trades 15-minute "Up or Down" crypto markets on Polymarket.
+- Buys YES or NO based on Binance momentum
+- ACTIVELY SELLS when profit target or stop loss hit (doesn't wait for resolution)
+- Compounds gains on every successful flip
+- Targets 100s-1000s of trades per day
 - Uses BINANCE WebSocket for fastest momentum signal (arbitrage edge)
-- Falls back to Chainlink RTDS for confirmation
-- Cycles through BTC, ETH, SOL, XRP
 """
 
 import os
@@ -28,13 +28,28 @@ from agents.utils.context import get_context, Position, Trade
 
 load_dotenv()
 
-# Config
-MAX_POSITIONS = 3
-BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.30"))  # 30% of total equity per position
-MIN_BET_USD = 1.0   # Minimum bet size
-MAX_BET_USD = 100.0 # Maximum bet size (safety cap)
+# =============================================================================
+# HIGH-FREQUENCY SCALPER CONFIG
+# =============================================================================
+
+# Position management
+MAX_POSITIONS = 3                    # Concurrent positions
+BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.25"))  # 25% of equity per position
+MIN_BET_USD = 0.5                    # Minimum bet size (lower for more trades)
+MAX_BET_USD = 50.0                   # Safety cap
+
+# Exit strategy - ACTIVE PROFIT TAKING
+TAKE_PROFIT_PCT = 0.04              # 4% profit = sell
+STOP_LOSS_PCT = -0.08               # 8% loss = cut
+MIN_HOLD_SECONDS = 30               # Hold at least 30s before selling
+MAX_HOLD_SECONDS = 300              # Force exit after 5 min if no target hit
+
+# High-frequency settings
+CHECK_INTERVAL = 15                  # Check every 15 seconds (was 60)
+MOMENTUM_REVERSAL_EXIT = True        # Exit if momentum flips against position
+
+# Assets to trade
 ASSETS = ["bitcoin", "ethereum", "solana", "xrp"]
-CHECK_INTERVAL = 60  # Check positions every 60 seconds
 
 # Binance WebSocket config
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
@@ -44,23 +59,24 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-MOMENTUM_WINDOW = 60  # Track last 60 seconds of prices
+MOMENTUM_WINDOW = 30  # Track last 30 seconds (faster for HFT)
 
 # Dynamic edge config (adaptive thresholds)
-BASE_MOMENTUM_THRESHOLD = 0.08  # Base threshold (lowered from 0.10)
-MIN_MOMENTUM_THRESHOLD = 0.03  # Minimum threshold for high-conviction scenarios
-MAX_MOMENTUM_THRESHOLD = 0.25  # Maximum threshold for choppy/high-vol markets
-VOLATILITY_LOOKBACK = 30       # Seconds to calculate volatility
+BASE_MOMENTUM_THRESHOLD = 0.06      # Lower threshold for more trades
+MIN_MOMENTUM_THRESHOLD = 0.02       # Minimum for high-conviction
+MAX_MOMENTUM_THRESHOLD = 0.20       # Maximum for choppy markets
+VOLATILITY_LOOKBACK = 20            # Faster volatility calc
 
 
 class CryptoScalper:
     """
-    Automated 15-minute crypto scalper.
+    HIGH-FREQUENCY Crypto Scalper.
     
-    Keeps MAX_POSITIONS open at all times by:
-    1. Checking for resolved positions
-    2. Opening new positions on the next available 15-min market
-    3. Using real-time Chainlink prices to decide UP vs DOWN
+    Actively trades both YES and NO sides:
+    1. Opens positions based on Binance momentum
+    2. ACTIVELY SELLS when profit target or stop loss hit
+    3. Compounds gains on every successful flip
+    4. Tracks all trades for performance metrics
     """
     
     AGENT_NAME = "scalper"
@@ -74,9 +90,9 @@ class CryptoScalper:
         self.chainlink_prices = {}  # asset -> current price
         self.price_history = {}     # asset -> list of recent prices
         
-        # Position tracking
-        self.open_positions = {}    # market_id -> position data
-        self.traded_markets = set() # Markets we've already traded (avoid duplicates)
+        # ACTIVE POSITION TRACKING with entry data
+        self.active_positions = {}  # token_id -> {entry_price, entry_time, side, size, asset, market_id}
+        self.traded_markets = set() # Markets we've already traded
         
         self.initial_balance = 0.0
         self.address = ""
@@ -86,24 +102,29 @@ class CryptoScalper:
         self.binance_history = {}     # symbol -> deque of (timestamp, price)
         self.binance_momentum = {}    # symbol -> momentum %
         self.binance_connected = False
-        self.current_threshold = BASE_MOMENTUM_THRESHOLD  # Dynamic threshold tracking
+        self.current_threshold = BASE_MOMENTUM_THRESHOLD
         
-        # Performance tracking for adaptive thresholds
-        self.trade_history = []       # List of (timestamp, won: bool)
-        self.recent_win_rate = 0.5    # Rolling win rate
+        # SESSION STATS - Track all trades
+        self.session_start = datetime.datetime.now()
+        self.total_trades = 0
+        self.winning_trades = 0
+        self.losing_trades = 0
+        self.total_pnl = 0.0
+        self.trade_log = []  # List of completed trades
         
         for symbol in BINANCE_SYMBOLS:
-            self.binance_history[symbol] = deque(maxlen=MOMENTUM_WINDOW * 10)  # ~10 updates/sec
+            self.binance_history[symbol] = deque(maxlen=MOMENTUM_WINDOW * 10)
         
         print(f"=" * 60)
-        print(f"15-MIN CRYPTO SCALPER - BINANCE ARBITRAGE MODE")
+        print(f"🚀 HIGH-FREQUENCY CRYPTO SCALPER")
         print(f"=" * 60)
         print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE TRADING'}")
         print(f"Max Positions: {MAX_POSITIONS}")
         print(f"Bet Size: {BET_PERCENT*100:.0f}% of equity (${MIN_BET_USD}-${MAX_BET_USD})")
+        print(f"Take Profit: {TAKE_PROFIT_PCT*100:.1f}% | Stop Loss: {STOP_LOSS_PCT*100:.1f}%")
+        print(f"Check Interval: {CHECK_INTERVAL}s (HFT mode)")
+        print(f"Strategy: BUY YES/NO → ACTIVE EXIT → COMPOUND")
         print(f"Assets: {', '.join(ASSETS)}")
-        print(f"Strategy: COMPOUND + BINANCE ARBITRAGE")
-        print(f"Edge: Binance WS (~50ms) vs Chainlink (~500ms)")
         print()
         
         try:
@@ -111,7 +132,7 @@ class CryptoScalper:
             self.address = self.pm.get_address_for_private_key()
             self.context.update_balance(self.initial_balance)
             print(f"Wallet: {self.address[:10]}...")
-            print(f"Balance: ${self.initial_balance:.2f}")
+            print(f"Starting Balance: ${self.initial_balance:.2f}")
         except Exception as e:
             print(f"Warning: Could not get balance: {e}")
         
@@ -222,6 +243,222 @@ class CryptoScalper:
         self.traded_markets.clear()
         
         return closed
+
+    # =========================================================================
+    # HIGH-FREQUENCY TRADING - ACTIVE POSITION MANAGEMENT
+    # =========================================================================
+
+    def get_current_price(self, token_id):
+        """Get current market price for a token."""
+        try:
+            orderbook = self.pm.client.get_order_book(token_id)
+            best_bid = float(orderbook.bids[0].price) if orderbook.bids else 0
+            best_ask = float(orderbook.asks[0].price) if orderbook.asks else 1
+            mid_price = (best_bid + best_ask) / 2 if best_bid and best_ask else best_bid or best_ask
+            return mid_price, best_bid, best_ask
+        except Exception as e:
+            return 0.5, 0, 1  # Default to 50/50
+
+    def calculate_position_pnl(self, position_data):
+        """
+        Calculate current PnL for an active position.
+        
+        Returns: (pnl_pct, current_price, best_bid)
+        """
+        token_id = position_data["token_id"]
+        entry_price = position_data["entry_price"]
+        side = position_data["side"]  # "YES" or "NO"
+        
+        current_price, best_bid, best_ask = self.get_current_price(token_id)
+        
+        # For selling, we'd get the bid price
+        exit_price = best_bid if best_bid > 0 else current_price
+        
+        # Calculate PnL based on side
+        if exit_price > 0 and entry_price > 0:
+            pnl_pct = (exit_price - entry_price) / entry_price
+        else:
+            pnl_pct = 0
+        
+        return pnl_pct, current_price, best_bid
+
+    def should_exit_position(self, position_data):
+        """
+        Determine if we should exit a position.
+        
+        Returns: (should_exit: bool, reason: str)
+        """
+        token_id = position_data["token_id"]
+        entry_time = position_data["entry_time"]
+        asset = position_data["asset"]
+        side = position_data["side"]
+        
+        hold_duration = (datetime.datetime.now() - entry_time).total_seconds()
+        
+        # Don't exit too early (avoid wash trades)
+        if hold_duration < MIN_HOLD_SECONDS:
+            return False, "min_hold"
+        
+        # Calculate current PnL
+        pnl_pct, current_price, best_bid = self.calculate_position_pnl(position_data)
+        
+        # TAKE PROFIT - Hit our target!
+        if pnl_pct >= TAKE_PROFIT_PCT:
+            return True, f"TAKE_PROFIT +{pnl_pct*100:.1f}%"
+        
+        # STOP LOSS - Cut losses
+        if pnl_pct <= STOP_LOSS_PCT:
+            return True, f"STOP_LOSS {pnl_pct*100:.1f}%"
+        
+        # MAX HOLD TIME - Force exit
+        if hold_duration >= MAX_HOLD_SECONDS:
+            return True, f"MAX_HOLD {hold_duration:.0f}s"
+        
+        # MOMENTUM REVERSAL - Exit if momentum flipped against us
+        if MOMENTUM_REVERSAL_EXIT:
+            symbol_map = {"bitcoin": "btcusdt", "ethereum": "ethusdt", "solana": "solusdt", "xrp": "xrpusdt"}
+            symbol = symbol_map.get(asset, "")
+            if symbol:
+                momentum = self.calculate_binance_momentum(symbol)
+                # If we're YES (UP) and momentum went negative, or NO (DOWN) and momentum went positive
+                if side == "YES" and momentum < -self.current_threshold:
+                    return True, f"MOMENTUM_FLIP {momentum:.3f}%"
+                elif side == "NO" and momentum > self.current_threshold:
+                    return True, f"MOMENTUM_FLIP {momentum:.3f}%"
+        
+        return False, "hold"
+
+    def exit_position_active(self, token_id, position_data, reason):
+        """
+        Actively sell a position for profit taking or stop loss.
+        
+        Returns: (success: bool, pnl: float)
+        """
+        entry_price = position_data["entry_price"]
+        size = position_data["size"]
+        side = position_data["side"]
+        asset = position_data["asset"]
+        entry_time = position_data["entry_time"]
+        
+        pnl_pct, current_price, best_bid = self.calculate_position_pnl(position_data)
+        hold_duration = (datetime.datetime.now() - entry_time).total_seconds()
+        
+        # Sell at slightly below best bid for faster fill
+        sell_price = max(0.01, best_bid - 0.01) if best_bid > 0.02 else 0.01
+        expected_return = size * sell_price
+        pnl_usd = (sell_price - entry_price) * size
+        
+        emoji = "💰" if pnl_usd > 0 else "🔻"
+        print(f"{emoji} EXITING: {asset.upper()} {side} | {reason}")
+        print(f"   Entry: ${entry_price:.3f} → Exit: ${sell_price:.3f} | PnL: ${pnl_usd:+.3f} ({pnl_pct*100:+.1f}%)")
+        print(f"   Hold: {hold_duration:.0f}s | Size: {size:.2f} shares")
+        
+        if self.dry_run:
+            print(f"   [DRY RUN] Would sell {size:.2f} shares @ ${sell_price:.3f}")
+            # Update stats
+            self.total_trades += 1
+            self.total_pnl += pnl_usd
+            if pnl_usd > 0:
+                self.winning_trades += 1
+            else:
+                self.losing_trades += 1
+            # Remove from tracking
+            if token_id in self.active_positions:
+                del self.active_positions[token_id]
+            return True, pnl_usd
+        
+        try:
+            order_args = OrderArgs(
+                token_id=str(token_id),
+                price=sell_price,
+                size=size,
+                side=SELL
+            )
+            
+            signed = self.pm.client.create_order(order_args)
+            result = self.pm.client.post_order(signed)
+            
+            success = result.get("success", False)
+            status = result.get("status", "unknown")
+            
+            if success or status == "matched":
+                print(f"   ✅ SOLD! Return: ${expected_return:.2f}")
+                
+                # Update session stats
+                self.total_trades += 1
+                self.total_pnl += pnl_usd
+                if pnl_usd > 0:
+                    self.winning_trades += 1
+                else:
+                    self.losing_trades += 1
+                
+                # Log trade
+                self.trade_log.append({
+                    "timestamp": datetime.datetime.now().isoformat(),
+                    "asset": asset,
+                    "side": side,
+                    "entry_price": entry_price,
+                    "exit_price": sell_price,
+                    "size": size,
+                    "pnl_usd": pnl_usd,
+                    "pnl_pct": pnl_pct,
+                    "hold_seconds": hold_duration,
+                    "reason": reason
+                })
+                
+                # Remove from active tracking
+                if token_id in self.active_positions:
+                    del self.active_positions[token_id]
+                
+                return True, pnl_usd
+            else:
+                print(f"   ⚠️ Sell status: {status}")
+                return False, 0
+                
+        except Exception as e:
+            print(f"   ❌ Error selling: {e}")
+            return False, 0
+
+    def check_and_exit_positions(self):
+        """
+        Check all active positions and exit if targets hit.
+        This is the core HFT loop - runs frequently.
+        
+        Returns: number of positions exited
+        """
+        if not self.active_positions:
+            return 0
+        
+        exited = 0
+        to_exit = []
+        
+        # First pass: identify positions to exit
+        for token_id, pos_data in self.active_positions.items():
+            should_exit, reason = self.should_exit_position(pos_data)
+            if should_exit:
+                to_exit.append((token_id, pos_data, reason))
+        
+        # Second pass: execute exits
+        for token_id, pos_data, reason in to_exit:
+            success, pnl = self.exit_position_active(token_id, pos_data, reason)
+            if success:
+                exited += 1
+            time.sleep(1)  # Rate limit
+        
+        return exited
+
+    def print_session_stats(self):
+        """Print current session statistics."""
+        runtime = (datetime.datetime.now() - self.session_start).total_seconds()
+        hours = runtime / 3600
+        trades_per_hour = self.total_trades / hours if hours > 0 else 0
+        win_rate = (self.winning_trades / self.total_trades * 100) if self.total_trades > 0 else 0
+        
+        print(f"\n📊 SESSION STATS:")
+        print(f"   Trades: {self.total_trades} ({trades_per_hour:.1f}/hr)")
+        print(f"   Win Rate: {win_rate:.1f}% ({self.winning_trades}W/{self.losing_trades}L)")
+        print(f"   Total PnL: ${self.total_pnl:+.2f}")
+        print(f"   Active Positions: {len(self.active_positions)}/{MAX_POSITIONS}")
 
     def get_available_markets(self):
         """Get 15-min crypto markets that are accepting orders."""
@@ -487,51 +724,76 @@ class CryptoScalper:
         return 0.5  # Default to 50/50
 
     def open_position(self, market):
-        """Open a new position on a market with compound sizing and dynamic edge."""
+        """
+        Open a new position on a market.
+        
+        HFT MODE:
+        - Buys YES or NO based on momentum direction
+        - Tracks entry for active exit management
+        - Uses compound sizing
+        """
         market_id = market["id"]
         question = market["question"]
         asset = market["asset"]
+        up_token = market["up_token"]
+        down_token = market["down_token"]
         
-        # Skip if already traded this market
-        if market_id in self.traded_markets:
+        # Skip if already have position in this market
+        if up_token in self.active_positions or down_token in self.active_positions:
             return False
         
-        # Get current market price for dynamic threshold calculation
+        # Get current market prices
         market_price = self.get_market_price(market)
         
         # Calculate bet size based on current capital (COMPOUND!)
         bet_size, current_balance, available = self.calculate_bet_size()
         
-        # Get direction based on momentum with DYNAMIC threshold
+        # Get direction based on momentum
         direction = self.get_trade_direction(asset, market_price)
         
-        # If no edge detected, skip this market
+        # If no edge detected, skip
         if direction is None:
-            print(f"   ⏸️ Skipping {asset.upper()} - no edge at current threshold")
             return False
         
-        token_id = market["up_token"] if direction == "UP" else market["down_token"]
+        # Select token and side based on direction
+        # UP momentum = buy YES token, DOWN momentum = buy NO token
+        if direction == "UP":
+            token_id = up_token
+            side_name = "YES"
+            entry_price = min(0.60, market_price + 0.02)  # Slightly aggressive for fill
+        else:
+            token_id = down_token
+            side_name = "NO"
+            entry_price = min(0.60, (1 - market_price) + 0.02)
         
-        # Price: use market price + slight premium for fill
-        price = min(0.55, market_price + 0.03) if direction == "UP" else min(0.55, (1 - market_price) + 0.03)
-        size = bet_size / price
+        # Calculate shares
+        shares = bet_size / entry_price
         
-        print(f"📈 Opening: {question[:45]}...")
-        print(f"   Equity: ${available:.2f} | Cash: ${current_balance:.2f}")
-        print(f"   Bet: ${bet_size:.2f} ({BET_PERCENT*100:.0f}% of equity - COMPOUND)")
-        print(f"   Direction: {direction} @ ${price:.2f} (market: {market_price:.0%})")
-        print(f"   Dynamic Threshold: {self.current_threshold:.3f}%")
+        print(f"🎯 OPENING: {asset.upper()} {side_name}")
+        print(f"   Market: {question[:40]}...")
+        print(f"   Entry: ${entry_price:.3f} | Shares: {shares:.2f} | Size: ${bet_size:.2f}")
+        print(f"   Target: +{TAKE_PROFIT_PCT*100:.0f}% (${entry_price*(1+TAKE_PROFIT_PCT):.3f}) | Stop: {STOP_LOSS_PCT*100:.0f}%")
         
         if self.dry_run:
-            print(f"   [DRY RUN] Would place order")
-            self.traded_markets.add(market_id)
+            print(f"   [DRY RUN] Would buy {shares:.2f} {side_name} @ ${entry_price:.3f}")
+            # Track position for dry run testing
+            self.active_positions[token_id] = {
+                "token_id": token_id,
+                "market_id": market_id,
+                "asset": asset,
+                "side": side_name,
+                "entry_price": entry_price,
+                "entry_time": datetime.datetime.now(),
+                "size": shares,
+                "bet_usd": bet_size
+            }
             return True
         
         try:
             order_args = OrderArgs(
                 token_id=str(token_id),
-                price=price,
-                size=size,
+                price=entry_price,
+                size=shares,
                 side=BUY
             )
             
@@ -542,26 +804,27 @@ class CryptoScalper:
             status = result.get("status", "unknown")
             
             if success or status == "matched":
-                print(f"   ✅ FILLED! (${bet_size:.2f} compounded)")
-                self.traded_markets.add(market_id)
+                print(f"   ✅ FILLED! {shares:.2f} {side_name} @ ${entry_price:.3f}")
+                
+                # TRACK FOR ACTIVE EXIT MANAGEMENT
+                self.active_positions[token_id] = {
+                    "token_id": token_id,
+                    "market_id": market_id,
+                    "asset": asset,
+                    "side": side_name,
+                    "entry_price": entry_price,
+                    "entry_time": datetime.datetime.now(),
+                    "size": shares,
+                    "bet_usd": bet_size
+                }
                 
                 # Record in context
-                self.context.add_position(Position(
-                    market_id=market_id,
-                    market_question=question,
-                    agent=self.AGENT_NAME,
-                    outcome=direction,
-                    entry_price=price,
-                    size_usd=bet_size,
-                    timestamp=datetime.datetime.now().isoformat(),
-                    token_id=token_id
-                ))
                 self.context.add_trade(Trade(
                     market_id=market_id,
                     agent=self.AGENT_NAME,
-                    outcome=direction,
+                    outcome=side_name,
                     size_usd=bet_size,
-                    price=price,
+                    price=entry_price,
                     timestamp=datetime.datetime.now().isoformat(),
                     status="filled"
                 ))
@@ -577,34 +840,45 @@ class CryptoScalper:
 
     def check_and_rebalance(self):
         """
-        Main loop: check positions and open new ones if needed.
-        Shows compound growth stats.
+        HIGH-FREQUENCY main loop:
+        1. Check active positions for exit targets (profit/loss)
+        2. Exit positions that hit targets
+        3. Open new positions if slots available
+        4. Track and display session stats
         """
-        print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] Checking positions...")
+        print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] HFT CYCLE...")
         
-        # Get current balance and calculate growth
+        # =====================================================================
+        # STEP 1: CHECK AND EXIT POSITIONS (ACTIVE PROFIT TAKING)
+        # =====================================================================
+        exited = self.check_and_exit_positions()
+        if exited > 0:
+            print(f"   🔄 Exited {exited} position(s)")
+        
+        # Get current balance and stats
         current_balance = self.get_current_balance()
         growth = current_balance - self.initial_balance
         growth_pct = (growth / self.initial_balance * 100) if self.initial_balance > 0 else 0
         
-        # Get current positions
-        positions = self.get_open_positions()
-        num_positions = len(positions)
-        position_value = sum(float(p.get("currentValue", 0)) for p in positions)
-        total_equity = current_balance + position_value
+        # Get Polymarket positions (may include positions not in our tracking)
+        pm_positions = self.get_open_positions()
+        pm_position_value = sum(float(p.get("currentValue", 0)) for p in pm_positions)
         
-        print(f"   💰 Balance: ${current_balance:.2f} | Positions: ${position_value:.2f} | Total: ${total_equity:.2f}")
-        print(f"   📈 Growth: ${growth:+.2f} ({growth_pct:+.1f}%) from ${self.initial_balance:.2f}")
-        print(f"   📊 Open positions: {num_positions}/{MAX_POSITIONS}")
+        # Active positions we're tracking
+        num_active = len(self.active_positions)
+        total_equity = current_balance + pm_position_value
         
-        # Calculate next bet size (based on total equity for compound)
+        print(f"   💰 Cash: ${current_balance:.2f} | Positions: ${pm_position_value:.2f} | Equity: ${total_equity:.2f}")
+        print(f"   📊 Active: {num_active}/{MAX_POSITIONS} | Session PnL: ${self.total_pnl:+.2f}")
+        
+        # Calculate next bet size
         next_bet, _, equity = self.calculate_bet_size()
-        print(f"   🎯 Next bet: ${next_bet:.2f} ({BET_PERCENT*100:.0f}% of ${equity:.2f} equity)")
-        print(f"   ⚡ Dynamic threshold: {self.current_threshold:.3f}% (range: {MIN_MOMENTUM_THRESHOLD:.2f}-{MAX_MOMENTUM_THRESHOLD:.2f}%)")
+        print(f"   🎯 Next bet: ${next_bet:.2f} | Threshold: {self.current_threshold:.3f}%")
         
-        # Update state file
+        # Update state file with HFT stats
+        win_rate = (self.winning_trades / self.total_trades * 100) if self.total_trades > 0 else 0
         self.save_state({
-            "open_positions": num_positions,
+            "open_positions": num_active,
             "max_positions": MAX_POSITIONS,
             "last_check": datetime.datetime.now().strftime("%H:%M:%S"),
             "current_balance": current_balance,
@@ -614,60 +888,65 @@ class CryptoScalper:
             "total_equity": total_equity,
             "next_bet_size": next_bet,
             "compound_mode": True,
+            "hft_mode": True,
+            "total_trades": self.total_trades,
+            "winning_trades": self.winning_trades,
+            "losing_trades": self.losing_trades,
+            "session_pnl": self.total_pnl,
+            "win_rate": win_rate,
+            "take_profit_pct": TAKE_PROFIT_PCT * 100,
+            "stop_loss_pct": STOP_LOSS_PCT * 100,
         })
         
-        # If we have fewer than MAX, open more
-        if num_positions < MAX_POSITIONS:
-            needed = MAX_POSITIONS - num_positions
-            print(f"   Need to open {needed} new position(s)")
+        # =====================================================================
+        # STEP 2: OPEN NEW POSITIONS IF WE HAVE SLOTS
+        # =====================================================================
+        if num_active < MAX_POSITIONS:
+            needed = MAX_POSITIONS - num_active
+            print(f"   📈 Opening {needed} new position(s)...")
             
             # Get available markets
             markets = self.get_available_markets()
-            print(f"   Available markets: {len(markets)}")
             
-            # Filter out markets we already have positions in
-            position_assets = set()
-            for p in positions:
-                title = p.get("title", "").lower()
-                for asset in ASSETS:
-                    if asset in title:
-                        position_assets.add(asset)
+            # Track which assets we already have positions in
+            position_assets = set(p["asset"] for p in self.active_positions.values())
             
-            # Open positions on different assets
+            # Open positions - prefer diversification
             opened = 0
             for market in markets:
                 if opened >= needed:
                     break
                 
-                # Prefer diversification across assets
+                # Skip if already have this asset
                 if market["asset"] in position_assets:
-                    continue
-                
-                if market["id"] in self.traded_markets:
                     continue
                 
                 if self.open_position(market):
                     opened += 1
                     position_assets.add(market["asset"])
-                    time.sleep(2)  # Rate limit
+                    time.sleep(1)  # Faster rate limit for HFT
             
-            # If still need more, allow same asset
+            # If still need more, allow same asset (different markets)
             if opened < needed:
                 for market in markets:
                     if opened >= needed:
                         break
-                    if market["id"] in self.traded_markets:
+                    # Check if we already have position in this exact market
+                    up_token = market["up_token"]
+                    down_token = market["down_token"]
+                    if up_token in self.active_positions or down_token in self.active_positions:
                         continue
                     if self.open_position(market):
                         opened += 1
-                        time.sleep(2)
+                        time.sleep(1)
             
-            print(f"   Opened {opened} new position(s)")
+            if opened > 0:
+                print(f"   ✅ Opened {opened} new position(s)")
         else:
             print(f"   ✓ Positions at max capacity")
 
     def save_state(self, update: dict):
-        """Save state for dashboard with compound + arbitrage stats."""
+        """Save state for dashboard with HFT stats."""
         state_file = "scalper_state.json"
         try:
             current = {}
@@ -677,22 +956,23 @@ class CryptoScalper:
             
             current.update(update)
             
-            # Rich activity message showing compound + arbitrage status
-            growth = update.get("growth_usd", 0)
-            growth_pct = update.get("growth_pct", 0)
-            next_bet = update.get("next_bet_size", MIN_BET_USD)
+            # HFT activity message
+            total_trades = update.get("total_trades", self.total_trades)
+            session_pnl = update.get("session_pnl", self.total_pnl)
+            win_rate = update.get("win_rate", 0)
             positions = update.get("open_positions", 0)
-            binance_ok = "🔥" if self.binance_connected else "⚠️"
+            binance_ok = "🚀" if self.binance_connected else "⚠️"
             
-            if growth >= 0:
-                current["scalper_last_activity"] = f"{binance_ok} {positions}/{MAX_POSITIONS} | ${growth:+.2f} ({growth_pct:+.1f}%) | ${next_bet:.2f}/trade"
-            else:
-                current["scalper_last_activity"] = f"{binance_ok} {positions}/{MAX_POSITIONS} | ${growth:.2f} ({growth_pct:.1f}%) | ${next_bet:.2f}/trade"
+            # Format: [emoji] positions | trades | PnL | win rate
+            current["scalper_last_activity"] = f"{binance_ok} {positions}/{MAX_POSITIONS} | {total_trades} trades | ${session_pnl:+.2f} | {win_rate:.0f}%W"
             
-            current["scalper_last_endpoint"] = "BINANCE ARB + CHAINLINK" if self.binance_connected else "CHAINLINK ONLY"
-            current["mode"] = "DRY RUN" if self.dry_run else "LIVE ARB"
+            current["scalper_last_endpoint"] = "HFT + BINANCE ARB" if self.binance_connected else "HFT ONLY"
+            current["mode"] = "DRY RUN" if self.dry_run else "LIVE HFT"
             current["dynamic_threshold"] = self.current_threshold
             current["threshold_range"] = f"{MIN_MOMENTUM_THRESHOLD:.2f}-{MAX_MOMENTUM_THRESHOLD:.2f}%"
+            current["check_interval"] = CHECK_INTERVAL
+            current["take_profit"] = f"{TAKE_PROFIT_PCT*100:.0f}%"
+            current["stop_loss"] = f"{STOP_LOSS_PCT*100:.0f}%"
             
             with open(state_file, "w") as f:
                 json.dump(current, f)
@@ -847,12 +1127,20 @@ class CryptoScalper:
         
         time.sleep(2)
         
-        # Main loop
-        print(f"\n🚀 Starting automated trading loop (check every {CHECK_INTERVAL}s)")
+        # Main loop - HIGH FREQUENCY
+        print(f"\n🚀 HIGH-FREQUENCY SCALPER ACTIVE")
+        print(f"   Check Interval: {CHECK_INTERVAL}s")
+        print(f"   Take Profit: +{TAKE_PROFIT_PCT*100:.0f}% | Stop Loss: {STOP_LOSS_PCT*100:.0f}%")
+        print(f"   Target: 500-1000+ trades/day")
         print()
+        
+        cycle_count = 0
+        stats_interval = 20  # Print full stats every 20 cycles (~5 min)
         
         while True:
             try:
+                cycle_count += 1
+                
                 # Check if enabled
                 try:
                     with open("bot_state.json", "r") as f:
@@ -865,46 +1153,47 @@ class CryptoScalper:
                 except:
                     pass
                 
-                # Check and rebalance positions
+                # HFT CYCLE: Check exits + Open new positions
                 self.check_and_rebalance()
                 
-                # Calculate and log Binance momentum (arbitrage data)
-                if self.binance_prices:
-                    print(f"   📊 BINANCE ARBITRAGE FEED:")
+                # Show momentum signals (compact, every 4th cycle)
+                if self.binance_prices and cycle_count % 4 == 0:
+                    signals = []
                     for symbol, asset in BINANCE_SYMBOLS.items():
-                        price = self.binance_prices.get(symbol, 0)
-                        # Calculate momentum NOW
                         momentum = self.calculate_binance_momentum(symbol)
                         self.binance_momentum[symbol] = momentum
-                        
-                        if price > 0:
-                            direction = "📈" if momentum > self.current_threshold else "📉" if momentum < -self.current_threshold else "➡️"
-                            signal = "SIGNAL!" if abs(momentum) > self.current_threshold else ""
-                            if price > 100:
-                                print(f"      {asset.upper()}: ${price:,.0f} {direction} {momentum:+.3f}% {signal}")
-                            else:
-                                print(f"      {asset.upper()}: ${price:.4f} {direction} {momentum:+.3f}% {signal}")
+                        if abs(momentum) > self.current_threshold:
+                            direction = "↑" if momentum > 0 else "↓"
+                            signals.append(f"{asset[:3].upper()}{direction}{abs(momentum):.2f}%")
+                    if signals:
+                        print(f"   📡 Signals: {' | '.join(signals)}")
                 
-                # Save state with arbitrage info
+                # Print full session stats periodically
+                if cycle_count % stats_interval == 0:
+                    self.print_session_stats()
+                
+                # Save state
                 self.save_state({
                     "binance_prices": self.binance_prices,
                     "binance_momentum": self.binance_momentum,
                     "chainlink_prices": self.chainlink_prices,
                     "binance_connected": self.binance_connected,
                     "last_update": datetime.datetime.now().strftime("%H:%M:%S"),
-                    "arbitrage_mode": True,
+                    "hft_mode": True,
                 })
                 
-                # Sleep until next check
-                print(f"   Next check in {CHECK_INTERVAL}s...")
+                # Sleep until next check (fast for HFT)
                 time.sleep(CHECK_INTERVAL)
                 
             except KeyboardInterrupt:
-                print("\nStopping scalper...")
+                print("\n" + "="*60)
+                print("STOPPING HFT SCALPER - FINAL STATS:")
+                self.print_session_stats()
+                print("="*60)
                 break
             except Exception as e:
                 print(f"Error in main loop: {e}")
-                time.sleep(30)
+                time.sleep(10)  # Shorter error sleep for HFT
 
 
 if __name__ == "__main__":

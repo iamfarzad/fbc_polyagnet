@@ -1287,3 +1287,27 @@
 2026-01-10 10:37:57,413 - CopyBot - INFO - User 0xdb27... has 100 positions.
 2026-01-10 10:37:57,511 - CopyBot - INFO - User 0x006c... has 92 positions.
 2026-01-10 10:37:57,722 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 10:42:57,729 - PyMLBot - INFO - Using cached whale list (14 addresses)
+2026-01-10 10:42:57,730 - CopyBot - INFO - LLM discovered 14 top traders
+2026-01-10 10:42:57,730 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 10:42:57,857 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 10:42:58,035 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 10:42:58,151 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 10:42:58,459 - CopyBot - INFO - User 0x006c... has 92 positions.
+2026-01-10 10:42:58,582 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 10:47:58,595 - PyMLBot - INFO - Using cached whale list (14 addresses)
+2026-01-10 10:47:58,600 - CopyBot - INFO - LLM discovered 14 top traders
+2026-01-10 10:47:58,600 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 10:47:58,718 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 10:47:58,842 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 10:47:59,086 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 10:47:59,205 - CopyBot - INFO - User 0x006c... has 92 positions.
+2026-01-10 10:47:59,383 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 10:52:59,405 - PyMLBot - INFO - Using cached whale list (14 addresses)
+2026-01-10 10:52:59,406 - CopyBot - INFO - LLM discovered 14 top traders
+2026-01-10 10:52:59,406 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 10:52:59,535 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 10:52:59,674 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 10:52:59,777 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 10:52:59,897 - CopyBot - INFO - User 0x006c... has 92 positions.
+2026-01-10 10:53:00,236 - CopyBot - INFO - User 0x37e4... has 100 positions.
