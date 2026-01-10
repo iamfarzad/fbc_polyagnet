@@ -43,7 +43,7 @@ load_dotenv()
 # Position management - MORE POSITIONS, SMALLER SIZE
 MAX_POSITIONS = 5                    # More concurrent positions for diversification
 BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.15"))  # 15% per position = 75% max deployed
-MIN_BET_USD = 0.20                   # Minimum bet LOWERED for small cash (was 0.50)
+MIN_BET_USD = 1.00                   # POLYMARKET MINIMUM = $1 (can't go lower)
 MAX_BET_USD = 100.0                  # Safety cap (scales with $200 account)
 
 # Exit strategy - TIGHT EXITS FOR HFT
@@ -1074,9 +1074,10 @@ class CryptoScalper:
         # Calculate bet size based on current capital (COMPOUND!)
         bet_size, current_balance, available = self.calculate_bet_size()
         
-        # Check if we have enough cash to trade
+        # Check if we have enough cash to trade (Polymarket min = $1)
         if bet_size == 0 or current_balance < MIN_BET_USD:
-            print(f"   💸 INSUFFICIENT CASH: ${current_balance:.2f} (need ${MIN_BET_USD:.2f})")
+            print(f"   💸 INSUFFICIENT CASH: ${current_balance:.2f} (Polymarket min = ${MIN_BET_USD:.2f})")
+            print(f"   💡 Close existing positions or add funds to trade")
             return False
         
         # Get direction based on momentum (with force_trade option)
