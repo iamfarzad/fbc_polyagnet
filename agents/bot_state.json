@@ -1,6 +1,6 @@
 {
     "safe_running": false,
-    "scalper_running": true,
+    "scalper_running": false,
     "copy_trader_running": true,
     "dry_run": false,
     "dynamic_max_bet": 2.0,
@@ -16,5 +16,5 @@
     },
     "scalper_markets": 60,
     "last_signal": "None",
-    "copy_last_scan": "2026-01-09 21:53:45"
+    "copy_last_scan": "2026-01-10 10:31:56"
 }
