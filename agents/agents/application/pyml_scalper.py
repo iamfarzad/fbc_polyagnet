@@ -160,8 +160,8 @@ class CryptoScalper:
         self.last_loss_streak_pause = None
         self.consecutive_losses = 0
         
-        # FORCED TRADE TRACKING
-        self.last_forced_trade_time = datetime.datetime.now()
+        # FORCED TRADE TRACKING - Start in past so first cycle forces a trade
+        self.last_forced_trade_time = datetime.datetime.now() - datetime.timedelta(seconds=FORCED_TRADE_INTERVAL + 60)
         self.forced_trades = 0  # Count of forced trades
         
         for symbol in BINANCE_SYMBOLS:
