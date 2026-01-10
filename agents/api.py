@@ -371,6 +371,221 @@ def emergency_stop():
     return {"status": "stopped"}
 
 
+# --- Position Management Endpoints ---
+
+@app.get("/api/positions")
+def get_positions():
+    """Get all open positions with full details."""
+    if not pm:
+        return {"positions": [], "error": "Polymarket client not initialized"}
+    
+    try:
+        import requests
+        address = pm.get_address_for_private_key()
+        url = f"https://data-api.polymarket.com/positions?user={address}"
+        resp = requests.get(url, timeout=10)
+        
+        if resp.status_code != 200:
+            return {"positions": [], "error": f"API error: {resp.status_code}"}
+        
+        raw = resp.json()
+        positions = []
+        
+        for p in raw:
+            try:
+                positions.append({
+                    "id": p.get("conditionId", p.get("asset", "")),
+                    "token_id": p.get("asset", ""),
+                    "market": p.get("title", p.get("question", "Unknown")),
+                    "side": p.get("outcome", "?"),
+                    "size": float(p.get("size", 0)),
+                    "cost": float(p.get("cost", 0)),
+                    "value": float(p.get("currentValue", p.get("value", 0))),
+                    "price": float(p.get("curPrice", 0.5)),
+                    "pnl": float(p.get("currentValue", 0)) - float(p.get("cost", 0)),
+                    "pnl_pct": ((float(p.get("currentValue", 0)) - float(p.get("cost", 0))) / float(p.get("cost", 1))) * 100 if float(p.get("cost", 0)) > 0 else 0
+                })
+            except Exception as e:
+                logger.error(f"Error parsing position: {e}")
+                continue
+        
+        return {"positions": positions, "count": len(positions)}
+    
+    except Exception as e:
+        logger.error(f"Error fetching positions: {e}")
+        return {"positions": [], "error": str(e)}
+
+
+class ClosePositionRequest(BaseModel):
+    token_id: str
+    size: float = None  # If None, close entire position
+    price: float = None  # If None, use market price
+
+
+@app.post("/api/close-position")
+def close_position(req: ClosePositionRequest):
+    """Close a specific position by selling shares."""
+    if not pm:
+        return {"status": "error", "error": "Polymarket client not initialized"}
+    
+    try:
+        from py_clob_client.clob_types import OrderArgs
+        from py_clob_client.order_builder.constants import SELL
+        
+        # Get current position info if size not provided
+        if req.size is None or req.price is None:
+            import requests
+            address = pm.get_address_for_private_key()
+            url = f"https://data-api.polymarket.com/positions?user={address}"
+            resp = requests.get(url, timeout=10)
+            
+            if resp.status_code == 200:
+                for p in resp.json():
+                    if p.get("asset") == req.token_id:
+                        if req.size is None:
+                            req.size = float(p.get("size", 0))
+                        if req.price is None:
+                            req.price = float(p.get("curPrice", 0.5))
+                        break
+        
+        if not req.size or req.size <= 0:
+            return {"status": "error", "error": "No position size found"}
+        
+        # Get best bid from orderbook for better fill
+        try:
+            orderbook = pm.client.get_order_book(req.token_id)
+            if orderbook.bids:
+                best_bid = float(orderbook.bids[0].price)
+                # Sell slightly below best bid for faster fill
+                sell_price = max(0.01, best_bid - 0.01)
+            else:
+                sell_price = max(0.01, (req.price or 0.5) - 0.05)
+        except:
+            sell_price = max(0.01, (req.price or 0.5) - 0.05)
+        
+        # Create sell order
+        order_args = OrderArgs(
+            token_id=str(req.token_id),
+            price=sell_price,
+            size=req.size,
+            side=SELL
+        )
+        
+        signed = pm.client.create_order(order_args)
+        result = pm.client.post_order(signed)
+        
+        if result.get("success") or result.get("status") == "matched":
+            return {
+                "status": "success",
+                "message": f"Sold {req.size:.2f} shares @ ${sell_price:.3f}",
+                "size": req.size,
+                "price": sell_price,
+                "expected_return": req.size * sell_price
+            }
+        else:
+            return {
+                "status": "pending",
+                "message": f"Order placed: {result.get('status', 'unknown')}",
+                "order_status": result.get("status")
+            }
+    
+    except Exception as e:
+        logger.error(f"Error closing position: {e}")
+        return {"status": "error", "error": str(e)}
+
+
+@app.post("/api/close-all-positions")
+def close_all_positions():
+    """Close all open positions."""
+    if not pm:
+        return {"status": "error", "error": "Polymarket client not initialized"}
+    
+    try:
+        import requests
+        from py_clob_client.clob_types import OrderArgs
+        from py_clob_client.order_builder.constants import SELL
+        
+        address = pm.get_address_for_private_key()
+        url = f"https://data-api.polymarket.com/positions?user={address}"
+        resp = requests.get(url, timeout=10)
+        
+        if resp.status_code != 200:
+            return {"status": "error", "error": f"Failed to fetch positions: {resp.status_code}"}
+        
+        positions = resp.json()
+        results = []
+        closed = 0
+        failed = 0
+        
+        for p in positions:
+            try:
+                token_id = p.get("asset")
+                size = float(p.get("size", 0))
+                price = float(p.get("curPrice", 0.5))
+                
+                if size <= 0:
+                    continue
+                
+                # Get best bid
+                try:
+                    orderbook = pm.client.get_order_book(token_id)
+                    if orderbook.bids:
+                        sell_price = max(0.01, float(orderbook.bids[0].price) - 0.01)
+                    else:
+                        sell_price = max(0.01, price - 0.05)
+                except:
+                    sell_price = max(0.01, price - 0.05)
+                
+                # Sell
+                order_args = OrderArgs(
+                    token_id=str(token_id),
+                    price=sell_price,
+                    size=size,
+                    side=SELL
+                )
+                
+                signed = pm.client.create_order(order_args)
+                result = pm.client.post_order(signed)
+                
+                if result.get("success") or result.get("status") == "matched":
+                    closed += 1
+                    results.append({
+                        "market": p.get("title", "")[:40],
+                        "status": "closed",
+                        "size": size,
+                        "price": sell_price
+                    })
+                else:
+                    failed += 1
+                    results.append({
+                        "market": p.get("title", "")[:40],
+                        "status": result.get("status", "unknown")
+                    })
+                
+                import time
+                time.sleep(1)  # Rate limit
+                
+            except Exception as e:
+                failed += 1
+                results.append({
+                    "market": p.get("title", "")[:40],
+                    "status": "error",
+                    "error": str(e)
+                })
+        
+        return {
+            "status": "success",
+            "closed": closed,
+            "failed": failed,
+            "total": len(positions),
+            "results": results
+        }
+    
+    except Exception as e:
+        logger.error(f"Error closing all positions: {e}")
+        return {"status": "error", "error": str(e)}
+
+
 # --- LLM Activity Endpoints ---
 
 @app.get("/api/llm-activity")

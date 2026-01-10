@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { 
   RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, 
   Activity, Zap, Wallet, ExternalLink, Brain, Shield, Gauge,
-  BarChart3, Clock, Target, Users, Layers, Settings, PieChart
+  BarChart3, Clock, Target, Users, Layers, Settings, PieChart,
+  X, XCircle, Loader2
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -86,6 +87,9 @@ export default function PolymarketDashboard() {
   const [updatingConfig, setUpdatingConfig] = useState(false)
   const [activeTab, setActiveTab] = useState("overview")
   const [rightPanel, setRightPanel] = useState<"terminal" | "chat">("terminal")
+  const [closingPosition, setClosingPosition] = useState<string | null>(null)
+  const [closingAll, setClosingAll] = useState(false)
+  const [detailedPositions, setDetailedPositions] = useState<any[]>([])
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -153,11 +157,77 @@ export default function PolymarketDashboard() {
     }
   }
 
+  const fetchDetailedPositions = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const response = await fetch(`${apiUrl}/api/positions`)
+      const json = await response.json()
+      if (json.positions) {
+        setDetailedPositions(json.positions)
+      }
+    } catch (error) {
+      console.error("Failed to fetch detailed positions:", error)
+    }
+  }
+
+  const closePosition = async (tokenId: string, size: number) => {
+    setClosingPosition(tokenId)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const response = await fetch(`${apiUrl}/api/close-position`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token_id: tokenId, size }),
+      })
+      const result = await response.json()
+      if (result.status === "success" || result.status === "pending") {
+        // Refresh data
+        await fetchDashboardData()
+        await fetchDetailedPositions()
+      } else {
+        alert(`Failed to close: ${result.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error("Failed to close position:", error)
+      alert("Failed to close position")
+    } finally {
+      setClosingPosition(null)
+    }
+  }
+
+  const closeAllPositions = async () => {
+    if (!confirm("Are you sure you want to close ALL positions?")) return
+    
+    setClosingAll(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const response = await fetch(`${apiUrl}/api/close-all-positions`, {
+        method: "POST",
+      })
+      const result = await response.json()
+      alert(`Closed ${result.closed}/${result.total} positions`)
+      await fetchDashboardData()
+      await fetchDetailedPositions()
+    } catch (error) {
+      console.error("Failed to close all positions:", error)
+      alert("Failed to close positions")
+    } finally {
+      setClosingAll(false)
+    }
+  }
+
   useEffect(() => {
     fetchDashboardData()
     const interval = setInterval(fetchDashboardData, 30000)
     return () => clearInterval(interval)
   }, [])
+
+  // Fetch detailed positions when positions tab is active
+  useEffect(() => {
+    if (activeTab === "positions") {
+      fetchDetailedPositions()
+    }
+  }, [activeTab])
 
   if (!data) {
     return (
@@ -559,6 +629,26 @@ export default function PolymarketDashboard() {
 
           {/* Positions Tab */}
           <TabsContent value="positions" className="space-y-4">
+            {/* Close All Button */}
+            {detailedPositions.length > 0 && (
+              <div className="flex justify-end">
+                <Button
+                  onClick={closeAllPositions}
+                  disabled={closingAll}
+                  variant="destructive"
+                  size="sm"
+                  className="gap-2"
+                >
+                  {closingAll ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  {closingAll ? "Closing..." : "Close All Positions"}
+                </Button>
+              </div>
+            )}
+
             <div className="grid gap-4 lg:grid-cols-2">
               <Card className="border-border/30 bg-card/30">
                 <CardContent className="p-4">
@@ -567,31 +657,58 @@ export default function PolymarketDashboard() {
                       <Target className="h-4 w-4 text-muted-foreground" />
                       <span className="font-mono text-xs font-medium">All Open Positions</span>
                     </div>
-                    <Badge variant="secondary" className="text-[9px]">{data.positions.length}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={fetchDetailedPositions}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                      <Badge variant="secondary" className="text-[9px]">{detailedPositions.length || data.positions.length}</Badge>
+                    </div>
                   </div>
-                  {data.positions.length === 0 ? (
+                  {(detailedPositions.length === 0 && data.positions.length === 0) ? (
                     <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                       <Layers className="h-8 w-8 mb-2 opacity-30" />
                       <p className="font-mono text-xs">No open positions</p>
                     </div>
                   ) : (
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                      {data.positions.map((pos, i) => (
-                        <div key={`pos-full-${pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5">
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {(detailedPositions.length > 0 ? detailedPositions : data.positions).map((pos, i) => (
+                        <div key={`pos-full-${pos.token_id || pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5 group hover:border-border/50 transition-colors">
                           <div className="flex-1 min-w-0">
                             <p className="font-mono text-xs font-medium truncate">{pos.market}</p>
                             <div className="flex items-center gap-2 mt-0.5">
                               <Badge variant="outline" className="text-[9px] h-4">{pos.side}</Badge>
                               <span className="font-mono text-[9px] text-muted-foreground">
-                                Cost: ${pos.cost.toFixed(2)}
+                                {pos.size ? `${pos.size.toFixed(1)} shares @ ` : ''}${pos.cost?.toFixed(2) || '0.00'}
                               </span>
                             </div>
                           </div>
-                          <div className="text-right ml-3">
-                            <p className="font-mono text-xs font-semibold">${pos.value.toFixed(2)}</p>
-                            <p className={`font-mono text-[10px] ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {pos.pnl >= 0 ? "+" : ""}{((pos.pnl / pos.cost) * 100).toFixed(1)}%
-                            </p>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <p className="font-mono text-xs font-semibold">${pos.value?.toFixed(2) || '0.00'}</p>
+                              <p className={`font-mono text-[10px] ${(pos.pnl || 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                {(pos.pnl || 0) >= 0 ? "+" : ""}{pos.pnl_pct?.toFixed(1) || ((pos.pnl / (pos.cost || 1)) * 100).toFixed(1)}%
+                              </p>
+                            </div>
+                            {pos.token_id && (
+                              <Button
+                                onClick={() => closePosition(pos.token_id, pos.size)}
+                                disabled={closingPosition === pos.token_id}
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                              >
+                                {closingPosition === pos.token_id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <X className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}

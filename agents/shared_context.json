@@ -19,7 +19,7 @@
     "copy": 0.1
   },
   "total_balance": 5.065347,
-  "last_update": "2026-01-10T10:33:43.872899",
+  "last_update": "2026-01-10T21:54:54.410647",
   "agent_status": {
     "safe": {
       "active": true,
@@ -308,6 +308,25 @@
       "duration_ms": 8214,
       "tokens_used": 1238,
       "cost_usd": 0.00619
+    },
+    {
+      "id": "614ac6dc",
+      "agent": "copy",
+      "timestamp": "2026-01-10T21:54:54.403001",
+      "action_type": "discover",
+      "market_question": "Top Polymarket Traders Discovery",
+      "prompt_summary": "Search for top performing traders on leaderboard",
+      "reasoning": "Found 15 traders from LLM search",
+      "conclusion": "FOUND_15",
+      "confidence": 0.8,
+      "data_sources": [
+        "Polymarket Leaderboard",
+        "Twitter/X",
+        "News"
+      ],
+      "duration_ms": 6943,
+      "tokens_used": 1161,
+      "cost_usd": 0.005805
     }
   ]
 }
