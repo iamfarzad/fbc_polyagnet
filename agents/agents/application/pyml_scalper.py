@@ -86,8 +86,8 @@ FORCE_BEST_OPPORTUNITY = True       # If no signal, pick highest momentum anyway
 # SAFEGUARDS - RELAXED FOR 15-MIN CRYPTO MARKETS (LOW LIQUIDITY)
 # =============================================================================
 
-# 1. Spread protection - RELAXED for thin markets
-MAX_SPREAD_PCT = 0.50               # Max 50% bid-ask spread (was 5%)
+# 1. Spread protection - DISABLED for thin markets (99% = empty orderbook)
+MAX_SPREAD_PCT = 1.0                # Max 100% = effectively disabled
 
 # 2. Resolution buffer - exit before binary settlement
 MIN_TIME_TO_RESOLUTION = 60         # Exit 1 min before market resolves (was 2 min)
@@ -688,35 +688,39 @@ class CryptoScalper:
         except Exception as e:
             return True, f"Flash check error: {e}"
 
-    def run_all_safeguards(self, market=None, token_id=None, entry_price=None, symbol=None):
+    def run_all_safeguards(self, market=None, token_id=None, entry_price=None, symbol=None, force_trade=False):
         """
         Run all safeguards before entering a trade.
+        
+        For FORCED TRADES: Skip spread and liquidity checks (markets are thin).
+        Still check circuit breaker, loss streak, and price range.
+        
         Returns: (safe: bool, reasons: list)
         """
         reasons = []
         all_safe = True
         
-        # 1. Circuit breaker (always check)
+        # 1. Circuit breaker (ALWAYS check - critical safety)
         safe, reason = self.check_circuit_breaker()
         if not safe:
             all_safe = False
             reasons.append(f"🛑 {reason}")
         
-        # 2. Loss streak (always check)
+        # 2. Loss streak (ALWAYS check)
         safe, reason = self.check_loss_streak()
         if not safe:
             all_safe = False
             reasons.append(f"⚠️ {reason}")
         
-        # 3. Spread (if token_id provided)
-        if token_id:
+        # 3. Spread (SKIP for forced trades - markets are thin)
+        if token_id and not force_trade:
             safe, reason = self.check_spread_safe(token_id)
             if not safe:
                 all_safe = False
                 reasons.append(f"📊 {reason}")
         
-        # 4. Liquidity (if token_id provided)
-        if token_id:
+        # 4. Liquidity (SKIP for forced trades - accept low liquidity)
+        if token_id and not force_trade:
             safe, reason = self.check_liquidity(token_id)
             if not safe:
                 all_safe = False
@@ -729,15 +733,15 @@ class CryptoScalper:
                 all_safe = False
                 reasons.append(f"⏰ {reason}")
         
-        # 6. Price sanity (if entry_price provided)
+        # 6. Price sanity (if entry_price provided - still check for forced)
         if entry_price:
             safe, reason = self.check_price_safe(entry_price)
             if not safe:
                 all_safe = False
                 reasons.append(f"💰 {reason}")
         
-        # 7. Flash crash (if symbol provided)
-        if symbol:
+        # 7. Flash crash (SKIP for forced trades)
+        if symbol and not force_trade:
             safe, reason = self.check_flash_crash(symbol)
             if not safe:
                 all_safe = False
@@ -1082,12 +1086,14 @@ class CryptoScalper:
         
         # =====================================================================
         # RUN ALL SAFEGUARDS BEFORE ENTRY
+        # For forced trades: skip spread/liquidity checks (thin markets)
         # =====================================================================
         safe, reasons = self.run_all_safeguards(
             market=market,
             token_id=token_id,
             entry_price=entry_price,
-            symbol=symbol
+            symbol=symbol,
+            force_trade=force_trade
         )
         
         if not safe:
