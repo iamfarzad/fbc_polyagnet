@@ -83,32 +83,32 @@ FORCED_TRADE_INTERVAL = 900         # 15 minutes = 900 seconds
 FORCE_BEST_OPPORTUNITY = True       # If no signal, pick highest momentum anyway
 
 # =============================================================================
-# SAFEGUARDS - PROTECTION AGAINST GETTING BURNED
+# SAFEGUARDS - RELAXED FOR 15-MIN CRYPTO MARKETS (LOW LIQUIDITY)
 # =============================================================================
 
-# 1. Spread protection - don't get eaten by slippage
-MAX_SPREAD_PCT = 0.05               # Max 5% bid-ask spread
+# 1. Spread protection - RELAXED for thin markets
+MAX_SPREAD_PCT = 0.50               # Max 50% bid-ask spread (was 5%)
 
 # 2. Resolution buffer - exit before binary settlement
-MIN_TIME_TO_RESOLUTION = 120        # Exit 2 min before market resolves
+MIN_TIME_TO_RESOLUTION = 60         # Exit 1 min before market resolves (was 2 min)
 
 # 3. Circuit breaker - stop trading on big losses
-MAX_DAILY_DRAWDOWN_PCT = 0.15       # Halt at 15% daily loss
+MAX_DAILY_DRAWDOWN_PCT = 0.20       # Halt at 20% daily loss (was 15%)
 
 # 4. Loss streak protection - pause on consecutive losses
-MAX_CONSECUTIVE_LOSSES = 5          # Cooldown after 5 losses in a row
-LOSS_STREAK_COOLDOWN = 300          # 5 min cooldown
+MAX_CONSECUTIVE_LOSSES = 7          # Cooldown after 7 losses (was 5)
+LOSS_STREAK_COOLDOWN = 180          # 3 min cooldown (was 5 min)
 
-# 5. Price sanity - avoid extreme risk/reward
-MIN_ENTRY_PRICE = 0.15              # Don't buy below 15¢ (likely loser)
-MAX_ENTRY_PRICE = 0.85              # Don't buy above 85¢ (not enough upside)
+# 5. Price sanity - RELAXED for thin markets
+MIN_ENTRY_PRICE = 0.10              # Allow down to 10¢ (was 15¢)
+MAX_ENTRY_PRICE = 0.90              # Allow up to 90¢ (was 85¢)
 
-# 6. Liquidity check - ensure you can exit
-MIN_LIQUIDITY_USD = 200             # Need $200+ in orderbook bids
+# 6. Liquidity check - RELAXED for thin markets
+MIN_LIQUIDITY_USD = 20              # Need just $20+ in orderbook (was $200)
 
 # 7. Flash crash detection - pause on abnormal moves
-MAX_PRICE_MOVE_PCT = 0.08           # 8% move in 30s = pause
-FLASH_CRASH_COOLDOWN = 60           # 60s pause after flash move
+MAX_PRICE_MOVE_PCT = 0.12           # 12% move in 30s = pause (was 8%)
+FLASH_CRASH_COOLDOWN = 30           # 30s pause (was 60s)
 
 
 class CryptoScalper:
@@ -183,7 +183,7 @@ class CryptoScalper:
         print(f"   Interval: {FORCED_TRADE_INTERVAL/60:.0f} minutes (GUARANTEED TRADE)")
         print(f"   Momentum threshold: {BASE_MOMENTUM_THRESHOLD:.3f}% (lowered for more trades)")
         print()
-        print(f"🛡️ SAFEGUARDS ACTIVE:")
+        print(f"🛡️ SAFEGUARDS (RELAXED for thin markets):")
         print(f"   Max spread: {MAX_SPREAD_PCT*100:.0f}% | Price range: {MIN_ENTRY_PRICE:.0%}-{MAX_ENTRY_PRICE:.0%}")
         print(f"   Circuit breaker: -{MAX_DAILY_DRAWDOWN_PCT*100:.0f}% daily | Loss streak: {MAX_CONSECUTIVE_LOSSES} max")
         print(f"   Min liquidity: ${MIN_LIQUIDITY_USD} | Resolution buffer: {MIN_TIME_TO_RESOLUTION}s")
