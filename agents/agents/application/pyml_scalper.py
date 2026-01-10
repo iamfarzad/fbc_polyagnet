@@ -70,10 +70,17 @@ BINANCE_SYMBOLS = {
 MOMENTUM_WINDOW = 20  # 20 seconds - faster signal detection
 
 # Dynamic edge config - LOWER THRESHOLD = MORE TRADES
-BASE_MOMENTUM_THRESHOLD = 0.04      # 0.04% base (enter on small moves)
-MIN_MOMENTUM_THRESHOLD = 0.015      # 0.015% min (high conviction = tight)
-MAX_MOMENTUM_THRESHOLD = 0.15       # 0.15% max (choppy = wider)
+BASE_MOMENTUM_THRESHOLD = 0.02      # 0.02% base (LOWERED - more trades)
+MIN_MOMENTUM_THRESHOLD = 0.005      # 0.005% min (tiny moves OK)
+MAX_MOMENTUM_THRESHOLD = 0.10       # 0.10% max (choppy = wider)
 VOLATILITY_LOOKBACK = 15            # 15s volatility window
+
+# =============================================================================
+# FORCED TRADE MODE - GUARANTEE TRADES EVERY 15 MINUTES
+# =============================================================================
+FORCED_TRADE_ENABLED = True         # Enable guaranteed trading
+FORCED_TRADE_INTERVAL = 900         # 15 minutes = 900 seconds
+FORCE_BEST_OPPORTUNITY = True       # If no signal, pick highest momentum anyway
 
 # =============================================================================
 # SAFEGUARDS - PROTECTION AGAINST GETTING BURNED
@@ -153,6 +160,10 @@ class CryptoScalper:
         self.last_loss_streak_pause = None
         self.consecutive_losses = 0
         
+        # FORCED TRADE TRACKING
+        self.last_forced_trade_time = datetime.datetime.now()
+        self.forced_trades = 0  # Count of forced trades
+        
         for symbol in BINANCE_SYMBOLS:
             self.binance_history[symbol] = deque(maxlen=MOMENTUM_WINDOW * 10)
         
@@ -166,6 +177,11 @@ class CryptoScalper:
         print(f"Check Interval: {CHECK_INTERVAL}s (HFT mode)")
         print(f"Strategy: BUY YES/NO → ACTIVE EXIT → COMPOUND")
         print(f"Assets: {', '.join(ASSETS)}")
+        print()
+        print(f"⚡ FORCED TRADE MODE:")
+        print(f"   Enabled: {FORCED_TRADE_ENABLED}")
+        print(f"   Interval: {FORCED_TRADE_INTERVAL/60:.0f} minutes (GUARANTEED TRADE)")
+        print(f"   Momentum threshold: {BASE_MOMENTUM_THRESHOLD:.3f}% (lowered for more trades)")
         print()
         print(f"🛡️ SAFEGUARDS ACTIVE:")
         print(f"   Max spread: {MAX_SPREAD_PCT*100:.0f}% | Price range: {MIN_ENTRY_PRICE:.0%}-{MAX_ENTRY_PRICE:.0%}")
@@ -500,11 +516,16 @@ class CryptoScalper:
         trades_per_hour = self.total_trades / hours if hours > 0 else 0
         win_rate = (self.winning_trades / self.total_trades * 100) if self.total_trades > 0 else 0
         
+        # Time until next forced trade
+        time_since_forced = (datetime.datetime.now() - self.last_forced_trade_time).total_seconds()
+        next_forced = max(0, FORCED_TRADE_INTERVAL - time_since_forced)
+        
         print(f"\n📊 SESSION STATS:")
-        print(f"   Trades: {self.total_trades} ({trades_per_hour:.1f}/hr)")
+        print(f"   Trades: {self.total_trades} ({trades_per_hour:.1f}/hr) | Forced: {self.forced_trades}")
         print(f"   Win Rate: {win_rate:.1f}% ({self.winning_trades}W/{self.losing_trades}L)")
         print(f"   Total PnL: ${self.total_pnl:+.2f}")
         print(f"   Active Positions: {len(self.active_positions)}/{MAX_POSITIONS}")
+        print(f"   Next Forced Trade: {next_forced/60:.1f}min")
         print(f"   Circuit Breaker: {'🛑 TRIGGERED' if self.circuit_breaker_triggered else '✅ OK'}")
 
     # =========================================================================
@@ -873,7 +894,7 @@ class CryptoScalper:
         
         return threshold
 
-    def get_trade_direction(self, asset, market_price=0.5):
+    def get_trade_direction(self, asset, market_price=0.5, force_trade=False):
         """
         Decide UP or DOWN based on BINANCE momentum (fastest signal).
         Falls back to Chainlink if Binance unavailable.
@@ -882,6 +903,10 @@ class CryptoScalper:
         - Binance updates ~50ms, Chainlink ~500ms
         - We see momentum 400ms before Polymarket settlement oracle
         - If momentum > DYNAMIC threshold, bet in that direction
+        
+        FORCED TRADE MODE:
+        - If force_trade=True, returns direction based on ANY momentum (ignores threshold)
+        - Positive momentum = UP, Negative = DOWN, Zero = UP (default)
         
         DYNAMIC THRESHOLD adapts to:
         - Volatility (noisy = higher threshold)
@@ -916,7 +941,13 @@ class CryptoScalper:
                 return "DOWN"
             else:
                 # Momentum exists but below dynamic threshold
-                print(f"   ⏳ WAITING: {asset.upper()} momentum {momentum:+.3f}% (need >{threshold:.3f}%, vol:{volatility:.3f})")
+                if force_trade:
+                    # FORCED TRADE: Use ANY momentum direction
+                    direction = "UP" if momentum >= 0 else "DOWN"
+                    print(f"   ⚡ FORCED: {asset.upper()} momentum {momentum:+.3f}% (below {threshold:.3f}%) → {direction}")
+                    return direction
+                else:
+                    print(f"   ⏳ WAITING: {asset.upper()} momentum {momentum:+.3f}% (need >{threshold:.3f}%, vol:{volatility:.3f})")
         
         # Fallback to Chainlink (SECONDARY) - also use dynamic threshold
         chainlink_threshold = threshold * 0.6  # Chainlink can use lower threshold (confirmation signal)
@@ -932,8 +963,18 @@ class CryptoScalper:
             elif change_pct < -chainlink_threshold:
                 print(f"   📡 CHAINLINK: {asset.upper()} {change_pct:.3f}% < -{chainlink_threshold:.3f}% → DOWN")
                 return "DOWN"
+            elif force_trade:
+                # FORCED TRADE: Use ANY Chainlink direction
+                direction = "UP" if change_pct >= 0 else "DOWN"
+                print(f"   ⚡ FORCED (CL): {asset.upper()} {change_pct:+.3f}% → {direction}")
+                return direction
         
-        # No clear signal - skip this market instead of defaulting
+        # No clear signal
+        if force_trade:
+            # FORCED TRADE: Default to UP if no data at all
+            print(f"   ⚡ FORCED DEFAULT: {asset.upper()} → UP (no data)")
+            return "UP"
+        
         if symbol and len(self.binance_history.get(symbol, [])) > 0:
             print(f"   ⏸️ NO EDGE: {asset.upper()} - skipping (threshold: {threshold:.3f}%)")
         
@@ -987,7 +1028,7 @@ class CryptoScalper:
             pass
         return 0.5  # Default to 50/50
 
-    def open_position(self, market):
+    def open_position(self, market, force_trade=False):
         """
         Open a new position on a market.
         
@@ -996,6 +1037,10 @@ class CryptoScalper:
         - Buys YES or NO based on momentum direction
         - Tracks entry for active exit management
         - Uses compound sizing
+        
+        FORCED TRADE MODE:
+        - If force_trade=True, trades even without strong momentum signal
+        - Still uses momentum direction for YES/NO choice
         """
         market_id = market["id"]
         question = market["question"]
@@ -1013,8 +1058,8 @@ class CryptoScalper:
         # Calculate bet size based on current capital (COMPOUND!)
         bet_size, current_balance, available = self.calculate_bet_size()
         
-        # Get direction based on momentum
-        direction = self.get_trade_direction(asset, market_price)
+        # Get direction based on momentum (with force_trade option)
+        direction = self.get_trade_direction(asset, market_price, force_trade=force_trade)
         
         # If no edge detected, skip
         if direction is None:
@@ -1194,11 +1239,21 @@ class CryptoScalper:
         })
         
         # =====================================================================
+        # CHECK IF FORCED TRADE TIME (EVERY 15 MINUTES)
+        # =====================================================================
+        force_trade = False
+        if FORCED_TRADE_ENABLED:
+            time_since_forced = (datetime.datetime.now() - self.last_forced_trade_time).total_seconds()
+            if time_since_forced >= FORCED_TRADE_INTERVAL:
+                force_trade = True
+                print(f"   ⚡ FORCED TRADE TIME! ({time_since_forced/60:.1f}min since last)")
+        
+        # =====================================================================
         # STEP 2: OPEN NEW POSITIONS IF WE HAVE SLOTS
         # =====================================================================
         if num_active < MAX_POSITIONS:
             needed = MAX_POSITIONS - num_active
-            print(f"   📈 Opening {needed} new position(s)...")
+            print(f"   📈 Opening {needed} new position(s)..." + (" [FORCED]" if force_trade else ""))
             
             # Get available markets
             markets = self.get_available_markets()
@@ -1216,9 +1271,13 @@ class CryptoScalper:
                 if market["asset"] in position_assets:
                     continue
                 
-                if self.open_position(market):
+                # Pass force_trade flag to open_position
+                if self.open_position(market, force_trade=force_trade):
                     opened += 1
                     position_assets.add(market["asset"])
+                    if force_trade:
+                        self.forced_trades += 1
+                        self.last_forced_trade_time = datetime.datetime.now()
                     time.sleep(1)  # Faster rate limit for HFT
             
             # If still need more, allow same asset (different markets)
@@ -1231,14 +1290,22 @@ class CryptoScalper:
                     down_token = market["down_token"]
                     if up_token in self.active_positions or down_token in self.active_positions:
                         continue
-                    if self.open_position(market):
+                    if self.open_position(market, force_trade=force_trade):
                         opened += 1
+                        if force_trade:
+                            self.forced_trades += 1
+                            self.last_forced_trade_time = datetime.datetime.now()
                         time.sleep(1)
             
             if opened > 0:
-                print(f"   ✅ Opened {opened} new position(s)")
+                print(f"   ✅ Opened {opened} new position(s)" + (" [FORCED]" if force_trade else ""))
+            elif force_trade and opened == 0:
+                print(f"   ⚠️ Forced trade failed - no markets available or all blocked by safeguards")
         else:
             print(f"   ✓ Positions at max capacity")
+            # Still reset forced trade timer if at capacity
+            if force_trade:
+                self.last_forced_trade_time = datetime.datetime.now()
 
     def save_state(self, update: dict):
         """Save state for dashboard with HFT stats."""
@@ -1268,6 +1335,13 @@ class CryptoScalper:
             current["check_interval"] = CHECK_INTERVAL
             current["take_profit"] = f"{TAKE_PROFIT_PCT*100:.0f}%"
             current["stop_loss"] = f"{STOP_LOSS_PCT*100:.0f}%"
+            current["forced_trade_enabled"] = FORCED_TRADE_ENABLED
+            current["forced_trade_interval"] = FORCED_TRADE_INTERVAL
+            current["forced_trades_count"] = self.forced_trades
+            
+            # Time until next forced trade
+            time_since_forced = (datetime.datetime.now() - self.last_forced_trade_time).total_seconds()
+            current["next_forced_trade_seconds"] = max(0, FORCED_TRADE_INTERVAL - time_since_forced)
             
             with open(state_file, "w") as f:
                 json.dump(current, f)

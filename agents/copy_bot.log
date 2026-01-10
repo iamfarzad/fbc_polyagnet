@@ -2430,3 +2430,19 @@
 2026-01-10 22:25:00,286 - CopyBot - INFO - User 0x16b2... has 100 positions.
 2026-01-10 22:25:00,409 - CopyBot - INFO - User 0xe90b... has 100 positions.
 2026-01-10 22:25:00,589 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 22:30:00,592 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 22:30:00,592 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 22:30:00,592 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 22:30:00,927 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 22:30:01,047 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 22:30:01,212 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 22:30:01,370 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 22:30:01,544 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 22:35:01,552 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 22:35:01,553 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 22:35:01,553 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 22:35:01,729 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 22:35:01,902 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 22:35:02,482 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 22:35:02,929 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 22:35:03,082 - CopyBot - INFO - User 0xdb27... has 100 positions.
