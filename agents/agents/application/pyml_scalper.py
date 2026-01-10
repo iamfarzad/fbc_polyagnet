@@ -878,8 +878,8 @@ class CryptoScalper:
                         self.binance_momentum[symbol] = momentum
                         
                         if price > 0:
-                            direction = "📈" if momentum > MOMENTUM_THRESHOLD else "📉" if momentum < -MOMENTUM_THRESHOLD else "➡️"
-                            signal = "SIGNAL!" if abs(momentum) > MOMENTUM_THRESHOLD else ""
+                            direction = "📈" if momentum > self.current_threshold else "📉" if momentum < -self.current_threshold else "➡️"
+                            signal = "SIGNAL!" if abs(momentum) > self.current_threshold else ""
                             if price > 100:
                                 print(f"      {asset.upper()}: ${price:,.0f} {direction} {momentum:+.3f}% {signal}")
                             else:
