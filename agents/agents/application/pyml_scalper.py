@@ -75,6 +75,34 @@ MIN_MOMENTUM_THRESHOLD = 0.015      # 0.015% min (high conviction = tight)
 MAX_MOMENTUM_THRESHOLD = 0.15       # 0.15% max (choppy = wider)
 VOLATILITY_LOOKBACK = 15            # 15s volatility window
 
+# =============================================================================
+# SAFEGUARDS - PROTECTION AGAINST GETTING BURNED
+# =============================================================================
+
+# 1. Spread protection - don't get eaten by slippage
+MAX_SPREAD_PCT = 0.05               # Max 5% bid-ask spread
+
+# 2. Resolution buffer - exit before binary settlement
+MIN_TIME_TO_RESOLUTION = 120        # Exit 2 min before market resolves
+
+# 3. Circuit breaker - stop trading on big losses
+MAX_DAILY_DRAWDOWN_PCT = 0.15       # Halt at 15% daily loss
+
+# 4. Loss streak protection - pause on consecutive losses
+MAX_CONSECUTIVE_LOSSES = 5          # Cooldown after 5 losses in a row
+LOSS_STREAK_COOLDOWN = 300          # 5 min cooldown
+
+# 5. Price sanity - avoid extreme risk/reward
+MIN_ENTRY_PRICE = 0.15              # Don't buy below 15¢ (likely loser)
+MAX_ENTRY_PRICE = 0.85              # Don't buy above 85¢ (not enough upside)
+
+# 6. Liquidity check - ensure you can exit
+MIN_LIQUIDITY_USD = 200             # Need $200+ in orderbook bids
+
+# 7. Flash crash detection - pause on abnormal moves
+MAX_PRICE_MOVE_PCT = 0.08           # 8% move in 30s = pause
+FLASH_CRASH_COOLDOWN = 60           # 60s pause after flash move
+
 
 class CryptoScalper:
     """
@@ -120,6 +148,11 @@ class CryptoScalper:
         self.total_pnl = 0.0
         self.trade_log = []  # List of completed trades
         
+        # SAFEGUARD STATE
+        self.circuit_breaker_triggered = False
+        self.last_loss_streak_pause = None
+        self.consecutive_losses = 0
+        
         for symbol in BINANCE_SYMBOLS:
             self.binance_history[symbol] = deque(maxlen=MOMENTUM_WINDOW * 10)
         
@@ -133,6 +166,11 @@ class CryptoScalper:
         print(f"Check Interval: {CHECK_INTERVAL}s (HFT mode)")
         print(f"Strategy: BUY YES/NO → ACTIVE EXIT → COMPOUND")
         print(f"Assets: {', '.join(ASSETS)}")
+        print()
+        print(f"🛡️ SAFEGUARDS ACTIVE:")
+        print(f"   Max spread: {MAX_SPREAD_PCT*100:.0f}% | Price range: {MIN_ENTRY_PRICE:.0%}-{MAX_ENTRY_PRICE:.0%}")
+        print(f"   Circuit breaker: -{MAX_DAILY_DRAWDOWN_PCT*100:.0f}% daily | Loss streak: {MAX_CONSECUTIVE_LOSSES} max")
+        print(f"   Min liquidity: ${MIN_LIQUIDITY_USD} | Resolution buffer: {MIN_TIME_TO_RESOLUTION}s")
         print()
         
         try:
@@ -467,6 +505,224 @@ class CryptoScalper:
         print(f"   Win Rate: {win_rate:.1f}% ({self.winning_trades}W/{self.losing_trades}L)")
         print(f"   Total PnL: ${self.total_pnl:+.2f}")
         print(f"   Active Positions: {len(self.active_positions)}/{MAX_POSITIONS}")
+        print(f"   Circuit Breaker: {'🛑 TRIGGERED' if self.circuit_breaker_triggered else '✅ OK'}")
+
+    # =========================================================================
+    # SAFEGUARDS - PROTECTION AGAINST GETTING BURNED
+    # =========================================================================
+
+    def check_spread_safe(self, token_id):
+        """
+        SAFEGUARD 1: Don't trade if bid-ask spread is too wide.
+        Wide spreads eat profits on entry AND exit.
+        """
+        try:
+            orderbook = self.pm.client.get_order_book(token_id)
+            best_bid = float(orderbook.bids[0].price) if orderbook.bids else 0
+            best_ask = float(orderbook.asks[0].price) if orderbook.asks else 1
+            
+            if best_ask <= 0:
+                return False, "No asks"
+            
+            spread = (best_ask - best_bid) / best_ask
+            
+            if spread > MAX_SPREAD_PCT:
+                return False, f"Spread {spread*100:.1f}% > {MAX_SPREAD_PCT*100:.0f}%"
+            return True, f"Spread OK: {spread*100:.1f}%"
+        except Exception as e:
+            return False, f"Spread check error: {e}"
+
+    def check_time_to_resolution(self, market):
+        """
+        SAFEGUARD 2: Don't hold through resolution - exit before binary settlement.
+        Avoids 100% loss on wrong side of resolution.
+        """
+        try:
+            end_date = market.get("endDate", "")
+            if not end_date:
+                return True, "No end date"
+            
+            # Parse ISO format
+            end_time = datetime.datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+            now = datetime.datetime.now(datetime.timezone.utc)
+            time_to_resolution = (end_time - now).total_seconds()
+            
+            if time_to_resolution < MIN_TIME_TO_RESOLUTION:
+                return False, f"Only {time_to_resolution:.0f}s to resolution"
+            return True, f"{time_to_resolution:.0f}s to resolution"
+        except Exception as e:
+            return True, f"Time check error: {e}"  # Allow on error, market might be fine
+
+    def check_circuit_breaker(self):
+        """
+        SAFEGUARD 3: Halt trading if daily loss exceeds threshold.
+        Prevents catastrophic losses from bad strategy or market conditions.
+        """
+        if self.circuit_breaker_triggered:
+            return False, "Circuit breaker already triggered"
+        
+        if self.initial_balance <= 0:
+            return True, "No initial balance set"
+        
+        if self.total_pnl < 0:
+            drawdown_pct = abs(self.total_pnl) / self.initial_balance
+            if drawdown_pct > MAX_DAILY_DRAWDOWN_PCT:
+                self.circuit_breaker_triggered = True
+                print(f"\n🛑 CIRCUIT BREAKER TRIGGERED!")
+                print(f"   Daily loss: ${self.total_pnl:.2f} ({drawdown_pct*100:.1f}%)")
+                print(f"   Trading halted. Restart manually after review.")
+                return False, f"Drawdown {drawdown_pct*100:.1f}% > {MAX_DAILY_DRAWDOWN_PCT*100:.0f}%"
+        
+        return True, "Circuit breaker OK"
+
+    def check_loss_streak(self):
+        """
+        SAFEGUARD 4: Pause if on a losing streak.
+        Prevents tilting and lets market conditions settle.
+        """
+        # Count consecutive losses from trade log
+        if len(self.trade_log) >= MAX_CONSECUTIVE_LOSSES:
+            recent = self.trade_log[-MAX_CONSECUTIVE_LOSSES:]
+            consecutive_losses = sum(1 for t in recent if t.get("pnl_usd", 0) < 0)
+            
+            if consecutive_losses >= MAX_CONSECUTIVE_LOSSES:
+                # Check if we're still in cooldown
+                if self.last_loss_streak_pause:
+                    elapsed = (datetime.datetime.now() - self.last_loss_streak_pause).total_seconds()
+                    if elapsed < LOSS_STREAK_COOLDOWN:
+                        remaining = LOSS_STREAK_COOLDOWN - elapsed
+                        return False, f"Loss streak cooldown: {remaining:.0f}s left"
+                
+                # Trigger new cooldown
+                self.last_loss_streak_pause = datetime.datetime.now()
+                print(f"\n⚠️ LOSS STREAK: {consecutive_losses} consecutive losses")
+                print(f"   Cooling off for {LOSS_STREAK_COOLDOWN}s...")
+                return False, f"{consecutive_losses} consecutive losses"
+        
+        return True, "No loss streak"
+
+    def check_price_safe(self, price):
+        """
+        SAFEGUARD 5: Avoid extreme prices where risk/reward is skewed.
+        Below 15¢ = high chance of loss, above 85¢ = not enough upside.
+        """
+        if price < MIN_ENTRY_PRICE:
+            return False, f"Price {price:.2f} < {MIN_ENTRY_PRICE:.2f} (too risky)"
+        if price > MAX_ENTRY_PRICE:
+            return False, f"Price {price:.2f} > {MAX_ENTRY_PRICE:.2f} (not enough upside)"
+        return True, f"Price {price:.2f} OK"
+
+    def check_liquidity(self, token_id):
+        """
+        SAFEGUARD 6: Don't enter illiquid markets - can't exit.
+        Need sufficient bids to sell into.
+        """
+        try:
+            orderbook = self.pm.client.get_order_book(token_id)
+            
+            # Sum liquidity in top 5 bids
+            bid_liquidity = sum(
+                float(b.size) * float(b.price) 
+                for b in (orderbook.bids[:5] if orderbook.bids else [])
+            )
+            
+            if bid_liquidity < MIN_LIQUIDITY_USD:
+                return False, f"Liquidity ${bid_liquidity:.0f} < ${MIN_LIQUIDITY_USD}"
+            return True, f"Liquidity ${bid_liquidity:.0f} OK"
+        except Exception as e:
+            return False, f"Liquidity check error: {e}"
+
+    def check_flash_crash(self, symbol):
+        """
+        SAFEGUARD 7: Pause trading if price moved abnormally fast.
+        Protects against flash crashes and manipulation.
+        """
+        history = self.binance_history.get(symbol, deque())
+        if len(history) < 10:
+            return True, "Not enough history"
+        
+        try:
+            # Get price from 30s ago vs now
+            now = time.time()
+            old_prices = [(t, p) for t, p in history if now - t > 25]
+            
+            if not old_prices:
+                return True, "No old prices"
+            
+            price_30s_ago = old_prices[-1][1]
+            price_now = history[-1][1]
+            
+            if price_30s_ago <= 0:
+                return True, "Invalid old price"
+            
+            move_pct = abs(price_now - price_30s_ago) / price_30s_ago
+            
+            if move_pct > MAX_PRICE_MOVE_PCT:
+                print(f"\n⚠️ FLASH MOVE: {symbol.upper()} moved {move_pct*100:.1f}% in 30s")
+                print(f"   Pausing {FLASH_CRASH_COOLDOWN}s for stabilization...")
+                time.sleep(FLASH_CRASH_COOLDOWN)
+                return False, f"Flash move {move_pct*100:.1f}%"
+            
+            return True, f"No flash move ({move_pct*100:.2f}%)"
+        except Exception as e:
+            return True, f"Flash check error: {e}"
+
+    def run_all_safeguards(self, market=None, token_id=None, entry_price=None, symbol=None):
+        """
+        Run all safeguards before entering a trade.
+        Returns: (safe: bool, reasons: list)
+        """
+        reasons = []
+        all_safe = True
+        
+        # 1. Circuit breaker (always check)
+        safe, reason = self.check_circuit_breaker()
+        if not safe:
+            all_safe = False
+            reasons.append(f"🛑 {reason}")
+        
+        # 2. Loss streak (always check)
+        safe, reason = self.check_loss_streak()
+        if not safe:
+            all_safe = False
+            reasons.append(f"⚠️ {reason}")
+        
+        # 3. Spread (if token_id provided)
+        if token_id:
+            safe, reason = self.check_spread_safe(token_id)
+            if not safe:
+                all_safe = False
+                reasons.append(f"📊 {reason}")
+        
+        # 4. Liquidity (if token_id provided)
+        if token_id:
+            safe, reason = self.check_liquidity(token_id)
+            if not safe:
+                all_safe = False
+                reasons.append(f"💧 {reason}")
+        
+        # 5. Time to resolution (if market provided)
+        if market:
+            safe, reason = self.check_time_to_resolution(market)
+            if not safe:
+                all_safe = False
+                reasons.append(f"⏰ {reason}")
+        
+        # 6. Price sanity (if entry_price provided)
+        if entry_price:
+            safe, reason = self.check_price_safe(entry_price)
+            if not safe:
+                all_safe = False
+                reasons.append(f"💰 {reason}")
+        
+        # 7. Flash crash (if symbol provided)
+        if symbol:
+            safe, reason = self.check_flash_crash(symbol)
+            if not safe:
+                all_safe = False
+                reasons.append(f"⚡ {reason}")
+        
+        return all_safe, reasons
 
     def get_available_markets(self):
         """Get 15-min crypto markets that are accepting orders."""
@@ -735,7 +991,8 @@ class CryptoScalper:
         """
         Open a new position on a market.
         
-        HFT MODE:
+        HFT MODE + SAFEGUARDS:
+        - Runs all safety checks before entry
         - Buys YES or NO based on momentum direction
         - Tracks entry for active exit management
         - Uses compound sizing
@@ -773,6 +1030,26 @@ class CryptoScalper:
             token_id = down_token
             side_name = "NO"
             entry_price = min(0.60, (1 - market_price) + 0.02)
+        
+        # Get Binance symbol for flash crash check
+        symbol_map = {"bitcoin": "btcusdt", "ethereum": "ethusdt", "solana": "solusdt", "xrp": "xrpusdt"}
+        symbol = symbol_map.get(asset, "")
+        
+        # =====================================================================
+        # RUN ALL SAFEGUARDS BEFORE ENTRY
+        # =====================================================================
+        safe, reasons = self.run_all_safeguards(
+            market=market,
+            token_id=token_id,
+            entry_price=entry_price,
+            symbol=symbol
+        )
+        
+        if not safe:
+            print(f"   🛡️ SAFEGUARD BLOCKED: {asset.upper()} {side_name}")
+            for reason in reasons:
+                print(f"      {reason}")
+            return False
         
         # Calculate shares
         shares = bet_size / entry_price
@@ -849,12 +1126,22 @@ class CryptoScalper:
     def check_and_rebalance(self):
         """
         HIGH-FREQUENCY main loop:
-        1. Check active positions for exit targets (profit/loss)
-        2. Exit positions that hit targets
-        3. Open new positions if slots available
-        4. Track and display session stats
+        1. Check circuit breaker (halt if triggered)
+        2. Check active positions for exit targets (profit/loss)
+        3. Exit positions that hit targets
+        4. Open new positions if slots available
+        5. Track and display session stats
         """
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] HFT CYCLE...")
+        
+        # =====================================================================
+        # SAFEGUARD: CHECK CIRCUIT BREAKER
+        # =====================================================================
+        if self.circuit_breaker_triggered:
+            print(f"   🛑 CIRCUIT BREAKER ACTIVE - Trading halted")
+            print(f"   Session PnL: ${self.total_pnl:.2f}")
+            print(f"   Restart bot to resume trading")
+            return
         
         # =====================================================================
         # STEP 1: CHECK AND EXIT POSITIONS (ACTIVE PROFIT TAKING)
