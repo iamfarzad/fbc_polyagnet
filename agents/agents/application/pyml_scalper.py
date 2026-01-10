@@ -29,26 +29,34 @@ from agents.utils.context import get_context, Position, Trade
 load_dotenv()
 
 # =============================================================================
-# HIGH-FREQUENCY SCALPER CONFIG
+# HIGH-FREQUENCY SCALPER CONFIG - OPTIMIZED FOR $200 → $1000+/WEEK
+# =============================================================================
+# 
+# GAMEPLAN: 25-30% daily returns via high-frequency compounding
+# - 100+ trades/day at ~0.3% net per trade
+# - Tight exits: take profits fast, cut losses faster
+# - Compound ALL gains into next trade
+#
+# MATH: $200 × 1.28^7 = $1,140/week profit
 # =============================================================================
 
-# Position management
-MAX_POSITIONS = 3                    # Concurrent positions
-BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.25"))  # 25% of equity per position
-MIN_BET_USD = 0.5                    # Minimum bet size (lower for more trades)
-MAX_BET_USD = 50.0                   # Safety cap
+# Position management - MORE POSITIONS, SMALLER SIZE
+MAX_POSITIONS = 5                    # More concurrent positions for diversification
+BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.15"))  # 15% per position = 75% max deployed
+MIN_BET_USD = 0.50                   # Minimum bet (for small accounts)
+MAX_BET_USD = 100.0                  # Safety cap (scales with $200 account)
 
-# Exit strategy - ACTIVE PROFIT TAKING
-TAKE_PROFIT_PCT = 0.04              # 4% profit = sell
-STOP_LOSS_PCT = -0.08               # 8% loss = cut
-MIN_HOLD_SECONDS = 30               # Hold at least 30s before selling
-MAX_HOLD_SECONDS = 300              # Force exit after 5 min if no target hit
+# Exit strategy - TIGHT EXITS FOR HFT
+TAKE_PROFIT_PCT = 0.025             # 2.5% profit = SELL (fast compound)
+STOP_LOSS_PCT = -0.04               # 4% loss = CUT FAST (1.6:1 risk/reward)
+MIN_HOLD_SECONDS = 15               # 15s min hold (avoid wash trades)
+MAX_HOLD_SECONDS = 180              # 3 min max hold (force exit, free up capital)
 
-# High-frequency settings
-CHECK_INTERVAL = 15                  # Check every 15 seconds (was 60)
+# High-frequency settings - AGGRESSIVE
+CHECK_INTERVAL = 10                  # Check every 10 seconds
 MOMENTUM_REVERSAL_EXIT = True        # Exit if momentum flips against position
 
-# Assets to trade
+# Assets to trade - focus on most liquid
 ASSETS = ["bitcoin", "ethereum", "solana", "xrp"]
 
 # Binance WebSocket config
@@ -59,13 +67,13 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-MOMENTUM_WINDOW = 30  # Track last 30 seconds (faster for HFT)
+MOMENTUM_WINDOW = 20  # 20 seconds - faster signal detection
 
-# Dynamic edge config (adaptive thresholds)
-BASE_MOMENTUM_THRESHOLD = 0.06      # Lower threshold for more trades
-MIN_MOMENTUM_THRESHOLD = 0.02       # Minimum for high-conviction
-MAX_MOMENTUM_THRESHOLD = 0.20       # Maximum for choppy markets
-VOLATILITY_LOOKBACK = 20            # Faster volatility calc
+# Dynamic edge config - LOWER THRESHOLD = MORE TRADES
+BASE_MOMENTUM_THRESHOLD = 0.04      # 0.04% base (enter on small moves)
+MIN_MOMENTUM_THRESHOLD = 0.015      # 0.015% min (high conviction = tight)
+MAX_MOMENTUM_THRESHOLD = 0.15       # 0.15% max (choppy = wider)
+VOLATILITY_LOOKBACK = 15            # 15s volatility window
 
 
 class CryptoScalper:
