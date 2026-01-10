@@ -43,7 +43,7 @@ load_dotenv()
 # Position management - MORE POSITIONS, SMALLER SIZE
 MAX_POSITIONS = 5                    # More concurrent positions for diversification
 BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.15"))  # 15% per position = 75% max deployed
-MIN_BET_USD = 0.50                   # Minimum bet (for small accounts)
+MIN_BET_USD = 0.20                   # Minimum bet LOWERED for small cash (was 0.50)
 MAX_BET_USD = 100.0                  # Safety cap (scales with $200 account)
 
 # Exit strategy - TIGHT EXITS FOR HFT
@@ -993,11 +993,13 @@ class CryptoScalper:
     
     def calculate_bet_size(self):
         """
-        Calculate bet size based on TOTAL EQUITY (compound strategy).
-        As you win, bets get proportionally larger.
+        Calculate bet size based on AVAILABLE CASH (can't bet what you don't have).
         
-        Formula: bet_size = total_equity * BET_PERCENT
-        With 30% and 3 positions = 90% of equity in play
+        Uses the smaller of:
+        - BET_PERCENT of total equity (compound target)
+        - 80% of available cash (leave buffer)
+        
+        This ensures we never try to bet more than we have.
         """
         current_balance = self.get_current_balance()
         
@@ -1006,12 +1008,22 @@ class CryptoScalper:
         position_value = sum(float(p.get("currentValue", 0)) for p in positions)
         total_equity = current_balance + position_value
         
-        # Bet size = percentage of TOTAL EQUITY (this is the compound magic)
-        # As you win, total_equity grows, so bet_size grows
-        bet_size = total_equity * BET_PERCENT
+        # Target bet size = percentage of TOTAL EQUITY
+        target_bet = total_equity * BET_PERCENT
+        
+        # BUT: Can't bet more than we have in cash
+        # Leave 20% buffer for fees/slippage
+        max_available = current_balance * 0.80
+        
+        # Use the smaller of target or available
+        bet_size = min(target_bet, max_available)
         
         # Apply min/max limits
         bet_size = max(MIN_BET_USD, min(bet_size, MAX_BET_USD))
+        
+        # Final safety: if we don't have enough cash, return 0
+        if current_balance < MIN_BET_USD:
+            return 0, current_balance, total_equity
         
         return bet_size, current_balance, total_equity
 
@@ -1061,6 +1073,11 @@ class CryptoScalper:
         
         # Calculate bet size based on current capital (COMPOUND!)
         bet_size, current_balance, available = self.calculate_bet_size()
+        
+        # Check if we have enough cash to trade
+        if bet_size == 0 or current_balance < MIN_BET_USD:
+            print(f"   💸 INSUFFICIENT CASH: ${current_balance:.2f} (need ${MIN_BET_USD:.2f})")
+            return False
         
         # Get direction based on momentum (with force_trade option)
         direction = self.get_trade_direction(asset, market_price, force_trade=force_trade)
