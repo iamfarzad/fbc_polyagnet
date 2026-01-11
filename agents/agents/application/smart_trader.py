@@ -111,12 +111,8 @@ FOCUS_CATEGORIES = [
     "science",
 ]
 
-# OpenAI/Perplexity for analysis
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-
-# Debug: check if API keys are loaded
-print(f"🔑 LLM Keys: Perplexity={'✓' if PERPLEXITY_API_KEY else '✗'} OpenAI={'✓' if OPENAI_API_KEY else '✗'}")
+# Note: API keys are loaded dynamically in analyze_market_with_llm()
+# to ensure env vars are available after deployment
 
 
 class SmartTrader:
@@ -269,13 +265,17 @@ class SmartTrader:
         description = market.get("description", "")
         yes_price, no_price = self.get_market_odds(market)
         
+        # Get API keys dynamically (ensures they're available after deploy)
+        perplexity_key = os.getenv("PERPLEXITY_API_KEY")
+        openai_key = os.getenv("OPENAI_API_KEY")
+        
         # First, search for recent news/info
         search_results = ""
-        if PERPLEXITY_API_KEY:
+        if perplexity_key:
             try:
                 search_results = perplexity_search(
                     f"Latest news and information about: {question}",
-                    api_key=PERPLEXITY_API_KEY
+                    api_key=perplexity_key
                 )
             except:
                 pass
@@ -309,10 +309,10 @@ Only output the JSON, nothing else."""
             result_text = None
             
             # Try Perplexity first (it has search built-in)
-            if PERPLEXITY_API_KEY:
+            if perplexity_key:
                 try:
                     headers = {
-                        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                        "Authorization": f"Bearer {perplexity_key}",
                         "Content-Type": "application/json"
                     }
                     data = {
@@ -334,9 +334,9 @@ Only output the JSON, nothing else."""
                     print(f"   Perplexity error: {e}")
             
             # Fallback to OpenAI
-            if not result_text and OPENAI_API_KEY:
+            if not result_text and openai_key:
                 import openai
-                client = openai.OpenAI(api_key=OPENAI_API_KEY)
+                client = openai.OpenAI(api_key=openai_key)
                 response = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[{"role": "user", "content": prompt}],
