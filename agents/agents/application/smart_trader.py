@@ -337,8 +337,12 @@ Only output the JSON, nothing else."""
                     if response.status_code == 200:
                         result = response.json()
                         result_text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    else:
+                        print(f"   Perplexity HTTP {response.status_code}: {response.text[:100]}")
                 except Exception as e:
                     print(f"   Perplexity error: {e}")
+            else:
+                print(f"   No Perplexity key found in environment")
             
             # Fallback to OpenAI
             if not result_text and openai_key:
