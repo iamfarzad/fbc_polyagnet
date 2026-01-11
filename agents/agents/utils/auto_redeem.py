@@ -65,13 +65,34 @@ class AutoRedeemer:
     
     def __init__(self):
         self.w3 = Web3(Web3.HTTPProvider(POLYGON_RPC))
-        self.private_key = os.getenv("PRIVATE_KEY", "")
         
+        # Try multiple env var names for private key
+        self.private_key = (
+            os.getenv("POLYGON_WALLET_PRIVATE_KEY") or
+            os.getenv("PRIVATE_KEY") or 
+            os.getenv("PK") or 
+            ""
+        )
+        
+        # Try to get address from Polymarket client if private key not found
+        self.address = None
         if self.private_key:
             self.account = Account.from_key(self.private_key)
             self.address = self.account.address
         else:
-            self.address = None
+            # Fallback: try to import Polymarket and get address
+            try:
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+                from agents.polymarket.polymarket import Polymarket
+                pm = Polymarket()
+                self.address = pm.get_address_for_private_key()
+                # Get private key from pm
+                self.private_key = pm.private_key
+                if self.private_key:
+                    self.account = Account.from_key(self.private_key)
+            except Exception as e:
+                print(f"   ⚠️ Could not get address from Polymarket: {e}")
             
         self.ctf = self.w3.eth.contract(
             address=Web3.to_checksum_address(CONDITIONAL_TOKENS),
@@ -80,6 +101,7 @@ class AutoRedeemer:
         
         print(f"🔄 AutoRedeemer initialized")
         print(f"   Address: {self.address}")
+        print(f"   Has PK: {bool(self.private_key)}")
         print(f"   RPC: {POLYGON_RPC[:30]}...")
     
     def get_positions_from_api(self) -> List[Dict]:
