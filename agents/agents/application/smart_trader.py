@@ -25,9 +25,42 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from agents.polymarket.polymarket import Polymarket
-from agents.connectors.search import perplexity_search
 
 load_dotenv()
+
+
+def perplexity_search(query: str, api_key: str = None) -> str:
+    """Search using Perplexity API for recent information."""
+    if not api_key:
+        return ""
+    
+    try:
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        data = {
+            "model": "llama-3.1-sonar-small-128k-online",
+            "messages": [
+                {"role": "user", "content": query}
+            ],
+            "max_tokens": 500
+        }
+        
+        response = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=15
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            return result.get("choices", [{}])[0].get("message", {}).get("content", "")
+        return ""
+    except:
+        return ""
 
 # =============================================================================
 # SMART TRADER CONFIG
