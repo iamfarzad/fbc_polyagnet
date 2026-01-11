@@ -115,6 +115,9 @@ FOCUS_CATEGORIES = [
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
+# Debug: check if API keys are loaded
+print(f"🔑 LLM Keys: Perplexity={'✓' if PERPLEXITY_API_KEY else '✗'} OpenAI={'✓' if OPENAI_API_KEY else '✗'}")
+
 
 class SmartTrader:
     """
