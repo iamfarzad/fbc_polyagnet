@@ -49,7 +49,7 @@ def perplexity_search(query: str, api_key: str = None) -> str:
         }
         
         data = {
-            "model": "llama-3.1-sonar-small-128k-online",
+            "model": "sonar",  # Updated model name for 2026
             "messages": [
                 {"role": "user", "content": query}
             ],
@@ -323,7 +323,7 @@ Only output the JSON, nothing else."""
                         "Content-Type": "application/json"
                     }
                     data = {
-                        "model": "llama-3.1-sonar-large-128k-online",
+                        "model": "sonar",  # Updated model name for 2026
                         "messages": [{"role": "user", "content": prompt}],
                         "temperature": 0.3,
                         "max_tokens": 500
