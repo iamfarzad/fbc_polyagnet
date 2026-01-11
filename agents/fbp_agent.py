@@ -335,7 +335,7 @@ def tool_open_trade(market_id: str, outcome: str, amount_usd: float) -> str:
 
 
 def tool_close_position(market_id: str) -> str:
-    """Close a position."""
+    """Close a position by selling shares back to market."""
     try:
         # Get current positions
         address = pm.get_address_for_private_key()
@@ -356,7 +356,41 @@ def tool_close_position(market_id: str) -> str:
         # Get token to sell
         token_id = position.get("asset")
         size = float(position.get("size", 0))
-        price = float(position.get("curPrice", 0.5))
+        current_value = float(position.get("currentValue", 0))
+        
+        # Check if position has any value
+        if size <= 0:
+            return json.dumps({"error": "No shares to sell", "size": size})
+        
+        if current_value <= 0.01:
+            return json.dumps({
+                "status": "worthless",
+                "message": "Position is worthless (value ~$0). Nothing to recover.",
+                "market": position.get("title", "")[:50],
+                "current_value": current_value
+            })
+        
+        # Get best bid from orderbook for accurate pricing
+        try:
+            orderbook = pm.client.get_order_book(token_id)
+            if orderbook.bids:
+                best_bid = float(orderbook.bids[0].price)
+                # Sell slightly below best bid for faster fill
+                sell_price = max(0.01, best_bid - 0.01)
+            else:
+                # No bids = can't sell
+                return json.dumps({
+                    "status": "no_buyers",
+                    "message": "No buyers in orderbook. Market may be resolved or illiquid.",
+                    "market": position.get("title", "")[:50]
+                })
+        except:
+            # Fallback to curPrice but clamp to valid range
+            price = float(position.get("curPrice", 0.5))
+            sell_price = max(0.01, min(0.99, price - 0.02))
+        
+        # Validate price is in Polymarket's allowed range (0.001 - 0.999)
+        sell_price = max(0.001, min(0.999, sell_price))
         
         # Place sell order
         from py_clob_client.clob_types import OrderArgs
@@ -364,7 +398,7 @@ def tool_close_position(market_id: str) -> str:
         
         order_args = OrderArgs(
             token_id=str(token_id),
-            price=price,
+            price=sell_price,
             size=size,
             side=SELL
         )
@@ -377,11 +411,15 @@ def tool_close_position(market_id: str) -> str:
                 "status": "success",
                 "market": position.get("title", "")[:50],
                 "shares_sold": round(size, 2),
-                "price": round(price, 3),
-                "value": round(size * price, 2)
+                "price": round(sell_price, 3),
+                "expected_return": round(size * sell_price, 2)
             })
         else:
-            return json.dumps({"error": f"Sell failed: {result.get('status', 'unknown')}"})
+            return json.dumps({
+                "status": "pending",
+                "message": f"Order placed at ${sell_price:.3f}. May fill when buyer matches.",
+                "order_status": result.get("status", "unknown")
+            })
             
     except Exception as e:
         return json.dumps({"error": str(e)})

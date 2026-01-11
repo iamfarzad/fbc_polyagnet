@@ -432,6 +432,8 @@ def close_position(req: ClosePositionRequest):
         from py_clob_client.clob_types import OrderArgs
         from py_clob_client.order_builder.constants import SELL
         
+        current_value = 0
+        
         # Get current position info if size not provided
         if req.size is None or req.price is None:
             import requests
@@ -446,22 +448,39 @@ def close_position(req: ClosePositionRequest):
                             req.size = float(p.get("size", 0))
                         if req.price is None:
                             req.price = float(p.get("curPrice", 0.5))
+                        current_value = float(p.get("currentValue", 0))
                         break
         
         if not req.size or req.size <= 0:
             return {"status": "error", "error": "No position size found"}
         
+        # Check if position is worthless
+        if current_value <= 0.01:
+            return {
+                "status": "worthless",
+                "message": "Position is worthless (value ~$0). Nothing to recover.",
+                "current_value": current_value
+            }
+        
         # Get best bid from orderbook for better fill
+        sell_price = None
         try:
             orderbook = pm.client.get_order_book(req.token_id)
             if orderbook.bids:
                 best_bid = float(orderbook.bids[0].price)
                 # Sell slightly below best bid for faster fill
-                sell_price = max(0.01, best_bid - 0.01)
+                sell_price = max(0.001, best_bid - 0.01)
             else:
-                sell_price = max(0.01, (req.price or 0.5) - 0.05)
+                # No bids = market may be resolved or illiquid
+                return {
+                    "status": "no_buyers",
+                    "message": "No buyers in orderbook. Market may be resolved or illiquid."
+                }
         except:
-            sell_price = max(0.01, (req.price or 0.5) - 0.05)
+            sell_price = max(0.001, (req.price or 0.5) - 0.05)
+        
+        # Validate price is in Polymarket's allowed range (0.001 - 0.999)
+        sell_price = max(0.001, min(0.999, sell_price))
         
         # Create sell order
         order_args = OrderArgs(
@@ -485,7 +504,7 @@ def close_position(req: ClosePositionRequest):
         else:
             return {
                 "status": "pending",
-                "message": f"Order placed: {result.get('status', 'unknown')}",
+                "message": f"Order placed at ${sell_price:.3f}. May fill when buyer matches.",
                 "order_status": result.get("status")
             }
     
@@ -496,7 +515,7 @@ def close_position(req: ClosePositionRequest):
 
 @app.post("/api/close-all-positions")
 def close_all_positions():
-    """Close all open positions."""
+    """Close all open positions (skips worthless ones)."""
     if not pm:
         return {"status": "error", "error": "Polymarket client not initialized"}
     
@@ -515,26 +534,60 @@ def close_all_positions():
         positions = resp.json()
         results = []
         closed = 0
+        skipped = 0
         failed = 0
         
         for p in positions:
             try:
                 token_id = p.get("asset")
                 size = float(p.get("size", 0))
-                price = float(p.get("curPrice", 0.5))
+                current_value = float(p.get("currentValue", 0))
+                market_title = p.get("title", "")[:40]
                 
                 if size <= 0:
                     continue
                 
-                # Get best bid
+                # Skip worthless positions
+                if current_value <= 0.01:
+                    skipped += 1
+                    results.append({
+                        "market": market_title,
+                        "status": "skipped_worthless",
+                        "message": "Position is worthless (~$0)"
+                    })
+                    continue
+                
+                # Get best bid from orderbook
+                sell_price = None
                 try:
                     orderbook = pm.client.get_order_book(token_id)
                     if orderbook.bids:
-                        sell_price = max(0.01, float(orderbook.bids[0].price) - 0.01)
+                        best_bid = float(orderbook.bids[0].price)
+                        sell_price = max(0.001, best_bid - 0.01)
                     else:
-                        sell_price = max(0.01, price - 0.05)
+                        # No bids = can't sell
+                        skipped += 1
+                        results.append({
+                            "market": market_title,
+                            "status": "skipped_no_buyers",
+                            "message": "No buyers in orderbook"
+                        })
+                        continue
                 except:
-                    sell_price = max(0.01, price - 0.05)
+                    # Fallback - use curPrice but validate
+                    price = float(p.get("curPrice", 0.5))
+                    if price <= 0.01:
+                        skipped += 1
+                        results.append({
+                            "market": market_title,
+                            "status": "skipped_no_price",
+                            "message": "Price too low to sell"
+                        })
+                        continue
+                    sell_price = max(0.001, price - 0.05)
+                
+                # Validate price is in Polymarket's allowed range
+                sell_price = max(0.001, min(0.999, sell_price))
                 
                 # Sell
                 order_args = OrderArgs(
@@ -550,15 +603,16 @@ def close_all_positions():
                 if result.get("success") or result.get("status") == "matched":
                     closed += 1
                     results.append({
-                        "market": p.get("title", "")[:40],
+                        "market": market_title,
                         "status": "closed",
-                        "size": size,
-                        "price": sell_price
+                        "size": round(size, 2),
+                        "price": round(sell_price, 3),
+                        "expected_return": round(size * sell_price, 2)
                     })
                 else:
                     failed += 1
                     results.append({
-                        "market": p.get("title", "")[:40],
+                        "market": market_title,
                         "status": result.get("status", "unknown")
                     })
                 
@@ -576,6 +630,7 @@ def close_all_positions():
         return {
             "status": "success",
             "closed": closed,
+            "skipped": skipped,
             "failed": failed,
             "total": len(positions),
             "results": results

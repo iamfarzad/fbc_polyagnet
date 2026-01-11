@@ -2470,3 +2470,1894 @@
 2026-01-10 22:50:05,553 - CopyBot - INFO - User 0x16b2... has 100 positions.
 2026-01-10 22:50:05,719 - CopyBot - INFO - User 0xe90b... has 100 positions.
 2026-01-10 22:50:05,865 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 22:55:05,879 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 22:55:05,880 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 22:55:05,881 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 22:55:06,113 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 22:55:06,231 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 22:55:06,437 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 22:55:06,736 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 22:55:06,893 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:00:06,883 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:00:06,885 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:00:06,885 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:00:07,065 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:00:07,233 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:00:07,468 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:00:07,622 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:00:07,812 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:05:07,825 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:05:07,826 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:05:07,826 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:05:08,296 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:05:08,463 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:05:08,578 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:05:08,743 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:05:08,878 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:10:08,893 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:10:08,894 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:10:08,894 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:10:09,026 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:10:09,246 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:10:09,372 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:10:09,508 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:10:09,636 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:15:09,649 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:15:09,650 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:15:09,650 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:15:09,822 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:15:09,937 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:15:10,132 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:15:10,257 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:15:10,382 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:20:10,396 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:20:10,402 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:20:10,402 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:20:10,553 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:20:10,674 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:20:10,785 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:20:10,896 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:20:11,051 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:25:11,064 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:25:11,065 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:25:11,066 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:25:11,246 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:25:11,424 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:25:11,587 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:25:11,708 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:25:11,864 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:30:11,890 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:30:11,892 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:30:11,892 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:30:12,009 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:30:12,189 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:30:12,302 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:30:12,461 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:30:12,654 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:35:12,668 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:35:12,669 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:35:12,670 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:35:12,787 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:35:12,920 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:35:13,130 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:35:13,235 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:35:13,389 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:40:13,397 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:40:13,399 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:40:13,399 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:40:13,631 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:40:13,828 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:40:14,012 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:40:14,159 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:40:14,344 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:45:14,357 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:45:14,359 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:45:14,360 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:45:14,494 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:45:14,636 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:45:14,824 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:45:14,976 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:45:15,085 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:50:15,100 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:50:15,101 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:50:15,102 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:50:15,231 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:50:15,360 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:50:15,575 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:50:15,719 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:50:15,853 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-10 23:55:15,867 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-10 23:55:15,869 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-10 23:55:15,869 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-10 23:55:15,983 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-10 23:55:16,097 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-10 23:55:16,221 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-10 23:55:16,335 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-10 23:55:16,518 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:00:16,532 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:00:16,535 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:00:16,536 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:00:16,660 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:00:16,808 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:00:17,004 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:00:17,139 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:00:17,315 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:05:17,331 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:05:17,333 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:05:17,334 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:05:17,447 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:05:17,614 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:05:17,820 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:05:17,928 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:05:18,159 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:10:18,170 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:10:18,172 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:10:18,172 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:10:18,398 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:10:18,608 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:10:18,730 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:10:18,836 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:10:18,972 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:15:18,987 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:15:18,988 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:15:18,988 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:15:19,103 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:15:19,278 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:15:19,397 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:15:19,520 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:15:19,673 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:20:19,682 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:20:19,684 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:20:19,684 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:20:19,839 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:20:20,006 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:20:20,117 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:20:20,275 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:20:20,420 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:25:20,435 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:25:20,436 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:25:20,437 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:25:20,618 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:25:20,772 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:25:20,886 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:25:21,040 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:25:21,194 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:30:21,146 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:30:21,147 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:30:21,148 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:30:21,315 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:30:21,548 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:30:21,768 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:30:21,963 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:30:22,133 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:35:22,143 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:35:22,145 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:35:22,145 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:35:22,272 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:35:22,424 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:35:22,589 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:35:22,726 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:35:22,884 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:40:22,883 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:40:22,885 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:40:22,885 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:40:22,998 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:40:23,107 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:40:23,218 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:40:23,428 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:40:23,588 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:45:23,593 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:45:23,595 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:45:23,595 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:45:23,725 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:45:23,869 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:45:24,067 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:45:24,188 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:45:24,301 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:50:24,309 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:50:24,311 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:50:24,311 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:50:24,445 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:50:24,572 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:50:24,748 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:50:24,922 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:50:25,097 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 00:55:25,106 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 00:55:25,107 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 00:55:25,108 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 00:55:25,239 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 00:55:25,402 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 00:55:25,518 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 00:55:25,642 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 00:55:25,808 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:00:25,816 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:00:25,818 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:00:25,818 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:00:25,938 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:00:26,087 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:00:26,453 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:00:26,626 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:00:26,804 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:05:26,814 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:05:26,815 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:05:26,816 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:05:26,931 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:05:27,087 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:05:27,199 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:05:27,349 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:05:27,499 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:10:27,509 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:10:27,510 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:10:27,511 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:10:27,743 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:10:27,863 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:10:28,013 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:10:28,185 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:10:28,343 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:15:28,350 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:15:28,352 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:15:28,352 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:15:28,526 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:15:28,692 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:15:28,820 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:15:28,940 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:15:29,085 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:20:29,095 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:20:29,096 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:20:29,097 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:20:29,211 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:20:29,391 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:20:29,519 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:20:29,630 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:20:29,876 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:25:29,962 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:25:29,963 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:25:29,964 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:25:30,144 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:25:30,264 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:25:30,446 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:25:30,557 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:25:30,724 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:30:30,740 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:30:30,741 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:30:30,742 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:30:30,869 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:30:30,979 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:30:31,231 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:30:31,389 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:30:31,569 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:35:31,581 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:35:31,583 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:35:31,583 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:35:31,725 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:35:31,855 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:35:32,024 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:35:32,176 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:35:32,309 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:40:32,322 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:40:32,328 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:40:32,328 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:40:32,535 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:40:32,713 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:40:32,837 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:40:32,986 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:40:33,127 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:45:33,142 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:45:33,143 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:45:33,143 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:45:33,270 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:45:33,400 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:45:33,510 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:45:33,660 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:45:33,872 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:50:33,887 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:50:33,888 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:50:33,888 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:50:34,019 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:50:34,156 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:50:34,356 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:50:34,470 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:50:34,613 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 01:55:34,631 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 01:55:34,632 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 01:55:34,632 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 01:55:34,804 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 01:55:34,937 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 01:55:35,102 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 01:55:35,258 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 01:55:35,393 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:00:35,408 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:00:35,409 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:00:35,409 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:00:35,521 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:00:35,708 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:00:35,822 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:00:35,975 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:00:36,124 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:05:36,140 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:05:36,142 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:05:36,142 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:05:36,341 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:05:36,536 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:05:36,683 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:05:36,912 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:05:37,027 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:10:37,039 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:10:37,041 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:10:37,041 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:10:37,188 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:10:37,363 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:10:37,469 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:10:37,578 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:10:37,797 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:15:37,813 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:15:37,816 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:15:37,816 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:15:38,001 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:15:38,216 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:15:38,358 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:15:38,482 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:15:38,615 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:20:38,630 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:20:38,632 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:20:38,632 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:20:38,797 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:20:38,967 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:20:39,208 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:20:39,318 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:20:39,512 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:25:39,472 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:25:39,473 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:25:39,474 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:25:39,642 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:25:39,802 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:25:40,001 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:25:40,180 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:25:40,288 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:30:40,299 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:30:40,301 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:30:40,301 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:30:40,462 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:30:40,585 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:30:40,694 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:30:40,850 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:30:41,004 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:35:41,012 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:35:41,014 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:35:41,014 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:35:41,192 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:35:41,367 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:35:41,542 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:35:41,654 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:35:41,815 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:40:41,825 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:40:41,828 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:40:41,829 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:40:42,014 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:40:42,274 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:40:42,540 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:40:42,668 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:40:42,771 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:45:42,779 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:45:42,780 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:45:42,780 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:45:42,883 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:45:43,074 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:45:43,181 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:45:43,342 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:45:43,469 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:50:43,478 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:50:43,480 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:50:43,482 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:50:43,609 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:50:43,785 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:50:43,903 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:50:44,067 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:50:44,180 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 02:55:44,188 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 02:55:44,189 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 02:55:44,189 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 02:55:44,371 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 02:55:44,526 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 02:55:44,727 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 02:55:44,893 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 02:55:45,006 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:00:45,013 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:00:45,014 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:00:45,014 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:00:45,232 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:00:45,409 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:00:45,580 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:00:45,712 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:00:45,878 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:05:45,890 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:05:45,891 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:05:45,891 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:05:46,072 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:05:46,595 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:05:46,776 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:05:47,044 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:05:47,216 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:10:47,225 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:10:47,227 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:10:47,227 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:10:47,358 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:10:47,535 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:10:47,764 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:10:47,933 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:10:48,043 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:15:48,053 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:15:48,054 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:15:48,055 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:15:48,174 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:15:48,304 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:15:48,467 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:15:48,629 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:15:48,736 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:20:48,746 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:20:48,747 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:20:48,748 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:20:48,934 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:20:49,069 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:20:49,300 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:20:49,479 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:20:49,592 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:25:49,658 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:25:49,660 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:25:49,660 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:25:49,861 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:25:50,054 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:25:50,227 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:25:50,336 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:25:50,481 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:30:50,497 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:30:50,499 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:30:50,499 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:30:50,631 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:30:50,780 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:30:50,917 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:30:51,040 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:30:51,174 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:35:51,189 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:35:51,191 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:35:51,191 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:35:51,323 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:35:51,450 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:35:51,677 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:35:51,816 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:35:51,971 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:40:51,984 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:40:51,985 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:40:51,985 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:40:52,158 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:40:52,344 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:40:52,477 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:40:52,655 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:40:52,793 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:45:52,807 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:45:52,809 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:45:52,809 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:45:52,925 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:45:53,113 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:45:53,270 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:45:53,441 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:45:53,620 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:50:53,636 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:50:53,638 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:50:53,638 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:50:53,823 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:50:53,966 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:50:54,125 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:50:54,306 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:50:54,472 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 03:55:54,476 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 03:55:54,477 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 03:55:54,478 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 03:55:54,673 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 03:55:54,786 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 03:55:54,895 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 03:55:55,067 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 03:55:55,215 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:00:55,228 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:00:55,229 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:00:55,229 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:00:55,346 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:00:55,567 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:00:55,804 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:00:55,969 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:00:56,149 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:05:56,161 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:05:56,163 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:05:56,163 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:05:56,307 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:05:56,442 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:05:56,648 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:05:56,783 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:05:56,920 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:10:56,935 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:10:56,936 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:10:56,937 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:10:57,102 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:10:57,490 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:10:57,697 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:10:57,823 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:10:57,944 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:15:57,959 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:15:57,960 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:15:57,960 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:15:58,107 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:15:58,277 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:15:58,430 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:15:58,596 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:15:58,855 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:20:58,862 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:20:58,863 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:20:58,863 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:20:59,036 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:20:59,393 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:20:59,757 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:20:59,878 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:21:00,018 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:26:00,036 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:26:00,038 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:26:00,038 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:26:00,157 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:26:00,378 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:26:00,540 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:26:00,676 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:26:00,835 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:31:00,840 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:31:00,841 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:31:00,841 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:31:01,003 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:31:01,120 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:31:01,285 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:31:01,512 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:31:01,627 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:36:01,642 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:36:01,648 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:36:01,649 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:36:01,848 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:36:02,004 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:36:02,155 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:36:02,318 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:36:02,507 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:41:02,521 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:41:02,522 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:41:02,523 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:41:02,753 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:41:02,932 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:41:03,122 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:41:03,254 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:41:03,371 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:46:03,386 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:46:03,387 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:46:03,387 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:46:03,508 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:46:03,626 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:46:03,791 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:46:03,906 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:46:04,013 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:51:04,031 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:51:04,033 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:51:04,033 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:51:04,228 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:51:04,375 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:51:04,584 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:51:04,732 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:51:04,895 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 04:56:04,884 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 04:56:04,885 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 04:56:04,885 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 04:56:05,054 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 04:56:05,164 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 04:56:05,272 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 04:56:05,503 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 04:56:05,679 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:01:05,674 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:01:05,675 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:01:05,675 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:01:05,779 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:01:05,923 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:01:06,066 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:01:06,221 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:01:06,383 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:06:06,397 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:06:06,399 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:06:06,399 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:06:06,521 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:06:06,626 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:06:06,745 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:06:06,851 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:06:06,995 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:11:06,997 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:11:06,998 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:11:06,999 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:11:07,164 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:11:07,292 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:11:07,396 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:11:07,515 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:11:07,663 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:16:07,672 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:16:07,673 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:16:07,673 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:16:07,802 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:16:08,065 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:16:08,230 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:16:08,391 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:16:08,589 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:21:08,600 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:21:08,602 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:21:08,602 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:21:08,808 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:21:08,944 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:21:09,113 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:21:09,223 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:21:09,369 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:26:09,379 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:26:09,381 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:26:09,381 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:26:09,556 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:26:09,728 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:26:09,884 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:26:10,067 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:26:10,180 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:31:10,164 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:31:10,166 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:31:10,166 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:31:10,334 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:31:10,515 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:31:10,790 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:31:10,947 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:31:11,056 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:36:11,069 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:36:11,072 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:36:11,072 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:36:11,220 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:36:11,371 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:36:11,539 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:36:11,652 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:36:11,752 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:41:11,762 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:41:11,763 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:41:11,763 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:41:11,878 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:41:11,986 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:41:12,140 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:41:12,265 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:41:12,441 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:46:12,451 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:46:12,454 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:46:12,454 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:46:12,585 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:46:12,694 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:46:12,879 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:46:13,047 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:46:13,172 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:51:13,169 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:51:13,170 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:51:13,170 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:51:13,288 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:51:13,459 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:51:13,635 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:51:13,814 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:51:14,025 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 05:56:14,038 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 05:56:14,040 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 05:56:14,040 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 05:56:14,218 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 05:56:14,407 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 05:56:14,517 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 05:56:14,688 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 05:56:14,847 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:01:14,855 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:01:14,856 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:01:14,857 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:01:15,087 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:01:15,290 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:01:15,467 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:01:15,620 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:01:15,831 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:06:15,839 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:06:15,840 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:06:15,840 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:06:16,017 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:06:16,415 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:06:16,573 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:06:16,751 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:06:16,861 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:11:16,871 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:11:16,872 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:11:16,872 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:11:17,089 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:11:17,271 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:11:17,489 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:11:17,634 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:11:17,802 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:16:17,812 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:16:17,813 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:16:17,813 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:16:17,968 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:16:18,174 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:16:18,350 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:16:18,471 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:16:18,650 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:21:18,660 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:21:18,662 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:21:18,662 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:21:18,773 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:21:18,997 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:21:19,108 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:21:19,277 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:21:19,442 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:26:19,530 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:26:19,532 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:26:19,532 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:26:19,678 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:26:19,800 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:26:20,040 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:26:20,171 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:26:20,345 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:31:20,361 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:31:20,362 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:31:20,362 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:31:20,492 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:31:20,643 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:31:20,744 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:31:20,846 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:31:20,950 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:36:20,963 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:36:20,964 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:36:20,964 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:36:21,265 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:36:21,462 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:36:21,624 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:36:21,751 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:36:22,001 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:41:22,024 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:41:22,027 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:41:22,027 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:41:22,159 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:41:22,323 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:41:22,563 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:41:22,674 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:41:22,775 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:46:22,798 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:46:22,799 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:46:22,800 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:46:22,979 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:46:23,150 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:46:23,284 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:46:23,445 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:46:23,561 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:51:23,578 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:51:23,581 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:51:23,581 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:51:23,711 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:51:23,832 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:51:24,059 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:51:24,227 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:51:24,397 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 06:56:24,357 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 06:56:24,358 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 06:56:24,358 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 06:56:24,514 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 06:56:24,680 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 06:56:24,920 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 06:56:25,085 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 06:56:25,192 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:01:25,204 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:01:25,206 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:01:25,206 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:01:25,322 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:01:25,474 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:01:25,630 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:01:25,741 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:01:25,895 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:06:25,906 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:06:25,907 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:06:25,907 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:06:26,077 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:06:26,252 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:06:26,373 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:06:26,535 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:06:26,686 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:11:26,700 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:11:26,702 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:11:26,703 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:11:26,932 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:11:27,093 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:11:27,251 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:11:27,414 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:11:27,582 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:16:27,587 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:16:27,589 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:16:27,589 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:16:27,710 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:16:27,861 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:16:28,011 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:16:28,170 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:16:28,286 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:21:28,296 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:21:28,298 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:21:28,298 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:21:28,458 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:21:28,595 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:21:28,828 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:21:28,986 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:21:29,142 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:26:29,158 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:26:29,159 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:26:29,159 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:26:29,313 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:26:29,576 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:26:29,767 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:26:29,889 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:26:30,057 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:31:30,067 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:31:30,069 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:31:30,069 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:31:30,234 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:31:30,379 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:31:30,566 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:31:30,726 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:31:30,877 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:36:30,888 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:36:30,890 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:36:30,890 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:36:31,032 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:36:31,205 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:36:31,364 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:36:31,525 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:36:31,667 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:41:31,678 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:41:31,679 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:41:31,679 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:41:31,814 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:41:31,971 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:41:32,133 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:41:32,316 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:41:32,488 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:46:32,499 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:46:32,500 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:46:32,501 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:46:32,621 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:46:32,743 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:46:32,912 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:46:33,036 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:46:33,202 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:51:33,214 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:51:33,215 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:51:33,215 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:51:33,330 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:51:33,442 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:51:33,739 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:51:33,865 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:51:33,976 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 07:56:34,038 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 07:56:34,040 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 07:56:34,040 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 07:56:34,247 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 07:56:34,421 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 07:56:34,532 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 07:56:34,709 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 07:56:34,863 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:01:34,873 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:01:34,875 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:01:34,875 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:01:35,019 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:01:35,172 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:01:35,285 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:01:35,442 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:01:35,593 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:06:35,609 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:06:35,610 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:06:35,610 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:06:35,784 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:06:35,920 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:06:36,074 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:06:36,249 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:06:36,382 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:11:36,398 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:11:36,399 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:11:36,400 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:11:36,594 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:11:36,762 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:11:36,930 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:11:37,136 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:11:37,290 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:16:37,306 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:16:37,308 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:16:37,308 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:16:37,430 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:16:37,608 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:16:37,778 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:16:37,896 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:16:38,040 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:21:38,056 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:21:38,058 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:21:38,058 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:21:38,245 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:21:38,423 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:21:38,621 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:21:38,784 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:21:38,955 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:26:38,970 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:26:38,971 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:26:38,972 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:26:39,121 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:26:39,297 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:26:39,482 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:26:39,663 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:26:39,844 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:31:39,862 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:31:39,863 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:31:39,864 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:31:39,983 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:31:40,149 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:31:40,276 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:31:40,402 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:31:40,550 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:36:40,510 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:36:40,511 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:36:40,512 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:36:40,635 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:36:40,800 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:36:40,982 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:36:41,157 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:36:41,286 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:41:41,297 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:41:41,299 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:41:41,299 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:41:41,483 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:41:41,591 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:41:41,782 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:41:41,942 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:41:42,107 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:46:42,120 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:46:42,121 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:46:42,121 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:46:42,292 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:46:42,458 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:46:42,613 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:46:42,742 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:46:42,861 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:51:42,872 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:51:42,875 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:51:42,875 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:51:43,005 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:51:43,157 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:51:43,404 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:51:43,571 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:51:43,683 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 08:56:43,695 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 08:56:43,696 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 08:56:43,697 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 08:56:43,876 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 08:56:44,023 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 08:56:44,175 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 08:56:44,332 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 08:56:44,484 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:01:44,496 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:01:44,497 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:01:44,498 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:01:44,689 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:01:44,884 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:01:45,120 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:01:45,269 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:01:45,463 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:06:45,492 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:06:45,494 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:06:45,494 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:06:45,626 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:06:45,973 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:06:46,141 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:06:46,309 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:06:46,419 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:11:46,430 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:11:46,432 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:11:46,432 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:11:46,593 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:11:46,756 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:11:46,874 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:11:47,029 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:11:47,197 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:16:47,212 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:16:47,214 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:16:47,214 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:16:47,377 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:16:47,574 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:16:47,773 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:16:47,885 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:16:48,106 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:21:48,119 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:21:48,121 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:21:48,121 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:21:48,305 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:21:48,430 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:21:48,596 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:21:48,787 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:21:48,928 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:26:48,939 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:26:48,941 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:26:48,941 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:26:49,048 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:26:49,243 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:26:49,531 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:26:49,665 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:26:49,827 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:31:49,832 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:31:49,834 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:31:49,834 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:31:50,012 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:31:50,189 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:31:50,328 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:31:50,508 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:31:50,633 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:36:50,688 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:36:50,692 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:36:50,692 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:36:50,860 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:36:50,984 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:36:51,093 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:36:51,254 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:36:51,415 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:41:51,434 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:41:51,438 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:41:51,438 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:41:51,567 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:41:51,783 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:41:51,900 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:41:52,087 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:41:52,242 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:46:52,259 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:46:52,260 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:46:52,261 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:46:52,435 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:46:52,571 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:46:52,812 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:46:52,920 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:46:53,079 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:51:53,097 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:51:53,099 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:51:53,099 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:51:53,261 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:51:53,378 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:51:53,572 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:51:53,737 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:51:53,892 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 09:56:53,910 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 09:56:53,911 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 09:56:53,911 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 09:56:54,042 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 09:56:54,217 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 09:56:54,342 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 09:56:54,470 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 09:56:54,641 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:01:54,658 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:01:54,659 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:01:54,660 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:01:54,784 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:01:54,939 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:01:55,052 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:01:55,219 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:01:55,335 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:06:55,345 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:06:55,347 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:06:55,347 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:06:55,483 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:06:55,636 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:06:55,795 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:06:55,910 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:06:56,042 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:11:56,058 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:11:56,060 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:11:56,060 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:11:56,252 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:11:56,375 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:11:56,483 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:11:56,627 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:11:56,791 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:16:56,805 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:16:56,807 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:16:56,807 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:16:56,930 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:16:57,107 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:16:57,269 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:16:57,430 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:16:57,620 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:21:57,639 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:21:57,643 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:21:57,643 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:21:57,898 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:21:58,100 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:21:58,257 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:21:58,367 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:21:58,580 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:26:58,588 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:26:58,589 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:26:58,589 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:26:58,776 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:26:58,980 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:26:59,156 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:26:59,353 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:26:59,562 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:31:59,518 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:31:59,519 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:31:59,519 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:31:59,641 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:31:59,774 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:32:00,011 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:32:00,263 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:32:00,390 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:37:00,396 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:37:00,398 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:37:00,399 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:37:01,060 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:37:01,244 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:37:01,408 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:37:01,569 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:37:01,697 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:42:01,710 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:42:01,712 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:42:01,712 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:42:01,933 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:42:02,099 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:42:02,259 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:42:02,444 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:42:02,656 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:47:02,669 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:47:02,672 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:47:02,672 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:47:02,905 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:47:03,078 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:47:03,322 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:47:03,485 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:47:03,673 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:52:03,685 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:52:03,686 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:52:03,686 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:52:03,846 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:52:04,033 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:52:04,158 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:52:04,319 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:52:04,521 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 10:57:04,533 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 10:57:04,534 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 10:57:04,534 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 10:57:04,758 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 10:57:04,973 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 10:57:05,222 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 10:57:05,417 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 10:57:05,592 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:02:05,603 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:02:05,605 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:02:05,605 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:02:05,741 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:02:05,973 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:02:06,178 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:02:06,343 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:02:06,481 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:07:06,493 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:07:06,495 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:07:06,496 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:07:06,693 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:07:07,364 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:07:07,525 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:07:07,738 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:07:07,898 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:12:07,909 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:12:07,911 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:12:07,911 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:12:08,117 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:12:08,286 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:12:08,531 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:12:08,688 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:12:08,814 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:17:08,791 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:17:08,793 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:17:08,793 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:17:08,909 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:17:09,132 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:17:09,371 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:17:09,514 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:17:09,687 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:22:09,696 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:22:09,698 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:22:09,698 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:22:09,863 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:22:10,031 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:22:10,200 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:22:10,367 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:22:10,550 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:27:10,562 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:27:10,564 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:27:10,564 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:27:10,706 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:27:10,843 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:27:11,013 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:27:11,136 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:27:11,415 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:32:11,422 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:32:11,424 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:32:11,424 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:32:11,595 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:32:11,789 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:32:11,911 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:32:12,052 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:32:12,168 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:37:12,177 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:37:12,178 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:37:12,179 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:37:12,293 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:37:12,406 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:37:12,525 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:37:12,769 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:37:12,915 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:42:12,925 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:42:12,927 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:42:12,927 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:42:13,049 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:42:13,227 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:42:13,374 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:42:13,540 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:42:14,095 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:47:14,160 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:47:14,161 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:47:14,161 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:47:14,361 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:47:14,524 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:47:14,699 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:47:14,892 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:47:15,069 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:52:15,074 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:52:15,075 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:52:15,076 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:52:15,230 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:52:15,362 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:52:15,566 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:52:15,788 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:52:15,967 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 11:57:15,979 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 11:57:15,980 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 11:57:15,980 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 11:57:16,098 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 11:57:16,266 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 11:57:16,740 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 11:57:16,859 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 11:57:16,977 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:02:16,983 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:02:16,985 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:02:16,985 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:02:17,299 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:02:17,472 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:02:17,590 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:02:17,697 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:02:17,879 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:07:17,888 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:07:17,891 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:07:17,891 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:07:18,015 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:07:18,178 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:07:18,379 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:07:18,494 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:07:18,666 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:12:18,678 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:12:18,679 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:12:18,679 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:12:18,881 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:12:18,994 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:12:19,191 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:12:19,352 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:12:19,628 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:17:19,647 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:17:19,651 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:17:19,653 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:17:19,787 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:17:19,968 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:17:20,206 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:17:20,429 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:17:20,608 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:22:20,619 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:22:20,621 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:22:20,621 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:22:20,798 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:22:20,965 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:22:21,199 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:22:21,317 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:22:21,517 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:27:21,533 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:27:21,534 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:27:21,535 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:27:21,742 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:27:21,952 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:27:22,104 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:27:22,279 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:27:22,471 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:32:22,480 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:32:22,482 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:32:22,482 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:32:22,653 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:32:22,875 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:32:23,042 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:32:23,274 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:32:23,430 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:37:23,440 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:37:23,444 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:37:23,444 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:37:23,639 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:37:23,836 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:37:23,989 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:37:24,110 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:37:24,218 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:42:24,278 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:42:24,279 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:42:24,279 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:42:24,463 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:42:24,647 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:42:24,783 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:42:24,911 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:42:25,041 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:47:25,060 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:47:25,061 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:47:25,061 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:47:25,227 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:47:25,412 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:47:25,582 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:47:25,729 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:47:25,904 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:52:25,924 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:52:25,926 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:52:25,926 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:52:26,103 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:52:26,359 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:52:26,530 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:52:26,644 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:52:26,827 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 12:57:26,845 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 12:57:26,847 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 12:57:26,847 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 12:57:27,035 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 12:57:27,253 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 12:57:27,499 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 12:57:27,630 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 12:57:27,747 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:02:27,765 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:02:27,767 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:02:27,767 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:02:27,920 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:02:28,096 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:02:28,278 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:02:28,419 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:02:28,604 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:07:28,622 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:07:28,624 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:07:28,624 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:07:28,803 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:07:28,979 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:07:29,137 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:07:29,304 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:07:29,460 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:12:29,470 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:12:29,472 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:12:29,472 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:12:29,595 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:12:29,788 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:12:29,894 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:12:30,281 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:12:30,453 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:17:30,472 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:17:30,475 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:17:30,475 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:17:30,593 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:17:30,728 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:17:30,918 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:17:31,097 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:17:31,262 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:22:31,279 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:22:31,281 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:22:31,281 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:22:31,416 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:22:31,644 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:22:31,821 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:22:31,985 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:22:32,159 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:27:32,177 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:27:32,179 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:27:32,179 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:27:32,363 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:27:32,535 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:27:32,644 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:27:32,821 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:27:33,012 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:32:33,028 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:32:33,030 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:32:33,030 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:32:33,152 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:32:33,272 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:32:33,398 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:32:33,522 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:32:33,637 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:37:33,653 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:37:33,655 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:37:33,655 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:37:33,816 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:37:34,015 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:37:34,140 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:37:34,341 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:37:34,531 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:42:34,549 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:42:34,551 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:42:34,551 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:42:34,692 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:42:34,814 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:42:34,924 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:42:35,082 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:42:35,194 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:47:35,176 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:47:35,178 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:47:35,178 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:47:35,318 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 13:47:35,514 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 13:47:35,785 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 13:47:35,944 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 13:47:36,124 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 13:52:36,136 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:52:36,140 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:52:36,140 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:52:46,156 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d487790>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:52:46,157 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 13:52:56,161 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d49da10>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:52:56,162 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 13:53:06,173 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cc8d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:53:06,173 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 13:53:16,180 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cfa50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:53:16,181 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 13:53:26,195 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ee450>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:53:26,196 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 13:58:26,199 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 13:58:26,200 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 13:58:26,201 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 13:58:36,215 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d49e010>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:58:36,217 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 13:58:46,224 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ccf50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:58:46,225 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 13:58:56,236 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cdcd0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:58:56,237 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 13:59:06,243 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d452990>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:59:06,243 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 13:59:16,261 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d451390>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 13:59:16,262 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:04:16,271 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:04:16,272 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:04:16,272 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:04:26,294 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e7b50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:04:26,294 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:04:36,300 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d451510>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:04:36,301 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:04:46,319 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d508710>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:04:46,320 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:04:56,327 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce050>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:04:56,329 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:05:06,350 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cf850>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:05:06,351 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:10:06,363 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:10:06,367 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:10:06,367 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:10:16,377 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d427390>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:10:16,378 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:10:26,388 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d519d90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:10:26,389 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:10:36,396 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d49cb50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:10:36,397 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:10:46,407 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce090>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:10:46,407 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:10:56,413 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cc690>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:10:56,413 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:15:56,422 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:15:56,424 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:15:56,424 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:16:06,443 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e6210>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:16:06,444 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:16:16,449 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4530d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:16:16,450 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:16:26,464 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d51a510>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:16:26,465 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:16:36,472 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10bb0bb10>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:16:36,474 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:16:46,483 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ed110>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:16:46,483 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:21:46,494 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:21:46,495 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:21:46,495 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:21:56,506 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d452a90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:21:56,508 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:22:06,514 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cc610>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:22:06,514 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:22:16,525 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e4590>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:22:16,525 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:22:26,531 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d49c150>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:22:26,532 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:22:36,543 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d49df90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:22:36,543 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:27:36,556 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:27:36,560 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:27:36,560 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:27:49,617 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e7550>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:27:49,618 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:27:59,625 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cc390>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:27:59,626 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:28:09,637 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cd810>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:28:09,638 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:28:19,646 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d451ed0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:28:19,647 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:28:29,659 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d5184d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:28:29,659 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:33:29,674 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:33:29,675 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:33:29,675 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:33:39,692 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d44bed0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:33:39,693 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:33:49,700 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d453350>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:33:49,700 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:33:59,723 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cfad0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:33:59,724 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:34:09,732 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cfed0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:34:09,732 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:34:19,752 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e4510>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:34:19,753 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:39:19,763 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:39:19,765 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:39:19,766 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:39:29,785 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10bafb890>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:39:29,786 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:39:39,797 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d438510>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:39:39,797 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:39:49,816 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e7650>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:39:49,817 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:39:59,823 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cf310>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:39:59,823 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:40:09,833 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d450a10>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:40:09,833 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:45:09,841 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:45:09,843 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:45:09,843 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:45:19,866 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d427710>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:45:19,866 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:45:29,873 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d51a150>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:45:29,874 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:45:39,881 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d44b390>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:45:39,882 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:45:49,894 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ecf10>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:45:49,895 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:45:59,901 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4521d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:45:59,901 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:50:59,914 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:50:59,917 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:50:59,917 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:51:09,934 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce1d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:51:09,935 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:51:19,949 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ccc50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:51:19,951 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:51:29,959 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e6590>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:51:29,960 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:51:39,971 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x106aea950>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:51:39,973 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:51:49,984 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4e6550>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:51:49,984 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 14:56:49,994 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 14:56:49,995 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 14:56:49,995 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 14:57:00,019 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x106ac3a50>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:57:00,019 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 14:57:10,026 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce0d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:57:10,027 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 14:57:20,045 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d452ad0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:57:20,045 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 14:57:30,051 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d51a690>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:57:30,052 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 14:57:40,065 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4eff90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 14:57:40,066 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 15:02:40,079 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:02:40,080 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:02:40,080 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:02:50,096 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d43afd0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:02:50,096 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 15:03:00,105 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce790>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:03:00,106 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 15:03:10,118 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4ce8d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:03:10,119 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 15:03:20,127 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d452010>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:03:20,127 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 15:03:30,140 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10dfb1b90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:03:30,141 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 15:08:30,155 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:08:30,157 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:08:30,158 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:08:40,180 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d51b010>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:08:40,180 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 15:08:50,190 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d451dd0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:08:50,192 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 15:09:00,207 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d452890>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:09:00,208 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 15:09:10,216 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10dfb1cd0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:09:10,217 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 15:09:20,228 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cd6d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:09:20,229 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 15:14:20,234 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:14:20,237 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:14:20,238 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:14:30,253 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d487310>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:14:30,255 - CopyBot - INFO - User 0x6a72... has 0 positions.
+2026-01-11 15:14:40,261 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d519810>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:14:40,262 - CopyBot - INFO - User 0x37e4... has 0 positions.
+2026-01-11 15:14:50,276 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0x16b29c50f2439faf627209b2ac0c7bbddaa8a881 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d53d4d0>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:14:50,278 - CopyBot - INFO - User 0x16b2... has 0 positions.
+2026-01-11 15:15:00,286 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2 (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cdb90>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:15:00,286 - CopyBot - INFO - User 0xe90b... has 0 positions.
+2026-01-11 15:15:10,296 - CopyBot - ERROR - Fetch Positions Error: HTTPSConnectionPool(host='data-api.polymarket.com', port=443): Max retries exceeded with url: /positions?user=0xdb27bf2ac5d428a9c63dbc914611036855a6c56e (Caused by ConnectTimeoutError(<HTTPSConnection(host='data-api.polymarket.com', port=443) at 0x10d4cf610>, 'Connection to data-api.polymarket.com timed out. (connect timeout=10)'))
+2026-01-11 15:15:10,296 - CopyBot - INFO - User 0xdb27... has 0 positions.
+2026-01-11 15:20:10,310 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:20:10,314 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:20:10,314 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:20:10,641 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:20:10,808 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:20:10,970 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:20:11,086 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:20:11,206 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:25:11,220 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:25:11,221 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:25:11,221 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:25:11,367 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:25:11,527 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:25:11,763 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:25:11,911 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:25:12,030 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:30:12,044 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:30:12,045 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:30:12,045 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:30:12,267 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:30:12,407 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:30:12,539 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:30:12,688 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:30:12,805 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:35:12,789 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:35:12,792 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:35:12,793 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:35:12,985 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:35:13,311 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:35:13,464 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:35:13,637 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:35:13,796 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:40:13,813 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:40:13,818 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:40:13,818 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:40:14,081 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:40:14,317 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:40:14,600 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:40:14,734 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:40:14,917 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:45:14,930 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:45:14,931 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:45:14,931 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:45:15,091 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:45:15,228 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:45:15,357 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:45:15,515 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:45:15,665 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:50:15,672 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:50:15,674 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:50:15,675 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:50:15,837 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:50:15,948 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:50:16,189 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:50:16,362 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:50:16,567 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 15:55:16,581 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 15:55:16,584 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 15:55:16,584 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 15:55:16,765 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 15:55:16,938 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 15:55:17,164 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 15:55:17,350 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 15:55:17,520 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:00:17,532 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:00:17,534 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:00:17,534 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:00:17,741 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:00:17,855 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:00:18,109 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:00:18,216 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:00:18,379 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:05:18,367 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:05:18,369 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:05:18,369 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:05:18,580 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:05:18,732 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:05:18,907 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:05:19,081 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:05:19,252 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:10:19,263 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:10:19,264 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:10:19,265 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:10:19,412 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:10:19,527 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:10:19,701 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:10:19,901 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:10:20,061 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:15:20,075 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:15:20,076 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:15:20,077 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:15:20,207 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:15:20,379 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:15:20,569 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:15:20,974 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:15:21,110 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:20:21,121 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:20:21,122 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:20:21,123 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:20:21,251 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:20:21,452 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:20:21,587 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:20:21,756 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:20:21,879 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:25:21,886 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:25:21,887 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:25:21,887 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:25:22,103 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:25:22,354 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:25:22,606 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:25:22,828 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:25:23,049 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:30:23,058 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:30:23,059 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:30:23,059 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:30:23,229 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:30:23,355 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:30:23,474 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:30:23,628 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:30:23,744 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:35:23,801 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:35:23,802 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:35:23,803 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:35:23,949 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:35:24,087 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:35:24,308 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:35:24,456 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:35:24,586 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:40:24,596 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:40:24,597 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:40:24,597 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:40:24,752 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:40:24,868 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:40:25,006 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:40:25,246 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:40:25,397 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:45:25,411 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:45:25,412 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:45:25,412 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:45:25,583 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:45:25,802 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:45:26,057 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:45:26,234 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:45:26,376 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:50:26,384 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:50:26,386 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:50:26,386 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:50:26,496 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:50:26,657 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:50:26,778 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:50:26,957 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:50:27,216 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 16:55:27,228 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 16:55:27,229 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 16:55:27,230 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 16:55:27,360 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 16:55:27,494 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 16:55:27,645 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 16:55:27,840 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 16:55:28,005 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:00:28,014 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:00:28,016 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:00:28,016 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:00:28,137 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:00:28,269 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:00:28,466 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:00:28,631 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:00:28,818 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:05:28,806 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:05:28,807 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:05:28,807 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:05:28,985 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:05:29,152 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:05:29,261 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:05:29,410 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:05:29,564 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:10:29,575 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:10:29,576 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:10:29,576 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:10:29,736 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:10:29,860 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:10:30,008 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:10:30,168 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:10:30,333 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:15:30,345 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:15:30,348 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:15:30,348 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:15:30,481 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:15:30,649 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:15:30,847 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:15:30,956 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:15:31,074 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:20:31,086 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:20:31,087 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:20:31,088 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:20:31,551 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:20:31,707 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:20:31,875 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:20:31,991 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:20:32,165 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:25:32,173 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:25:32,176 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:25:32,176 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:25:32,360 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:25:32,492 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:25:32,723 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:25:32,895 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:25:33,020 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:30:33,055 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:30:33,056 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:30:33,056 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:30:33,178 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:30:33,363 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:30:33,619 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:30:33,735 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:30:33,992 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:35:34,025 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:35:34,026 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:35:34,027 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:35:34,191 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:35:34,357 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:35:34,478 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:35:34,605 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:35:34,737 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:40:34,752 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:40:34,753 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:40:34,753 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:40:34,933 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:40:35,121 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:40:35,264 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:40:35,441 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:40:35,566 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:45:35,582 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:45:35,584 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:45:35,585 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:45:35,757 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:45:35,903 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:45:36,053 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:45:36,221 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:45:36,459 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:50:36,476 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:50:36,478 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:50:36,478 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:50:36,651 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:50:36,802 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:50:36,979 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:50:37,103 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:50:37,239 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 17:55:37,256 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 17:55:37,257 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 17:55:37,258 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 17:55:37,429 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 17:55:37,557 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 17:55:37,819 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 17:55:37,930 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 17:55:38,110 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-11 18:00:38,123 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-11 18:00:38,125 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-11 18:00:38,125 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-11 18:00:38,286 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-11 18:00:38,483 - CopyBot - INFO - User 0x37e4... has 100 positions.
+2026-01-11 18:00:38,684 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-11 18:00:38,846 - CopyBot - INFO - User 0xe90b... has 100 positions.
+2026-01-11 18:00:39,036 - CopyBot - INFO - User 0xdb27... has 100 positions.
