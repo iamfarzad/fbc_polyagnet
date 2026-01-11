@@ -131,20 +131,41 @@ class AutoRedeemer:
         except:
             return None
     
-    def check_if_resolved(self, condition_id: str) -> bool:
-        """Check if a market condition is resolved on-chain."""
+    def check_if_resolved(self, condition_id: str, position: Dict = None) -> bool:
+        """
+        Check if a market condition is resolved.
+        
+        Uses multiple methods:
+        1. Check if price is exactly 0 or 1 (indicates resolution)
+        2. Check on-chain CTF payout numerators
+        """
+        # Method 1: Check position price (fastest)
+        if position:
+            price = float(position.get("curPrice", position.get("price", 0.5)))
+            # If price is exactly 0 or 1, market is resolved
+            if price <= 0.001 or price >= 0.999:
+                return True
+        
+        # Method 2: On-chain check
         try:
             # Convert condition_id to bytes32
             if not condition_id.startswith("0x"):
                 condition_id = "0x" + condition_id
             
-            condition_bytes = bytes.fromhex(condition_id[2:])
+            # Pad to 32 bytes if needed
+            condition_hex = condition_id[2:].zfill(64)
+            condition_bytes = bytes.fromhex(condition_hex)
             
             # Get payout numerators - if non-zero, market is resolved
             payouts = self.ctf.functions.payoutNumerators(condition_bytes).call()
             return any(p > 0 for p in payouts)
         except Exception as e:
-            print(f"Error checking resolution: {e}")
+            print(f"      On-chain check failed: {e}")
+            # If price indicated resolution, trust that
+            if position:
+                price = float(position.get("curPrice", position.get("price", 0.5)))
+                if price <= 0.001 or price >= 0.999:
+                    return True
             return False
     
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
@@ -259,11 +280,14 @@ class AutoRedeemer:
                     results["already_redeemed"] += 1
                     continue
                 
+                # Get price for resolution check
+                cur_price = float(pos.get("curPrice", pos.get("price", 0.5)))
+                
                 print(f"\n   📊 {market_title}...")
-                print(f"      Size: {size:.2f} | Value: ${value:.2f}")
+                print(f"      Size: {size:.2f} | Value: ${value:.2f} | Price: {cur_price:.2f}")
                 
                 # Check if market is resolved
-                if not self.check_if_resolved(condition_id):
+                if not self.check_if_resolved(condition_id, pos):
                     print(f"      ⏳ Not resolved yet")
                     results["not_resolved"] += 1
                     continue
