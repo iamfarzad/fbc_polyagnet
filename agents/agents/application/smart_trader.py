@@ -269,6 +269,13 @@ class SmartTrader:
         perplexity_key = os.getenv("PERPLEXITY_API_KEY")
         openai_key = os.getenv("OPENAI_API_KEY")
         
+        # Debug: print key presence (first 8 chars only for security)
+        if not hasattr(self, '_keys_logged'):
+            self._keys_logged = True
+            pk_preview = perplexity_key[:8] + "..." if perplexity_key else "NOT SET"
+            ok_preview = openai_key[:8] + "..." if openai_key else "NOT SET"
+            print(f"   🔑 API Keys: Perplexity={pk_preview} OpenAI={ok_preview}")
+        
         # First, search for recent news/info
         search_results = ""
         if perplexity_key:
