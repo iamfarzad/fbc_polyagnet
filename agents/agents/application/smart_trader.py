@@ -26,6 +26,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from agents.polymarket.polymarket import Polymarket
 
+# Try to import auto-redeemer
+try:
+    from agents.utils.auto_redeem import AutoRedeemer
+    HAS_REDEEMER = True
+except ImportError:
+    HAS_REDEEMER = False
+    AutoRedeemer = None
+
 load_dotenv()
 
 
@@ -142,6 +150,15 @@ class SmartTrader:
         except:
             self.initial_balance = 0
             self.address = ""
+        
+        # Initialize auto-redeemer
+        self.redeemer = None
+        if HAS_REDEEMER:
+            try:
+                self.redeemer = AutoRedeemer()
+                print(f"✅ Auto-redeemer initialized")
+            except Exception as e:
+                print(f"⚠️ Auto-redeemer not available: {e}")
         
         print(f"=" * 60)
         print(f"🧠 SMART TRADER - Fee-Free Markets")
@@ -444,6 +461,17 @@ Only output the JSON, nothing else."""
     def scan_and_trade(self):
         """Main trading loop - scan markets and place bets."""
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] Scanning fee-free markets...")
+        
+        # Auto-redeem any winning positions first
+        if self.redeemer:
+            try:
+                print("   🔄 Checking for redeemable positions...")
+                results = self.redeemer.scan_and_redeem()
+                if results.get("redeemed", 0) > 0:
+                    print(f"   💰 Redeemed {results['redeemed']} positions!")
+                    time.sleep(5)  # Wait for balance to update
+            except Exception as e:
+                print(f"   ⚠️ Redemption check failed: {e}")
         
         # Check if enabled
         try:

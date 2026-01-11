@@ -778,6 +778,35 @@ async def clear_chat_session(session_id: str):
     return {"status": "cleared"}
 
 
+# --- Auto-Redemption Endpoint ---
+
+@app.post("/api/redeem-positions")
+def redeem_positions():
+    """
+    Automatically redeem all winning positions from resolved markets.
+    Converts winning shares to USDC.
+    """
+    try:
+        from agents.utils.auto_redeem import AutoRedeemer
+        
+        redeemer = AutoRedeemer()
+        results = redeemer.scan_and_redeem()
+        
+        return {
+            "status": "success",
+            "scanned": results.get("scanned", 0),
+            "redeemed": results.get("redeemed", 0),
+            "not_resolved": results.get("not_resolved", 0),
+            "already_done": results.get("already_redeemed", 0),
+            "errors": results.get("errors", 0)
+        }
+    except ImportError as e:
+        return {"status": "error", "error": f"Auto-redeemer not available: {e}"}
+    except Exception as e:
+        logger.error(f"Redemption error: {e}")
+        return {"status": "error", "error": str(e)}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
