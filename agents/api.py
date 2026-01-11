@@ -87,6 +87,7 @@ def load_state() -> Dict[str, Any]:
         "safe_running": master.get("safe_running", False),
         "scalper_running": master.get("scalper_running", False),
         "copy_trader_running": master.get("copy_trader_running", False),
+        "smart_trader_running": master.get("smart_trader_running", True),
         "dry_run": master.get("dry_run", True),
         "dynamic_max_bet": master.get("dynamic_max_bet", 0.50),
         
@@ -293,6 +294,12 @@ def get_dashboard():
             "running": state.get("copy_trader_running", False),
             "lastSignal": state.get("last_signal", "None"),
             "lastScan": state.get("copy_last_scan", "-")
+        },
+        "smartTrader": {
+            "running": state.get("smart_trader_running", True),
+            "activity": state.get("smart_trader_last_activity", "Idle"),
+            "positions": state.get("smart_trader_positions", 0),
+            "trades": state.get("smart_trader_trades", 0)
         }
     }
 
@@ -336,6 +343,8 @@ def toggle_agent(req: AgentToggleRequest):
         state["scalper_running"] = not state.get("scalper_running", False)
     elif target == "copyTrader":
         state["copy_trader_running"] = not state.get("copy_trader_running", False)
+    elif target == "smartTrader":
+        state["smart_trader_running"] = not state.get("smart_trader_running", True)
     
     save_state(state)
     return {"status": "success", "state": state}
@@ -367,6 +376,7 @@ def emergency_stop():
     state["safe_running"] = False
     state["scalper_running"] = False
     state["copy_trader_running"] = False
+    state["smart_trader_running"] = False
     save_state(state)
     return {"status": "stopped"}
 

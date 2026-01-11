@@ -14,6 +14,7 @@ primary_region = "ams"
   scalper = "python3 -m agents.application.pyml_scalper"
   api = "python3 -m uvicorn api:app --host 0.0.0.0 --port 8000"
   copy = "python3 -m agents.application.pyml_copy_trader"
+  smart = "python3 -m agents.application.smart_trader"
 
 [http_service]
   internal_port = 8000

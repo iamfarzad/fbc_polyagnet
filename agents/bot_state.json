@@ -1,7 +1,8 @@
 {
     "safe_running": false,
-    "scalper_running": true,
-    "copy_trader_running": true,
+    "scalper_running": false,
+    "copy_trader_running": false,
+    "smart_trader_running": true,
     "dry_run": false,
     "dynamic_max_bet": 2.0,
     "safe_last_activity": "PASS: Will Donald Trump attend Joe Biden\u2019s inauguration ...",
@@ -16,5 +17,5 @@
     },
     "scalper_markets": 60,
     "last_signal": "None",
-    "copy_last_scan": "2026-01-10 10:31:56"
+    "copy_last_scan": "2026-01-11 18:20:42"
 }
