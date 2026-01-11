@@ -301,19 +301,49 @@ RESPOND IN THIS EXACT JSON FORMAT:
 
 Only output the JSON, nothing else."""
 
-        # Call OpenAI
+        # Call LLM (Perplexity or OpenAI)
         try:
-            import openai
-            client = openai.OpenAI(api_key=OPENAI_API_KEY)
+            result_text = None
             
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
-                max_tokens=500
-            )
+            # Try Perplexity first (it has search built-in)
+            if PERPLEXITY_API_KEY:
+                try:
+                    headers = {
+                        "Authorization": f"Bearer {PERPLEXITY_API_KEY}",
+                        "Content-Type": "application/json"
+                    }
+                    data = {
+                        "model": "llama-3.1-sonar-large-128k-online",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.3,
+                        "max_tokens": 500
+                    }
+                    response = requests.post(
+                        "https://api.perplexity.ai/chat/completions",
+                        headers=headers,
+                        json=data,
+                        timeout=30
+                    )
+                    if response.status_code == 200:
+                        result = response.json()
+                        result_text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+                except Exception as e:
+                    print(f"   Perplexity error: {e}")
             
-            result_text = response.choices[0].message.content.strip()
+            # Fallback to OpenAI
+            if not result_text and OPENAI_API_KEY:
+                import openai
+                client = openai.OpenAI(api_key=OPENAI_API_KEY)
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3,
+                    max_tokens=500
+                )
+                result_text = response.choices[0].message.content.strip()
+            
+            if not result_text:
+                raise Exception("No LLM API available")
             
             # Parse JSON response
             # Handle markdown code blocks
