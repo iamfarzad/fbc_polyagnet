@@ -52,8 +52,8 @@ STOP_LOSS_PCT = -0.04               # 4% loss = CUT FAST (1.6:1 risk/reward)
 MIN_HOLD_SECONDS = 15               # 15s min hold (avoid wash trades)
 MAX_HOLD_SECONDS = 180              # 3 min max hold (force exit, free up capital)
 
-# High-frequency settings - AGGRESSIVE
-CHECK_INTERVAL = 10                  # Check every 10 seconds
+# High-frequency settings - AGGRESSIVE (TURBO MODE)
+CHECK_INTERVAL = 1                  # Check every 1 second (was 10)
 MOMENTUM_REVERSAL_EXIT = True        # Exit if momentum flips against position
 
 # Assets to trade - focus on most liquid

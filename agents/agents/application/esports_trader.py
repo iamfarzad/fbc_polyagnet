@@ -53,9 +53,9 @@ MAX_BET_USD = 50.00             # Increased for high confidence bursts
 BET_PERCENT = 0.10              # 10% per trade (aggressive)
 MAX_CONCURRENT_POSITIONS = 5    
 
-# Timing - HFT SPEED
-POLL_INTERVAL_LIVE = 0.5        # Poll every 500ms (beat the stream)
-POLL_INTERVAL_IDLE = 30         
+# Polling intervals (seconds)
+POLL_INTERVAL_IDLE = 60         # Check for matches every minute
+POLL_INTERVAL_LIVE = 1          # Check live game state every 1s (TURBO MODE)
 EXIT_EDGE_THRESHOLD = 0.005     # Exit if edge drops < 0.5% (fast churn)
 
 # ... (API Keys section unchanged) ...

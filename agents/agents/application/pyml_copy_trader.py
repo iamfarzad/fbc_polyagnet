@@ -50,6 +50,15 @@ class CopyTrader:
         except:
             pass
         
+        # Initialize Auto-Redeemer for Compounding
+        self.redeemer = None
+        try:
+            from agents.utils.auto_redeem import AutoRedeemer
+            self.redeemer = AutoRedeemer()
+            logger.info("✅ Auto-Redeemer initialized for compounding.")
+        except Exception as e:
+            logger.warning(f"AutoRedeemer init failed: {e}")
+        
     def fetch_top_gainers(self, limit=10, period="24h"):
         """
         Fetch top traders using LLM research.
@@ -201,6 +210,20 @@ class CopyTrader:
                 continue
 
             try:
+                # 0. Auto-Redeem Winning Positions (Compounding)
+                if self.redeemer:
+                    try:
+                        res = self.redeemer.scan_and_redeem()
+                        if res['redeemed'] > 0:
+                            logger.info(f"💰 CopyCompounding: Redeemed {res['redeemed']} positions")
+                            self.save_state({"last_activity": "Redeemed positions"})
+                    except: pass
+                
+                # Randomized delay to mask bot behavior (The Shadow)
+                import random
+                delay = random.uniform(5, 15)
+                time.sleep(delay)
+
                 gainers = self.fetch_top_gainers(limit=5)
                 logger.info(f"Scanning {len(gainers)} top gainers...")
                 
@@ -270,7 +293,8 @@ class CopyTrader:
                     "status": "Scanning Complete"
                 })
                 
-                time.sleep(300)
+                logger.info("Sleeping 60s before next scan...")
+                time.sleep(60)
                 
             except Exception as e:
                 logger.error(f"Copy Loop Error: {e}")
