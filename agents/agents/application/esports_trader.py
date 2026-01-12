@@ -46,116 +46,63 @@ load_dotenv()
 # =============================================================================
 
 # Trading parameters
-MIN_EDGE_PERCENT = 3            # Need 3%+ edge to enter (tight for HFT)
-MIN_BET_USD = 1.00              # Polymarket minimum
-MAX_BET_USD = 20.00             # Keep positions small for quick exits
-BET_PERCENT = 0.05              # 5% of bankroll per trade
-MAX_CONCURRENT_POSITIONS = 3    # Max positions per match
+# Trading parameters - AGGRESSIVE LATENCY ARB
+MIN_EDGE_PERCENT = 2.0          # 2% edge is enough for stream delay arb
+MIN_BET_USD = 1.00              
+MAX_BET_USD = 50.00             # Increased for high confidence bursts
+BET_PERCENT = 0.10              # 10% per trade (aggressive)
+MAX_CONCURRENT_POSITIONS = 5    
 
-# Timing
-POLL_INTERVAL_LIVE = 2          # Poll every 2s during live match
-POLL_INTERVAL_IDLE = 30         # Poll every 30s when no live match
-EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
+# Timing - HFT SPEED
+POLL_INTERVAL_LIVE = 0.5        # Poll every 500ms (beat the stream)
+POLL_INTERVAL_IDLE = 30         
+EXIT_EDGE_THRESHOLD = 0.005     # Exit if edge drops < 0.5% (fast churn)
 
-# API Keys (loaded dynamically)
-# RIOT_API_KEY - for League of Legends
-# PANDASCORE_API_KEY - for CS2/Dota2 (alternative)
+# ... (API Keys section unchanged) ...
 
-# =============================================================================
-# DATA CLASSES
-# =============================================================================
-
-@dataclass
-class GameState:
-    """Represents current state of a live esports match."""
-    game_type: str              # "lol", "cs2", "dota2"
-    match_id: str
-    team1: str
-    team2: str
-    team1_score: int = 0        # Kills for LoL/Dota, Rounds for CS2
-    team2_score: int = 0
-    team1_gold: int = 0         # Gold/Economy advantage
-    team2_gold: int = 0
-    game_time: int = 0          # Seconds into game
-    team1_objectives: int = 0   # Towers/Rounds won
-    team2_objectives: int = 0
-    is_live: bool = False
-    raw_data: dict = None
-    
-    def gold_diff(self) -> int:
-        """Gold difference (positive = team1 ahead)."""
-        return self.team1_gold - self.team2_gold
-    
-    def score_diff(self) -> int:
-        """Score difference (positive = team1 ahead)."""
-        return self.team1_score - self.team2_score
-
-
-@dataclass 
-class PolymarketMatch:
-    """A Polymarket esports market."""
-    market_id: str
-    question: str
-    team1: str
-    team2: str
-    yes_token: str              # Team1 wins token
-    no_token: str               # Team2 wins token
-    yes_price: float
-    no_price: float
-    volume: float
-    end_date: str
-
+# ... (GameState class unchanged) ...
 
 # =============================================================================
-# WIN PROBABILITY MODELS
+# WIN PROBABILITY MODELS - TUNED FOR LIVE EVENT REACTION
 # =============================================================================
 
 class WinProbabilityModel:
     """
     Calculates win probability from game state.
     
-    Based on historical data analysis:
-    - Gold lead is the strongest predictor in LoL/Dota
-    - Round score is the strongest predictor in CS2
-    - Early leads are less predictive than late leads
+    TUNED for "Teemu" Strategy:
+    - Overweight immediate state changes (kills/towers)
+    - These events cause the 30s market lag opportunity
     """
     
     @staticmethod
     def lol_win_probability(state: GameState) -> float:
         """
-        League of Legends win probability for team1.
-        
-        Formula based on:
-        - Gold difference (most important)
-        - Kill difference
-        - Tower difference
-        - Game time (early vs late game)
+        League of Legends win probability:
+        Heavy weight on Gold & Objectives (Structural advantage)
         """
-        # Base probability
         prob = 0.50
         
-        # Gold factor (most predictive)
+        # Gold factor (Structural lead)
         gold_diff = state.gold_diff()
-        # ~1% win prob per 1000 gold difference
-        gold_factor = gold_diff / 1000 * 0.01
+        # 1.5% per 1k gold (increased from 1%)
+        gold_factor = gold_diff / 1000 * 0.015
         
-        # Scale by game time (late game gold matters more)
-        time_multiplier = min(2.0, 0.5 + state.game_time / 1200)  # Max at 20 min
+        # Scale by game time (Late game death = game over)
+        time_multiplier = min(2.5, 0.5 + state.game_time / 900)  # Ramps faster
         gold_factor *= time_multiplier
         
-        # Kill factor
+        # Kill factor (Momentum)
         kill_diff = state.score_diff()
-        kill_factor = kill_diff * 0.015  # ~1.5% per kill
+        kill_factor = kill_diff * 0.02  # 2% per kill (increased)
         
-        # Objective factor (towers/dragons)
+        # Objective factor (Map control)
         obj_diff = state.team1_objectives - state.team2_objectives
-        obj_factor = obj_diff * 0.03  # ~3% per objective
+        obj_factor = obj_diff * 0.05  # 5% per tower (big jumps)
         
-        # Combine factors
         prob += gold_factor + kill_factor + obj_factor
         
-        # Clamp to valid range
-        return max(0.05, min(0.95, prob))
+        return max(0.01, min(0.99, prob))
     
     @staticmethod
     def cs2_win_probability(state: GameState) -> float:

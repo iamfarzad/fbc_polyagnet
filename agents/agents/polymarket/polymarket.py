@@ -361,6 +361,33 @@ class Polymarket:
             OrderArgs(price=price, size=size, side=side, token_id=token_id)
         )
 
+    def place_limit_order(self, token_id: str, price: float, size: float, side: str = "BUY") -> Dict:
+        """
+        Place a LIMIT order (Maker).
+        Target specific price to capture spread/value.
+        """
+        try:
+            from py_clob_client.clob_types import OrderArgs
+            from py_clob_client.order_builder.constants import BUY, SELL
+
+            order_side = BUY if side.upper() == "BUY" else SELL
+            
+            # Create and post the limit order
+            # Note: py-clob-client defaults to 'GTC' (Good Till Cancel) limit orders
+            resp = self.client.create_and_post_order(
+                OrderArgs(
+                    price=price,
+                    size=size,
+                    side=order_side,
+                    token_id=token_id
+                )
+            )
+            print(f"   🎯 Limit Order Placed: {side} {size} @ {price} | Resp: {resp}")
+            return resp
+        except Exception as e:
+            print(f"   ⚠️ Limit Order Failed: {e}")
+            return {"error": str(e)}
+
     def execute_market_order(self, market, amount) -> str:
         token_id = ast.literal_eval(market[0].dict()["metadata"]["clob_token_ids"])[1]
         order_args = MarketOrderArgs(

@@ -57,7 +57,8 @@ class Scanner:
         arb_opportunities = []
         
         try:
-            markets = self.pm.get_all_markets(limit=50, active=True)
+            # Increase limit to 100 to catch more niche Sports markets (mimic 0p0jogggg coverage)
+            markets = self.pm.get_all_markets(limit=100, active=True)
             tradeable = self.pm.filter_markets_for_trading(markets)
             
             for market in tradeable:
@@ -92,7 +93,11 @@ class Scanner:
                     
                     # Arbitrage check: if sum of prices < 1.0 or > 1.0
                     price_sum = yes_price + no_price
-                    if price_sum < 0.98:  # Sum should be ~1.0, significant deviation = arb
+                    
+                    # SAFETY: Exclude "Up or Down" crypto markets (3% fee kills this arb)
+                    is_crypto_fee_market = "Up or Down" in market.question or "Above" in market.question
+                    
+                    if price_sum < 0.98 and not is_crypto_fee_market:  
                         arb_opportunities.append({
                             'market': market,
                             'sum_price': price_sum,
@@ -143,6 +148,17 @@ class Bot:
             except Exception as e:
                 logger.error(f"Allowance check/approval failed: {e}")
 
+        # Initialize Auto-Redeemer for Compounding
+        redeemer = None
+        try:
+            from agents.utils.auto_redeem import AutoRedeemer
+            redeemer = AutoRedeemer()
+            logger.info("✅ Auto-Redeemer initialized for compounding.")
+        except ImportError:
+            logger.warning("AutoRedeemer not found. Manual redemption required.")
+        except Exception as e:
+            logger.error(f"AutoRedeemer init failed: {e}")
+
         # State check helper
         def check_run_state():
             try:
@@ -177,6 +193,18 @@ class Bot:
                 continue
 
             try:
+                # 1. Auto-Redeem Winning Positions (Compounding)
+                if redeemer and not is_dry_run:
+                    try:
+                        res = redeemer.scan_and_redeem()
+                        if res['redeemed'] > 0:
+                            msg = f"💰 Compounding: Redeemed {res['redeemed']} positions"
+                            logger.info(msg)
+                            record_activity(msg, "Polygon RPC")
+                            time.sleep(2) # Let user see it
+                    except Exception as e:
+                        logger.error(f"Redemption failed: {e}")
+
                 high_prob, arb = self.scanner.get_candidates()
                 record_activity("Scanning Markets", "Gamma API")
                 logger.info(f"Found {len(high_prob)} high-prob, {len(arb)} arb opportunities.")
@@ -335,18 +363,25 @@ class Bot:
 
             logger.info(f"Executing Trade: {outcome} on '{market.question[:40]}...' @ ${bet_amount}")
             
-            # Create and post order
-            from py_clob_client.clob_types import OrderArgs
-            from py_clob_client.order_builder.constants import BUY
+            # === SNIPER MODE (Limit Orders) ===
+            # Instead of market buy, we place a LIMIT buy to control price
+            # Target = Current Market Price (or slightly lower to catch dips)
+            limit_price = round(price, 2) 
             
-            order_args = OrderArgs(
+            # Safety: Ensure we don't bid > 98c
+            limit_price = min(limit_price, 0.98)
+            
+            # Calculate exact shares for this limit price
+            size_shares = bet_amount / limit_price
+            
+            logger.info(f"   🔫 SNIPING: Limit Buy {size_shares:.1f} shares @ ${limit_price:.2f}")
+            
+            result = self.pm.place_limit_order(
                 token_id=token_id,
-                price=price,
-                size=size,
-                side=BUY
+                price=limit_price,
+                size=size_shares,
+                side="BUY"
             )
-            signed_order = self.pm.client.create_order(order_args)
-            result = self.pm.client.post_order(signed_order)
             
             logger.info(f"Order Result: {result}")
             

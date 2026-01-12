@@ -137,6 +137,15 @@ class CryptoScalper:
         self.active_positions = {}  # token_id -> {entry_price, entry_time, side, size, asset, market_id}
         self.traded_markets = set() # Markets we've already traded
         
+        # Initialize Auto-Redeemer for Compounding
+        self.redeemer = None
+        try:
+            from agents.utils.auto_redeem import AutoRedeemer
+            self.redeemer = AutoRedeemer()
+            print("✅ Auto-Redeemer initialized for compounding.")
+        except Exception as e:
+            print(f"⚠️ AutoRedeemer init failed: {e}")
+        
         self.initial_balance = 0.0
         self.address = ""
         
@@ -1547,6 +1556,18 @@ class CryptoScalper:
                     pass
                 
                 # HFT CYCLE: Check exits + Open new positions
+                
+                # 0. Auto-Redeem High-Freq Wins (Compounding)
+                if self.redeemer:
+                    try:
+                        res = self.redeemer.scan_and_redeem()
+                        if res['redeemed'] > 0:
+                            msg = f"💰 HFT Compounding: Redeemed {res['redeemed']} positions!"
+                            print(msg)
+                            self.save_state({"scalper_last_activity": msg})
+                            time.sleep(2)
+                    except: pass
+
                 self.check_and_rebalance()
                 
                 # Show momentum signals (compact, every 4th cycle)
