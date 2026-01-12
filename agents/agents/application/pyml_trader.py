@@ -178,6 +178,7 @@ class Bot:
                         state = json.load(f)
                 state["safe_last_activity"] = f"{action} ({datetime.datetime.now().strftime('%H:%M:%S')})"
                 state["safe_last_endpoint"] = endpoint
+                state["safe_heartbeat"] = datetime.datetime.now().isoformat()  # Heartbeat
                 
                 # atomic-ish write
                 with open("bot_state.json", "w") as f:
@@ -191,6 +192,11 @@ class Bot:
                 logger.info("Bot Paused via Dashboard. Sleeping 60s...")
                 time.sleep(60)
                 continue
+
+            # Risk Controls - GROWTH PROTOCOL
+            MIN_EDGE_PERCENT = 15.0         # 15% edge (Selective but active)
+            MIN_CONFIDENCE = 0.75           # LLM must be 75% confident
+            MAX_DAILY_LOSS = 20.0           # Reasonable drawdown limit
 
             try:
                 # 1. Auto-Redeem Winning Positions (Compounding)
@@ -231,7 +237,13 @@ class Bot:
                     self.context.update_agent_status(self.AGENT_NAME, f"Analyzing: {market.question[:25]}...")
                     
                     logger.info(f"Analyzing {market.question} - {opp['outcome']} @ {opp['price']}")
-                    is_valid, reason, conf = self.validator.validate(market.question, opp['outcome'], opp['price'])
+                    is_valid, reason, conf = self.validator.validate(
+                        market.question, 
+                        opp['outcome'], 
+                        opp['price'], 
+                        min_confidence=MIN_CONFIDENCE,
+                        min_edge_pct=MIN_EDGE_PERCENT / 100.0
+                    )
                     record_activity(f"Validating {market.question[:10]}...", "Perplexity API")
                     
                     if is_valid:
@@ -364,12 +376,12 @@ class Bot:
             logger.info(f"Executing Trade: {outcome} on '{market.question[:40]}...' @ ${bet_amount}")
             
             # === SNIPER MODE (Limit Orders) ===
-            # Instead of market buy, we place a LIMIT buy to control price
-            # Target = Current Market Price (or slightly lower to catch dips)
-            limit_price = round(price, 2) 
+            # Bid BELOW market to catch dips and get better fills
+            # True sniping = waiting for price to come to us
+            limit_price = round(price - 0.01, 2)  # 1 cent below market
             
-            # Safety: Ensure we don't bid > 98c
-            limit_price = min(limit_price, 0.98)
+            # Safety: Ensure we don't bid too low or too high
+            limit_price = max(0.05, min(limit_price, 0.95))
             
             # Calculate exact shares for this limit price
             size_shares = bet_amount / limit_price

@@ -48,7 +48,8 @@ class Validator:
         self.api_url = "https://api.perplexity.ai/chat/completions"
         self.context = get_context() if HAS_CONTEXT else None
 
-    def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "") -> Tuple[bool, str, float]:
+    def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "", 
+                 min_confidence: float = 0.70, min_edge_pct: float = 0.05) -> Tuple[bool, str, float]:
         """
         Validates a trade opportunity using Perplexity.
         
@@ -57,6 +58,8 @@ class Validator:
             outcome: YES or NO
             price: Current market price (0.0-1.0)
             additional_context: Extra info (e.g., "copy trading signal")
+            min_confidence: Minimum LLM confidence required (0.0-1.0)
+            min_edge_pct: Minimum edge required (e.g. 0.05 for 5%)
             
         Returns:
             (is_valid, reason, confidence_score)
@@ -81,7 +84,10 @@ For each market, you must:
 Be rigorous. Most opportunities are NOT good bets. Only recommend betting when:
 - You have HIGH confidence based on concrete evidence
 - The true probability is meaningfully higher than the market price
-- Recent news/data strongly supports the outcome"""
+- Recent news/data strongly supports the outcome
+
+IMPORTANT: If this is a sports/politics market, search for odds from professional bookmakers (Pinnacle, Betfair, PredictIt). 
+If pro bookmakers have this at 70% and Polymarket is at 60%, there may be edge. Use bookmaker odds as your anchor."""
 
         user_prompt = f"""MARKET ANALYSIS REQUEST
 
@@ -110,7 +116,7 @@ OUTPUT FORMAT (JSON only):
 }}
 
 CRITICAL RULES:
-- Only recommend BET if confidence > 0.92 AND estimated_true_prob > {price + 0.05:.2f}
+- Only recommend BET if confidence > {min_confidence:.2f} AND estimated_true_prob > {price + min_edge_pct:.2f}
 - If news is unclear or mixed, recommend PASS
 - If you can't find recent relevant news, recommend PASS
 - Be conservative - capital preservation is priority"""
@@ -183,8 +189,8 @@ CRITICAL RULES:
                 # Validate the recommendation
                 is_valid = (
                     rec == "BET" and 
-                    confidence > 0.92 and 
-                    estimated_prob > (price + 0.05)
+                    confidence >= min_confidence and 
+                    estimated_prob > (price + min_edge_pct)
                 )
                 
                 return is_valid, reason, confidence

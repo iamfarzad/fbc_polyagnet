@@ -80,9 +80,9 @@ BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggres
 MIN_BET_USD = 1.00                   # Polymarket minimum
 MAX_BET_USD = 50.00                  # Max per position
 
-# Edge requirements - LOWERED for more trades
-MIN_EDGE_PERCENT = 5                # Need 5%+ edge to bet (was 10%)
-MIN_CONFIDENCE = 0.55               # LLM must be 55%+ confident (was 60%)
+# Edge requirements - ZERO LOSS PROTOCOL
+MIN_EDGE_PERCENT = 15               # Need 15%+ edge (was 5%)
+MIN_CONFIDENCE = 0.90               # LLM must be 90%+ confident (was 55%)
 MAX_MARKET_ODDS = 0.90              # Don't buy above 90¢ (was 85¢)
 MIN_MARKET_ODDS = 0.10              # Don't buy below 10¢ (was 15¢)
 

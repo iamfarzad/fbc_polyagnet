@@ -249,6 +249,18 @@ class CopyTrader:
                         if price > 0.95 or price < 0.05:
                             continue
                         
+                        # === GAP FIX: Skip old positions (whale may be exiting) ===
+                        pos_timestamp = pos.get("timestamp", pos.get("createdAt", ""))
+                        if pos_timestamp:
+                            try:
+                                from datetime import datetime, timedelta
+                                pos_time = datetime.fromisoformat(pos_timestamp.replace("Z", "+00:00"))
+                                if datetime.now(pos_time.tzinfo) - pos_time > timedelta(hours=24):
+                                    logger.info(f"Skipping old position (>24h): {question[:30]}")
+                                    continue
+                            except:
+                                pass  # If parse fails, proceed anyway
+                        
                         # === CONTEXT CHECK: Can we trade this market? ===
                         balance = self.initial_balance
                         try:

@@ -112,6 +112,11 @@ def load_state() -> Dict[str, Any]:
         "last_signal": copy_state.get("last_signal",
                       master.get("last_signal", "None")),
         "copy_last_scan": copy_state.get("last_scan", "-"),
+        
+        # === GAP FIX: Heartbeat tracking for agent health ===
+        "safe_heartbeat": safe_state.get("heartbeat", master.get("safe_heartbeat")),
+        "scalper_heartbeat": scalper_state.get("heartbeat", master.get("scalper_heartbeat")),
+        "copy_heartbeat": copy_state.get("heartbeat", master.get("copy_heartbeat")),
     }
 
 def save_state(state: Dict[str, Any]):

@@ -69,10 +69,10 @@ BINANCE_SYMBOLS = {
 }
 MOMENTUM_WINDOW = 20  # 20 seconds - faster signal detection
 
-# Dynamic edge config - LOWER THRESHOLD = MORE TRADES
-BASE_MOMENTUM_THRESHOLD = 0.02      # 0.02% base (LOWERED - more trades)
-MIN_MOMENTUM_THRESHOLD = 0.005      # 0.005% min (tiny moves OK)
-MAX_MOMENTUM_THRESHOLD = 0.10       # 0.10% max (choppy = wider)
+# Dynamic edge config - GROWTH MODE ($1000/week Target)
+BASE_MOMENTUM_THRESHOLD = 0.02      # 0.02% base (Active trading)
+MIN_MOMENTUM_THRESHOLD = 0.01       # 0.01% min (Catch small moves)
+MAX_MOMENTUM_THRESHOLD = 0.15       # 0.15% max
 VOLATILITY_LOOKBACK = 15            # 15s volatility window
 
 # =============================================================================
@@ -1375,6 +1375,9 @@ class CryptoScalper:
             # Time until next forced trade
             time_since_forced = (datetime.datetime.now() - self.last_forced_trade_time).total_seconds()
             current["next_forced_trade_seconds"] = max(0, FORCED_TRADE_INTERVAL - time_since_forced)
+            
+            # Heartbeat for agent health monitoring
+            current["heartbeat"] = datetime.datetime.now().isoformat()
             
             with open(state_file, "w") as f:
                 json.dump(current, f)
