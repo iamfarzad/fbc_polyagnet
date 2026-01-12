@@ -1,5 +1,16 @@
 {
-  "positions": [],
+  "positions": [
+    {
+      "market_id": "1162657",
+      "market_question": "Ethereum Up or Down - January 12, 2:30PM-2:45PM ET",
+      "agent": "scalper",
+      "outcome": "UP",
+      "entry_price": 0.52,
+      "size_usd": 2.6501541,
+      "timestamp": "2026-01-11T20:38:05.039648",
+      "token_id": "109177583049631549167323934752234807181487205783302121083284770771387285516007"
+    }
+  ],
   "recent_trades": [
     {
       "market_id": 1144795,
@@ -10,6 +21,16 @@
       "timestamp": "2026-01-09T20:46:35.603530",
       "status": "failed",
       "pnl": 0.0
+    },
+    {
+      "market_id": "1162657",
+      "agent": "scalper",
+      "outcome": "UP",
+      "size_usd": 2.6501541,
+      "price": 0.52,
+      "timestamp": "2026-01-11T20:38:05.045546",
+      "status": "filled",
+      "pnl": 0.0
     }
   ],
   "blacklist": [],
@@ -19,7 +40,7 @@
     "copy": 0.1
   },
   "total_balance": 5.065347,
-  "last_update": "2026-01-10T21:54:54.410647",
+  "last_update": "2026-01-11T20:38:05.046246",
   "agent_status": {
     "safe": {
       "active": true,

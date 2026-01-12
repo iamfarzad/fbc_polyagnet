@@ -75,20 +75,20 @@ def perplexity_search(query: str, api_key: str = None) -> str:
 # =============================================================================
 
 # Position sizing
-MAX_POSITIONS = 5                    # Max concurrent positions
-BET_PERCENT = 0.10                   # 10% of bankroll per position
+MAX_POSITIONS = 10                   # Max concurrent positions (increased)
+BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggressive)
 MIN_BET_USD = 1.00                   # Polymarket minimum
 MAX_BET_USD = 50.00                  # Max per position
 
-# Edge requirements
-MIN_EDGE_PERCENT = 10               # Need 10%+ edge to bet (LLM confidence - market odds)
-MIN_CONFIDENCE = 0.60               # LLM must be 60%+ confident
-MAX_MARKET_ODDS = 0.85              # Don't buy above 85¢ (not enough upside)
-MIN_MARKET_ODDS = 0.15              # Don't buy below 15¢ (likely loser)
+# Edge requirements - LOWERED for more trades
+MIN_EDGE_PERCENT = 5                # Need 5%+ edge to bet (was 10%)
+MIN_CONFIDENCE = 0.55               # LLM must be 55%+ confident (was 60%)
+MAX_MARKET_ODDS = 0.90              # Don't buy above 90¢ (was 85¢)
+MIN_MARKET_ODDS = 0.10              # Don't buy below 10¢ (was 15¢)
 
 # Timing
-CHECK_INTERVAL = 300                # Check every 5 minutes
-MIN_TIME_TO_RESOLUTION = 3600       # Need 1+ hour to resolution (avoid last-minute chaos)
+CHECK_INTERVAL = 180                # Check every 3 minutes (more frequent)
+MIN_TIME_TO_RESOLUTION = 1800       # Need 30+ min to resolution (was 1 hour)
 
 # Market filters - EXCLUDE fee markets
 EXCLUDE_KEYWORDS = [
@@ -534,13 +534,23 @@ Only output the JSON, nothing else."""
         except:
             balance = self.initial_balance
         
-        # Count current positions
-        num_positions = len(self.positions)
+        # Count ACTIVE positions from API (excludes worthless ones)
+        try:
+            import requests
+            address = self.pm.get_address_for_private_key()
+            url = f"https://data-api.polymarket.com/positions?user={address}"
+            resp = requests.get(url, timeout=10)
+            api_positions = resp.json() if resp.status_code == 200 else []
+            # Only count positions with actual value
+            active_positions = [p for p in api_positions if float(p.get("currentValue", 0)) > 0.01]
+            num_positions = len(active_positions)
+        except:
+            num_positions = len(self.positions)
         
-        print(f"   Balance: ${balance:.2f} | Positions: {num_positions}/{MAX_POSITIONS}")
+        print(f"   Balance: ${balance:.2f} | Active Positions: {num_positions}/{MAX_POSITIONS}")
         
         if num_positions >= MAX_POSITIONS:
-            print(f"   ✓ At max positions, waiting for resolutions...")
+            print(f"   ✓ At max positions ({num_positions}), waiting for resolutions...")
             self.save_state()
             return
         
