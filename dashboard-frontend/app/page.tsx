@@ -7,7 +7,7 @@ import {
   RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, 
   Activity, Zap, Wallet, ExternalLink, Brain, Shield, Gauge,
   BarChart3, Clock, Target, Users, Layers, Settings, PieChart,
-  X, XCircle, Loader2
+  X, XCircle, Loader2, Gamepad2
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -31,6 +31,8 @@ interface DashboardData {
     safe: { running: boolean; activity: string; endpoint: string }
     scalper: { running: boolean; activity: string; endpoint: string }
     copyTrader: { running: boolean; lastSignal: string }
+    smartTrader: { running: boolean; activity: string; positions: number; trades: number; mode: string; lastScan: string }
+    esportsTrader: { running: boolean; activity: string; trades: number; mode: string; lastScan: string; pnl: number }
   }
   positions: Array<{
     market: string
@@ -62,21 +64,35 @@ const AGENT_THEMES = {
     border: "border-emerald-500/30",
     text: "text-emerald-400",
     icon: Shield,
-    allocation: 50,
+    allocation: 20,
   },
   scalper: {
     bg: "bg-amber-500/10",
     border: "border-amber-500/30",
     text: "text-amber-400",
     icon: Zap,
-    allocation: 30,
+    allocation: 10,
   },
   copy: {
     bg: "bg-violet-500/10",
     border: "border-violet-500/30",
     text: "text-violet-400",
     icon: Users,
-    allocation: 20,
+    allocation: 15,
+  },
+  smart: {
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/30",
+    text: "text-blue-400",
+    icon: Brain,
+    allocation: 25,
+  },
+  esports: {
+    bg: "bg-pink-500/10",
+    border: "border-pink-500/30",
+    text: "text-pink-400",
+    icon: Gamepad2,
+    allocation: 30,
   },
 }
 
@@ -246,7 +262,14 @@ export default function PolymarketDashboard() {
   }
 
   const pnlIsPositive = data.unrealizedPnl >= 0
-  const activeAgentCount = [data.agents.safe.running, data.agents.scalper.running, data.agents.copyTrader.running].filter(Boolean).length
+  const activeAgentCount = [
+    data.agents.safe.running, 
+    data.agents.scalper.running, 
+    data.agents.copyTrader.running,
+    data.agents.smartTrader?.running,
+    data.agents.esportsTrader?.running
+  ].filter(Boolean).length
+  const totalAgents = 5
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
@@ -278,7 +301,7 @@ export default function PolymarketDashboard() {
                 </div>
                 <div className="font-mono text-xs">
                   <span className="text-muted-foreground">Agents: </span>
-                  <span className="text-foreground font-semibold">{activeAgentCount}/3</span>
+                  <span className="text-foreground font-semibold">{activeAgentCount}/{totalAgents}</span>
                 </div>
                 <div className="font-mono text-xs">
                   <span className="text-muted-foreground">Mode: </span>
@@ -428,40 +451,44 @@ export default function PolymarketDashboard() {
             </div>
 
             {/* Agent Status Row */}
-            <div className="grid gap-4 md:grid-cols-3 stagger">
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 stagger">
               {[
-                { key: "safe", name: "Safe Agent", data: data.agents.safe, theme: AGENT_THEMES.safe },
+                { key: "safe", name: "Safe", data: data.agents.safe, theme: AGENT_THEMES.safe },
                 { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                { key: "copyTrader", name: "Copy Trader", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+                { key: "copyTrader", name: "Copy", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+                { key: "smartTrader", name: "Smart", data: data.agents.smartTrader, theme: AGENT_THEMES.smart },
+                { key: "esportsTrader", name: "Esports", data: data.agents.esportsTrader, theme: AGENT_THEMES.esports },
               ].map(({ key, name, data: agentData, theme }) => {
                 const Icon = theme.icon
-                const isRunning = agentData.running
+                const isRunning = agentData?.running ?? false
+                const activity = agentData ? ('activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')) : 'N/A'
                 return (
                   <Card key={key} className={`border-border/40 ${theme.bg} glass transition-all hover:border-border/60 hover:scale-[1.01] animate-float-up`}>
-                    <CardContent className="p-3">
-                      <div className="flex items-center justify-between mb-2">
+                    <CardContent className="p-2.5">
+                      <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center gap-2">
-                          <div className={`h-8 w-8 rounded-xl ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                            <Icon className={`h-4 w-4 ${theme.text}`} />
+                          <div className={`h-7 w-7 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center`}>
+                            <Icon className={`h-3.5 w-3.5 ${theme.text}`} />
                           </div>
                           <div>
-                            <p className="font-mono text-xs font-semibold">{name}</p>
-                            <p className="font-mono text-[9px] text-muted-foreground">
-                              {theme.allocation}% · ${(data.balance * theme.allocation / 100).toFixed(2)}
+                            <p className="font-mono text-[10px] font-semibold">{name}</p>
+                            <p className="font-mono text-[8px] text-muted-foreground">
+                              {theme.allocation}%
                             </p>
                           </div>
                         </div>
                         <Switch 
                           checked={isRunning} 
-                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader")} 
+                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader" | "smartTrader" | "esportsTrader")}
+                          className="scale-75"
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px] h-5 rounded-md">
-                          {isRunning ? "ACTIVE" : "PAUSED"}
+                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[8px] h-4 px-1.5 rounded">
+                          {isRunning ? "ON" : "OFF"}
                         </Badge>
-                        <span className="font-mono text-[9px] text-muted-foreground truncate max-w-[120px]">
-                          {'activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')}
+                        <span className="font-mono text-[8px] text-muted-foreground truncate max-w-[80px]" title={activity}>
+                          {activity.slice(0, 15)}{activity.length > 15 ? '...' : ''}
                         </span>
                       </div>
                     </CardContent>
@@ -568,14 +595,17 @@ export default function PolymarketDashboard() {
 
           {/* Agents Tab */}
           <TabsContent value="agents" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[
                 { key: "safe", name: "Safe Agent", desc: "High-probability LLM-validated trades", data: data.agents.safe, theme: AGENT_THEMES.safe },
-                { key: "scalper", name: "Crypto Scalper", desc: "15-min crypto volatility trading via RTDS", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                { key: "copy", name: "Copy Trader", desc: "Mirror top Polymarket performers", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+                { key: "scalper", name: "Crypto Scalper", desc: "15-min crypto volatility (high fees)", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
+                { key: "copyTrader", name: "Copy Trader", desc: "Mirror top Polymarket performers", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
+                { key: "smartTrader", name: "Smart Trader", desc: "LLM analysis on fee-free markets", data: data.agents.smartTrader, theme: AGENT_THEMES.smart },
+                { key: "esportsTrader", name: "Esports Trader", desc: "Live CS2/LoL stream delay arbitrage", data: data.agents.esportsTrader, theme: AGENT_THEMES.esports },
               ].map(({ key, name, desc, data: agentData, theme }) => {
                 const Icon = theme.icon
-                const isRunning = agentData.running
+                const isRunning = agentData?.running ?? false
+                const activity = agentData ? ('activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')) : 'N/A'
                 return (
                   <Card key={key} className={`border-border/30 ${theme.bg}`}>
                     <CardContent className="p-4">
@@ -591,7 +621,7 @@ export default function PolymarketDashboard() {
                         </div>
                         <Switch 
                           checked={isRunning} 
-                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader")} 
+                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader" | "smartTrader" | "esportsTrader")} 
                         />
                       </div>
                       
@@ -609,14 +639,26 @@ export default function PolymarketDashboard() {
                             {isRunning ? "RUNNING" : "STOPPED"}
                           </Badge>
                           <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[150px]">
-                            {'activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')}
+                            {activity}
                           </span>
                         </div>
                         
-                        {'endpoint' in agentData && (
+                        {agentData && 'endpoint' in agentData && (
                           <div className="pt-2 border-t border-border/30">
                             <span className="font-mono text-[9px] text-muted-foreground">Endpoint: </span>
                             <span className="font-mono text-[9px] text-foreground/70 truncate">{agentData.endpoint}</span>
+                          </div>
+                        )}
+
+                        {agentData && 'trades' in agentData && (
+                          <div className="pt-2 border-t border-border/30 flex justify-between">
+                            <span className="font-mono text-[9px] text-muted-foreground">Trades: {agentData.trades}</span>
+                            {'positions' in agentData && (
+                              <span className="font-mono text-[9px] text-muted-foreground">Positions: {agentData.positions}</span>
+                            )}
+                            {'mode' in agentData && (
+                              <Badge variant="outline" className="text-[8px] h-4">{agentData.mode}</Badge>
+                            )}
                           </div>
                         )}
                       </div>
@@ -825,9 +867,11 @@ export default function PolymarketDashboard() {
                   </div>
                   
                   {[
-                    { name: "Safe Agent", pct: 50, theme: AGENT_THEMES.safe },
-                    { name: "Scalper", pct: 30, theme: AGENT_THEMES.scalper },
-                    { name: "Copy Trader", pct: 20, theme: AGENT_THEMES.copy },
+                    { name: "Safe Agent", pct: 20, theme: AGENT_THEMES.safe },
+                    { name: "Scalper", pct: 10, theme: AGENT_THEMES.scalper },
+                    { name: "Copy Trader", pct: 15, theme: AGENT_THEMES.copy },
+                    { name: "Smart Trader", pct: 25, theme: AGENT_THEMES.smart },
+                    { name: "Esports", pct: 30, theme: AGENT_THEMES.esports },
                   ].map(({ name, pct, theme }) => (
                     <div key={name} className="space-y-1">
                       <div className="flex justify-between">

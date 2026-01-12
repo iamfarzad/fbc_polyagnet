@@ -21,11 +21,41 @@ from agents.utils.validator import Validator, SharedConfig
 load_dotenv()
 logger = logging.getLogger("FBP")
 
-# Initialize Polymarket client
-pm = Polymarket()
-config = SharedConfig()
-validator = Validator(config, agent_name="fbp")
-context = get_context()
+# Lazy initialization to avoid blocking imports
+_pm = None
+_config = None
+_validator = None
+_context = None
+
+def _get_pm():
+    global _pm
+    if _pm is None:
+        _pm = Polymarket()
+    return _pm
+
+def _get_config():
+    global _config
+    if _config is None:
+        _config = SharedConfig()
+    return _config
+
+def _get_validator():
+    global _validator
+    if _validator is None:
+        _validator = Validator(_get_config(), agent_name="fbp")
+    return _validator
+
+def _get_context():
+    global _context
+    if _context is None:
+        _context = get_context()
+    return _context
+
+# Backwards compat - these are now lazy
+pm = None
+config = None
+validator = None
+context = None
 
 
 # =============================================================================
@@ -91,6 +121,7 @@ TOOLS = {
 def tool_get_balance() -> str:
     """Get USDC balance."""
     try:
+        pm = _get_pm()
         balance = pm.get_usdc_balance()
         address = pm.get_address_for_private_key()
         return json.dumps({
@@ -104,6 +135,7 @@ def tool_get_balance() -> str:
 def tool_get_positions() -> str:
     """Get all open positions."""
     try:
+        pm = _get_pm()
         address = pm.get_address_for_private_key()
         url = f"https://data-api.polymarket.com/positions?user={address}"
         resp = requests.get(url, timeout=10)
@@ -233,7 +265,7 @@ def tool_get_market_details(market_id: str) -> str:
 def tool_research(topic: str) -> str:
     """Research a topic using Perplexity."""
     try:
-        api_key = config.PERPLEXITY_API_KEY
+        api_key = _get_config().PERPLEXITY_API_KEY
         if not api_key:
             return json.dumps({"error": "No Perplexity API key"})
         
@@ -267,7 +299,7 @@ def tool_research(topic: str) -> str:
 def tool_analyze_market(market_question: str, current_price: float) -> str:
     """Analyze a market using LLM."""
     try:
-        is_valid, reason, confidence = validator.validate(
+        is_valid, reason, confidence = _get_validator().validate(
             market_question, "YES", current_price
         )
         
@@ -308,6 +340,7 @@ def tool_open_trade(market_id: str, outcome: str, amount_usd: float) -> str:
         from py_clob_client.clob_types import OrderArgs
         from py_clob_client.order_builder.constants import BUY
         
+        pm = _get_pm()
         order_args = OrderArgs(
             token_id=str(token_id),
             price=price,
@@ -337,6 +370,7 @@ def tool_open_trade(market_id: str, outcome: str, amount_usd: float) -> str:
 def tool_close_position(market_id: str) -> str:
     """Close a position by selling shares back to market."""
     try:
+        pm = _get_pm()
         # Get current positions
         address = pm.get_address_for_private_key()
         url = f"https://data-api.polymarket.com/positions?user={address}"
@@ -475,7 +509,7 @@ def tool_get_prices() -> str:
 def tool_get_llm_activity(limit: int = 10) -> str:
     """Get recent LLM activity."""
     try:
-        activities = context.get_llm_activity(limit=limit)
+        activities = _get_context().get_llm_activity(limit=limit)
         
         result = []
         for a in activities:
@@ -519,7 +553,7 @@ def build_system_prompt() -> str:
     
     # Get current state for context
     try:
-        balance = pm.get_usdc_balance()
+        balance = _get_pm().get_usdc_balance()
     except:
         balance = 0
     
@@ -652,7 +686,7 @@ def chat(messages: List[Dict[str, str]], max_iterations: int = 5) -> Dict[str, A
     Returns:
         {"response": "...", "tool_calls": [...]}
     """
-    api_key = config.PERPLEXITY_API_KEY
+    api_key = _get_config().PERPLEXITY_API_KEY
     if not api_key:
         return {"response": "Error: No Perplexity API key configured", "tool_calls": []}
     

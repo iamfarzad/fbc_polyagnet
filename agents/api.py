@@ -88,6 +88,7 @@ def load_state() -> Dict[str, Any]:
         "scalper_running": master.get("scalper_running", False),
         "copy_trader_running": master.get("copy_trader_running", False),
         "smart_trader_running": master.get("smart_trader_running", True),
+        "esports_trader_running": master.get("esports_trader_running", True),
         "dry_run": master.get("dry_run", True),
         "dynamic_max_bet": master.get("dynamic_max_bet", 0.50),
         
@@ -121,14 +122,39 @@ def save_state(state: Dict[str, Any]):
         logger.error(f"Failed to save state: {e}")
 
 # --- Polymarket Client ---
-# Initialize globally. In a real app, might want dependency injection or per-request if stateful.
-# Polymarket class is mostly stateless wrappers + private key.
-try:
-    pm = Polymarket()
-    logger.info("Polymarket Client Initialized")
-except Exception as e:
-    logger.error(f"Failed to init Polymarket Client: {e}")
-    pm = None
+# Lazy initialization to avoid blocking app startup
+_pm_instance = None
+_pm_init_attempted = False
+
+def get_pm():
+    """Lazy-load Polymarket client on first use."""
+    global _pm_instance, _pm_init_attempted
+    if _pm_instance is None and not _pm_init_attempted:
+        _pm_init_attempted = True
+        try:
+            _pm_instance = Polymarket()
+            logger.info("Polymarket Client Initialized (lazy)")
+        except Exception as e:
+            logger.error(f"Failed to init Polymarket Client: {e}")
+    return _pm_instance
+
+# For backwards compatibility
+pm = None  # Will be None at startup, use get_pm() instead
+
+# --- Health Check (doesn't require Polymarket init) ---
+@app.get("/api/health")
+def health_check():
+    """Health check endpoint - returns immediately without blocking on Polymarket."""
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "polymarket_initialized": _pm_instance is not None
+    }
+
+@app.get("/")
+def root():
+    """Root endpoint for Vercel."""
+    return {"status": "ok", "message": "Polymarket Agent API"}
 
 # --- Models ---
 class AgentToggleRequest(BaseModel):
@@ -150,6 +176,7 @@ class DashboardData(BaseModel):
 
 # --- Helper Functions ---
 def fetch_positions_helper():
+    pm = get_pm()
     if not pm: return []
     try:
         # PM Data API for positions
@@ -183,6 +210,7 @@ def fetch_positions_helper():
     return []
 
 def fetch_trades_helper(limit=50):
+    pm = get_pm()
     if not pm: return []
     try:
         # Use Activity Endpoint (trades endpoint often returns empty for bot trades)
@@ -230,6 +258,7 @@ def fetch_trades_helper(limit=50):
 @app.get("/api/dashboard", response_model=DashboardData)
 def get_dashboard():
     state = load_state()
+    pm = get_pm()
     
     # 1. Balance
     balance = 0.0
@@ -299,7 +328,17 @@ def get_dashboard():
             "running": state.get("smart_trader_running", True),
             "activity": state.get("smart_trader_last_activity", "Idle"),
             "positions": state.get("smart_trader_positions", 0),
-            "trades": state.get("smart_trader_trades", 0)
+            "trades": state.get("smart_trader_trades", 0),
+            "mode": state.get("smart_trader_mode", "DRY RUN"),
+            "lastScan": state.get("smart_trader_last_scan", "-")
+        },
+        "esportsTrader": {
+            "running": state.get("esports_trader_running", True),
+            "activity": state.get("esports_trader_last_activity", "Idle"),
+            "trades": state.get("esports_trader_trades", 0),
+            "mode": state.get("esports_trader_mode", "DRY RUN"),
+            "lastScan": state.get("esports_trader_last_scan", "-"),
+            "pnl": state.get("esports_trader_pnl", 0.0)
         }
     }
 
@@ -345,6 +384,8 @@ def toggle_agent(req: AgentToggleRequest):
         state["copy_trader_running"] = not state.get("copy_trader_running", False)
     elif target == "smartTrader":
         state["smart_trader_running"] = not state.get("smart_trader_running", True)
+    elif target == "esportsTrader":
+        state["esports_trader_running"] = not state.get("esports_trader_running", True)
     
     save_state(state)
     return {"status": "success", "state": state}
@@ -386,6 +427,7 @@ def emergency_stop():
 @app.get("/api/positions")
 def get_positions():
     """Get all open positions with full details."""
+    pm = get_pm()
     if not pm:
         return {"positions": [], "error": "Polymarket client not initialized"}
     
@@ -435,6 +477,7 @@ class ClosePositionRequest(BaseModel):
 @app.post("/api/close-position")
 def close_position(req: ClosePositionRequest):
     """Close a specific position by selling shares."""
+    pm = get_pm()
     if not pm:
         return {"status": "error", "error": "Polymarket client not initialized"}
     
@@ -526,6 +569,7 @@ def close_position(req: ClosePositionRequest):
 @app.post("/api/close-all-positions")
 def close_all_positions():
     """Close all open positions (skips worthless ones)."""
+    pm = get_pm()
     if not pm:
         return {"status": "error", "error": "Polymarket client not initialized"}
     

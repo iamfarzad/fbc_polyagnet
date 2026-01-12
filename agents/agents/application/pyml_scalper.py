@@ -76,39 +76,39 @@ MAX_MOMENTUM_THRESHOLD = 0.10       # 0.10% max (choppy = wider)
 VOLATILITY_LOOKBACK = 15            # 15s volatility window
 
 # =============================================================================
-# FORCED TRADE MODE - GUARANTEE TRADES EVERY 15 MINUTES
+# FORCED TRADE MODE - DISABLED (Reason: Caused losses Jan 11)
 # =============================================================================
-FORCED_TRADE_ENABLED = True         # Enable guaranteed trading
-FORCED_TRADE_INTERVAL = 900         # 15 minutes = 900 seconds
-FORCE_BEST_OPPORTUNITY = True       # If no signal, pick highest momentum anyway
+FORCED_TRADE_ENABLED = False        # DISABLED for safety
+FORCED_TRADE_INTERVAL = 900         
+FORCE_BEST_OPPORTUNITY = False      
 
 # =============================================================================
-# SAFEGUARDS - RELAXED FOR 15-MIN CRYPTO MARKETS (LOW LIQUIDITY)
+# SAFEGUARDS - STRICTER FOR CAPITAL PRESERVATION
 # =============================================================================
 
-# 1. Spread protection - DISABLED for thin markets (99% = empty orderbook)
-MAX_SPREAD_PCT = 1.0                # Max 100% = effectively disabled
+# 1. Spread protection - TIGHTENED (Don't pay spread tax)
+MAX_SPREAD_PCT = 0.05               # Max 5% spread (was 100%)
 
 # 2. Resolution buffer - exit before binary settlement
-MIN_TIME_TO_RESOLUTION = 60         # Exit 1 min before market resolves (was 2 min)
+MIN_TIME_TO_RESOLUTION = 120        # Exit 2 min before resolution
 
 # 3. Circuit breaker - stop trading on big losses
-MAX_DAILY_DRAWDOWN_PCT = 0.20       # Halt at 20% daily loss (was 15%)
+MAX_DAILY_DRAWDOWN_PCT = 0.10       # Halt at 10% daily loss (was 20%)
 
 # 4. Loss streak protection - pause on consecutive losses
-MAX_CONSECUTIVE_LOSSES = 7          # Cooldown after 7 losses (was 5)
-LOSS_STREAK_COOLDOWN = 180          # 3 min cooldown (was 5 min)
+MAX_CONSECUTIVE_LOSSES = 3          # Cooldown after 3 losses (was 7)
+LOSS_STREAK_COOLDOWN = 600          # 10 min cooldown (was 3 min)
 
-# 5. Price sanity - RELAXED for thin markets
-MIN_ENTRY_PRICE = 0.10              # Allow down to 10¢ (was 15¢)
-MAX_ENTRY_PRICE = 0.90              # Allow up to 90¢ (was 85¢)
+# 5. Price sanity - Strict range
+MIN_ENTRY_PRICE = 0.20              # Avoid <20¢ (too risky)
+MAX_ENTRY_PRICE = 0.80              # Avoid >80¢ (capped upside)
 
-# 6. Liquidity check - RELAXED for thin markets
-MIN_LIQUIDITY_USD = 20              # Need just $20+ in orderbook (was $200)
+# 6. Liquidity check - INCREASED
+MIN_LIQUIDITY_USD = 100             # Need $100+ liquidity (was $20)
 
-# 7. Flash crash detection - pause on abnormal moves
-MAX_PRICE_MOVE_PCT = 0.12           # 12% move in 30s = pause (was 8%)
-FLASH_CRASH_COOLDOWN = 30           # 30s pause (was 60s)
+# 7. Flash crash detection
+MAX_PRICE_MOVE_PCT = 0.08           # 8% move (was 12%)
+FLASH_CRASH_COOLDOWN = 60           # 60s pause (was 30s)
 
 
 class CryptoScalper:
