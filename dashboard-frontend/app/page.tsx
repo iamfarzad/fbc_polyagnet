@@ -26,6 +26,7 @@ interface DashboardData {
   equity: number
   unrealizedPnl: number
   gasSpent: number
+  redemptions?: number // New field
   riskStatus: {
     safe: boolean
     message: string
@@ -231,6 +232,28 @@ export default function ProDashboard() {
               <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
                 <span>STATUS</span>
                 <span className={data.riskStatus.safe ? "text-emerald-400" : "text-amber-400"}>{data.riskStatus.message}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Financials Card */}
+          <Card className="border-border/40 glass">
+            <CardHeader className="py-2 px-3 border-b border-border/40"><CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><DollarSign className="h-3 w-3" /> Financials</CardTitle></CardHeader>
+            <CardContent className="p-3 space-y-2">
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-muted-foreground">Redeemed</span>
+                <span className="font-mono text-emerald-400">+${(data.redemptions || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-muted-foreground">Est. Fees</span>
+                <span className="font-mono text-red-400/80">-${data.gasSpent.toFixed(2)}</span>
+              </div>
+              <Separator className="bg-border/20" />
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-muted-foreground font-bold">Net PnL</span>
+                <span className={`font-mono font-bold ${data.unrealizedPnl + (data.redemptions || 0) - data.gasSpent >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  ${(data.unrealizedPnl + (data.redemptions || 0) - data.gasSpent).toFixed(2)}
+                </span>
               </div>
             </CardContent>
           </Card>
