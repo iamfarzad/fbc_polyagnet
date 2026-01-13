@@ -1,49 +1,45 @@
 """
 Supabase Client for Polyagent
 Provides shared state management across all agents.
+Uses direct REST API calls for reliability.
 """
 
 import os
 import json
 import logging
+import httpx
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
 logger = logging.getLogger("SupabaseClient")
 
-# Try to import supabase
-try:
-    from supabase import create_client, Client
-    HAS_SUPABASE = True
-except ImportError:
-    HAS_SUPABASE = False
-    logger.warning("supabase-py not installed. Run: pip install supabase")
-
 
 class SupabaseState:
     """
-    Manages shared state across all agents using Supabase.
+    Manages shared state across all agents using Supabase REST API.
     Falls back to local JSON if Supabase is unavailable.
     """
     
     def __init__(self):
-        self.client: Optional[Client] = None
+        self.url = os.getenv("SUPABASE_URL")
+        self.key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
         self.use_local_fallback = True
         
-        if HAS_SUPABASE:
-            url = os.getenv("SUPABASE_URL")
-            key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
-            
-            if url and key:
-                try:
-                    self.client = create_client(url, key)
-                    self.use_local_fallback = False
-                    logger.info("✅ Supabase connected")
-                except Exception as e:
-                    logger.error(f"Supabase connection failed: {e}")
-        
-        if self.use_local_fallback:
-            logger.warning("Using local JSON fallback for state")
+        if self.url and self.key:
+            self.use_local_fallback = False
+            self.headers = {
+                "apikey": self.key,
+                "Authorization": f"Bearer {self.key}",
+                "Content-Type": "application/json",
+                "Prefer": "return=representation"
+            }
+            logger.info("✅ Supabase REST API configured")
+        else:
+            logger.warning("Using local JSON fallback for state (no Supabase credentials)")
+    
+    def _rest_url(self, table: str) -> str:
+        """Get REST API URL for a table."""
+        return f"{self.url}/rest/v1/{table}"
     
     # =========================================================================
     # AGENT STATE
@@ -51,11 +47,15 @@ class SupabaseState:
     
     def get_agent_state(self, agent_name: str) -> Dict[str, Any]:
         """Get the current state for an agent."""
-        if self.client:
+        if not self.use_local_fallback:
             try:
-                result = self.client.table("agent_state").select("*").eq("agent_name", agent_name).single().execute()
-                if result.data:
-                    return result.data
+                url = f"{self._rest_url('agent_state')}?agent_name=eq.{agent_name}&select=*"
+                with httpx.Client(timeout=10) as client:
+                    resp = client.get(url, headers=self.headers)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data and len(data) > 0:
+                            return data[0]
             except Exception as e:
                 logger.error(f"Failed to get agent state: {e}")
         
@@ -74,13 +74,19 @@ class SupabaseState:
     
     def update_agent_state(self, agent_name: str, updates: Dict[str, Any]) -> bool:
         """Update agent state (heartbeat, activity, etc.)."""
-        if self.client:
+        if not self.use_local_fallback:
             try:
+                url = f"{self._rest_url('agent_state')}?agent_name=eq.{agent_name}"
                 updates["updated_at"] = datetime.utcnow().isoformat()
                 updates["heartbeat"] = datetime.utcnow().isoformat()
                 
-                self.client.table("agent_state").update(updates).eq("agent_name", agent_name).execute()
-                return True
+                with httpx.Client(timeout=10) as client:
+                    resp = client.patch(url, headers=self.headers, json=updates)
+                    if resp.status_code in [200, 204]:
+                        logger.info(f"Updated {agent_name}: {updates}")
+                        return True
+                    else:
+                        logger.error(f"Update failed: {resp.status_code} - {resp.text}")
             except Exception as e:
                 logger.error(f"Failed to update agent state: {e}")
         return False
