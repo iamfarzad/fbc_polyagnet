@@ -8,7 +8,7 @@ import {
   Activity, Zap, Wallet, ExternalLink, Brain, Shield,
   BarChart3, Settings, PieChart,
   X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
-  ChevronRight, AlertTriangle, Monitor
+  ChevronRight, AlertTriangle, Monitor, Trophy
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -36,6 +36,7 @@ interface DashboardData {
     copyTrader: { running: boolean; lastSignal: string }
     smartTrader: { running: boolean; activity: string; positions: number; trades: number; mode: string; lastScan: string }
     esportsTrader: { running: boolean; activity: string; trades: number; mode: string; lastScan: string; pnl: number }
+    sportsTrader: { running: boolean; activity: string; trades: number; mode: string; lastScan: string }
   }
   positions: Array<{
     market: string
@@ -67,6 +68,7 @@ const AGENT_THEMES = {
   copy: { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400", icon: Users, allocation: 15 },
   smart: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", icon: Brain, allocation: 25 },
   esports: { bg: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400", icon: Gamepad2, allocation: 30 },
+  sports: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400", icon: Trophy, allocation: 20 },
 }
 
 export default function PolymarketDashboard() {
