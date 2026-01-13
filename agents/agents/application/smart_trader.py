@@ -180,13 +180,23 @@ class SmartTrader:
         print()
 
     def is_fee_free_market(self, market: Dict) -> bool:
-        """Check if market is fee-free (not 15-min crypto)."""
+        """Check if market is fee-free (not 15-min crypto) and NOT sports (handled by Sports Trader)."""
         question = market.get("question", "").lower()
         description = market.get("description", "").lower()
         
-        # Exclude 15-min crypto markets
+        # 1. Exclude 15-min crypto markets (Legacy)
         for keyword in EXCLUDE_KEYWORDS:
             if keyword in question or keyword in description:
+                return False
+
+        # 2. Exclude SPORTS (Handled by Sports Trader now)
+        EXCLUDE_SPORTS = [
+            "nba", "nfl", "nhl", "mlb", "soccer", "tennis", "ufc", 
+            "basketball", "football", "hockey", "baseball", 
+            " vs ", "premier league", "champions league"
+        ]
+        for sport in EXCLUDE_SPORTS:
+            if sport in question or sport in description:
                 return False
         
         return True
