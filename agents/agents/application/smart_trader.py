@@ -24,6 +24,8 @@ from dotenv import load_dotenv
 # Add parent paths for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+from agents.polymarket.polymarket import Polymarket
+
 # Try to import auto-redeemer
 try:
     from agents.utils.auto_redeem import AutoRedeemer
