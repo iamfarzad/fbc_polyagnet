@@ -61,7 +61,7 @@ interface DashboardData {
   maxBetAmount?: number
 }
 
-// Agent color schemes - KEYS MUST MATCH API RESPONSE EXACTLY
+// Agent color schemes
 const AGENT_THEMES = {
   safe: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", icon: Shield, label: "Safety" },
   scalper: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", icon: Zap, label: "Scalper" },
@@ -188,32 +188,25 @@ export default function ProDashboard() {
         </div>
       </header>
 
-      {/* 2. Main Content Grid */}
-      <main className="flex-1 container mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+      {/* 2. Main Content Grid - 3 Columns */}
+      <main className="flex-1 container mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
 
-        {/* Left Column: Agents & Config (25%) */}
-        <div className="lg:col-span-1 flex flex-col gap-4">
+        {/* Left Column: Agents & Config (20% -> col-span-2) */}
+        <div className="lg:col-span-2 flex flex-col gap-4">
           <Card className="border-border/40 glass">
-            <CardHeader className="py-2 px-3 border-b border-border/40"><CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><Zap className="h-3 w-3" /> Active Agents</CardTitle></CardHeader>
+            <CardHeader className="py-2 px-3 border-b border-border/40"><CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><Zap className="h-3 w-3" /> Agents</CardTitle></CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-border/20">
                 {Object.entries(data.agents).map(([key, agent]: [string, any]) => {
-                  // This lookup is now robust because keys match API
                   const theme = AGENT_THEMES[key as keyof typeof AGENT_THEMES] || AGENT_THEMES.safe
                   const Icon = theme.icon
                   return (
-                    <div key={key} className="p-2 flex items-center justify-between hover:bg-white/5 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-7 w-7 rounded-sm ${theme.bg} flex items-center justify-center`}>
-                          <Icon className={`h-3.5 w-3.5 ${theme.text}`} />
+                    <div key={key} className="p-2 flex items-center justify-between hover:bg-white/5 transition-colors group">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-6 w-6 rounded-sm ${theme.bg} flex items-center justify-center opacity-80 group-hover:opacity-100`}>
+                          <Icon className={`h-3 w-3 ${theme.text}`} />
                         </div>
-                        <div>
-                          <p className="font-bold text-[11px] capitalize leading-tight">{theme.label}</p>
-                          <div className="flex items-center gap-1.5">
-                            <div className={`w-1 h-1 rounded-full ${agent.running ? 'bg-emerald-500 animate-pulse' : 'bg-muted'}`} />
-                            <p className="text-[9px] text-muted-foreground truncate max-w-[120px]">{agent.activity || 'Idle'}</p>
-                          </div>
-                        </div>
+                        <p className="font-bold text-[10px] capitalize leading-tight">{theme.label}</p>
                       </div>
                       <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75 origin-right" />
                     </div>
@@ -223,12 +216,11 @@ export default function ProDashboard() {
             </CardContent>
           </Card>
 
-          {/* Risk Config */}
           <Card className="border-border/40 glass">
-            <CardHeader className="py-2 px-3 border-b border-border/40"><CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><Lock className="h-3 w-3" /> Risk Controls</CardTitle></CardHeader>
+            <CardHeader className="py-2 px-3 border-b border-border/40"><CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><Lock className="h-3 w-3" /> Risk</CardTitle></CardHeader>
             <CardContent className="p-3 space-y-3">
               <div>
-                <label className="text-[9px] text-muted-foreground mb-1 block">MAX BET / POSITION (USDC)</label>
+                <label className="text-[9px] text-muted-foreground mb-1 block">MAX BET</label>
                 <Input
                   type="number"
                   value={maxBet}
@@ -237,27 +229,27 @@ export default function ProDashboard() {
                 />
               </div>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
-                <span>RISK CHECK</span>
+                <span>STATUS</span>
                 <span className={data.riskStatus.safe ? "text-emerald-400" : "text-amber-400"}>{data.riskStatus.message}</span>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Center Column: Data & Trade Positions (75%) */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+        {/* Center Column: Graphs & Portfolio (55% -> col-span-7) */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
 
-          {/* Performance Graph (Restored) */}
-          <Card className="border-border/40 glass h-[180px] flex flex-col text-xs">
+          {/* Graph */}
+          <Card className="border-border/40 glass h-[200px] flex flex-col text-xs">
             <CardContent className="p-2 h-full">
               <PerformanceGraph />
             </CardContent>
           </Card>
 
-          {/* Open Positions Table */}
+          {/* Active Portfolio */}
           <Card className="border-border/40 glass flex-1 min-h-[300px]">
             <CardHeader className="py-2 px-3 border-b border-border/40 flex flex-row items-center justify-between h-9">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><BarChart3 className="h-3 w-3" /> Active Portoflio ({data.positions.length})</CardTitle>
+              <CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><BarChart3 className="h-3 w-3" /> Active Positions ({data.positions.length})</CardTitle>
               <span className="text-[10px] text-muted-foreground">Open Value: ${data.stats.volume24h.toFixed(2)}</span>
             </CardHeader>
             <CardContent className="p-0">
@@ -265,7 +257,7 @@ export default function ProDashboard() {
                 <TableHeader className="bg-muted/10">
                   <TableRow className="hover:bg-transparent border-border/20 h-8">
                     <TableHead className="h-8 text-[10px] font-bold">MARKET</TableHead>
-                    <TableHead className="h-8 text-[10px] font-bold w-[100px]">SIDE</TableHead>
+                    <TableHead className="h-8 text-[10px] font-bold w-[60px]">SIDE</TableHead>
                     <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">COST</TableHead>
                     <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">VALUE</TableHead>
                     <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">PnL</TableHead>
@@ -277,7 +269,7 @@ export default function ProDashboard() {
                   ) : (
                     data.positions.map((pos, i) => (
                       <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
-                        <TableCell className="font-medium truncate max-w-[240px] py-1">{pos.market}</TableCell>
+                        <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{pos.market}</TableCell>
                         <TableCell className="py-1">
                           <Badge variant="outline" className={`text-[9px] border-border/40 px-1.5 h-5 ${pos.side.includes('Yes') ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
                             {pos.side}
@@ -296,59 +288,57 @@ export default function ProDashboard() {
             </CardContent>
           </Card>
 
-          {/* Bottom Grid: History & Chat */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[320px]">
+          {/* Recent History */}
+          <Card className="border-border/40 glass h-[200px] flex flex-col">
+            <CardHeader className="py-2 px-3 border-b border-border/40 h-9"><CardTitle className="text-[10px] font-bold uppercase tracking-wider">Recent Trades</CardTitle></CardHeader>
+            <CardContent className="flex-1 overflow-auto p-0">
+              <Table>
+                <TableBody>
+                  {data.trades.map((t, i) => (
+                    <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-[10px] h-8">
+                      <TableCell className="text-muted-foreground w-[80px] py-1">{t.time.split(' ')[1] || t.time}</TableCell>
+                      <TableCell className="truncate max-w-[400px] py-1">{t.market}</TableCell>
+                      <TableCell className="text-right py-1">
+                        <span className={`px-1.5 py-0.5 rounded ${t.side.includes('Buy') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                          {t.side}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right font-mono py-1">${t.amount.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* History */}
-            <Card className="border-border/40 glass flex flex-col">
-              <CardHeader className="py-2 px-3 border-b border-border/40 h-9"><CardTitle className="text-[10px] font-bold uppercase tracking-wider">Recent Activity</CardTitle></CardHeader>
-              <CardContent className="flex-1 overflow-auto p-0">
-                <Table>
-                  <TableBody>
-                    {data.trades.map((t, i) => (
-                      <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-[10px] h-8">
-                        <TableCell className="text-muted-foreground w-[80px] py-1">{t.time.split(' ')[1] || t.time}</TableCell>
-                        <TableCell className="truncate max-w-[140px] py-1">{t.market}</TableCell>
-                        <TableCell className="text-right py-1">
-                          <span className={`px-1.5 py-0.5 rounded ${t.side.includes('Buy') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                            {t.side}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right font-mono py-1">${t.amount.toFixed(2)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+        {/* Right Column: Communication (25% -> col-span-3) */}
+        <div className="lg:col-span-3 flex flex-col h-[calc(100vh-80px)] sticky top-20">
+          <div className="border border-border/40 rounded-xl bg-black/40 overflow-hidden flex flex-col h-full shadow-2xl">
+            <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+              <div className="bg-muted/10 px-0 border-b border-border/40 flex">
+                <TabsList className="h-9 bg-transparent p-0 w-full justify-start rounded-none">
+                  <TabsTrigger value="chat" className="rounded-none border-r border-border/20 data-[state=active]:bg-muted/20 text-[10px] h-9 px-4">
+                    <MessageSquare className="w-3 h-3 mr-2" /> CHAT
+                  </TabsTrigger>
+                  <TabsTrigger value="terminal" className="rounded-none border-r border-border/20 data-[state=active]:bg-muted/20 text-[10px] h-9 px-4">
+                    <Terminal className="w-3 h-3 mr-2" /> TERMINAL
+                  </TabsTrigger>
+                </TabsList>
+              </div>
 
-            {/* Terminal / Chat Tabs */}
-            <div className="border border-border/40 rounded-xl bg-black/40 overflow-hidden flex flex-col">
-              <Tabs defaultValue="terminal" className="flex-1 flex flex-col">
-                <div className="bg-muted/10 px-0 border-b border-border/40 flex">
-                  <TabsList className="h-9 bg-transparent p-0 w-full justify-start rounded-none">
-                    <TabsTrigger value="terminal" className="rounded-none border-r border-border/20 data-[state=active]:bg-muted/20 text-[10px] h-9 px-4">
-                      <Terminal className="w-3 h-3 mr-2" /> TERMINAL
-                    </TabsTrigger>
-                    <TabsTrigger value="chat" className="rounded-none border-r border-border/20 data-[state=active]:bg-muted/20 text-[10px] h-9 px-4">
-                      <MessageSquare className="w-3 h-3 mr-2" /> CHAT
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                <div className="flex-1 relative">
-                  <TabsContent value="terminal" className="absolute inset-0 m-0">
-                    <LLMTerminal />
-                  </TabsContent>
-                  <TabsContent value="chat" className="absolute inset-0 m-0 bg-background/50">
-                    <FBPChat />
-                  </TabsContent>
-                </div>
-              </Tabs>
-            </div>
-
+              <div className="flex-1 relative">
+                <TabsContent value="terminal" className="absolute inset-0 m-0">
+                  <LLMTerminal />
+                </TabsContent>
+                <TabsContent value="chat" className="absolute inset-0 m-0 bg-background/50">
+                  <FBPChat />
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
         </div>
+
       </main>
     </div>
   )
