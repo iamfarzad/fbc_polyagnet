@@ -78,7 +78,7 @@ export default function ProDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
       const response = await fetch(`${apiUrl}/api/dashboard`)
       const json = await response.json()
       setData(json)
@@ -90,7 +90,7 @@ export default function ProDashboard() {
 
   const toggleAgent = async (agent: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
       await fetch(`${apiUrl}/api/toggle-agent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ export default function ProDashboard() {
   const toggleDryRun = async (current: boolean) => {
     setUpdatingConfig(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
       await fetch(`${apiUrl}/api/update-config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,7 +118,7 @@ export default function ProDashboard() {
   }
 
   const emergencyStop = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
     await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
     fetchDashboardData()
   }
