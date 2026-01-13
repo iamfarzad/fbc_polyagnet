@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, TrendingUp } from "lucide-react"
+import { getApiUrl } from "@/lib/api-url"
 
 interface HistoryPoint {
     timestamp: string
@@ -18,7 +19,7 @@ export function PerformanceGraph() {
 
     const fetchData = async () => {
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+            const apiUrl = getApiUrl()
             const res = await fetch(`${apiUrl}/api/history?period=24h`)
             const json = await res.json()
             if (json.history) {

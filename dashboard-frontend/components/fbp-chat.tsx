@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { getApiUrl } from "@/lib/api-url"
 
 interface Message {
   role: "user" | "assistant"
@@ -77,7 +78,7 @@ export function FBPChat() {
     setIsLoading(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = getApiUrl()
       const response = await fetch(`${apiUrl}/api/chat/${sessionId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -117,7 +118,7 @@ export function FBPChat() {
 
   const clearChat = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = getApiUrl()
       await fetch(`${apiUrl}/api/chat/${sessionId}`, { method: "DELETE" })
     } catch (e) {
       console.error("Clear session error:", e)

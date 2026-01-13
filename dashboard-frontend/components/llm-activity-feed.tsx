@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp
 } from "lucide-react"
+import { getApiUrl } from "@/lib/api-url"
 
 interface LLMActivity {
   id: string
@@ -214,8 +215,7 @@ export function LLMActivityFeed() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // API URL - adjust based on your setup
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = getApiUrl()
       const agentParam = filter !== "all" ? `&agent=${filter}` : ""
       const response = await fetch(`${apiUrl}/api/llm-activity?limit=50${agentParam}`)
       const json = await response.json()

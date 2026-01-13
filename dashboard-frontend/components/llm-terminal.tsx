@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { getApiUrl, getWsUrl } from "@/lib/api-url"
 import { 
   Brain, 
   RefreshCw, 
@@ -195,11 +196,13 @@ export function LLMTerminal() {
   const [loading, setLoading] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const wsRef = useRef<WebSocket | null>(null)
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+      const apiUrl = getApiUrl()
       const response = await fetch(`${apiUrl}/api/llm-activity?limit=50`)
       const json = await response.json()
       setData(json)
@@ -211,9 +214,41 @@ export function LLMTerminal() {
   }
 
   useEffect(() => {
-    fetchData()
-    const interval = setInterval(fetchData, 5000) // Poll every 5s
-    return () => clearInterval(interval)
+    const wsUrl = `${getWsUrl()}/ws/llm-activity`
+
+    try {
+      wsRef.current = new WebSocket(wsUrl)
+      wsRef.current.onopen = () => setLoading(false)
+      wsRef.current.onmessage = (event) => {
+        try {
+          const json = JSON.parse(event.data) as LLMActivityData
+          setData(json)
+        } catch (e) {
+          // ignore malformed payload
+        }
+      }
+      wsRef.current.onerror = () => {
+        // fallback to polling if WS fails
+        wsRef.current?.close()
+      }
+      wsRef.current.onclose = () => {
+        // fallback to polling
+        fetchData()
+        pollIntervalRef.current = setInterval(fetchData, 5000)
+      }
+    } catch {
+      fetchData()
+      pollIntervalRef.current = setInterval(fetchData, 5000)
+    }
+
+    return () => {
+      try {
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
+      } catch {}
+      try {
+        wsRef.current?.close()
+      } catch {}
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

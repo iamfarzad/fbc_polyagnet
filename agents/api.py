@@ -2,9 +2,11 @@
 import os
 import json
 import logging
+import asyncio
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -59,6 +61,60 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =============================================================================
+# WebSocket streams (simple, no overengineering)
+# =============================================================================
+
+def _safe_json(obj: Any) -> Any:
+    if isinstance(obj, (str, int, float, bool)) or obj is None:
+        return obj
+    if isinstance(obj, dict):
+        return {str(k): _safe_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_safe_json(v) for v in obj]
+    return str(obj)
+
+
+@app.websocket("/ws/dashboard")
+async def ws_dashboard(ws: WebSocket):
+    """
+    Push dashboard payloads over WS.
+    Frontend can stop polling when connected.
+    """
+    await ws.accept()
+    try:
+        while True:
+            payload = None
+            try:
+                payload = get_dashboard(background_tasks=BackgroundTasks())
+            except Exception as e:
+                payload = {"error": str(e)}
+            await ws.send_json(_safe_json(payload))
+            await asyncio.sleep(2)
+    except WebSocketDisconnect:
+        return
+    except Exception:
+        return
+
+
+@app.websocket("/ws/llm-activity")
+async def ws_llm_activity(ws: WebSocket):
+    """Push LLM activity payload over WS."""
+    await ws.accept()
+    try:
+        while True:
+            payload = None
+            try:
+                payload = get_llm_activity(limit=50, agent=None)
+            except Exception as e:
+                payload = {"activities": [], "stats": {}, "error": str(e)}
+            await ws.send_json(_safe_json(payload))
+            await asyncio.sleep(5)
+    except WebSocketDisconnect:
+        return
+    except Exception:
+        return
 
 # --- State Management ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

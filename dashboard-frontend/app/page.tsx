@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PerformanceGraph } from "@/components/performance-graph"
+import { getApiUrl, getWsUrl } from "@/lib/api-url"
 
 interface DashboardData {
   balance: number
@@ -77,12 +78,6 @@ export default function ProDashboard() {
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
 
-  // Helper to safely get API URL without trailing slash
-  const getApiUrl = () => {
-    const url = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
-    return url.replace(/\/$/, "")
-  }
-
   const fetchDashboardData = async () => {
     try {
       const response = await fetch(`${getApiUrl()}/api/dashboard`)
@@ -127,9 +122,41 @@ export default function ProDashboard() {
   }
 
   useEffect(() => {
-    fetchDashboardData()
-    const interval = setInterval(fetchDashboardData, 3000)
-    return () => clearInterval(interval)
+    let pollInterval: ReturnType<typeof setInterval> | null = null
+    let ws: WebSocket | null = null
+
+    const startPolling = () => {
+      fetchDashboardData()
+      pollInterval = setInterval(fetchDashboardData, 3000)
+    }
+
+    try {
+      ws = new WebSocket(`${getWsUrl()}/ws/dashboard`)
+      ws.onmessage = (event) => {
+        try {
+          const json = JSON.parse(event.data) as DashboardData
+          setData(json)
+          if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
+        } catch {}
+      }
+      ws.onerror = () => {
+        try {
+          ws?.close()
+        } catch {}
+      }
+      ws.onclose = () => {
+        if (!pollInterval) startPolling()
+      }
+    } catch {
+      startPolling()
+    }
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval)
+      try {
+        ws?.close()
+      } catch {}
+    }
   }, [])
 
   if (!data) return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
