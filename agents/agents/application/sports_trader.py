@@ -147,28 +147,84 @@ class SportsTrader:
             print(f"   Error fetching odds: {e}")
             return []
 
-    def find_polymarket_match(self, game_matchup: str, sport: str) -> Optional[Dict]:
-        """Fuzzy match TheOddsAPI game to a Polymarket market."""
-        # This is complex because naming differs (Lakers vs Celtics vs Los Angeles Lakers vs Boston Celtics)
-        # Simplified approach: Search for team names in Polymarket events
-        # For now, we return None as a placeholder for the integration logic
-        # In a real run, we would query `gamma-api.polymarket.com/events` with a search term
+    def find_polymarket_match(self, home_team: str, away_team: str, sport_config: dict) -> Optional[Dict]:
+        """
+        Finds the correct Polymarket Event ID using fuzzy matching (difflib).
+        """
+        import difflib
         
-        # NOTE: For MVP, we will try to find markets by searching for the "Favorite's Name" 
-        # inside the `Polymarket` class or via API search.
-        return None 
-        # TODO: Implement robust string matching or use an existing helper
+        # 1. Fetch active events from Polymarket Gamma API
+        url = "https://gamma-api.polymarket.com/events?closed=false&limit=100&active=true" 
+        try:
+            # In a real production app, we should cache this response to avoid hitting rate limits
+            response = requests.get(url, timeout=10).json()
+        except Exception as e:
+            print(f"      ⚠️ Error fetching Polymarket events: {e}")
+            return None
+
+        # 2. Filter for the right sport
+        #    We look for keywords in the event title (e.g. "NBA", "Celtics")
+        #    We can use the teams themselves as keywords
+        relevant_events = []
+        for e in response:
+            title = e.get('title', '')
+            # Check if either team name is in the title
+            if home_team in title or away_team in title:
+                relevant_events.append(e)
+            # Or if the sport key is in the title (simplified)
+            elif sport_config.get('key').split('_')[-1].upper() in title: 
+                 relevant_events.append(e)
+
+        if not relevant_events:
+            return None
+
+        # 3. Create a search string for our game
+        #Standard Polymarket format is often "Team A vs Team B" or "Will Team A beat Team B?"
+        my_game_str = f"{away_team} vs {home_team}"
+        
+        # 4. Fuzzy Match using difflib
+        best_match = None
+        best_score = 0.0
+        
+        for e in relevant_events:
+            title = e.get('title', '')
+            # Compare my_game_str to the title
+            ratio = difflib.SequenceMatcher(None, my_game_str.lower(), title.lower()).ratio()
+            
+            # Also check reversed order just in case
+            my_game_str_rev = f"{home_team} vs {away_team}"
+            ratio_rev = difflib.SequenceMatcher(None, my_game_str_rev.lower(), title.lower()).ratio()
+            
+            score = max(ratio, ratio_rev)
+            
+            if score > best_score:
+                best_score = score
+                best_match = e
+        
+        if best_score > 0.6: # Confidence threshold (lower than 85 because titles vary wildy)
+            print(f"      🔗 Linked: '{my_game_str}' ↔ '{best_match['title']}' (Score: {best_score:.2f})")
+            # We need to find the specific Market ID for the "Moneyline" or "Winner" market within this event
+            # This is tricky because an event has multiple markets. 
+            # We look for the market Question that looks like "Winner?" or matches the teams.
+            if 'markets' in best_match:
+                # Try to find the main market
+                return best_match['markets'][0] # MVP: Return the first market (usually the main one)
+            
+            return {"id": best_match['id'], "question": best_match['title']} # Fallback
+            
+        return None
 
     def execute_bet(self, market: Dict, side: str, size: float, price: float):
         """Execute trade on Polymarket."""
+        print(f"      💰 EXECUTING: {side} on '{market.get('question')}' @ {price:.2f} (Amt: ${size:.2f})")
         if self.dry_run:
-            print(f"   [DRY RUN] Buying ${size:.2f} of {side} @ {price:.2f}")
+            print(f"      [DRY RUN] Trade logged.")
             self.trades_made += 1
             return
         
-        # Real trade logic utilizing self.pm.client.create_order
-        # (Simplified for snippet - assumes token_id is known)
-        pass 
+        # TODO: Implement real execution using self.pm.client and market['id']
+        # This requires the CLOB client OrderArgs
+        print("      [LIVE] Execution logic not yet enabled for safety.")
 
     def run_universal_bot(self, sport_name: str):
         config = SPORTS_CONFIG.get(sport_name)
@@ -186,34 +242,51 @@ class SportsTrader:
             # Identify Favorite
             favorite = max(game['outcomes'], key=lambda x: x['fair_prob'])
             
-            # Filter: Only look at favorites > 60% win prob (Value betting on strong teams)
-            if favorite['fair_prob'] < 0.60:
-                continue
+            # FILTER 1: Only bet on Favorites > 60% (Value plays)
+            if favorite['fair_prob'] < 0.60: continue
+            
+            # FILTER 2: Check Edge (Is Polymarket Cheaper?)
+            # We assume Polymarket is ~5 cents cheaper to make it worth checking injuries
+            target_price = favorite['fair_prob'] - 0.05 
+            
+            print(f"   🔎 Potential: {favorite['name']} (True: {favorite['fair_prob']*100:.1f}%)")
 
-            print(f"   🔎 Analyzing: {game['matchup']}")
-            print(f"      Favorite: {favorite['name']} (Fair Prob: {favorite['fair_prob']*100:.1f}%)")
+            # 3. Contrarian Check (Perplexity)
+            # Only pay for AI call if Math is good
+            synthetic_q = f"Will {favorite['name']} win {game['matchup']}?"
             
-            # 2. Contrarian Check (Perplexity)
-            # We construct a synthetic 'market question' to pass to validator
-            synthetic_question = f"Will {favorite['name']} win against {game['matchup'].replace(favorite['name'], '').replace('vs', '').strip()}?"
+            try:
+                # Reduced timeout to prevents hanging on one game
+                is_valid, reason, conf = self.validator.validate(
+                    market_question=synthetic_q,
+                    outcome="YES",
+                    price=target_price, 
+                    system_prompt=RISK_MANAGER_PROMPT
+                )
+            except Exception as e:
+                print(f"      ⚠️ Validator Error/Timeout: {e}")
+                continue # Skip this game and move to the next one
             
-            # VALIDATE using RISK MANAGER PROMPT
-            is_valid, reason, conf = self.validator.validate(
-                market_question=synthetic_question,
-                outcome="YES",
-                price=favorite['fair_prob'] - 0.05, # Conservative buffer
-                system_prompt=RISK_MANAGER_PROMPT,
-                min_confidence=0.7 # High bar
-            )
-            
-            if not is_valid:
-                print(f"      🛑 PASS: Risk Manager says NO. ({reason})")
+            if is_valid:
+                print(f"      ✅ GREEN LIGHT: {reason}")
+                # 4. Find Market & Execute
+                # Extract clean team names from "Away vs Home" string
+                try:
+                    away, home = game['matchup'].split(' vs ')
+                except:
+                    continue # Skip if format is weird
+                    
+                market = self.find_polymarket_match(
+                    home, 
+                    away, 
+                    config
+                )
+                if market:
+                    self.execute_bet(market, "YES", size=10.0, price=target_price)
+                else:
+                    print(f"      ⚠️ No matching Polymarket found for {game['matchup']}")
             else:
-                print(f"      ✅ VALIDATED: {reason}")
-                print(f"      🚀 ACTION: Look for Polymarket price < {favorite['fair_prob']*100:.1f}¢")
-                
-                # Here we would search for the actual Polymarket market ID and place the bet
-                # For MVP, we log the signal.
+                print(f"      🛑 PASS: {reason}")
 
     def save_state(self):
         """Save state to json."""
