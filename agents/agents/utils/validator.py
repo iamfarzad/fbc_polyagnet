@@ -49,7 +49,7 @@ class Validator:
         self.context = get_context() if HAS_CONTEXT else None
 
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "", 
-                 min_confidence: float = 0.70, min_edge_pct: float = 0.05) -> Tuple[bool, str, float]:
+                 min_confidence: float = 0.70, min_edge_pct: float = 0.05, system_prompt: str = None) -> Tuple[bool, str, float]:
         """
         Validates a trade opportunity using Perplexity.
         
@@ -60,6 +60,7 @@ class Validator:
             additional_context: Extra info (e.g., "copy trading signal")
             min_confidence: Minimum LLM confidence required (0.0-1.0)
             min_edge_pct: Minimum edge required (e.g. 0.05 for 5%)
+            system_prompt: Optional custom system prompt (overrides default)
             
         Returns:
             (is_valid, reason, confidence_score)
@@ -69,7 +70,8 @@ class Validator:
 
         implied_prob = price * 100
         
-        system_prompt = """You are an elite superforecaster AI specialized in prediction markets.
+        if not system_prompt:
+            system_prompt = """You are an elite superforecaster AI specialized in prediction markets.
 
 Your task is to research and analyze betting opportunities on Polymarket.
 You have access to real-time web search - USE IT to gather the latest information.

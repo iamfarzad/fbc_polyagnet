@@ -357,6 +357,13 @@ def get_dashboard(background_tasks: BackgroundTasks):
             "mode": state.get("esports_trader_mode", "DRY RUN"),
             "lastScan": state.get("esports_trader_last_scan", "-"),
             "pnl": state.get("esports_trader_pnl", 0.0)
+        },
+        "sportsTrader": {
+            "running": state.get("sports_trader_running", True),
+            "activity": state.get("sports_trader_last_activity", "Idle"),
+            "trades": state.get("sports_trader_trades", 0),
+            "mode": state.get("sports_trader_mode", "DRY RUN"),
+            "lastScan": state.get("sports_trader_last_scan", "-")
         }
     }
 
@@ -402,7 +409,9 @@ def toggle_agent(req: AgentToggleRequest):
         "scalper": "scalper", 
         "copyTrader": "copy",
         "smartTrader": "smart",
-        "esportsTrader": "esports"
+        "smartTrader": "smart",
+        "esportsTrader": "esports",
+        "sportsTrader": "sport"
     }
     db_agent = agent_map.get(target, target)
     
@@ -430,6 +439,8 @@ def toggle_agent(req: AgentToggleRequest):
         state["smart_trader_running"] = not state.get("smart_trader_running", True)
     elif target == "esportsTrader":
         state["esports_trader_running"] = not state.get("esports_trader_running", True)
+    elif target == "sportsTrader":
+        state["sports_trader_running"] = not state.get("sports_trader_running", True)
     
     save_state(state)
     return {"status": "success", "state": state, "source": "local"}

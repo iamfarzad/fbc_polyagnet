@@ -16,6 +16,7 @@ primary_region = "ams"
   copy = "python3 -m agents.application.pyml_copy_trader"
   smart = "python3 -m agents.application.smart_trader"
   esports = "python3 -m agents.application.esports_trader"
+  sports = "python3 -m agents.application.sports_trader"
 
 [http_service]
   internal_port = 8000
