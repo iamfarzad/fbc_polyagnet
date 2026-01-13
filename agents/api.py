@@ -276,6 +276,20 @@ def fetch_trades_helper(limit=50):
 @app.get("/api/dashboard", response_model=DashboardData)
 def get_dashboard(background_tasks: BackgroundTasks):
     state = load_state()
+    
+    # Overlay Supabase state if available
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            state["safe_running"] = supa.is_agent_running("safe")
+            state["scalper_running"] = supa.is_agent_running("scalper")
+            state["copy_trader_running"] = supa.is_agent_running("copy")
+            state["smart_trader_running"] = supa.is_agent_running("smart")
+            state["esports_trader_running"] = supa.is_agent_running("esports")
+            state["sports_trader_running"] = supa.is_agent_running("sport")
+        except Exception as e:
+            logger.error(f"Failed to sync dashboard with Supabase: {e}")
+
     pm = get_pm()
     
     # 1. Balance
