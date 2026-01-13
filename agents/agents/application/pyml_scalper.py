@@ -26,6 +26,14 @@ import websocket
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.context import get_context, Position, Trade
 
+# Import Supabase state manager
+try:
+    from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
+except ImportError:
+    HAS_SUPABASE = False
+    get_supabase_state = None
+
 load_dotenv()
 
 # =============================================================================
@@ -1546,17 +1554,26 @@ class CryptoScalper:
             try:
                 cycle_count += 1
                 
-                # Check if enabled
+                # Check if enabled - TRY SUPABASE FIRST, THEN LOCAL FILE
                 try:
-                    with open("bot_state.json", "r") as f:
-                        state = json.load(f)
-                    if not state.get("scalper_running", True):
-                        print("Scalper paused via dashboard. Sleeping...")
-                        time.sleep(60)
-                        continue
-                    self.dry_run = state.get("dry_run", True)
-                except:
-                    pass
+                    if HAS_SUPABASE:
+                        supa = get_supabase_state()
+                        if not supa.is_agent_running("scalper"):
+                            print("Scalper paused via Supabase. Sleeping...")
+                            time.sleep(60)
+                            continue
+                        self.dry_run = supa.get_global_dry_run()
+                    else:
+                        # Fallback to local file
+                        with open("bot_state.json", "r") as f:
+                            state = json.load(f)
+                        if not state.get("scalper_running", True):
+                            print("Scalper paused via dashboard. Sleeping...")
+                            time.sleep(60)
+                            continue
+                        self.dry_run = state.get("dry_run", True)
+                except Exception as e:
+                    print(f"State check error: {e}")
                 
                 # HFT CYCLE: Check exits + Open new positions
                 

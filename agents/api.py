@@ -30,6 +30,18 @@ except ImportError:
         check_drawdown = lambda *args: False
         get_context = None 
 
+# Import Supabase for shared state
+try:
+    from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
+except ImportError:
+    try:
+        from agents.agents.utils.supabase_client import get_supabase_state
+        HAS_SUPABASE = True
+    except ImportError:
+        HAS_SUPABASE = False
+        get_supabase_state = None 
+
 # Setup Logging
 print("VERSION DEBUG: MAX BET ENABLED")
 logging.basicConfig(level=logging.INFO)
@@ -378,9 +390,32 @@ def get_dashboard():
 
 @app.post("/api/toggle-agent")
 def toggle_agent(req: AgentToggleRequest):
-    state = load_state()
     target = req.agent
     
+    # Map frontend names to database names
+    agent_map = {
+        "safe": "safe",
+        "scalper": "scalper", 
+        "copyTrader": "copy",
+        "smartTrader": "smart",
+        "esportsTrader": "esports"
+    }
+    db_agent = agent_map.get(target, target)
+    
+    # Try Supabase first
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            current_state = supa.get_agent_state(db_agent)
+            new_running = not current_state.get("is_running", True)
+            supa.set_agent_running(db_agent, new_running)
+            return {"status": "success", "agent": target, "is_running": new_running, "source": "supabase"}
+        except Exception as e:
+            logger.error(f"Supabase toggle failed: {e}")
+    
+    # Fallback to local file
+    state = load_state()
+    state_key = f"{target.replace('Trader', '_trader')}_running"
     if target == "safe":
         state["safe_running"] = not state.get("safe_running", False)
     elif target == "scalper":
@@ -393,7 +428,7 @@ def toggle_agent(req: AgentToggleRequest):
         state["esports_trader_running"] = not state.get("esports_trader_running", True)
     
     save_state(state)
-    return {"status": "success", "state": state}
+    return {"status": "success", "state": state, "source": "local"}
 
 class ConfigUpdateRequest(BaseModel):
     key: str
