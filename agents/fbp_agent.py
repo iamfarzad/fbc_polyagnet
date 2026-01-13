@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.context import get_context
 from agents.utils.validator import Validator, SharedConfig
+from agents.utils.supabase_client import get_supabase_state
 
 load_dotenv()
 logger = logging.getLogger("FBP")
@@ -100,7 +101,7 @@ TOOLS = {
         "params": ["market_id"]
     },
     "toggle_agent": {
-        "description": "Turn a trading agent on or off",
+        "description": "Turn a trading agent on or off. Use agent='dry_run' to switch system mode.",
         "params": ["agent", "enabled"]
     },
     "get_prices": {
@@ -462,6 +463,32 @@ def tool_close_position(market_id: str) -> str:
 def tool_toggle_agent(agent: str, enabled: bool) -> str:
     """Toggle an agent on/off."""
     try:
+        # Handle Global Dry Run
+        if agent.lower() in ["dry_run", "dryrun", "simulation"]:
+            # Update local state
+            try:
+                with open("bot_state.json", "r") as f:
+                    state = json.load(f)
+                state["dry_run"] = enabled
+                with open("bot_state.json", "w") as f:
+                    json.dump(state, f, indent=2)
+            except Exception as e:
+                logger.error(f"Failed to update local state: {e}")
+
+            # Update Supabase
+            try:
+                supa = get_supabase_state()
+                supa.set_global_dry_run(enabled)
+            except Exception as e:
+                logger.error(f"Failed to update Supabase: {e}")
+            
+            mode = "DRY RUN (Simulation)" if enabled else "LIVE TRADING (Real Money)"
+            return json.dumps({
+                "status": "success",
+                "mode": mode,
+                "message": f"System switched to {mode}"
+            })
+
         with open("bot_state.json", "r") as f:
             state = json.load(f)
         

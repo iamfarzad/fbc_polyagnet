@@ -10,6 +10,11 @@ import logging
 import httpx
 from datetime import datetime
 from typing import Optional, Dict, Any, List
+try:
+    from supabase import create_client, Client
+except ImportError:
+    create_client = None
+    Client = None
 
 logger = logging.getLogger("SupabaseClient")
 
@@ -33,8 +38,19 @@ class SupabaseState:
                 "Content-Type": "application/json",
                 "Prefer": "return=representation"
             }
+            # Initialize official client if available
+            if create_client:
+                try:
+                    self.client = create_client(self.url, self.key)
+                except Exception as e:
+                    logger.warning(f"Failed to init Supabase client: {e}")
+                    self.client = None
+            else:
+                self.client = None
+                
             logger.info("✅ Supabase REST API configured")
         else:
+            self.client = None
             logger.warning("Using local JSON fallback for state (no Supabase credentials)")
     
     def _rest_url(self, table: str) -> str:
@@ -117,6 +133,21 @@ class SupabaseState:
     def get_global_dry_run(self) -> bool:
         """Check global dry run mode."""
         return self.get_config("global_dry_run", False)
+
+    def set_global_dry_run(self, is_dry_run: bool) -> bool:
+        """Set global dry run mode."""
+        if self.client:
+            try:
+                # Upsert config
+                self.client.table("config").upsert({
+                    "key": "global_dry_run", 
+                    "value": json.dumps(is_dry_run)
+                }, on_conflict="key").execute()
+                logger.info(f"Set Global Dry Run: {is_dry_run}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to set global dry run: {e}")
+        return False
     
     # =========================================================================
     # TRADES

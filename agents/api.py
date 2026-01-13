@@ -314,7 +314,12 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # We can fetch count from total trades or state
     all_trades = fetch_trades_helper(limit=100)
     trade_count = len(all_trades)
-    vol_24h = sum(t['amount'] for t in all_trades) # Rough approx
+    
+    # Calculate Redemptions & Net Volume
+    total_redemptions = sum(t['amount'] for t in all_trades if "Redeem" in t.get('side', '') or "Redemption" in t.get('market', ''))
+    
+    # Volume excludes redemptions to be accurate
+    vol_24h = sum(t['amount'] for t in all_trades if "Redeem" not in t.get('side', ''))
     
     # 5. Risk Status
     # Replicate logic: < $3.0 is "Low Balance/Drawdown" warning
@@ -322,10 +327,10 @@ def get_dashboard(background_tasks: BackgroundTasks):
     risk_safe = balance > 3.0
     risk_msg = "No Drawdown Detected" if risk_safe else "Low Balance / Drawdown Limit"
     
-    # 6. Gas (Mock or fetch)
-    # Fetching polygonscan every refresh is heavy. Maybe cache or simple calc.
-    # For now, return 0.0 or last known
-    gas_spent = 0.0 # Setup proper tracking later
+    # 6. Gas (Estimated)
+    # Polygon fees are low (~$0.01 - $0.05). Let's estimate conservatively based on txn count.
+    # We assume roughly 1 txn per trade.
+    gas_spent = trade_count * 0.015
     
     # 7. Agents - with richer data
     scalper_activity = state.get("scalper_last_activity", "Idle")
@@ -396,6 +401,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "equity": equity,
         "unrealizedPnl": unrealized_pnl,
         "gasSpent": gas_spent,
+        "redemptions": total_redemptions,
         "riskStatus": {
             "safe": risk_safe,
             "message": risk_msg
@@ -836,8 +842,14 @@ def record_snapshot(balance, equity, pnl):
     try:
         history = []
         if os.path.exists(SNAPSHOTS_FILE):
-             with open(SNAPSHOTS_FILE, 'r') as f:
-                 history = json.load(f)
+             try:
+                 with open(SNAPSHOTS_FILE, 'r') as f:
+                     history = json.load(f)
+             except json.JSONDecodeError:
+                 logger.warning("Snapshot file corrupted. Deleting/Resetting.")
+                 try: os.remove(SNAPSHOTS_FILE)
+                 except: pass
+                 history = []
         
         # Append and prune (keep last 1000)
         history.append(snapshot)

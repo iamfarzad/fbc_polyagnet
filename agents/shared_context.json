@@ -40,7 +40,7 @@
     "copy": 0.1
   },
   "total_balance": 5.065347,
-  "last_update": "2026-01-11T20:38:05.046246",
+  "last_update": "2026-01-13T19:08:10.912650",
   "agent_status": {
     "safe": {
       "active": true,
@@ -72,282 +72,1851 @@
   ],
   "llm_activity": [
     {
-      "id": "8e6b074c",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:26:46.568978",
+      "id": "df010bc1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:01:55.383739",
       "action_type": "validate",
-      "market_question": "Will Bitcoin hit $100k by March 2026?",
-      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
-      "reasoning": "News: BTC rallied 15% this week after ETF inflows... | Factors: ETF demand, halving effect | Edge: Market may be underpricing momentum",
-      "conclusion": "BET",
-      "confidence": 0.94,
+      "market_question": "Will Giulio Zeppieri win against Brandon Holt?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: Giulio Zeppieri recently won his qualifying match 6-3 6-3 against Dan Added, scoring 66-49 points with 88% first serve points won and no breaks conced... | Factors: Zeppieri (ATP 153-156) dominates serving (88% 1st serve pts, 0 breaks conceded) vs Holt (ATP 109, 77... | Edge: Market at 57.3% undervalues Zeppieri's superior serving/form in recent qual match (no breaks vs Holt...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
       "data_sources": [
-        "CoinDesk",
-        "Bloomberg Crypto",
-        "Glassnode"
+        "Giulio Zeppieri recently won his qualifying match 6-3 6-3 against Dan Added",
+        "scoring 66-49 points with 88% first serve points won and no breaks conceded; Brandon Holt won his match but dropped a set (3 sets",
+        "98-87 points"
       ],
-      "duration_ms": 2340,
-      "tokens_used": 1250,
-      "cost_usd": 0.00625
+      "duration_ms": 6333,
+      "tokens_used": 797,
+      "cost_usd": 0.003985000000000001
     },
     {
-      "id": "422fa93a",
-      "agent": "copy",
-      "timestamp": "2026-01-09T20:26:46.569007",
-      "action_type": "discover",
-      "market_question": "Top Polymarket Traders Discovery",
-      "prompt_summary": "Search for top performing traders on leaderboard",
-      "reasoning": "Found 8 traders from LLM search. Top performers: kch123, SeriouslySirius",
-      "conclusion": "FOUND_8",
-      "confidence": 0.85,
+      "id": "fb6c919e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:01.555580",
+      "action_type": "validate",
+      "market_question": "Will Yoshihito Nishioka win against George Loffhagen?",
+      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
+      "reasoning": "News: No major news in last 48 hours; both players won their Australian Open qualifying first-round matches on Jan 11, 2026\u2014Nishioka beat Fatic 6-1 6-2 (str... | Factors: Nishioka (ATP 114) is higher-ranked with better career hardcourt record (153-109) and recent efficie... | Edge: Market at 61.4% overprices Nishioka slightly given Loffhagen's serving dominance and fresher legs fr...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
       "data_sources": [
-        "Polymarket Leaderboard",
-        "Twitter/X"
+        "No major news in last 48 hours; both players won their Australian Open qualifying first-round matches on Jan 11",
+        "2026\u2014Nishioka beat Fatic 6-1 6-2 (straight sets",
+        "efficient)"
       ],
-      "duration_ms": 3200,
-      "tokens_used": 1800,
-      "cost_usd": 0.009
+      "duration_ms": 6158,
+      "tokens_used": 826,
+      "cost_usd": 0.00413
     },
     {
-      "id": "13b5d9eb",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:26:46.569013",
+      "id": "391843e6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:06.763979",
       "action_type": "validate",
-      "market_question": "Will Trump win 2024 election?",
-      "prompt_summary": "Evaluate YES @ $0.52 (52% implied)",
-      "reasoning": "News: Polls show tight race... | Factors: Swing state polling, turnout models | Edge: No clear edge identified",
+      "market_question": "Will Roberto Carballes Baena win against Gilles Arnaud Bailly?",
+      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
+      "reasoning": "News: No news from the last 48 hours found; Carballes Baena recently lost in Canberra CH R16 on Jan 5 (7-6, 3-6, 7-5 to Blockx) and Olbia Challenger 1R; upc... | Factors: Carballes Baena (ATP 116-147, age 32) heavily favored (1.42 odds) over lower-ranked Bailly but on ea... | Edge: Market at 60.8% slightly overprices given Carballes Baena's recent losses and rust post-injury; no c...",
       "conclusion": "PASS",
       "confidence": 0.55,
       "data_sources": [
-        "538",
-        "RealClearPolitics",
-        "NYT Polls"
+        "No news from the last 48 hours found; Carballes Baena recently lost in Canberra CH R16 on Jan 5 (7-6",
+        "3-6",
+        "7-5 to Blockx) and Olbia Challenger 1R; upcoming Australian Open Q2R match vs Bailly on Jan 14[3][4][6]."
       ],
-      "duration_ms": 1890,
-      "tokens_used": 980,
-      "cost_usd": 0.0049
+      "duration_ms": 5198,
+      "tokens_used": 760,
+      "cost_usd": 0.0038000000000000004
     },
     {
-      "id": "5cd027e9",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:42:27.203466",
+      "id": "36dc9284",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:13.628844",
       "action_type": "validate",
-      "market_question": "Will Kim Kardashian and Kanye West divorce before Jan 1, 2021?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: Kim Kardashian and Kanye West legally finalized their divorce in late 2022, with a settlement including joint custody and $200,000 per month in child ... | Factors: The market resolves on whether they divorced before Jan 1, 2021; the couple separated in late 2020 b... | Edge: Because the divorce filing occurred in February 2021 and the legal dissolution was completed in 2022...",
+      "market_question": "Will Nishesh Basavareddy win against Sebastian Ofner?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026 (Wednesday 10:00 am Court 6, Australian Open qualifiers Round 2). Both players won their Round 1 qualies in strai... | Factors: First H2H; Basavareddy favored by Tennis Tonic (1.47 odds, pick in 3 sets) due to strong serving/ret... | Edge: Market at 65.1% overprices Basavareddy vs true ~62% (factoring Ofner's superior serving efficiency 8...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.65,
       "data_sources": [
-        "Kim Kardashian and Kanye West legally finalized their divorce in late 2022",
-        "with a settlement including joint custody and $200",
-        "000 per month in child support"
+        "Match scheduled for January 14",
+        "2026 (Wednesday 10:00 am Court 6",
+        "Australian Open qualifiers Round 2). Both players won their Round 1 qualies in straight sets: Basavareddy def Galarneau (stats: 6 aces"
       ],
-      "duration_ms": 4911,
-      "tokens_used": 729,
-      "cost_usd": 0.0036450000000000002
+      "duration_ms": 6849,
+      "tokens_used": 889,
+      "cost_usd": 0.004445
     },
     {
-      "id": "280f60dc",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:42:33.468638",
+      "id": "072ea444",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:18.019420",
       "action_type": "validate",
-      "market_question": "Will Coinbase begin publicly trading before Jan 1, 2021?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: Coinbase\u2019s own announcements and market records show its Class A common stock began trading on Nasdaq via direct listing on April 14, 2021, well after... | Factors: Coinbase confidentially filed a draft S-1 in December 2020 and only announced a proposed direct list... | Edge: The outcome 'No' is already resolved and certain, with Coinbase first trading publicly on April 14, ...",
+      "market_question": "Will Jaime Faria win against Benjamin Hassan?",
+      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
+      "reasoning": "News: Match scheduled for today (Jan 13, 2026) in Australian Open qualifying; Faria recently qualified by advancing, set to face Hassan; no injury reports o... | Factors: Faria ranked higher (ATP 151 vs Hassan's 259); Faria won 4/10 recent matches with strong set/game st... | Edge: Market at 62.6% slightly undervalues Faria's ranking edge and form, but lack of recent news, predict...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.55,
       "data_sources": [
-        "Coinbase\u2019s own announcements and market records show its Class A common stock began trading on Nasdaq via direct listing on April 14",
-        "2021",
-        "well after Jan 1"
+        "Match scheduled for today (Jan 13",
+        "2026) in Australian Open qualifying; Faria recently qualified by advancing",
+        "set to face Hassan; no injury reports or last 48h developments found[1][4][7]"
       ],
-      "duration_ms": 6256,
-      "tokens_used": 695,
-      "cost_usd": 0.0034750000000000002
+      "duration_ms": 4381,
+      "tokens_used": 691,
+      "cost_usd": 0.003455
     },
     {
-      "id": "2a560508",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:42:38.994875",
+      "id": "7985dfaa",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:23.824132",
       "action_type": "validate",
-      "market_question": "Will Trump win the 2020 U.S. presidential election?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: The 2020 U.S. presidential election concluded with Joe Biden winning 306 electoral votes to Donald Trump\u2019s 232, and all subsequent legal challenges fa... | Factors: The election is historically complete and certified, the Electoral College and Congress have confirm... | Edge: The market price of $1.00 for 'No' already fully reflects the true 100% probability that Trump did n...",
+      "market_question": "Will Jerome Kym win against Dane Sweeny?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: No specific news from last 48 hours; match is upcoming Australian Open qualifying on Jan 13/14 2026. Sweeny recently played Brisbane International (ea... | Factors: Sweeny (ATP 182) has stronger 2026 hard court record (3-1 recent) and home advantage in Australia; K... | Edge: Market at 57.3% overprices Kym due to ranking proximity and odds bias; Sweeny's recent Australian ha...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.55,
       "data_sources": [
-        "The 2020 U.S. presidential election concluded with Joe Biden winning 306 electoral votes to Donald Trump\u2019s 232",
-        "and all subsequent legal challenges failed; Congress certified Biden\u2019s victory and Trump left office at the end of his term."
+        "No specific news from last 48 hours; match is upcoming Australian Open qualifying on Jan 13/14 2026. Sweeny recently played Brisbane International (early Jan 2026)",
+        "losing some matches but showing form in highlights vs Opelka and Pellegrino[2][7][9]. Kym has 3-1 in 2026 on hard courts[3]."
       ],
-      "duration_ms": 5518,
-      "tokens_used": 661,
-      "cost_usd": 0.003305
+      "duration_ms": 5793,
+      "tokens_used": 766,
+      "cost_usd": 0.0038300000000000005
     },
     {
-      "id": "b1f44a66",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:42:53.224144",
+      "id": "6dfedc10",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:29.499330",
       "action_type": "validate",
-      "market_question": "How many confirmed Coronavirus cases will there be at EOY in the USA?",
-      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
-      "reasoning": "News: Recent surveillance reports indicate the U.S. is in the middle of a 12th COVID wave with **low but increasing** levels; data quality is poor due to ho... | Factors: 1) SARS-CoV-2 remains endemic with ongoing transmission and multiple projected activity peaks throug... | Edge: The outcome 'How many confirmed Coronavirus cases will there be at EOY in the USA?' being framed as ...",
+      "market_question": "Will Dino Prizmic win against Gustavo Heide?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: No specific news, injuries, or developments from the last 48 hours found; match is upcoming Australian Open qualifying on hard court starting Jan 13/1... | Factors: Prizmic has stronger overall record (128-67 career) and better hard court stats vs Heide's clay domi... | Edge: Market at 65.1% aligns closely with ranking gap and records, but lacks edge due to no recent news, l...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.65,
       "data_sources": [
-        "Recent surveillance reports indicate the U.S. is in the middle of a 12th COVID wave with **low but increasing** levels; data quality is poor due to holiday delays",
-        "but no source disputes that there are currently many confirmed COVID-19 cases in the U.S.[1][5][6][8] Global and U.S. dashboards (WHO",
-        "KFF"
+        "No specific news",
+        "injuries",
+        "or developments from the last 48 hours found; match is upcoming Australian Open qualifying on hard court starting Jan 13/14 2026 UTC"
       ],
-      "duration_ms": 14220,
-      "tokens_used": 982,
-      "cost_usd": 0.00491
+      "duration_ms": 5661,
+      "tokens_used": 739,
+      "cost_usd": 0.0036950000000000004
     },
     {
-      "id": "d2c5ca30",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:02.319262",
+      "id": "8c60eb6e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:35.141991",
       "action_type": "validate",
-      "market_question": "Will there be a federal charge filed against Hunter Biden before 2021?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: Hunter Biden has already faced multiple federal indictments and convictions (gun and tax cases) well after 2021, and there is no indication in current... | Factors: The resolution hinges entirely on historical fact: whether any federal charge was filed against Hunt... | Edge: Given that the question concerns a now\u2011fixed past event and all available public records and major m...",
+      "market_question": "Will Pierre-Hugues Herbert win against Gonzalo Bueno?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is upcoming Australian Open qualifier on Jan 13, 2026, with limited pre-match developments reported[1][2][... | Factors: Herbert has superior career record (498-386 vs Bueno's 144-112) and recent hard court play (1-1 in 2... | Edge: Market at 60.2% is fairly priced given Herbert's experience edge but mixed recent form for both and ...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.55,
       "data_sources": [
-        "Hunter Biden has already faced multiple federal indictments and convictions (gun and tax cases) well after 2021",
-        "and there is no indication in current reporting of any newly discovered pre\u20112021 federal charging action that would alter the historical record.[1][2][3]"
+        "No news from the last 48 hours found; match is upcoming Australian Open qualifier on Jan 13",
+        "2026",
+        "with limited pre-match developments reported[1][2][5][7]."
       ],
-      "duration_ms": 9085,
-      "tokens_used": 720,
-      "cost_usd": 0.0036000000000000003
+      "duration_ms": 5634,
+      "tokens_used": 707,
+      "cost_usd": 0.0035350000000000004
     },
     {
-      "id": "b99f18d3",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:05.982372",
+      "id": "edf3ee1d",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:40.272430",
       "action_type": "validate",
-      "market_question": "Will Donald Trump tweet announcing that he won the election before November 5th 2020?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: This market is about a historical event from 2020; there is no new information in the last 48 hours that can change whether Trump did or did not tweet... | Factors: Historical tweet logs and archives show Trump\u2019s actual statements and their timestamps; the question... | Edge: The market is priced at $1.00 for 'No', which matches the true probability (a fully resolved histori...",
+      "market_question": "Will Henrique Rocha win against Marco Trungelliti?",
+      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is upcoming Australian Open qualifying on Jan 13, 2026, with no injury reports, polls, or expert opinions ... | Factors: Trungelliti leads H2H 1-0 (won 21 Jul 2024 ATP Umag Open)[2][3]; both players 3/6 in last matches (5... | Edge: Market at 55.2% overprices Rocha slightly given Trungelliti's H2H edge and higher ranking, but lack ...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.45,
       "data_sources": [
-        "This market is about a historical event from 2020; there is no new information in the last 48 hours that can change whether Trump did or did not tweet a victory claim before November 5",
-        "2020."
+        "No news from the last 48 hours found; match is upcoming Australian Open qualifying on Jan 13",
+        "2026",
+        "with no injury reports"
       ],
-      "duration_ms": 3653,
-      "tokens_used": 662,
-      "cost_usd": 0.0033100000000000004
-    },
-    {
-      "id": "e16f54db",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:10.729581",
-      "action_type": "validate",
-      "market_question": "Will the Ethereum 2.0 Genesis Event happen successfully on December 1st, 2020?",
-      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
-      "reasoning": "News: Ethereum 2.0\u2019s Phase 0 Beacon Chain (the so\u2011called Ethereum 2.0 Genesis) successfully launched on December 1, 2020, with the required deposit contract... | Factors: The event is historical and already resolved in reality; the Beacon Chain genesis occurred on Decemb... | Edge: The market is priced at $1.00 (100%), which matches the true probability of an already\u2011happened, una...",
-      "conclusion": "PASS",
-      "confidence": 0.99,
-      "data_sources": [
-        "Ethereum 2.0\u2019s Phase 0 Beacon Chain (the so\u2011called Ethereum 2.0 Genesis) successfully launched on December 1",
-        "2020",
-        "with the required deposit contract threshold reached in advance and the chain running as planned"
-      ],
-      "duration_ms": 4740,
+      "duration_ms": 5116,
       "tokens_used": 717,
       "cost_usd": 0.003585
     },
     {
-      "id": "aeca0688",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:14.784272",
+      "id": "ebc89af4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:47.273249",
       "action_type": "validate",
-      "market_question": "Will $BTC break $20k before 2021?",
-      "prompt_summary": "Evaluate Yes @ $1.00 (100% implied)",
-      "reasoning": "News: This is a fully resolved historical question: BTC first broke above $20k on December 16\u201317, 2020 on major exchanges such as Coinbase and Bitstamp, and... | Factors: The only relevant factor is historical BTC price data for late 2020, which clearly shows BTC exceedi... | Edge: Because this is a settled historical fact with zero uncertainty, the true probability of the 'Yes' o...",
+      "market_question": "Will Martin Landaluce win against Stefano Travaglia?",
+      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
+      "reasoning": "News: No news from last 48 hours; match is Australian Open qualifying round 2 on Jan 14, 2026. Both won Q1: Landaluce beat Tseng 7-5 6-3 (no sets dropped); ... | Factors: Landaluce leads H2H 1-0 (won 6-4 6-7(6) 6-6? on hard in 2024 Olbia Challenger); ranked higher (ATP 1... | Edge: Market at 63.2% aligns closely with prediction odds (65% at 1.53), no clear mispricing or value edge...",
       "conclusion": "PASS",
-      "confidence": 1.0,
+      "confidence": 0.62,
       "data_sources": [
-        "This is a fully resolved historical question: BTC first broke above $20k on December 16\u201317",
-        "2020 on major exchanges such as Coinbase and Bitstamp",
-        "and then continued to trade above that level into 2021"
+        "No news from last 48 hours; match is Australian Open qualifying round 2 on Jan 14",
+        "2026. Both won Q1: Landaluce beat Tseng 7-5 6-3 (no sets dropped); Travaglia beat Ellis 6-3 4-6 6-1 (dropped a set).[1][2][3]"
       ],
-      "duration_ms": 4047,
-      "tokens_used": 682,
-      "cost_usd": 0.0034100000000000003
+      "duration_ms": 6978,
+      "tokens_used": 760,
+      "cost_usd": 0.0038000000000000004
     },
     {
-      "id": "de932b32",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:23.709256",
+      "id": "55bafcc4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:52.798348",
       "action_type": "validate",
-      "market_question": "Will Donald Trump formally concede the 2020 US Election before December 1st, 2020?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: There is no recent news in the last 48 hours suggesting Donald Trump has ever formally conceded the 2020 election; major retrospectives continue to no... | Factors: Historical record shows Trump did not concede at any point in November 2020, instead refusing to acc... | Edge: The market is priced at $1.00 for 'No' and the historical record establishes with certainty that Tru...",
+      "market_question": "Will Chak Lam Coleman Wong win against Pablo Llamas Ruiz?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: No news from the last 48 hours; match is upcoming Australian Open qualifying on Jan 14, 2026. Both players won their Q1 matches: Coleman Wong beat Bla... | Factors: First H2H; Coleman Wong favored (odds 1.175 vs 4.6), better 2026 hard form (3-1 vs Llamas Ruiz 1-1),... | Edge: Market at 68.4% undervalues Coleman Wong's superior recent hard stats and serve dominance in Q1 (few...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.72,
       "data_sources": [
-        "There is no recent news in the last 48 hours suggesting Donald Trump has ever formally conceded the 2020 election; major retrospectives continue to note that he has *never* accepted the 2020 result and continues to claim it was rigged.[1][2]"
+        "No news from the last 48 hours; match is upcoming Australian Open qualifying on Jan 14",
+        "2026. Both players won their Q1 matches: Coleman Wong beat Blanchet 6-3 7-6(6) without dropping a set (strong serve: 89% 1st pts",
+        "76% 2nd pts"
       ],
-      "duration_ms": 8920,
-      "tokens_used": 733,
-      "cost_usd": 0.0036650000000000003
+      "duration_ms": 5508,
+      "tokens_used": 793,
+      "cost_usd": 0.003965000000000001
     },
     {
-      "id": "a64bf385",
-      "agent": "safe",
-      "timestamp": "2026-01-09T20:43:30.441692",
+      "id": "d306c798",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:02:58.884149",
       "action_type": "validate",
-      "market_question": "Will Donald Trump attend Joe Biden\u2019s inauguration ceremony in person?",
-      "prompt_summary": "Evaluate No @ $1.00 (100% implied)",
-      "reasoning": "News: There is no recent news suggesting any possibility that Donald Trump will retroactively attend Joe Biden\u2019s January 20, 2021 inauguration; historical r... | Factors: The inauguration occurred on January 20, 2021; Donald Trump explicitly announced he would not attend... | Edge: This is a resolved historical event with certainty that Trump did not attend Biden\u2019s inauguration; a...",
+      "market_question": "Will Rafael Jodar win against Chris Rodesch?",
+      "prompt_summary": "Evaluate YES @ $0.66",
+      "reasoning": "Parse error: I cannot provide the JSON betting analysis you've requested. Here's why:\n\n**Critical Issue: Match Ti...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 6036,
+      "tokens_used": 823,
+      "cost_usd": 0.004115000000000001
+    },
+    {
+      "id": "74d143a6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:08.629091",
+      "action_type": "validate",
+      "market_question": "Will Luca Van Assche win against Daniil Glinka?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: This is a 2026 Australian Open qualifying match scheduled for January 13-14, 2026. Both players advanced through qualifying round 1 on hard courts. Va... | Factors: Van Assche: 1-1 in 2026 (hard court), 56% career win rate, 79% first-serve points won, 68% second-se... | Edge: Market price of $0.60 (60.2% implied probability) is slightly undervaluing Van Assche. He demonstrat...",
       "conclusion": "PASS",
-      "confidence": 0.99,
+      "confidence": 0.58,
       "data_sources": [
-        "There is no recent news suggesting any possibility that Donald Trump will retroactively attend Joe Biden\u2019s January 20",
-        "2021 inauguration; historical records uniformly state that Trump did *not* attend and instead left Washington hours before the ceremony.[1][2][3]"
+        "This is a 2026 Australian Open qualifying match scheduled for January 13-14",
+        "2026. Both players advanced through qualifying round 1 on hard courts. Van Assche defeated Moez Echargui 6-4 6-4 (straight sets",
+        "no sets lost). Glinka defeated Clement Tabur 5-7 6-3 6-4 (recovered from 1-set deficit"
       ],
-      "duration_ms": 6727,
-      "tokens_used": 679,
-      "cost_usd": 0.0033950000000000004
+      "duration_ms": 9723,
+      "tokens_used": 1042,
+      "cost_usd": 0.00521
     },
     {
-      "id": "3f60b101",
-      "agent": "copy",
-      "timestamp": "2026-01-09T21:53:45.131319",
-      "action_type": "discover",
-      "market_question": "Top Polymarket Traders Discovery",
-      "prompt_summary": "Search for top performing traders on leaderboard",
-      "reasoning": "Found 15 traders from LLM search",
-      "conclusion": "FOUND_15",
-      "confidence": 0.8,
+      "id": "bb2b6748",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:19.668046",
+      "action_type": "validate",
+      "market_question": "Will Wu Yibing win against Nicolas Mejia?",
+      "prompt_summary": "Evaluate YES @ $0.74 (74% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026 at Court 13, Australian Open qualifying round 2. Both players advanced from qualifying: Wu defeated Mitchell Krue... | Factors: Wu ranked ATP 168 vs Mejia ranked ATP 169 (essentially equal). Wu undefeated in qualifying (2-0 sets... | Edge: Market prices Wu at 73.6% probability, but this appears inflated. While Wu is slightly favored based...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
       "data_sources": [
-        "Polymarket Leaderboard",
-        "Twitter/X",
-        "News"
+        "Match scheduled for January 14",
+        "2026 at Court 13",
+        "Australian Open qualifying round 2. Both players advanced from qualifying: Wu defeated Mitchell Krueger 7-5"
       ],
-      "duration_ms": 8214,
-      "tokens_used": 1238,
-      "cost_usd": 0.00619
+      "duration_ms": 11021,
+      "tokens_used": 1212,
+      "cost_usd": 0.00606
     },
     {
-      "id": "614ac6dc",
-      "agent": "copy",
-      "timestamp": "2026-01-10T21:54:54.403001",
-      "action_type": "discover",
-      "market_question": "Top Polymarket Traders Discovery",
-      "prompt_summary": "Search for top performing traders on leaderboard",
-      "reasoning": "Found 15 traders from LLM search",
-      "conclusion": "FOUND_15",
-      "confidence": 0.8,
+      "id": "1952e965",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:25.490617",
+      "action_type": "validate",
+      "market_question": "Will Alexander Blockx win against Alex Molcan?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: Match scheduled for January 13/14, 2026, Australian Open qualifying round 2; Blockx won his Q1 match 6-3 6-4 vs Cecchinato (straight sets, strong serv... | Factors: Blockx 6-0 in 2026 (all hard), recent Canberra Challenger title, superior Q1 stats (fewer sets/games... | Edge: Market at 67.6% undervalues Blockx's perfect form (9/10 recent wins, dominant Q1) vs Molcan's incons...",
+      "conclusion": "BET",
+      "confidence": 0.78,
       "data_sources": [
-        "Polymarket Leaderboard",
-        "Twitter/X",
-        "News"
+        "Match scheduled for January 13/14",
+        "2026",
+        "Australian Open qualifying round 2; Blockx won his Q1 match 6-3 6-4 vs Cecchinato (straight sets"
       ],
-      "duration_ms": 6943,
-      "tokens_used": 1161,
-      "cost_usd": 0.005805
+      "duration_ms": 5811,
+      "tokens_used": 819,
+      "cost_usd": 0.0040950000000000005
+    },
+    {
+      "id": "918c39b1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:31.595291",
+      "action_type": "validate",
+      "market_question": "Will Lukas Klein win against Daniel Merida Aguilar?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from last 48 hours; match scheduled for January 13/14, 2026 Australian Open qualifiers. Klein (ATP 136) beat Piros 6-4 6-4 in straight sets; M... | Factors: First H2H; Klein higher ranked, stronger hard court record (102-51 career), won in 2 sets vs Merida'... | Edge: Market at 55.9% ($0.56) slightly undervalues Klein's ranking edge and cleaner qualifier win, but Mer...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from last 48 hours; match scheduled for January 13/14",
+        "2026 Australian Open qualifiers. Klein (ATP 136) beat Piros 6-4 6-4 in straight sets; Merida Aguilar (ATP 164) beat Crawford 6-3 2-6 6-3 in three sets[1]."
+      ],
+      "duration_ms": 6089,
+      "tokens_used": 764,
+      "cost_usd": 0.0038200000000000005
+    },
+    {
+      "id": "73d4c1a9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:37.777775",
+      "action_type": "validate",
+      "market_question": "Will Zachary Svajda win against Jurij Rodionov?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No injury reports, polls, or expert opinions found in last 48 hours; match is Australian Open qualifying round 2 on Jan 13/14 2026. Svajda (rank 143) ... | Factors: Svajda's superior serving efficiency (82% 1st serve pts vs Rodionov's 62%, no breaks conceded vs 3) ... | Edge: Market at 55.9% aligns closely with Svajda's slight edge in ranking/serving, but Rodionov's hot form...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No injury reports",
+        "polls",
+        "or expert opinions found in last 48 hours; match is Australian Open qualifying round 2 on Jan 13/14 2026. Svajda (rank 143) beat Habib 6-1 6-3 in Q1 with dominant serving (9 aces"
+      ],
+      "duration_ms": 6166,
+      "tokens_used": 864,
+      "cost_usd": 0.00432
+    },
+    {
+      "id": "b61ee7f2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:45.023093",
+      "action_type": "validate",
+      "market_question": "Will Leandro Riedi win against Kimmer Coppejans?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: No specific news from the last 48 hours found; match is upcoming Australian Open qualifier on Jan 13, 2026, with Riedi showing 5/6 recent wins (83%) a... | Factors: Riedi in strong recent form (5-1 last 6), better 2025 hard court record (11-5 vs Coppejans 20-10 ove... | Edge: Market at 65.1% slightly undervalues Riedi's hot form (83% last 6 wins) vs Coppejans' cold streak (3...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No specific news from the last 48 hours found; match is upcoming Australian Open qualifier on Jan 13",
+        "2026",
+        "with Riedi showing 5/6 recent wins (83%) and Coppejans 2/6 (33%) per latest form data[1][8]."
+      ],
+      "duration_ms": 7232,
+      "tokens_used": 798,
+      "cost_usd": 0.0039900000000000005
+    },
+    {
+      "id": "2ba0c620",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:50.687865",
+      "action_type": "validate",
+      "market_question": "Will Michael Zheng win against Marcelo Tomas Barrios Vera?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: Match scheduled for Australian Open qualifying round 2 on January 13/14, 2026; both players won their qualifying round 1 matches in straight sets - Ba... | Factors: First H2H; Zheng favored at 1.66 odds by Tennis Tonic (should win in 3 sets); both 3-1 and 4-1 in 20... | Edge: Market at 59.7% slightly underprices Zheng's edge per Tennis Tonic prediction and recent hard court ...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Match scheduled for Australian Open qualifying round 2 on January 13/14",
+        "2026; both players won their qualifying round 1 matches in straight sets - Barrios Vera beat Gueymard Wayenburg 6-2 7-6(6)",
+        "Zheng beat Hewitt 6-4 6-4[1][3]. No injury news or other developments in last 48 hours[2][3]."
+      ],
+      "duration_ms": 5585,
+      "tokens_used": 782,
+      "cost_usd": 0.00391
+    },
+    {
+      "id": "0985f80e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:03:55.290843",
+      "action_type": "validate",
+      "market_question": "Will Jason Kubler win against Vilius Gaubas?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is Australian Open qualifying round 2 on Jan 14, 2026. Both players won their Q1 matches in straight sets:... | Factors: Kubler (ATP 192, Australian) stronger serve (83% 1st pts won, 73% 2nd, 4 aces) vs Gaubas (ATP 129, L... | Edge: Market at 55.9% undervalues Kubler slightly vs Tennis Tonic's ~66% and his superior serving stats in...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from the last 48 hours found; match is Australian Open qualifying round 2 on Jan 14",
+        "2026. Both players won their Q1 matches in straight sets: Kubler def. Mayot 6-3 6-4; Gaubas def. Moreno De Alboran 7-5 6-3.[1][2]"
+      ],
+      "duration_ms": 4591,
+      "tokens_used": 762,
+      "cost_usd": 0.0038100000000000005
+    },
+    {
+      "id": "65a18cd9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:04:00.810439",
+      "action_type": "validate",
+      "market_question": "Will Mackenzie McDonald win against Hugo Grenier?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No specific news from last 48 hours; match is upcoming Australian Open qualifying 2nd round on Jan 13/14, 2026. McDonald beat Popko 6-7(4) 6-4 7-5 in ... | Factors: McDonald leads H2H 1-0 (2022 clay); higher ranked (#113 vs #179); stronger recent qualifier stats (1... | Edge: Market at 55.9% ($0.56) undervalues McDonald's H2H edge, ranking, and qualifier comeback win vs Gren...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No specific news from last 48 hours; match is upcoming Australian Open qualifying 2nd round on Jan 13/14",
+        "2026. McDonald beat Popko 6-7(4) 6-4 7-5 in Q1 (recovering from set down",
+        "42% winners)"
+      ],
+      "duration_ms": 5507,
+      "tokens_used": 766,
+      "cost_usd": 0.0038300000000000005
+    },
+    {
+      "id": "f48520be",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:04:05.804776",
+      "action_type": "validate",
+      "market_question": "Will Liam Draxl win against Vitaliy Sachko?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 14, 2026. Both players won their Q1 matches in strai... | Factors: Draxl (ATP 145) favored over Sachko (ATP 166) with stronger recent qualifier performance (80% 1st se... | Edge: Market at 55.9% (0.56) undervalues Draxl slightly given higher ATP ranking, superior Q1 stats (more ...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from the last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 14",
+        "2026. Both players won their Q1 matches in straight sets: Draxl def. Bouzige 7-6(3) 6-3; Sachko def. Durasovic 6-3 7-6(5).[1][2][4]"
+      ],
+      "duration_ms": 4985,
+      "tokens_used": 786,
+      "cost_usd": 0.00393
+    },
+    {
+      "id": "5622eb5e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:20.714232",
+      "action_type": "validate",
+      "market_question": "Will Houston Rockets win against Chicago Bulls?",
+      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
+      "reasoning": "News: Rockets lost 4 of last 5 games, struggling with 23.4% 3PT shooting over that span and lacking effort/energy per coach Udoka; Bulls won latest vs DAL 1... | Factors: HOU cold streak (4 losses in 5), poor shooting/rebounding lately despite top rebounding rank overall... | Edge: Market at 78.4% overprices HOU due to ignoring their 4/5 loss skid, shooting woes, and Eason/Finney-...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Rockets lost 4 of last 5 games",
+        "struggling with 23.4% 3PT shooting over that span and lacking effort/energy per coach Udoka; Bulls won latest vs DAL 125-107 (3-3 in last 6); HOU key players out: Tari Eason (ankle)",
+        "Dorian Finney-Smith (ankle management); CHI: Coby White out (injury management)"
+      ],
+      "duration_ms": 5059,
+      "tokens_used": 782,
+      "cost_usd": 0.00391
+    },
+    {
+      "id": "5c2eaaa8",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:28.617024",
+      "action_type": "validate",
+      "market_question": "Will Oklahoma City Thunder win against San Antonio Spurs?",
+      "prompt_summary": "Evaluate YES @ $0.69",
+      "reasoning": "Parse error: I need to flag a critical issue with this analysis request: **the search results provided are from J...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 7868,
+      "tokens_used": 924,
+      "cost_usd": 0.00462
+    },
+    {
+      "id": "6238754a",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:34.521430",
+      "action_type": "validate",
+      "market_question": "Will Golden State Warriors win against Portland Trail Blazers?",
+      "prompt_summary": "Evaluate YES @ $0.74 (74% implied)",
+      "reasoning": "News: Game is scheduled for January 13, 2026 at Chase Center; Portland missing key players including Damian Lillard (out for season, Achilles), Deni Avdija ... | Factors: Warriors favored by 9.5 points at home with strong Curry (28.8 PPG, 15.8 3PM) and recent form (6-4 L... | Edge: Market at 74.1% undervalues Warriors' home dominance (13-6) and Portland's severe injury depletion (...",
+      "conclusion": "BET",
+      "confidence": 0.85,
+      "data_sources": [
+        "Game is scheduled for January 13",
+        "2026 at Chase Center; Portland missing key players including Damian Lillard (out for season",
+        "Achilles)"
+      ],
+      "duration_ms": 5892,
+      "tokens_used": 835,
+      "cost_usd": 0.004175000000000001
+    },
+    {
+      "id": "e01285a0",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:42.847008",
+      "action_type": "validate",
+      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
+      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
+      "reasoning": "News: Seahawks (14-3) host 49ers (12-5) in NFC Divisional Round on Jan 17 at Lumen Field; recent Week 18 win 13-3 over SF; 49ers injuries include George Kit... | Factors: Seahawks home advantage, recent 10-pt road win over 49ers, superior record (14-3 vs 12-5), 49ers mis... | Edge: Market at 69.8% undervalues Seahawks due to 49ers key injuries (Kittle out deducts value for SF) and...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Seahawks (14-3) host 49ers (12-5) in NFC Divisional Round on Jan 17 at Lumen Field; recent Week 18 win 13-3 over SF; 49ers injuries include George Kittle OUT (Achilles)",
+        "Fred Warner on IR (Ankle)",
+        "several Questionable LBs/WR; Seahawks fresh off bye"
+      ],
+      "duration_ms": 5926,
+      "tokens_used": 793,
+      "cost_usd": 0.003965000000000001
+    },
+    {
+      "id": "a4f04d1b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:48.674423",
+      "action_type": "validate",
+      "market_question": "Will New England Patriots win against Houston Texans?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: Patriots (14-3) host Texans (12-5) in AFC Divisional Round on Jan 18 at Gillette Stadium; Patriots won wild card 16-3 vs Chargers with dominant defens... | Factors: Patriots strong home record (6-3), elite defense held Chargers to 3 points, QB Drake Maye 354/492 fo... | Edge: Market at 55.9% undervalues Patriots slightly due to home advantage, superior record (14-3 vs 12-5),...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Patriots (14-3) host Texans (12-5) in AFC Divisional Round on Jan 18 at Gillette Stadium; Patriots won wild card 16-3 vs Chargers with dominant defense; Texans won 30-6 vs Steelers; Texans WR Nico Collins questionable with concussion from wild card game[1][2]."
+      ],
+      "duration_ms": 5813,
+      "tokens_used": 802,
+      "cost_usd": 0.0040100000000000005
+    },
+    {
+      "id": "8e2b0a92",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:48:53.391422",
+      "action_type": "validate",
+      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
+      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
+      "reasoning": "News: Bears upset Packers 31-27 in wild-card round on Jan 10; Rams edged Panthers 34-31 on weekend. Game set for Jan 18 at Soldier Field, Chicago; Rams open... | Factors: Rams favored despite road game due to elite Stafford play; Bears hot with comeback win and home crow... | Edge: Market at 58.7% undervalues Rams slightly vs models (61%) and odds implying ~66%, but minimal edge a...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Bears upset Packers 31-27 in wild-card round on Jan 10; Rams edged Panthers 34-31 on weekend. Game set for Jan 18 at Soldier Field",
+        "Chicago; Rams opened as 4.5-pt favorites[1][2][3][4]."
+      ],
+      "duration_ms": 4703,
+      "tokens_used": 721,
+      "cost_usd": 0.003605
+    },
+    {
+      "id": "4a3a4e92",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:00.934990",
+      "action_type": "validate",
+      "market_question": "Will Ottawa Senators win against Vancouver Canucks?",
+      "prompt_summary": "Evaluate YES @ $0.62 (62% implied)",
+      "reasoning": "News: Ottawa Senators enter home game on a four-game losing streak (3-6-1 last 10); Vancouver Canucks struggling at 16-24-5 overall (1-7-2 last 10). No inju... | Factors: Senators home advantage (10-9-3) and strong 19-7-1 when scoring 3+ goals, but cold streak with 3.9 G... | Edge: Market at 61.7% overprices Senators due to home favoritism despite their four-game skid and last-10 ...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Ottawa Senators enter home game on a four-game losing streak (3-6-1 last 10); Vancouver Canucks struggling at 16-24-5 overall (1-7-2 last 10). No injuries listed for Senators; Canucks have several out including Thatcher Demko (G",
+        "lower body) and others[1][5]."
+      ],
+      "duration_ms": 5148,
+      "tokens_used": 754,
+      "cost_usd": 0.0037700000000000003
+    },
+    {
+      "id": "bcb3a535",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:05.367456",
+      "action_type": "validate",
+      "market_question": "Will Carolina Hurricanes win against St Louis Blues?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: Blues on 3-game losing streak after road trip, missing top players Robert Thomas (questionable, lower body) and Philip Broberg (doubtful, concussion);... | Factors: Hurricanes lead East (28-14-4, strong road 12-6-3), hot form averaging 3.7 GPG last 10; Blues strugg... | Edge: Market at 56.7% undervalues Hurricanes' form/road strength vs Blues' injuries/streak, but back-to-ba...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Blues on 3-game losing streak after road trip",
+        "missing top players Robert Thomas (questionable",
+        "lower body) and Philip Broberg (doubtful"
+      ],
+      "duration_ms": 4420,
+      "tokens_used": 773,
+      "cost_usd": 0.0038650000000000004
+    },
+    {
+      "id": "9c0a256f",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:11.118289",
+      "action_type": "validate",
+      "market_question": "Will New Jersey Devils win against Seattle Kraken?",
+      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
+      "reasoning": "News: Devils won 5-2 vs Wild on Jan 13 with Palat's 2 goals and strong play from Hamilton, Hischier, Bratt; no injuries listed for either team. Kraken are 7... | Factors: Devils home (11-8-2 record), recent win but poor 3-6-1 L10 allowing 3.4 GPG; Kraken road (11-8-3), e... | Edge: Market at 55.4% overprices Devils due to recency bias from single win, ignoring their cold 3-6-1 L10...",
+      "conclusion": "PASS",
+      "confidence": 0.75,
+      "data_sources": [
+        "Devils won 5-2 vs Wild on Jan 13 with Palat's 2 goals and strong play from Hamilton",
+        "Hischier",
+        "Bratt; no injuries listed for either team. Kraken are 7-1-2 in last 10 (hot streak) after comeback 4-2 win vs Rangers on east coast road trip; Devils 3-6-1 in last 10 (cold).[2][5][7]"
+      ],
+      "duration_ms": 5745,
+      "tokens_used": 826,
+      "cost_usd": 0.00413
+    },
+    {
+      "id": "26a49ce3",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:17.586700",
+      "action_type": "validate",
+      "market_question": "Will Liverpool win against Burnley?",
+      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
+      "reasoning": "News: Liverpool recently won 4-1 against Barnsley in the FA Cup on Jan 12, extending an 11-match unbeaten run (mix of wins and draws); Burnley drew 2-2 with... | Factors: Liverpool at home (Anfield), strong H2H record (won last 5 vs Burnley), 4th place vs Burnley's releg... | Edge: Market at 73.4% is fairly priced given Liverpool's unbeaten streak but unimpressive results/draws ag...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Liverpool recently won 4-1 against Barnsley in the FA Cup on Jan 12",
+        "extending an 11-match unbeaten run (mix of wins and draws); Burnley drew 2-2 with Manchester United recently but are winless in 12 league matches and sit 19th with 3-4-14 record[1][2][4][5]."
+      ],
+      "duration_ms": 4048,
+      "tokens_used": 753,
+      "cost_usd": 0.003765
+    },
+    {
+      "id": "dac90f76",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:22.972189",
+      "action_type": "validate",
+      "market_question": "Will Arsenal win against Nottingham Forest?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games, while Nottingham Forest sit 17th with 6-3-12 and 21 points; Arsenal h... | Factors: Arsenal's **extensive defensive injuries** (Saliba out is critical), playing away at Forest's City G... | Edge: Market at 57% overprices Arsenal due to ignoring severe defensive injuries (Saliba, Calafiori, Hinca...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games",
+        "while Nottingham Forest sit 17th with 6-3-12 and 21 points; Arsenal have multiple defender injuries including William Saliba",
+        "Riccardo Calafiori"
+      ],
+      "duration_ms": 5373,
+      "tokens_used": 791,
+      "cost_usd": 0.003955
+    },
+    {
+      "id": "e52efbd1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:29.440851",
+      "action_type": "validate",
+      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
+      "prompt_summary": "Evaluate YES @ $0.77",
+      "reasoning": "Parse error: I cannot provide the analysis in the requested JSON format because the search results provided do no...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 6460,
+      "tokens_used": 828,
+      "cost_usd": 0.0041400000000000005
+    },
+    {
+      "id": "9ad59094",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:36.488882",
+      "action_type": "validate",
+      "market_question": "Will Arsenal win against Manchester United?",
+      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
+      "reasoning": "News: Michael Carrick poised to become Manchester United interim coach as of January 13, 2026, following recent defeats including to Brighton in FA Cup; his... | Factors: Arsenal at home in top position with strong form; United under new interim coach Carrick with recent... | Edge: Market at 61.2% may undervalue Arsenal's home dominance and United's coaching instability, but lack ...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "Michael Carrick poised to become Manchester United interim coach as of January 13",
+        "2026",
+        "following recent defeats including to Brighton in FA Cup; his first major tests are vs Manchester City and then away at Arsenal on Jan 25[4]. Arsenal lead Premier League with 15-4-2 record (49 pts)"
+      ],
+      "duration_ms": 7034,
+      "tokens_used": 760,
+      "cost_usd": 0.0038000000000000004
+    },
+    {
+      "id": "d7eea279",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:43.887942",
+      "action_type": "validate",
+      "market_question": "Will Real Madrid win against Levante?",
+      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
+      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; match scheduled for Jan 17, 2026 at Bernab\u00e9u. Real Madrid recent form: ... | Factors: Real Madrid 2nd in LaLiga (41 GF, 21 GA), strong H2H (16-5-4 vs Levante), home at Bernab\u00e9u, Mbapp\u00e9 1... | Edge: Market at 77.6% ($0.78) undervalues Real Madrid's home dominance, H2H, and superior form/standings v...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No specific news from the last 48 hours on injuries",
+        "lineups",
+        "or developments; match scheduled for Jan 17"
+      ],
+      "duration_ms": 4909,
+      "tokens_used": 889,
+      "cost_usd": 0.004445
+    },
+    {
+      "id": "1e25d009",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:49.352749",
+      "action_type": "validate",
+      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: No specific injury reports or news from last 48 hours found; Atl\u00e9tico Madrid form LLWWD (2 losses in last 5), Alav\u00e9s WLLDL (mixed); recent player note... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, strong home), recent losses signal cold streak; Alav\u00e9s 15th (... | Edge: Market at 67.6% overprices Atl\u00e9tico due to recent 2 losses in 5 (cold), historical Alav\u00e9s resilience...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No specific injury reports or news from last 48 hours found; Atl\u00e9tico Madrid form LLWWD (2 losses in last 5)",
+        "Alav\u00e9s WLLDL (mixed); recent player notes include Alav\u00e9s' Benavidez available after suspension",
+        "Atl\u00e9tico's Barrios back in squad[1][3][4][9]."
+      ],
+      "duration_ms": 5453,
+      "tokens_used": 744,
+      "cost_usd": 0.00372
+    },
+    {
+      "id": "244f6350",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:49:53.910376",
+      "action_type": "validate",
+      "market_question": "Will Barcelona win against Real Sociedad?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No recent news (last 48 hours) found specifically on Barcelona vs Real Sociedad; available results cover Real Sociedad's Copa del Rey match vs Osasuna... | Factors: Barcelona lead LaLiga at 1st place, Real Sociedad 11th; match is away at Reale Arena on Jan 18; Fren... | Edge: Market at 55.7% aligns with Barcelona's top position but lacks edge due to absent recent news, poten...",
+      "conclusion": "PASS",
+      "confidence": 0.5,
+      "data_sources": [
+        "No recent news (last 48 hours) found specifically on Barcelona vs Real Sociedad; available results cover Real Sociedad's Copa del Rey match vs Osasuna today (Jan 13) and Barcelona's recent Super Cup win over Real Madrid[1][2][3][6]."
+      ],
+      "duration_ms": 4549,
+      "tokens_used": 718,
+      "cost_usd": 0.0035900000000000003
+    },
+    {
+      "id": "438c062c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:04.302176",
+      "action_type": "validate",
+      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
+      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
+      "reasoning": "News: Atl\u00e9tico Madrid missing three key players (Gim\u00e9nez, Cardoso, Almada) due to injury. Team played Copa del Rey match on Jan 13, with LaLiga fixture sche... | Factors: Atl\u00e9tico's defensive injuries (Gim\u00e9nez out), recent mixed form (2 losses in 5), but perfect 5-0 reco... | Edge: Market at 0.70 (69.9%) is slightly undervaluing Atl\u00e9tico despite injuries. Historical dominance and ...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "Atl\u00e9tico Madrid missing three key players (Gim\u00e9nez",
+        "Cardoso",
+        "Almada) due to injury. Team played Copa del Rey match on Jan 13"
+      ],
+      "duration_ms": 10379,
+      "tokens_used": 1192,
+      "cost_usd": 0.005960000000000001
+    },
+    {
+      "id": "6b95adcf",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:09.199950",
+      "action_type": "validate",
+      "market_question": "Will Barcelona win against Oviedo?",
+      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
+      "reasoning": "News: No news from the last 48 hours available; match is scheduled for Jan 25, 2026. Barcelona leads LaLiga with 6-1-0 record (19 pts), Oviedo is last at 2-... | Factors: Barcelona tops table, strong form (+16 GD), home at Camp Nou vs bottom-ranked Oviedo (-8 GD); no inj... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's dominance (league leaders vs relegation team, recent...",
+      "conclusion": "BET",
+      "confidence": 0.75,
+      "data_sources": [
+        "No news from the last 48 hours available; match is scheduled for Jan 25",
+        "2026. Barcelona leads LaLiga with 6-1-0 record (19 pts)",
+        "Oviedo is last at 2-0-5 (6 pts). Barcelona won 3-1 away at Oviedo on Sep 25"
+      ],
+      "duration_ms": 4888,
+      "tokens_used": 711,
+      "cost_usd": 0.0035550000000000004
+    },
+    {
+      "id": "b56f07b8",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:20.937157",
+      "action_type": "validate",
+      "market_question": "Will Giulio Zeppieri win against Brandon Holt?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: No injuries, back-to-backs, or recent losing streaks reported for Zeppieri (1-0 in 2026, straight-sets qual win over Added); Holt 1-1 in 2026 after 3-... | Factors: Zeppieri (ATP 153) dominant in qual win (no breaks conceded, 88% 1st serve pts, 60% break pt convers... | Edge: Market at 57.3% slightly underprices Zeppieri's edge in form/serving efficiency vs Holt's minor fati...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No injuries",
+        "back-to-backs",
+        "or recent losing streaks reported for Zeppieri (1-0 in 2026"
+      ],
+      "duration_ms": 6899,
+      "tokens_used": 807,
+      "cost_usd": 0.004035
+    },
+    {
+      "id": "d9aa2992",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:31.625936",
+      "action_type": "validate",
+      "market_question": "Will Yoshihito Nishioka win against George Loffhagen?",
+      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
+      "reasoning": "News: Both players won qualifying round 1 on Jan 11, 2026. Nishioka dominated Fatic 6-1, 6-2. Loffhagen defeated Engel with exceptional serving (13 aces, 86... | Factors: Nishioka: 97-rank advantage, 153-109 hard court record, dominant recent form. Loffhagen: Elite servi... | Edge: Market at 62.6% is fairly priced. Nishioka's ranking and hard court experience support the favorite ...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "Both players won qualifying round 1 on Jan 11",
+        "2026. Nishioka dominated Fatic 6-1",
+        "6-2. Loffhagen defeated Engel with exceptional serving (13 aces"
+      ],
+      "duration_ms": 10677,
+      "tokens_used": 1189,
+      "cost_usd": 0.005945000000000001
+    },
+    {
+      "id": "f32c388c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:36.156868",
+      "action_type": "validate",
+      "market_question": "Will Roberto Carballes Baena win against Gilles Arnaud Bailly?",
+      "prompt_summary": "Evaluate YES @ $0.62 (62% implied)",
+      "reasoning": "News: No news from the last 48 hours found; Carballes Baena recently lost in Canberra CH R16 on Jan 5 (7-6, 3-6, 7-5 to Blockx) and Olbia Challenger 1R; upc... | Factors: Carballes Baena (ATP 116-147, age 32) heavily favored (1.42 odds) over lower-ranked Bailly but on ea... | Edge: Market at 61.9% overprices slightly given recent losses and lack of form/momentum, but ranking gap s...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "No news from the last 48 hours found; Carballes Baena recently lost in Canberra CH R16 on Jan 5 (7-6",
+        "3-6",
+        "7-5 to Blockx) and Olbia Challenger 1R; upcoming Australian Open Q2R vs Bailly on Jan 14[3][4][6]."
+      ],
+      "duration_ms": 4525,
+      "tokens_used": 741,
+      "cost_usd": 0.0037050000000000004
+    },
+    {
+      "id": "e08d97b7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:42.477097",
+      "action_type": "validate",
+      "market_question": "Will Nishesh Basavareddy win against Sebastian Ofner?",
+      "prompt_summary": "Evaluate YES @ $0.66 (66% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026 (Wednesday 10:00 am Court 6, Australian Open qualifiers round 2). Both players won their first qualifying matches... | Factors: First H2H; Basavareddy favored by Tennis Tonic (win in 3 sets, odds 1.47); Ofner poor recent form (1... | Edge: Market at 65.6% ($0.66) slightly undervalues Basavareddy vs Tennis Tonic's ~68% implied odds, but Of...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Match scheduled for January 14",
+        "2026 (Wednesday 10:00 am Court 6",
+        "Australian Open qualifiers round 2). Both players won their first qualifying matches in straight sets: Basavareddy beat Galarneau (7-5"
+      ],
+      "duration_ms": 6309,
+      "tokens_used": 854,
+      "cost_usd": 0.00427
+    },
+    {
+      "id": "4b110a7c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:46.648415",
+      "action_type": "validate",
+      "market_question": "Will Jaime Faria win against Benjamin Hassan?",
+      "prompt_summary": "Evaluate YES @ $0.62 (62% implied)",
+      "reasoning": "News: Match scheduled for Australian Open qualifying on Jan 13, 2026 at 23:00 UTC; Faria recently qualified by advancing, set to face Hassan; no injury repo... | Factors: Faria ranked ATP 151 vs Hassan's ATP 259; Faria won 4/10 recent matches with strong set/game stats; ... | Edge: Market at 61.9% aligns closely with ranking differential and Faria's recent form stats, but lack of ...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "Match scheduled for Australian Open qualifying on Jan 13",
+        "2026 at 23:00 UTC; Faria recently qualified by advancing",
+        "set to face Hassan; no injury reports or last 48-hour developments found[1][4]."
+      ],
+      "duration_ms": 4160,
+      "tokens_used": 695,
+      "cost_usd": 0.0034750000000000002
+    },
+    {
+      "id": "534699f4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:51.815249",
+      "action_type": "validate",
+      "market_question": "Will Jerome Kym win against Dane Sweeny?",
+      "prompt_summary": "Evaluate YES @ $0.58 (58% implied)",
+      "reasoning": "News: No specific news, injuries, or developments in the last 48 hours; match is upcoming Australian Open qualifying on Jan 13/14 2026, with multiple predic... | Factors: ATP rankings close (Kym 186, Sweeny 182); Sweeny recent form shows 7 wins in 10 matches with stats a... | Edge: Market at 58.2% likely reflects slight ranking/form edge for Kym, but lack of recent news, close ran...",
+      "conclusion": "PASS",
+      "confidence": 0.45,
+      "data_sources": [
+        "No specific news",
+        "injuries",
+        "or developments in the last 48 hours; match is upcoming Australian Open qualifying on Jan 13/14 2026"
+      ],
+      "duration_ms": 5156,
+      "tokens_used": 707,
+      "cost_usd": 0.0035350000000000004
+    },
+    {
+      "id": "aa9168fa",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:50:56.790214",
+      "action_type": "validate",
+      "market_question": "Will Dino Prizmic win against Gustavo Heide?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: No specific news from the last 48 hours found; match is upcoming Australian Open qualifying on Jan 13/14 2026 at Court 14, Melbourne. Dino Prizmic (AT... | Factors: Prizmic higher ranked (127 vs Heide 238), strong 2025 record (40-17 overall, 16-11 hard), multiple c... | Edge: Market at 65.1% aligns closely with Prizmic's ranking and hard court edge, but lacks strong recent n...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No specific news from the last 48 hours found; match is upcoming Australian Open qualifying on Jan 13/14 2026 at Court 14",
+        "Melbourne. Dino Prizmic (ATP 127) recently won 1-0 in 2026 hard court play[1][8]. Past abdominal injury in 2022",
+        "none recent[8]."
+      ],
+      "duration_ms": 4963,
+      "tokens_used": 750,
+      "cost_usd": 0.0037500000000000003
+    },
+    {
+      "id": "82650d9e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:01.015937",
+      "action_type": "validate",
+      "market_question": "Will Pierre-Hugues Herbert win against Gonzalo Bueno?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: No specific news, injuries, or developments in the last 48 hours found; match is Australian Open 2026 qualifying round 2 on hardcourt, scheduled for J... | Factors: Herbert ranked higher (ATP 157 vs Bueno's 214); both show mixed recent form (Bueno 3/6 wins, Herbert... | Edge: Market at 60.2% aligns closely with ranking and form; no clear mispricing as limited recent data and...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "No specific news",
+        "injuries",
+        "or developments in the last 48 hours found; match is Australian Open 2026 qualifying round 2 on hardcourt"
+      ],
+      "duration_ms": 4213,
+      "tokens_used": 720,
+      "cost_usd": 0.0036000000000000003
+    },
+    {
+      "id": "216af033",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:07.139503",
+      "action_type": "validate",
+      "market_question": "Will Henrique Rocha win against Marco Trungelliti?",
+      "prompt_summary": "Evaluate YES @ $0.56",
+      "reasoning": "Parse error: I cannot provide the JSON market analysis you've requested because the search results lack the criti...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 6111,
+      "tokens_used": 793,
+      "cost_usd": 0.003965000000000001
+    },
+    {
+      "id": "517ef86e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:12.961695",
+      "action_type": "validate",
+      "market_question": "Will Martin Landaluce win against Stefano Travaglia?",
+      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is Australian Open 2026 qualifying round 2 on Jan 14 at 00:10 UTC. Both won Q1: Landaluce def. Tseng 7-5 6... | Factors: Landaluce (ATP 149) is younger, higher-ranked, undefeated vs Travaglia on hard, won Q1 without dropp... | Edge: Market at 63.2% aligns closely with Tennis Tonic pick (1.53 odds ~65%), H2H edge, and form, but Trav...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "No news from the last 48 hours found; match is Australian Open 2026 qualifying round 2 on Jan 14 at 00:10 UTC. Both won Q1: Landaluce def. Tseng 7-5 6-3 (no sets dropped); Travaglia def. Ellis 6-3 4-6 6-1 (dropped a set). H2H: Landaluce leads 1-0 (won 6-4 7-6(6) on hard in 2024 Olbia Challenger).[2][3][4]"
+      ],
+      "duration_ms": 5808,
+      "tokens_used": 848,
+      "cost_usd": 0.004240000000000001
+    },
+    {
+      "id": "c6bf6bac",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:17.484214",
+      "action_type": "validate",
+      "market_question": "Will Chak Lam Coleman Wong win against Pablo Llamas Ruiz?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: Chak Lam Coleman Wong recently won his Australian Open qualifying first round match against Ugo Blanchet 6-3 7-6(6) without dropping a set, blasting 1... | Factors: Wong's superior serve (89% first-serve points, 76% second-serve, 3-1 hard courts in 2026) vs Llamas ... | Edge: Market at 68.4% undervalues Wong's dominant serving stats and perfect qualifying start compared to p...",
+      "conclusion": "PASS",
+      "confidence": 0.72,
+      "data_sources": [
+        "Chak Lam Coleman Wong recently won his Australian Open qualifying first round match against Ugo Blanchet 6-3 7-6(6) without dropping a set",
+        "blasting 14 aces and winning 89% of first-serve points; Pablo Llamas Ruiz advanced 2-1 against Henry Bernet",
+        "with 6 aces but weaker second-serve performance at 38%[1][5]."
+      ],
+      "duration_ms": 4514,
+      "tokens_used": 769,
+      "cost_usd": 0.0038450000000000003
+    },
+    {
+      "id": "aec9c045",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:21.889020",
+      "action_type": "validate",
+      "market_question": "Will Rafael Jodar win against Chris Rodesch?",
+      "prompt_summary": "Evaluate YES @ $0.66 (66% implied)",
+      "reasoning": "News: Both players advanced in Australian Open qualifying first round: Rodesch beat No. 15 seed Billy Harris 6-3 6-4; Jodar won 6-2 6-1 against Li Tu. Match... | Factors: Jodar higher ranked (ATP 150 vs Rodesch 208), stronger recent form (8-2 last 10 vs 7-3), dominant st... | Edge: Market at 65.6% slightly undervalues Jodar due to ranking, form, and qualifier dominance, but first ...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Both players advanced in Australian Open qualifying first round: Rodesch beat No. 15 seed Billy Harris 6-3 6-4; Jodar won 6-2 6-1 against Li Tu. Match is second round on Court 7",
+        "first-ever H2H",
+        "scheduled for Jan 13 evening ET[1][3][4]."
+      ],
+      "duration_ms": 4396,
+      "tokens_used": 776,
+      "cost_usd": 0.00388
+    },
+    {
+      "id": "ff6d4294",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:26.588941",
+      "action_type": "validate",
+      "market_question": "Will Luca Van Assche win against Daniil Glinka?",
+      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
+      "reasoning": "News: No news from the last 48 hours; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Van Assche (ATP 165) beat Echargui 6-4 6-4 in ... | Factors: Van Assche higher ranked, straight-sets qualifier win (63 pts to 50, 79% 1st serve pts, broke 3x); G... | Edge: Market at 58.9% undervalues Van Assche slightly given ranking edge, efficient qualifier win, and exp...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Van Assche (ATP 165) beat Echargui 6-4 6-4 in straight sets; Glinka (ATP 199) beat Tabur 5-7 6-3 6-4 after dropping a set[1][2][3]."
+      ],
+      "duration_ms": 4690,
+      "tokens_used": 791,
+      "cost_usd": 0.003955
+    },
+    {
+      "id": "07ae9c25",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:31.713620",
+      "action_type": "validate",
+      "market_question": "Will Wu Yibing win against Nicolas Mejia?",
+      "prompt_summary": "Evaluate YES @ $0.74 (74% implied)",
+      "reasoning": "News: No injury reports, schedule issues, or negative momentum found in last 48 hours; both players advanced in Australian Open qualifying with Wu beating K... | Factors: Wu (ranked 168) is heavily favored by experts (1.22 odds), has stronger hard court record (86-52 car... | Edge: Market at 73.6% ($0.74) undervalues Wu's superior recent form, efficiency stats, and expert pick (Te...",
+      "conclusion": "PASS",
+      "confidence": 0.78,
+      "data_sources": [
+        "No injury reports",
+        "schedule issues",
+        "or negative momentum found in last 48 hours; both players advanced in Australian Open qualifying with Wu beating Krueger 7-5 6-4 in straight sets and Mejia beating Virtanen 3-6 6-3 6-4[1][2][4]."
+      ],
+      "duration_ms": 5117,
+      "tokens_used": 773,
+      "cost_usd": 0.0038650000000000004
+    },
+    {
+      "id": "54b2de37",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:37.274595",
+      "action_type": "validate",
+      "market_question": "Will Alexander Blockx win against Alex Molcan?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: Match scheduled for Australian Open qualifying round 2 on January 14, 2026 (or Jan 13/14 depending on timezone); Blockx won his Q1 match 6-3 6-4 vs Ce... | Factors: Blockx on 6-0 hot streak in 2026 (won Canberra Challenger title), superior recent form (9/10 wins), ... | Edge: Market at 67.6% undervalues Blockx's momentum (6-0, flawless Q1 serve) and form edge over Molcan's s...",
+      "conclusion": "BET",
+      "confidence": 0.78,
+      "data_sources": [
+        "Match scheduled for Australian Open qualifying round 2 on January 14",
+        "2026 (or Jan 13/14 depending on timezone); Blockx won his Q1 match 6-3 6-4 vs Cecchinato (straight sets",
+        "strong serve: 90% 1st"
+      ],
+      "duration_ms": 5555,
+      "tokens_used": 843,
+      "cost_usd": 0.004215
+    },
+    {
+      "id": "6c65652e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:43.684995",
+      "action_type": "validate",
+      "market_question": "Will Zachary Svajda win against Jurij Rodionov?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: Match scheduled for January 13, 2026, at ATP Australian Open qualifying round 2; both players won their Q1 matches in straight sets (Svajda def. Habib... | Factors: Svajda (ranked 143) dominated serve in Q1 (82% 1st serve pts, 0 breaks conceded, 9 aces); Rodionov (... | Edge: Market at 55.9% aligns closely with form (Svajda strong serve but Rodionov hotter streak and hardcou...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Match scheduled for January 13",
+        "2026",
+        "at ATP Australian Open qualifying round 2; both players won their Q1 matches in straight sets (Svajda def. Habib 6-1 6-3; Rodionov def. Ficovich 7-5 6-3). Rodionov reached Noumea Challenger final recently (5-1 in 2026)"
+      ],
+      "duration_ms": 6396,
+      "tokens_used": 810,
+      "cost_usd": 0.004050000000000001
+    },
+    {
+      "id": "3c9acb61",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:49.536765",
+      "action_type": "validate",
+      "market_question": "Will Leandro Riedi win against Kimmer Coppejans?",
+      "prompt_summary": "Evaluate YES @ $0.65",
+      "reasoning": "Parse error: I cannot provide the JSON analysis you've requested because the search results do not contain suffic...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 5837,
+      "tokens_used": 804,
+      "cost_usd": 0.00402
+    },
+    {
+      "id": "9e128017",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:54.168007",
+      "action_type": "validate",
+      "market_question": "Will Michael Zheng win against Marcelo Tomas Barrios Vera?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: Match scheduled for Australian Open qualifications on January 13/14, 2026; Barrios Vera beat Gueymard Wayenburg 6-2 7-6(6) in prior round, Zheng beat ... | Factors: First H2H; both 2-0 in quals without dropping sets; Barrios Vera (ranked 107) 3-1 in 2026 hard court... | Edge: Market at 59.7% undervalues Zheng slightly vs expert pick (1.66 odds ~60%) and form, but thin edge w...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Match scheduled for Australian Open qualifications on January 13/14",
+        "2026; Barrios Vera beat Gueymard Wayenburg 6-2 7-6(6) in prior round",
+        "Zheng beat Hewitt (straight sets implied); no injuries or other news in last 48 hours[1][3][5]."
+      ],
+      "duration_ms": 4624,
+      "tokens_used": 762,
+      "cost_usd": 0.0038100000000000005
+    },
+    {
+      "id": "6059e1bf",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:51:59.552076",
+      "action_type": "validate",
+      "market_question": "Will Jason Kubler win against Vilius Gaubas?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: Match scheduled for January 13/14, 2026, Australian Open qualifying round 2; both players won their Q1 matches in straight sets (Kubler def. Mayot 6-3... | Factors: Kubler (Australian, ranked 192) strong on home hard courts (83% 1st serve pts, 73% 2nd, 4 aces vs Ma... | Edge: Market at 55.9% undervalues Kubler slightly due to home advantage and superior serve stats in Q1, bu...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Match scheduled for January 13/14",
+        "2026",
+        "Australian Open qualifying round 2; both players won their Q1 matches in straight sets (Kubler def. Mayot 6-3 6-4; Gaubas def. Moreno De Alboran 7-5 6-3). No injury reports or other developments in last 48 hours[1][2][3]."
+      ],
+      "duration_ms": 5374,
+      "tokens_used": 780,
+      "cost_usd": 0.0039000000000000003
+    },
+    {
+      "id": "8d2e631f",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:52:04.728578",
+      "action_type": "validate",
+      "market_question": "Will Mackenzie McDonald win against Hugo Grenier?",
+      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is upcoming Australian Open qualifying round on Jan 13/14, 2026. McDonald (ranked 113) beat Popko 6-7(4) 6... | Factors: McDonald leads H2H 1-0 (2022 Barcelona, never on hard); higher ranked with stronger hard court recor... | Edge: Market at 55.2% undervalues McDonald's ranking edge, H2H win, and tougher qualie victory, suggesting...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours found; match is upcoming Australian Open qualifying round on Jan 13/14",
+        "2026. McDonald (ranked 113) beat Popko 6-7(4) 6-4 7-5 in Q1",
+        "showing resilience with 49 winners and 75% first serve points. Grenier (ranked 179) advanced via Galan ret. 7-6(9) 1-0 ret. in Q1[1][2]."
+      ],
+      "duration_ms": 5166,
+      "tokens_used": 778,
+      "cost_usd": 0.0038900000000000002
+    },
+    {
+      "id": "3acaaad1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T18:52:09.898043",
+      "action_type": "validate",
+      "market_question": "Will Liam Draxl win against Vitaliy Sachko?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from the last 48 hours; match is scheduled for January 14, 2026, Australian Open qualifying round 2. Both players won their Q1 matches: Draxl ... | Factors: Draxl (ATP 145) favored over Sachko (ATP 166) with stronger recent qualifier stats (32 winners, 80% ... | Edge: Market at 55.9% undervalues Draxl slightly given ranking edge, qualifier dominance, and expert pick,...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from the last 48 hours; match is scheduled for January 14",
+        "2026",
+        "Australian Open qualifying round 2. Both players won their Q1 matches: Draxl def. Bouzige 7-6(3) 6-3; Sachko def. Durasovic 6-3 7-6(5).[1][2][3]"
+      ],
+      "duration_ms": 5158,
+      "tokens_used": 777,
+      "cost_usd": 0.0038850000000000004
+    },
+    {
+      "id": "500382c6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:15.609905",
+      "action_type": "validate",
+      "market_question": "Will Houston Rockets win against Chicago Bulls?",
+      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
+      "reasoning": "News: Rockets lost 4 of last 5 games (L3 streak recently), struggling with 23.4% 3PT shooting over last 5 and lack of effort/energy per coach Udoka; Bulls w... | Factors: Rockets cold (4/5 losses, L3), key players Eason/Finney-Smith out, poor 3PT shooting and rebounding ... | Edge: Market at 77.2% overprices Rockets given 4/5 losses, key injuries (Eason/Finney-Smith out deduct ~15...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Rockets lost 4 of last 5 games (L3 streak recently)",
+        "struggling with 23.4% 3PT shooting over last 5 and lack of effort/energy per coach Udoka; Bulls won latest vs DAL 125-107 (3-3 in last 6); HOU injuries: Tari Eason OUT (ankle)",
+        "Dorian Finney-Smith OUT (ankle mgmt); CHI: Coby White OUT (injury mgmt)"
+      ],
+      "duration_ms": 6212,
+      "tokens_used": 802,
+      "cost_usd": 0.0040100000000000005
+    },
+    {
+      "id": "3c68b829",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:20.983848",
+      "action_type": "validate",
+      "market_question": "Will Oklahoma City Thunder win against San Antonio Spurs?",
+      "prompt_summary": "Evaluate YES @ $0.69 (69% implied)",
+      "reasoning": "News: OKC Thunder (33-7, 1st in West) host Spurs (27-12, 2nd in West) on Jan 13, 2026; OKC went 7-2 since Christmas while Spurs 4-5; OKC nearly fully health... | Factors: OKC's elite home record (19-2), top defense (leads in turnovers forced, top-10 rim FG% defense), sup... | Edge: Market at 68.7% undervalues OKC's dominant home form, defensive edges, and recent momentum (7-2) aga...",
+      "conclusion": "BET",
+      "confidence": 0.78,
+      "data_sources": [
+        "OKC Thunder (33-7",
+        "1st in West) host Spurs (27-12",
+        "2nd in West) on Jan 13"
+      ],
+      "duration_ms": 5361,
+      "tokens_used": 798,
+      "cost_usd": 0.0039900000000000005
+    },
+    {
+      "id": "9c2230a7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:26.561221",
+      "action_type": "validate",
+      "market_question": "Will Golden State Warriors win against Portland Trail Blazers?",
+      "prompt_summary": "Evaluate YES @ $0.74 (74% implied)",
+      "reasoning": "News: Game scheduled for January 13, 2026, with Warriors favored by 9.5-10.5 points at home; Warriors (21-19, 13-6 home) coming off L1, Portland (19-21) off... | Factors: Warriors: Seth Curry out (thigh, not a star); strong 15.8 3PT/game, 6-4 last 10; Portland: Multiple ... | Edge: Market at 74.1% undervalues Warriors due to Portland's extensive injuries to key players like Lillar...",
+      "conclusion": "PASS",
+      "confidence": 0.78,
+      "data_sources": [
+        "Game scheduled for January 13",
+        "2026",
+        "with Warriors favored by 9.5-10.5 points at home; Warriors (21-19"
+      ],
+      "duration_ms": 5570,
+      "tokens_used": 786,
+      "cost_usd": 0.00393
+    },
+    {
+      "id": "71e264dd",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:34.216578",
+      "action_type": "validate",
+      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
+      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
+      "reasoning": "News: Seahawks (14-3) host 49ers (12-5) in NFC Divisional Round on Jan 17 at Lumen Field; recent Week 18 game won by Seahawks 13-3 at SF; Seahawks fresh off... | Factors: Seahawks superior record (14-3 vs 12-5), 6-2 home, recent 13-3 win over 49ers, bye week rest; 49ers ... | Edge: Market at 69.8% ($0.70) undervalues Seahawks' home dominance, recent head-to-head win, rest advantag...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Seahawks (14-3) host 49ers (12-5) in NFC Divisional Round on Jan 17 at Lumen Field; recent Week 18 game won by Seahawks 13-3 at SF; Seahawks fresh off bye week",
+        "fans optimistic with strong home-field hype[1][2][3][4][6]"
+      ],
+      "duration_ms": 5273,
+      "tokens_used": 799,
+      "cost_usd": 0.003995
+    },
+    {
+      "id": "54bc3048",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:39.156506",
+      "action_type": "validate",
+      "market_question": "Will New England Patriots win against Houston Texans?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: Patriots (14-3) host Texans (12-5) in AFC Divisional Playoffs on Jan 18, 2026 at Gillette Stadium; both teams won recent playoff games (Patriots 16-3 ... | Factors: Patriots superior record (14-3 vs 12-5), home field (6-3 home), strong QB Drake Maye (31 TD); Texans... | Edge: Market at 55.9% slightly undervalues Patriots' home advantage and record edge, but Texans' injuries ...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Patriots (14-3) host Texans (12-5) in AFC Divisional Playoffs on Jan 18",
+        "2026 at Gillette Stadium; both teams won recent playoff games (Patriots 16-3 vs LAC",
+        "Texans 30-6 vs PIT); market favors Patriots -162 (47.9% HOU"
+      ],
+      "duration_ms": 4930,
+      "tokens_used": 768,
+      "cost_usd": 0.0038400000000000005
+    },
+    {
+      "id": "f927b77d",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:44.613451",
+      "action_type": "validate",
+      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
+      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
+      "reasoning": "News: Early predictions from Dimers give Rams 61% win probability with predicted score 27-23; Bears recently won wild card 31-27 over Packers for first play... | Factors: Rams strong passing game with Stafford, Adams (56% TD prob), Nacua; Bears home at Soldier Field with... | Edge: Market at 58.7% slightly underestimates Rams per Dimers' 61% model, but Bears' home momentum, recent...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Early predictions from Dimers give Rams 61% win probability with predicted score 27-23; Bears recently won wild card 31-27 over Packers for first playoff win in 15 years; some YouTube analysts see Bears' momentum as a threat despite Rams favored by 4 points[1][3][4]"
+      ],
+      "duration_ms": 5443,
+      "tokens_used": 745,
+      "cost_usd": 0.0037250000000000004
+    },
+    {
+      "id": "a197139f",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:53.084901",
+      "action_type": "validate",
+      "market_question": "Will Ottawa Senators win against Vancouver Canucks?",
+      "prompt_summary": "Evaluate YES @ $0.62 (62% implied)",
+      "reasoning": "News: Ottawa Senators (20-19-5) on a 4-game losing streak (3-6-1 last 10), hosting Vancouver Canucks (16-24-5) on a 7-8 game skid (1-7-2 last 10); Senators ... | Factors: Both teams struggling defensively (Ottawa 27th GA/G 3.36, Vancouver 31st 3.62); Ottawa home edge (10... | Edge: Market at 61.7% aligns with Ottawa's home favoritism and Vancouver's dire form/road fatigue, but Sen...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Ottawa Senators (20-19-5) on a 4-game losing streak (3-6-1 last 10)",
+        "hosting Vancouver Canucks (16-24-5) on a 7-8 game skid (1-7-2 last 10); Senators favored at -230 to -239; no major injuries listed for either team",
+        "Linus Ullmark out (personal) for Ottawa[3][4][5][7][8]."
+      ],
+      "duration_ms": 6067,
+      "tokens_used": 799,
+      "cost_usd": 0.003995
+    },
+    {
+      "id": "fd5e3a0c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:04:58.139286",
+      "action_type": "validate",
+      "market_question": "Will Carolina Hurricanes win against St Louis Blues?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: Blues missing key players Robert Thomas (lower body, questionable) and Philip Broberg (concussion protocol, doubtful); on 3-game losing streak after r... | Factors: Carolina's strong form (28-14-4, 6-3-1 last 10), road record (12-6-3), and facing depleted Blues (17... | Edge: Market at 56.7% undervalues Carolina's superior record, momentum, and Blues' injuries/losing streak,...",
+      "conclusion": "BET",
+      "confidence": 0.72,
+      "data_sources": [
+        "Blues missing key players Robert Thomas (lower body",
+        "questionable) and Philip Broberg (concussion protocol",
+        "doubtful); on 3-game losing streak after road trip sweep; Hurricanes on 4-0-1 streak in last 5 but playing back-to-back after OT loss to Detroit[1][2][3][6][9]."
+      ],
+      "duration_ms": 5037,
+      "tokens_used": 753,
+      "cost_usd": 0.003765
+    },
+    {
+      "id": "75904f68",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:03.720715",
+      "action_type": "validate",
+      "market_question": "Will New Jersey Devils win against Seattle Kraken?",
+      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
+      "reasoning": "News: Devils host Kraken on Jan 14 after 5-2 win over Wild (Palat 2G); Kraken 21-15-8 overall, strong 7-1-2 last 10 (3.6 GF/game); Devils 23-21-2, weak 3-6-... | Factors: Kraken superior defense (5th in GA, 2.8/game) vs Devils' poor offense (27th, 2.6 GF/game) and defens... | Edge: Market at 55.4% overprices Devils due to home ice and recency bias from Wild win, ignoring Kraken's ...",
+      "conclusion": "PASS",
+      "confidence": 0.75,
+      "data_sources": [
+        "Devils host Kraken on Jan 14 after 5-2 win over Wild (Palat 2G); Kraken 21-15-8 overall",
+        "strong 7-1-2 last 10 (3.6 GF/game); Devils 23-21-2",
+        "weak 3-6-1 last 10 (2.1 GF/game); no injuries listed for either team[1][2][3][7]."
+      ],
+      "duration_ms": 5567,
+      "tokens_used": 816,
+      "cost_usd": 0.00408
+    },
+    {
+      "id": "598048d9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:11.373238",
+      "action_type": "validate",
+      "market_question": "Will Liverpool win against Burnley?",
+      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 17, 2026 at Anfield. Liverpool recently played FA Cup vs Barnsley on Jan 12 (4-1 win). L... | Factors: Liverpool at home (Anfield), strong H2H (13 wins vs Burnley's 2), 4th place (10-5-6, 35 pts) vs Burn... | Edge: Market at 73.4% ($0.73) slightly underestimates Liverpool's home dominance and H2H edge over bottom-...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours found; match scheduled for Jan 17",
+        "2026 at Anfield. Liverpool recently played FA Cup vs Barnsley on Jan 12 (4-1 win). Liverpool has multiple injuries including Alexander Isak",
+        "Conor Bradley"
+      ],
+      "duration_ms": 5248,
+      "tokens_used": 791,
+      "cost_usd": 0.003955
+    },
+    {
+      "id": "cae690d5",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:17.045208",
+      "action_type": "validate",
+      "market_question": "Will Arsenal win against Nottingham Forest?",
+      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
+      "reasoning": "News: Arsenal lead the Premier League with 15-4-2 record (49 points), while Nottingham Forest are 17th with 6-3-12 (21 points); Arsenal have multiple key de... | Factors: Arsenal's strong form and H2H dominance (7 wins vs Forest's 3), but significant defensive injuries w... | Edge: Market at 57% overprices Arsenal due to multiple star defender injuries (Saliba out deducts ~15% win...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Arsenal lead the Premier League with 15-4-2 record (49 points)",
+        "while Nottingham Forest are 17th with 6-3-12 (21 points); Arsenal have multiple key defenders out including William Saliba",
+        "Riccardo Calafiori"
+      ],
+      "duration_ms": 5662,
+      "tokens_used": 737,
+      "cost_usd": 0.0036850000000000003
+    },
+    {
+      "id": "d133b427",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:22.142063",
+      "action_type": "validate",
+      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
+      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
+      "reasoning": "News: No news from the last 48 hours available; match scheduled for Jan 24, 2026. Current standings show Man City 2nd with 13-4-4 record (43 pts), Wolves 20... | Factors: Man City strong home form at Etihad, superior league position and goal differential (+26 vs Wolves -... | Edge: Market at 76.9% undervalues Man City's dominance over bottom-placed Wolves based on standings, H2H w...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours available; match scheduled for Jan 24",
+        "2026. Current standings show Man City 2nd with 13-4-4 record (43 pts)",
+        "Wolves 20th with 1-4-16 (7 pts). Man City won both prior meetings 1-0 and 4-0[1][4][5]."
+      ],
+      "duration_ms": 5087,
+      "tokens_used": 744,
+      "cost_usd": 0.00372
+    },
+    {
+      "id": "b2d088d6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:31.176550",
+      "action_type": "validate",
+      "market_question": "Will Arsenal win against Manchester United?",
+      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
+      "reasoning": "News: Manchester United appointed interim coach Michael Carrick on Jan 13, 2026, following Ruben Amorim's firing. This is Carrick's first managerial role si... | Factors: Managerial instability at United; Arsenal leading the league; United in 7th place; Carrick has minim... | Edge: Market at 61.2% undervalues Arsenal given the magnitude of United's organizational disruption. A new...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "Manchester United appointed interim coach Michael Carrick on Jan 13",
+        "2026",
+        "following Ruben Amorim's firing. This is Carrick's first managerial role since Middlesbrough (2022-25). His first two matches are against Manchester City and Arsenal."
+      ],
+      "duration_ms": 9023,
+      "tokens_used": 1060,
+      "cost_usd": 0.0053
+    },
+    {
+      "id": "3c99eb20",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:43.178469",
+      "action_type": "validate",
+      "market_question": "Will Real Madrid win against Levante?",
+      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
+      "reasoning": "News: No injury concerns identified for Real Madrid. Team is 4-1 in last 5 games with dominant home advantage. Levante remains in 18th place, 31 points behi... | Factors: Real Madrid health status (excellent), schedule rest (6 days since last match), recent form (4-1 in ... | Edge: Market price of 77.6% appears slightly undervalued given Real Madrid's form, health, rest, and oppon...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No injury concerns identified for Real Madrid. Team is 4-1 in last 5 games with dominant home advantage. Levante remains in 18th place",
+        "31 points behind Real Madrid."
+      ],
+      "duration_ms": 9517,
+      "tokens_used": 1126,
+      "cost_usd": 0.0056300000000000005
+    },
+    {
+      "id": "45cc31c4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:48.930713",
+      "action_type": "validate",
+      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: No specific injury reports, suspensions, or major news in last 48 hours for Atl\u00e9tico Madrid; Alav\u00e9s' Carlos Benavidez is back from suspension, team fo... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, 38 pts) vs Alav\u00e9s 15th (5-4-10, 19 pts); ATM strong home form... | Edge: Market at 67.6% ($0.68) slightly undervalues ATM's home strength and superior record, but recent LLW...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No specific injury reports",
+        "suspensions",
+        "or major news in last 48 hours for Atl\u00e9tico Madrid; Alav\u00e9s' Carlos Benavidez is back from suspension"
+      ],
+      "duration_ms": 5739,
+      "tokens_used": 780,
+      "cost_usd": 0.0039000000000000003
+    },
+    {
+      "id": "73c538f9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:54.143841",
+      "action_type": "validate",
+      "market_question": "Will Barcelona win against Real Sociedad?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from the last 48 hours on Barcelona vs Real Sociedad (match scheduled for Jan 18, 2026); available results cover Real Sociedad vs Osasuna Copa... | Factors: Barcelona lead LaLiga at 1st place, Real Sociedad 11th[3]; match away at Reale Arena; Barcelona just... | Edge: Market at 55.7% ($0.56) aligns closely with Barcelona's strong form and league position, but lacks e...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "No news from the last 48 hours on Barcelona vs Real Sociedad (match scheduled for Jan 18",
+        "2026); available results cover Real Sociedad vs Osasuna Copa del Rey on Jan 13 and Barcelona's recent Super Cup win over Real Madrid[1][2][3][6]. Frenkie de Jong received a red card in Super Cup final",
+        "potentially impacting availability[2]."
+      ],
+      "duration_ms": 5203,
+      "tokens_used": 773,
+      "cost_usd": 0.0038650000000000004
+    },
+    {
+      "id": "39935c55",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:05:59.732428",
+      "action_type": "validate",
+      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
+      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
+      "reasoning": "News: No news from the last 48 hours on the January 25, 2026 LaLiga match; Atl\u00e9tico Madrid played Copa del Rey vs Deportivo on January 13, 2026, with listed... | Factors: Atl\u00e9tico Madrid leads LaLiga with 9-4-2 record (31 pts), home advantage at Riyadh Air Metropolitano,... | Edge: Market at 69.9% overprices Atl\u00e9tico given multiple injuries to key players (Gim\u00e9nez out deducts ~15%...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from the last 48 hours on the January 25",
+        "2026 LaLiga match; Atl\u00e9tico Madrid played Copa del Rey vs Deportivo on January 13",
+        "2026"
+      ],
+      "duration_ms": 5575,
+      "tokens_used": 813,
+      "cost_usd": 0.004065
+    },
+    {
+      "id": "5bea0f64",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:06.099417",
+      "action_type": "validate",
+      "market_question": "Will Barcelona win against Oviedo?",
+      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
+      "reasoning": "News: No news from the last 48 hours available; match is scheduled for Jan 25, 2026. Barcelona leads LaLiga with 6-1-0 record (19 pts), Oviedo 20th with 2-0... | Factors: Barcelona top-ranked, home at Camp Nou, strong form (unbeaten, +16 GD), key players like Lewandowski... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's dominance (league leaders vs bottom team, home win p...",
+      "conclusion": "BET",
+      "confidence": 0.82,
+      "data_sources": [
+        "No news from the last 48 hours available; match is scheduled for Jan 25",
+        "2026. Barcelona leads LaLiga with 6-1-0 record (19 pts)",
+        "Oviedo 20th with 2-0-5 (6 pts). Barcelona won earlier matchup 3-1 away on Sep 25"
+      ],
+      "duration_ms": 6355,
+      "tokens_used": 743,
+      "cost_usd": 0.0037150000000000004
+    },
+    {
+      "id": "14bd94e4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:17.452006",
+      "action_type": "validate",
+      "market_question": "Will Giulio Zeppieri win against Brandon Holt?",
+      "prompt_summary": "Evaluate YES @ $0.58 (58% implied)",
+      "reasoning": "News: No injury reports, back-to-back games, or losing streaks found for either player in the last 48 hours; both advanced in Australian Open qualifying wit... | Factors: First H2H; Zeppieri fresher (2 sets vs Holt's 3, fewer games played); superior recent qualifier stat... | Edge: Market at 58.2% ($0.58) slightly underprices Zeppieri's edge in form and freshness, but Holt's highe...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No injury reports",
+        "back-to-back games",
+        "or losing streaks found for either player in the last 48 hours; both advanced in Australian Open qualifying with Holt (ATP 109"
+      ],
+      "duration_ms": 6497,
+      "tokens_used": 787,
+      "cost_usd": 0.003935
+    },
+    {
+      "id": "15076de1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:23.591314",
+      "action_type": "validate",
+      "market_question": "Will Yoshihito Nishioka win against George Loffhagen?",
+      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
+      "reasoning": "News: No news from the last 48 hours; both players won their Australian Open qualifying first-round matches on Jan 11, 2026\u2014Nishioka def. Fatic 6-1 6-2, Lof... | Factors: Nishioka (ATP 114) is higher-ranked with a stronger hardcourt record (153-109 career); both 1-1 in 2... | Edge: Market at 60.8% undervalues Nishioka slightly due to ranking/experience edge, but Loffhagen's recent...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours; both players won their Australian Open qualifying first-round matches on Jan 11",
+        "2026\u2014Nishioka def. Fatic 6-1 6-2",
+        "Loffhagen def. Engel 6-4 7-6(2) 6-2\u2014with the Q2 match scheduled for Jan 13/14[1][2][3][4]."
+      ],
+      "duration_ms": 6127,
+      "tokens_used": 801,
+      "cost_usd": 0.004005000000000001
+    },
+    {
+      "id": "9b6dc3cf",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:30.676498",
+      "action_type": "validate",
+      "market_question": "Will Roberto Carballes Baena win against Gilles Arnaud Bailly?",
+      "prompt_summary": "Evaluate YES @ $0.62",
+      "reasoning": "Parse error: I cannot provide a betting recommendation in the JSON format requested because the search results do...",
+      "conclusion": "ERROR",
+      "confidence": 0.0,
+      "data_sources": [],
+      "duration_ms": 7070,
+      "tokens_used": 897,
+      "cost_usd": 0.004485
+    },
+    {
+      "id": "982ebb5c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:38.181884",
+      "action_type": "validate",
+      "market_question": "Will Nishesh Basavareddy win against Sebastian Ofner?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026, at Australian Open qualifiers; both players won their qualifying Round 1 matches in straight sets (Ofner def. Ho... | Factors: First H2H; Basavareddy 2-1 in 2026 (stronger recent serve/break stats: 75% 1st serve pts, broke 4x);... | Edge: Market at 65.1% aligns with Tennis Tonic's favoritism (1.47 odds ~68%), but Ofner's poor recent form...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Match scheduled for January 14",
+        "2026",
+        "at Australian Open qualifiers; both players won their qualifying Round 1 matches in straight sets (Ofner def. Holmgren 6-4 6-4; Basavareddy def. Galarneau 7-5 7-6 7-3); Tennis Tonic predicts Basavareddy to win in 3 sets at odds 1.47[1]."
+      ],
+      "duration_ms": 7498,
+      "tokens_used": 797,
+      "cost_usd": 0.003985000000000001
+    },
+    {
+      "id": "4cffa3bc",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:42.550193",
+      "action_type": "validate",
+      "market_question": "Will Jaime Faria win against Benjamin Hassan?",
+      "prompt_summary": "Evaluate YES @ $0.62 (62% implied)",
+      "reasoning": "News: Match scheduled for today (Jan 13, 2026) in Australian Open qualifying; Faria recently qualified by beating Mikrut, Hassan defeated Dodig; no injury r... | Factors: Faria ranked higher (ATP 151 vs Hassan's 259); Faria won 4/10 recent matches with strong set/game st... | Edge: Market at 61.9% aligns closely with ranking and recent form; no clear mispricing as higher rank does...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "Match scheduled for today (Jan 13",
+        "2026) in Australian Open qualifying; Faria recently qualified by beating Mikrut",
+        "Hassan defeated Dodig; no injury reports or other developments in last 48 hours[1][4][7]."
+      ],
+      "duration_ms": 4357,
+      "tokens_used": 694,
+      "cost_usd": 0.0034700000000000004
+    },
+    {
+      "id": "46cde1e4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:47.034001",
+      "action_type": "validate",
+      "market_question": "Will Jerome Kym win against Dane Sweeny?",
+      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
+      "reasoning": "News: No specific news, injuries, or developments in the last 48 hours; match is upcoming Australian Open qualifying 2nd round on Jan 14, 2026, with Kym (AT... | Factors: Similar rankings, no H2H history mentioned, Sweeny has strong recent stats (7 wins in 10 matches, 15... | Edge: Market at 58.9% likely overprices Kym due to home-country bias for Australian Sweeny; limited data s...",
+      "conclusion": "PASS",
+      "confidence": 0.45,
+      "data_sources": [
+        "No specific news",
+        "injuries",
+        "or developments in the last 48 hours; match is upcoming Australian Open qualifying 2nd round on Jan 14"
+      ],
+      "duration_ms": 4479,
+      "tokens_used": 707,
+      "cost_usd": 0.0035350000000000004
+    },
+    {
+      "id": "54ec3b66",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:52.361884",
+      "action_type": "validate",
+      "market_question": "Will Dino Prizmic win against Gustavo Heide?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: No specific news from the last 48 hours; match is upcoming Australian Open qualifying on Jan 14, 2026. Prizmic (ATP 127) won Q1 6-1 6-4 vs Olivieri; H... | Factors: First H2H; Prizmic favored (odds 1.28), higher ranked, strong hard court record (37-10 last 6 years)... | Edge: Market at 65.1% underprices Prizmic's ranking edge, hard court dominance, and Q1 form vs Heide's und...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No specific news from the last 48 hours; match is upcoming Australian Open qualifying on Jan 14",
+        "2026. Prizmic (ATP 127) won Q1 6-1 6-4 vs Olivieri; Heide (ATP 238) won Q1 vs Clarke (score not detailed but 1-1 in 2026 on hard).[2][3]"
+      ],
+      "duration_ms": 5314,
+      "tokens_used": 759,
+      "cost_usd": 0.003795
+    },
+    {
+      "id": "30a36a0e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:06:57.071939",
+      "action_type": "validate",
+      "market_question": "Will Pierre-Hugues Herbert win against Gonzalo Bueno?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: No specific news, injuries, or developments in the last 48 hours; match is upcoming Australian Open 2026 qualifying on Jan 13/14, with sites providing... | Factors: Herbert ranked higher (ATP 157 vs Bueno's 214); both 3/6 and 2/6 in last 6 matches per form snippets... | Edge: Market at 60.2% aligns closely with ranking edge, but lack of recent news, injuries, or clear moment...",
+      "conclusion": "PASS",
+      "confidence": 0.55,
+      "data_sources": [
+        "No specific news",
+        "injuries",
+        "or developments in the last 48 hours; match is upcoming Australian Open 2026 qualifying on Jan 13/14"
+      ],
+      "duration_ms": 4701,
+      "tokens_used": 717,
+      "cost_usd": 0.003585
+    },
+    {
+      "id": "dd6dd01a",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:01.766135",
+      "action_type": "validate",
+      "market_question": "Will Henrique Rocha win against Marco Trungelliti?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from last 48 hours found; match is upcoming Australian Open qualifying on Jan 13, 2026, with no injury reports, form updates, or expert opinio... | Factors: Trungelliti leads H2H 1-0 (won 21 Jul 2024 ATP Umag)[2][3]; both players 3/6 in recent form (50% win... | Edge: Market at 55.9% overprices Rocha given Trungelliti's H2H edge and higher ranking, but lack of recent...",
+      "conclusion": "PASS",
+      "confidence": 0.45,
+      "data_sources": [
+        "No news from last 48 hours found; match is upcoming Australian Open qualifying on Jan 13",
+        "2026",
+        "with no injury reports"
+      ],
+      "duration_ms": 4682,
+      "tokens_used": 703,
+      "cost_usd": 0.0035150000000000003
+    },
+    {
+      "id": "ae775d61",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:07.420764",
+      "action_type": "validate",
+      "market_question": "Will Martin Landaluce win against Stefano Travaglia?",
+      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
+      "reasoning": "News: No news from the last 48 hours; match is upcoming Australian Open Qualifying Round 2 on Jan 14, 2026. Both won Q1: Landaluce def Tseng 7-5 6-3; Travag... | Factors: Landaluce (ATP 149) leads H2H 1-0 (won 6-4 7-6(6) on hard in 2024); younger with stronger 2025 recor... | Edge: Market at 63.2% aligns closely with Tennis Tonic odds (1.53 implying ~65%); no clear mispricing as H...",
+      "conclusion": "PASS",
+      "confidence": 0.62,
+      "data_sources": [
+        "No news from the last 48 hours; match is upcoming Australian Open Qualifying Round 2 on Jan 14",
+        "2026. Both won Q1: Landaluce def Tseng 7-5 6-3; Travaglia def Ellis 6-3 4-6 6-1[2][3][4]."
+      ],
+      "duration_ms": 5649,
+      "tokens_used": 779,
+      "cost_usd": 0.0038950000000000005
+    },
+    {
+      "id": "5a5f4a7d",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:12.615154",
+      "action_type": "validate",
+      "market_question": "Will Chak Lam Coleman Wong win against Pablo Llamas Ruiz?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: No news from the last 48 hours; match scheduled for January 13/14, 2026, in Australian Open qualifiers. Coleman Wong won Q1 6-3 7-6(6) vs Blanchet (89... | Factors: First H2H; Wong heavily favored at 1.175 odds (stronger recent hard court form 3-1 in 2026, superior... | Edge: Market at 68.4% slightly underestimates Wong's edge from dominant Q1 serve (89%/76% pts won) vs Llam...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No news from the last 48 hours; match scheduled for January 13/14",
+        "2026",
+        "in Australian Open qualifiers. Coleman Wong won Q1 6-3 7-6(6) vs Blanchet (89% 1st serve pts"
+      ],
+      "duration_ms": 5187,
+      "tokens_used": 780,
+      "cost_usd": 0.0039000000000000003
+    },
+    {
+      "id": "b8355c71",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:18.534279",
+      "action_type": "validate",
+      "market_question": "Will Rafael Jodar win against Chris Rodesch?",
+      "prompt_summary": "Evaluate YES @ $0.66 (66% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026 at 01:20 UTC in Australian Open Qualifying Round 2. Both players advanced from Round 1: Rodesch defeated Billy Ha... | Factors: Jodar holds higher ATP ranking (150 vs 208)[5]. Recent form: Jodar 3-1 in last 4 matches (75% win ra... | Edge: Market price of $0.66 (65.6% implied probability) appears undervalued relative to Jodar's superior r...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "Match scheduled for January 14",
+        "2026 at 01:20 UTC in Australian Open Qualifying Round 2. Both players advanced from Round 1: Rodesch defeated Billy Harris 6-3",
+        "6-4; Jodar defeated Li Tu 6-2"
+      ],
+      "duration_ms": 5914,
+      "tokens_used": 878,
+      "cost_usd": 0.004390000000000001
+    },
+    {
+      "id": "20d66e73",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:23.493272",
+      "action_type": "validate",
+      "market_question": "Will Luca Van Assche win against Daniil Glinka?",
+      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Van Assche (ATP 165) beat Echargui 6-4 6... | Factors: Van Assche higher ranked, straight-sets qualifier win (79% 1st serve pts, broke 3x), no sets dropped... | Edge: Market at 58.9% undervalues Van Assche slightly vs Tennis Tonic pick (implied ~69% at 1.44 odds) due...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Van Assche (ATP 165) beat Echargui 6-4 6-4 in straight sets; Glinka (ATP 199) beat Tabur 5-7 6-3 6-4 after dropping a set[1][2][3]."
+      ],
+      "duration_ms": 4945,
+      "tokens_used": 772,
+      "cost_usd": 0.00386
+    },
+    {
+      "id": "8ac0f3f2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:32.405768",
+      "action_type": "validate",
+      "market_question": "Will Wu Yibing win against Nicolas Mejia?",
+      "prompt_summary": "Evaluate YES @ $0.74 (74% implied)",
+      "reasoning": "News: Match scheduled for January 14, 2026 at Court 13, Australian Open qualifying round 2. Both players advanced from qualifying: Wu defeated Mitchell Krue... | Factors: Wu ranked ATP 168 vs Mejia ranked ATP 169 (essentially equal). Wu undefeated in qualifying (2-0, str... | Edge: Market prices Wu at 73.6% probability, but the data suggests a closer matchup. Wu has superior hard ...",
+      "conclusion": "PASS",
+      "confidence": 0.58,
+      "data_sources": [
+        "Match scheduled for January 14",
+        "2026 at Court 13",
+        "Australian Open qualifying round 2. Both players advanced from qualifying: Wu defeated Mitchell Krueger 7-5"
+      ],
+      "duration_ms": 8907,
+      "tokens_used": 1016,
+      "cost_usd": 0.00508
+    },
+    {
+      "id": "b07ef5de",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:38.388963",
+      "action_type": "validate",
+      "market_question": "Will Alexander Blockx win against Alex Molcan?",
+      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
+      "reasoning": "News: Match scheduled for Australian Open qualifying round 2 on Jan 14, 2026 (or Jan 13 late); Blockx won Q1 straight sets 6-3 6-4 vs Cecchinato (90% 1st se... | Factors: Blockx 9-1 last 10 (6-0 2026 hard), recent Canberra Challenger title, dominant Q1 serve (4 aces, 93%... | Edge: Market at 67.6% undervalues Blockx's hot form (100% win rate recent 6 hard matches, perfect Q1) vs M...",
+      "conclusion": "PASS",
+      "confidence": 0.72,
+      "data_sources": [
+        "Match scheduled for Australian Open qualifying round 2 on Jan 14",
+        "2026 (or Jan 13 late); Blockx won Q1 straight sets 6-3 6-4 vs Cecchinato (90% 1st serve pts",
+        "0 breaks conceded); Molcan lost Q1 after winning 1st set (played 3 sets"
+      ],
+      "duration_ms": 5974,
+      "tokens_used": 813,
+      "cost_usd": 0.004065
+    },
+    {
+      "id": "7015dbf5",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:43.567134",
+      "action_type": "validate",
+      "market_question": "Will Zachary Svajda win against Jurij Rodionov?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: Match scheduled for January 13, 2026, at ATP Australian Open qualifying round 2; both players won straight-set qualifiers (Svajda def. Habib 6-1 6-3; ... | Factors: Svajda (ranked 143) dominant in qualifier (9 aces, 82% 1st serve pts, 0 breaks conceded, 40% winners... | Edge: Market at 55.9% aligns closely with form (Svajda strong serve but Rodionov more 2026 matches/experie...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "Match scheduled for January 13",
+        "2026",
+        "at ATP Australian Open qualifying round 2; both players won straight-set qualifiers (Svajda def. Habib 6-1 6-3; Rodionov def. Ficovich 7-5 6-3); no injuries or other developments reported in last 48 hours[1][2]."
+      ],
+      "duration_ms": 5171,
+      "tokens_used": 810,
+      "cost_usd": 0.004050000000000001
+    },
+    {
+      "id": "ad733ea7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:49.038431",
+      "action_type": "validate",
+      "market_question": "Will Leandro Riedi win against Kimmer Coppejans?",
+      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
+      "reasoning": "News: No specific news from the last 48 hours found; match is upcoming ATP Australian Open qualifier on Jan 13, 2026, with Riedi in strong recent form (5/6 ... | Factors: Riedi 5/6 wins recently (83% win rate) vs Coppejans 2/6; Riedi 11-5 on hard in 2025, Coppejans 20-10... | Edge: Market at 65.1% aligns closely with Riedi's form edge (83% recent wins), but Coppejans' recent win a...",
+      "conclusion": "PASS",
+      "confidence": 0.65,
+      "data_sources": [
+        "No specific news from the last 48 hours found; match is upcoming ATP Australian Open qualifier on Jan 13",
+        "2026",
+        "with Riedi in strong recent form (5/6 wins) and Coppejans winning his last match 2-0 vs Jasika on 12/01/2026[1][6]."
+      ],
+      "duration_ms": 5464,
+      "tokens_used": 779,
+      "cost_usd": 0.0038950000000000005
+    },
+    {
+      "id": "4fa29719",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:07:54.604596",
+      "action_type": "validate",
+      "market_question": "Will Michael Zheng win against Marcelo Tomas Barrios Vera?",
+      "prompt_summary": "Evaluate YES @ $0.60 (60% implied)",
+      "reasoning": "News: No news from the last 48 hours found; match is Australian Open qualifications on Jan 13/14 2026. Barrios Vera (ranked 107) beat Gueymard Wayenburg 6-2... | Factors: First H2H; both won qual R1 in 2 sets on hard (Barrios Vera 3-1 in 2026 hard, Zheng 4-1). Zheng favo... | Edge: Market at 59.7% for Zheng overprices him vs Tennis Tonic's ~60% (1.66 odds) but conflicts with recen...",
+      "conclusion": "PASS",
+      "confidence": 0.6,
+      "data_sources": [
+        "No news from the last 48 hours found; match is Australian Open qualifications on Jan 13/14 2026. Barrios Vera (ranked 107) beat Gueymard Wayenburg 6-2 7-6(6) in qual R1. Zheng beat Hewitt (opponent name partial) in straight sets with 5 aces[1][3]."
+      ],
+      "duration_ms": 5553,
+      "tokens_used": 785,
+      "cost_usd": 0.0039250000000000005
+    },
+    {
+      "id": "2ce3a8b6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:08:00.589087",
+      "action_type": "validate",
+      "market_question": "Will Jason Kubler win against Vilius Gaubas?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Both players won Q1 straight sets: Kubler de... | Factors: Kubler (ATP 192) favored at 1.52 odds by Tennis Tonic to win in 3 sets; stronger serve (83% 1st pts ... | Edge: Market at 55.9% undervalues Kubler vs Tennis Tonic's ~66% implied (1.52 odds), supported by superior...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from last 48 hours found; match is upcoming Australian Open qualifying round 2 on Jan 13/14 2026. Both players won Q1 straight sets: Kubler def Mayot 6-3 6-4; Gaubas def Moreno De Alboran 7-5 6-3[1][2][3]."
+      ],
+      "duration_ms": 5979,
+      "tokens_used": 803,
+      "cost_usd": 0.004015
+    },
+    {
+      "id": "72622e65",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:08:05.933717",
+      "action_type": "validate",
+      "market_question": "Will Mackenzie McDonald win against Hugo Grenier?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No specific news from last 48 hours; match is upcoming Australian Open qualifying Q2 on Jan 14 2026. McDonald (ATP 113) beat Popko 6-7(4) 6-4 7-5 in Q... | Factors: McDonald leads H2H 1-0 (2022 clay: 6-7 6-1 7-6); higher ranked with strong hardcourt record (173-118... | Edge: Market at 55.9% undervalues McDonald's ranking edge, H2H win, and tougher Q1 victory showing resilie...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No specific news from last 48 hours; match is upcoming Australian Open qualifying Q2 on Jan 14 2026. McDonald (ATP 113) beat Popko 6-7(4) 6-4 7-5 in Q1",
+        "recovering from a set down with 49 winners (42%). Grenier (ATP 179) advanced via Galan ret. 7-6(9) 1-0[1][3]."
+      ],
+      "duration_ms": 5338,
+      "tokens_used": 764,
+      "cost_usd": 0.0038200000000000005
+    },
+    {
+      "id": "36b06585",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-13T19:08:10.909955",
+      "action_type": "validate",
+      "market_question": "Will Liam Draxl win against Vitaliy Sachko?",
+      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
+      "reasoning": "News: No news from the last 48 hours; match is upcoming Australian Open qualifying R2 on Jan 14, 2026. Both won Q1 straight sets: Draxl def Bouzige 7-6(3) 6... | Factors: Draxl (ATP 145) higher ranked, stronger recent qualifier stats (49% winners vs 35%, 80% 1st serve pt... | Edge: Market at 55.9% undervalues Draxl's ranking edge, qualifier dominance, and hard court record vs Sach...",
+      "conclusion": "PASS",
+      "confidence": 0.68,
+      "data_sources": [
+        "No news from the last 48 hours; match is upcoming Australian Open qualifying R2 on Jan 14",
+        "2026. Both won Q1 straight sets: Draxl def Bouzige 7-6(3) 6-3 (65-54 pts",
+        "32 winners); Sachko def Durasovic 6-3 7-6 (72-56 pts"
+      ],
+      "duration_ms": 4967,
+      "tokens_used": 797,
+      "cost_usd": 0.003985000000000001
     }
   ]
 }
