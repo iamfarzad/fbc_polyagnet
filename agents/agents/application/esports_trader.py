@@ -39,6 +39,14 @@ except ImportError:
     HAS_REDEEMER = False
     AutoRedeemer = None
 
+# Import Supabase state manager
+try:
+    from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
+except ImportError:
+    HAS_SUPABASE = False
+    get_supabase_state = None
+
 load_dotenv()
 
 # =============================================================================
@@ -787,7 +795,21 @@ class EsportsTrader:
         """Main scan loop."""
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
         
-        # Check if enabled via dashboard
+        # Check if enabled
+        
+        # 1. Try Supabase
+        if HAS_SUPABASE:
+            try:
+                supa = get_supabase_state()
+                if supa:
+                     if not supa.is_agent_running("esports"):
+                         print("   Esports Trader paused via Supabase. Sleeping...")
+                         return POLL_INTERVAL_IDLE
+                     # self.dry_run = supa.get_global_dry_run() # Optional: sync dry run
+            except Exception as e:
+                print(f"Supabase check failed: {e}")
+
+        # 2. Local Fallback
         try:
             with open("bot_state.json", "r") as f:
                 state = json.load(f)

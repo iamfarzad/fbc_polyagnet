@@ -14,6 +14,14 @@ from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
 from agents.utils.context import get_context, Position, Trade
 
+# Import Supabase state manager
+try:
+    from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
+except ImportError:
+    HAS_SUPABASE = False
+    get_supabase_state = None
+
 load_dotenv()
 
 logging.basicConfig(
@@ -114,6 +122,21 @@ class CopyTrader:
             pass
 
     def check_run_state(self):
+        # 1. Try Supabase
+        if HAS_SUPABASE:
+            try:
+                supa = get_supabase_state()
+                if supa:
+                     is_running = supa.is_agent_running("copy")
+                     # dry_run = supa.get_global_dry_run() # Optional
+                     
+                     # If we successfully got state from Supabase, return it
+                     # But we need to grab local dry_run or assume true if not in supa yet
+                     return is_running, True # Default dry run to True if Supabase doesn't have it explicitly mapped
+            except Exception as e:
+                pass
+
+        # 2. Local Fallback
         try:
             if os.path.exists("bot_state.json"):
                 with open("bot_state.json", "r") as f:
