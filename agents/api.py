@@ -66,6 +66,7 @@ STATE_FILE = os.path.join(BASE_DIR, "bot_state.json")
 SAFE_STATE_FILE = os.path.join(BASE_DIR, "safe_state.json")
 SCALPER_STATE_FILE = os.path.join(BASE_DIR, "scalper_state.json")
 COPY_STATE_FILE = os.path.join(BASE_DIR, "copy_state.json")
+SNAPSHOTS_FILE = os.path.join(BASE_DIR, "snapshots.json")
 
 def load_agent_state(filepath: str) -> Dict[str, Any]:
     """Load state from an agent-specific file."""
@@ -273,7 +274,7 @@ def fetch_trades_helper(limit=50):
 # --- Endpoints ---
 
 @app.get("/api/dashboard", response_model=DashboardData)
-def get_dashboard():
+def get_dashboard(background_tasks: BackgroundTasks):
     state = load_state()
     pm = get_pm()
     
@@ -365,6 +366,9 @@ def get_dashboard():
         try:
             wallet_address = pm.get_address_for_private_key()
         except: pass
+
+    # Record snapshot in background
+    background_tasks.add_task(record_snapshot, balance, equity, unrealized_pnl)
 
     return {
         "balance": balance,
@@ -775,9 +779,73 @@ def get_context_summary():
         return {"error": str(e)}
 
 
+# --- History / Snapshots ---
+def record_snapshot(balance, equity, pnl):
+    """Record a portfolio snapshot to Supabase (primary) or local JSON (backup)."""
+    snapshot = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "balance": balance,
+        "equity": equity,
+        "unrealized_pnl": pnl
+    }
+    
+    # 1. Try Supabase
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            if hasattr(supa, 'client') and supa.client:
+                 supa.client.table("portfolio_snapshots").insert(snapshot).execute()
+                 return # Success
+        except Exception as e:
+            pass
+
+    # 2. Local Fallback
+    try:
+        history = []
+        if os.path.exists(SNAPSHOTS_FILE):
+             with open(SNAPSHOTS_FILE, 'r') as f:
+                 history = json.load(f)
+        
+        # Append and prune (keep last 1000)
+        history.append(snapshot)
+        if len(history) > 1000:
+            history = history[-1000:]
+            
+        with open(SNAPSHOTS_FILE, 'w') as f:
+            json.dump(history, f)
+    except Exception as e:
+        logger.error(f"Failed to save local snapshot: {e}")
+
+@app.get("/api/history")
+def get_history(period: str = "24h"):
+    """Get portfolio history for graphs."""
+    # 1. Try Supabase
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            if hasattr(supa, 'client') and supa.client:
+                # Simple query: get last 100 records
+                res = supa.client.table("portfolio_snapshots").select("*").order("timestamp", desc=True).limit(100).execute()
+                data = res.data
+                # Reverse to chronological
+                return {"history": data[::-1], "source": "supabase"}
+        except: pass
+        
+    # 2. Local Fallback
+    if os.path.exists(SNAPSHOTS_FILE):
+        try:
+            with open(SNAPSHOTS_FILE, 'r') as f:
+                data = json.load(f)
+                return {"history": data, "source": "local"}
+        except: pass
+        
+    return {"history": [], "source": "empty"}
+
+
 # =============================================================================
 # FBP AGENT CHAT
 # =============================================================================
+
 
 class ChatMessage(BaseModel):
     role: str  # "user" or "assistant"
@@ -821,7 +889,7 @@ async def fbp_chat(request: ChatRequest):
 @app.post("/api/chat/{session_id}")
 async def fbp_chat_session(session_id: str, request: ChatRequest):
     """
-    FBP Agent chat with session history.
+    FBP Agent chat with session history. Persists to Supabase.
     """
     try:
         import importlib.util
@@ -837,19 +905,34 @@ async def fbp_chat_session(session_id: str, request: ChatRequest):
             "tool_calls": []
         }
     
-    # Get or create session
+    # Get or create session (in-memory fallback)
     if session_id not in chat_sessions:
         chat_sessions[session_id] = []
     
     # Add new messages to session
     for m in request.messages:
         chat_sessions[session_id].append({"role": m.role, "content": m.content})
+        # Persist to Supabase
+        if HAS_SUPABASE:
+            try:
+                supa = get_supabase_state()
+                supa.save_chat_message(session_id, m.role, m.content)
+            except Exception as e:
+                logger.error(f"Failed to save chat message: {e}")
     
     # Execute with full history
     result = fbp_chat_fn(chat_sessions[session_id])
     
     # Store assistant response
     chat_sessions[session_id].append({"role": "assistant", "content": result["response"]})
+    
+    # Persist assistant response to Supabase
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            supa.save_chat_message(session_id, "assistant", result["response"])
+        except Exception as e:
+            logger.error(f"Failed to save assistant message: {e}")
     
     return result
 
@@ -860,6 +943,47 @@ async def clear_chat_session(session_id: str):
     if session_id in chat_sessions:
         del chat_sessions[session_id]
     return {"status": "cleared"}
+
+
+@app.get("/api/chat/sessions")
+async def list_chat_sessions():
+    """List all chat sessions from Supabase."""
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            sessions = supa.get_chat_sessions()
+            return {"sessions": sessions}
+        except Exception as e:
+            logger.error(f"Failed to list sessions: {e}")
+    
+    # Fallback to in-memory sessions
+    return {
+        "sessions": [
+            {"session_id": sid, "message_count": len(msgs), "last_message": msgs[-1]["content"][:50] if msgs else ""}
+            for sid, msgs in chat_sessions.items()
+        ]
+    }
+
+
+@app.get("/api/chat/{session_id}/messages")
+async def get_chat_messages(session_id: str):
+    """Get all messages for a chat session."""
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            messages = supa.get_chat_messages(session_id)
+            if messages:
+                # Also populate in-memory for FBP to use
+                chat_sessions[session_id] = [{"role": m["role"], "content": m["content"]} for m in messages]
+                return {"session_id": session_id, "messages": messages}
+        except Exception as e:
+            logger.error(f"Failed to get messages: {e}")
+    
+    # Fallback to in-memory
+    if session_id in chat_sessions:
+        return {"session_id": session_id, "messages": chat_sessions[session_id]}
+    
+    return {"session_id": session_id, "messages": []}
 
 
 # --- Auto-Redemption Endpoint ---

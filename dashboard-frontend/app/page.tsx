@@ -1,22 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { 
-  RefreshCw, AlertTriangle, TrendingUp, TrendingDown, DollarSign, 
-  Activity, Zap, Wallet, ExternalLink, Brain, Shield, Gauge,
-  BarChart3, Clock, Target, Users, Layers, Settings, PieChart,
-  X, XCircle, Loader2, Gamepad2
+import {
+  TrendingUp, TrendingDown, DollarSign,
+  Activity, Zap, Wallet, ExternalLink, Brain, Shield,
+  BarChart3, Settings, PieChart,
+  X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
+  ChevronRight, AlertTriangle
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
+import { Input } from "@/components/ui/input"
+import { PerformanceGraph } from "@/components/performance-graph"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface DashboardData {
   balance: number
@@ -59,53 +62,21 @@ interface DashboardData {
 
 // Agent color schemes
 const AGENT_THEMES = {
-  safe: {
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/30",
-    text: "text-emerald-400",
-    icon: Shield,
-    allocation: 20,
-  },
-  scalper: {
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/30",
-    text: "text-amber-400",
-    icon: Zap,
-    allocation: 10,
-  },
-  copy: {
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/30",
-    text: "text-violet-400",
-    icon: Users,
-    allocation: 15,
-  },
-  smart: {
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/30",
-    text: "text-blue-400",
-    icon: Brain,
-    allocation: 25,
-  },
-  esports: {
-    bg: "bg-pink-500/10",
-    border: "border-pink-500/30",
-    text: "text-pink-400",
-    icon: Gamepad2,
-    allocation: 30,
-  },
+  safe: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", icon: Shield, allocation: 20 },
+  scalper: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", icon: Zap, allocation: 10 },
+  copy: { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400", icon: Users, allocation: 15 },
+  smart: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", icon: Brain, allocation: 25 },
+  esports: { bg: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400", icon: Gamepad2, allocation: 30 },
 }
 
 export default function PolymarketDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(false)
+  const [activeView, setActiveView] = useState("overview")
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
-  const [activeTab, setActiveTab] = useState("overview")
-  const [rightPanel, setRightPanel] = useState<"terminal" | "chat">("terminal")
   const [closingPosition, setClosingPosition] = useState<string | null>(null)
   const [closingAll, setClosingAll] = useState(false)
-  const [detailedPositions, setDetailedPositions] = useState<any[]>([])
 
   const fetchDashboardData = async () => {
     setLoading(true)
@@ -122,7 +93,7 @@ export default function PolymarketDashboard() {
     }
   }
 
-  const toggleAgent = async (agent: "safe" | "scalper" | "copyTrader") => {
+  const toggleAgent = async (agent: string) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/toggle-agent`, {
@@ -137,23 +108,9 @@ export default function PolymarketDashboard() {
   }
 
   const emergencyStop = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
-      fetchDashboardData()
-    } catch (error) {
-      console.error("Failed to emergency stop:", error)
-    }
-  }
-
-  const toggleDryRun = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      await fetch(`${apiUrl}/api/toggle-dry-run`, { method: "POST" })
-      fetchDashboardData()
-    } catch (error) {
-      console.error("Failed to toggle dry run:", error)
-    }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
+    fetchDashboardData()
   }
 
   const updateMaxBet = async () => {
@@ -166,23 +123,8 @@ export default function PolymarketDashboard() {
         body: JSON.stringify({ key: "max_bet", value: Number(maxBet) }),
       })
       fetchDashboardData()
-    } catch (error) {
-      console.error("Failed to update config:", error)
     } finally {
       setUpdatingConfig(false)
-    }
-  }
-
-  const fetchDetailedPositions = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const response = await fetch(`${apiUrl}/api/positions`)
-      const json = await response.json()
-      if (json.positions) {
-        setDetailedPositions(json.positions)
-      }
-    } catch (error) {
-      console.error("Failed to fetch detailed positions:", error)
     }
   }
 
@@ -190,751 +132,259 @@ export default function PolymarketDashboard() {
     setClosingPosition(tokenId)
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const response = await fetch(`${apiUrl}/api/close-position`, {
+      await fetch(`${apiUrl}/api/close-position`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token_id: tokenId, size }),
       })
-      const result = await response.json()
-      if (result.status === "success" || result.status === "pending") {
-        // Refresh data
-        await fetchDashboardData()
-        await fetchDetailedPositions()
-      } else {
-        alert(`Failed to close: ${result.error || 'Unknown error'}`)
-      }
-    } catch (error) {
-      console.error("Failed to close position:", error)
-      alert("Failed to close position")
+      fetchDashboardData()
     } finally {
       setClosingPosition(null)
     }
   }
 
-  const closeAllPositions = async () => {
-    if (!confirm("Are you sure you want to close ALL positions?")) return
-    
-    setClosingAll(true)
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const response = await fetch(`${apiUrl}/api/close-all-positions`, {
-        method: "POST",
-      })
-      const result = await response.json()
-      alert(`Closed ${result.closed}/${result.total} positions`)
-      await fetchDashboardData()
-      await fetchDetailedPositions()
-    } catch (error) {
-      console.error("Failed to close all positions:", error)
-      alert("Failed to close positions")
-    } finally {
-      setClosingAll(false)
-    }
-  }
-
   useEffect(() => {
     fetchDashboardData()
-    const interval = setInterval(fetchDashboardData, 30000)
+    const interval = setInterval(fetchDashboardData, 10000)
     return () => clearInterval(interval)
   }, [])
 
-  // Fetch detailed positions when positions tab is active
-  useEffect(() => {
-    if (activeTab === "positions") {
-      fetchDetailedPositions()
-    }
-  }, [activeTab])
-
-  if (!data) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4 animate-fade-in">
-          <div className="relative">
-            <div className="h-14 w-14 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Brain className="h-6 w-6 text-primary animate-pulse" />
-            </div>
-          </div>
-          <span className="font-mono text-sm text-muted-foreground">Initializing agents...</span>
-        </div>
-      </div>
-    )
-  }
+  if (!data) return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
 
   const pnlIsPositive = data.unrealizedPnl >= 0
-  const activeAgentCount = [
-    data.agents.safe.running, 
-    data.agents.scalper.running, 
-    data.agents.copyTrader.running,
-    data.agents.smartTrader?.running,
-    data.agents.esportsTrader?.running
-  ].filter(Boolean).length
-  const totalAgents = 5
+  const activeCount = [data.agents.safe, data.agents.scalper, data.agents.copyTrader, data.agents.smartTrader, data.agents.esportsTrader].filter(a => a?.running).length
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-background text-foreground">
-      {/* Top Status Bar - Fixed Height */}
-      <div className="h-12 shrink-0 border-b border-border/40 glass-strong z-50">
-        <div className="h-full mx-auto max-w-[1800px] px-4 flex items-center">
-          <div className="flex-1 flex items-center justify-between">
-            {/* Left: Branding + Status */}
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20">
-                  <Brain className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <div>
-                  <h1 className="font-mono text-sm font-bold tracking-tight">POLYAGENT</h1>
-                  <p className="font-mono text-[10px] text-muted-foreground">{data.lastUpdate}</p>
-                </div>
-              </div>
-              
-              <Separator orientation="vertical" className="h-8 bg-border/40" />
-              
-              {/* Quick Stats */}
-              <div className="hidden md:flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full ${data.riskStatus.safe ? "bg-emerald-500 glow-emerald" : "bg-red-500 glow-red"}`} />
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {data.riskStatus.safe ? "Systems Normal" : "Risk Alert"}
-                  </span>
-                </div>
-                <div className="font-mono text-xs">
-                  <span className="text-muted-foreground">Agents: </span>
-                  <span className="text-foreground font-semibold">{activeAgentCount}/{totalAgents}</span>
-                </div>
-                <div className="font-mono text-xs">
-                  <span className="text-muted-foreground">Mode: </span>
-                  <Badge variant={data.dryRun ? "secondary" : "default"} className="text-[10px] h-5">
-                    {data.dryRun ? "🧪 SIM" : "💸 LIVE"}
-                  </Badge>
-                </div>
-              </div>
-            </div>
+    <div className="flex h-screen w-full bg-background overflow-hidden font-mono text-sm selection:bg-primary/20">
 
-            {/* Right: Controls */}
-            <div className="flex items-center gap-2">
-              {data.walletAddress && (
-                <a
-                  href={`https://polymarket.com/profile/${data.walletAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border/40 bg-secondary/50 px-2.5 py-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:border-border/60 hover:bg-secondary transition-all"
-                >
-                  <Wallet className="h-3 w-3" />
-                  {data.walletAddress.slice(0, 6)}...{data.walletAddress.slice(-4)}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              )}
-              
-              <ThemeToggle />
-              
-              <Button
-                onClick={fetchDashboardData}
-                disabled={loading}
-                size="sm"
-                variant="ghost"
-                className="h-8 gap-1.5 hover:bg-secondary"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-                <span className="hidden sm:inline text-xs">Refresh</span>
-              </Button>
-              
-              <Button 
-                onClick={emergencyStop} 
-                size="sm" 
-                variant="destructive" 
-                className="h-8 gap-1.5 shadow-lg shadow-destructive/20"
-              >
-                <AlertTriangle className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline text-xs">STOP ALL</span>
-              </Button>
-            </div>
-          </div>
+      {/* 1. Ultra-Thin Sidebar Navigation */}
+      <nav className="w-[60px] border-r border-border/40 bg-card/20 flex flex-col items-center py-6 gap-6 z-20">
+        <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
+          <Brain className="h-6 w-6 text-primary" />
         </div>
-      </div>
 
-      {/* Main Content Grid - Fills remaining height */}
-      <div className="flex-1 grid grid-cols-[1fr_380px] min-h-0">
-        {/* Left Panel - Dashboard with tabs */}
-        <main className="overflow-y-auto scrollbar-thin">
-          <div className="max-w-[1400px] p-4 md:p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
-          {/* Tab Navigation */}
-          <TabsList className="glass border border-border/40 p-1 rounded-xl">
-            <TabsTrigger value="overview" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
-              <Gauge className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="agents" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
-              <Brain className="h-4 w-4" />
-              Agents
-            </TabsTrigger>
-            <TabsTrigger value="positions" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
-              <BarChart3 className="h-4 w-4" />
-              Positions
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2 rounded-lg data-[state=active]:bg-primary/15 data-[state=active]:text-primary transition-all">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
+        {['overview', 'agents', 'positions', 'settings'].map((view) => (
+          <button
+            key={view}
+            onClick={() => setActiveView(view)}
+            className={`p-3 rounded-xl transition-all ${activeView === view ? 'bg-primary/20 text-primary shadow-glow' : 'text-muted-foreground hover:bg-white/5'}`}
+          >
+            {view === 'overview' && <LayoutDashboard className="h-5 w-5" />}
+            {view === 'agents' && <Users className="h-5 w-5" />}
+            {view === 'positions' && <BarChart3 className="h-5 w-5" />}
+            {view === 'settings' && <Settings className="h-5 w-5" />}
+          </button>
+        ))}
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-5 animate-fade-in">
-            {/* Portfolio Stats Row */}
-            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 stagger">
-              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
-                      <p className="font-mono text-2xl font-bold mt-1">${data.balance.toFixed(2)}</p>
-                    </div>
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        <div className="mt-auto flex flex-col gap-4">
+          <ThemeToggle />
+          <div className={`h-2 w-2 rounded-full ${data.riskStatus.safe ? "bg-emerald-500" : "bg-red-500"}`} title={data.riskStatus.message} />
+        </div>
+      </nav>
 
-              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Equity</p>
-                      <p className="font-mono text-2xl font-bold mt-1">${data.equity.toFixed(2)}</p>
-                    </div>
-                    <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-blue-400" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      {/* 2. Main Stage (Mission Control) */}
+      <main className="flex-1 flex flex-col min-w-0 p-6 gap-6 relative">
 
-              <Card className="border-border/40 bg-card/60 glass dot-texture animate-float-up">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Unrealized PnL</p>
-                      <p className={`font-mono text-2xl font-bold mt-1 ${pnlIsPositive ? "text-emerald-400" : "text-red-400"}`}>
-                        {pnlIsPositive ? "+" : ""}${data.unrealizedPnl.toFixed(2)}
-                      </p>
-                    </div>
-                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${pnlIsPositive ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
-                      {pnlIsPositive ? (
-                        <TrendingUp className="h-5 w-5 text-emerald-400" />
-                      ) : (
-                        <TrendingDown className="h-5 w-5 text-red-400" />
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Header */}
+        <header className="flex items-center justify-between shrink-0">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">MISSION CONTROL</h1>
+            <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+              <span className={`w-2 h-2 rounded-full ${data.dryRun ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+              {data.dryRun ? 'SIMULATION MODE' : 'LIVE TRADING ACTIVE'}
+              <span className="text-border/60">|</span>
+              LAST UPDATE: {new Date(data.lastUpdate).toLocaleTimeString()}
+            </p>
+          </div>
 
-              <Card className={`border-border/40 glass dot-texture animate-float-up ${data.riskStatus.safe ? "bg-emerald-500/5" : "bg-red-500/5"}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Risk Status</p>
-                      <p className={`font-mono text-xl font-bold mt-1 ${data.riskStatus.safe ? "text-emerald-400" : "text-red-400"}`}>
-                        {data.riskStatus.safe ? "SAFE" : "WARNING"}
-                      </p>
-                      <p className="font-mono text-[10px] text-muted-foreground mt-0.5">{data.riskStatus.message}</p>
-                    </div>
-                    <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${data.riskStatus.safe ? "bg-emerald-500/10" : "bg-red-500/10"}`}>
-                      <Shield className={`h-5 w-5 ${data.riskStatus.safe ? "text-emerald-400" : "text-red-400"}`} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Agent Status Row */}
-            <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 stagger">
-              {[
-                { key: "safe", name: "Safe", data: data.agents.safe, theme: AGENT_THEMES.safe },
-                { key: "scalper", name: "Scalper", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                { key: "copyTrader", name: "Copy", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
-                { key: "smartTrader", name: "Smart", data: data.agents.smartTrader, theme: AGENT_THEMES.smart },
-                { key: "esportsTrader", name: "Esports", data: data.agents.esportsTrader, theme: AGENT_THEMES.esports },
-              ].map(({ key, name, data: agentData, theme }) => {
-                const Icon = theme.icon
-                const isRunning = agentData?.running ?? false
-                const activity = agentData ? ('activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')) : 'N/A'
-                return (
-                  <Card key={key} className={`border-border/40 ${theme.bg} glass transition-all hover:border-border/60 hover:scale-[1.01] animate-float-up`}>
-                    <CardContent className="p-2.5">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-7 w-7 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                            <Icon className={`h-3.5 w-3.5 ${theme.text}`} />
-                          </div>
-                          <div>
-                            <p className="font-mono text-[10px] font-semibold">{name}</p>
-                            <p className="font-mono text-[8px] text-muted-foreground">
-                              {theme.allocation}%
-                            </p>
-                          </div>
-                        </div>
-                        <Switch 
-                          checked={isRunning} 
-                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader" | "smartTrader" | "esportsTrader")}
-                          className="scale-75"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Badge variant={isRunning ? "default" : "secondary"} className="text-[8px] h-4 px-1.5 rounded">
-                          {isRunning ? "ON" : "OFF"}
-                        </Badge>
-                        <span className="font-mono text-[8px] text-muted-foreground truncate max-w-[80px]" title={activity}>
-                          {activity.slice(0, 15)}{activity.length > 15 ? '...' : ''}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-
-            {/* 24h Stats Mini */}
-            <Card className="border-border/40 bg-card/60 glass">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-mono text-xs font-medium text-muted-foreground">24H ACTIVITY</span>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <span className="font-mono text-[10px] text-muted-foreground">Trades</span>
-                      <p className="font-mono text-sm font-bold">{data.stats.tradeCount}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono text-[10px] text-muted-foreground">Volume</span>
-                      <p className="font-mono text-sm font-bold">${data.stats.volume24h.toFixed(2)}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-mono text-[10px] text-muted-foreground">Gas</span>
-                      <p className="font-mono text-sm font-bold">{data.gasSpent.toFixed(4)} POL</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Positions & Trades Row - Compact */}
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="border-border/40 bg-card/60 glass">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-mono text-xs font-medium">Open Positions</span>
-                    </div>
-                    <Badge variant="secondary" className="text-[9px] h-5 rounded-md">
-                      {data.positions.length}
-                    </Badge>
-                  </div>
-                  {data.positions.length === 0 ? (
-                    <div className="flex items-center justify-center py-4 text-muted-foreground">
-                      <p className="font-mono text-[10px]">No open positions</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {data.positions.slice(0, 4).map((pos, i) => (
-                        <div key={`pos-${pos.market}-${i}`} className="flex items-center justify-between rounded-lg border border-border/40 bg-secondary/30 px-2.5 py-2 transition-colors hover:bg-secondary/50">
-                          <p className="font-mono text-[10px] truncate max-w-[180px]">{pos.market}</p>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px]">${pos.value.toFixed(2)}</span>
-                            <span className={`font-mono text-[10px] ${pos.pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                              {pos.pnl >= 0 ? "+" : ""}{pos.pnl.toFixed(2)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/40 bg-card/60 glass">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-mono text-xs font-medium">Recent Trades</span>
-                    </div>
-                    <Badge variant="secondary" className="text-[9px] h-5 rounded-md">
-                      {data.trades.length}
-                    </Badge>
-                  </div>
-                  {data.trades.length === 0 ? (
-                    <div className="flex items-center justify-center py-4 text-muted-foreground">
-                      <p className="font-mono text-[10px]">No recent trades</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {data.trades.slice(0, 4).map((trade, i) => (
-                        <div key={`trade-${trade.market}-${i}`} className="flex items-center justify-between rounded-lg border border-border/40 bg-secondary/30 px-2.5 py-2 transition-colors hover:bg-secondary/50">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-mono text-[10px] truncate max-w-[180px]">{trade.market}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-[10px]">${trade.amount.toFixed(2)}</span>
-                            <Badge variant="outline" className="text-[8px] h-4 px-1.5 rounded">{trade.side}</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Agents Tab */}
-          <TabsContent value="agents" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                { key: "safe", name: "Safe Agent", desc: "High-probability LLM-validated trades", data: data.agents.safe, theme: AGENT_THEMES.safe },
-                { key: "scalper", name: "Crypto Scalper", desc: "15-min crypto volatility (high fees)", data: data.agents.scalper, theme: AGENT_THEMES.scalper },
-                { key: "copyTrader", name: "Copy Trader", desc: "Mirror top Polymarket performers", data: data.agents.copyTrader, theme: AGENT_THEMES.copy },
-                { key: "smartTrader", name: "Smart Trader", desc: "LLM analysis on fee-free markets", data: data.agents.smartTrader, theme: AGENT_THEMES.smart },
-                { key: "esportsTrader", name: "Esports Trader", desc: "Live CS2/LoL stream delay arbitrage", data: data.agents.esportsTrader, theme: AGENT_THEMES.esports },
-              ].map(({ key, name, desc, data: agentData, theme }) => {
-                const Icon = theme.icon
-                const isRunning = agentData?.running ?? false
-                const activity = agentData ? ('activity' in agentData ? agentData.activity : ('lastSignal' in agentData ? agentData.lastSignal : 'Idle')) : 'N/A'
-                return (
-                  <Card key={key} className={`border-border/30 ${theme.bg}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-10 w-10 rounded-xl ${theme.bg} border ${theme.border} flex items-center justify-center`}>
-                            <Icon className={`h-5 w-5 ${theme.text}`} />
-                          </div>
-                          <div>
-                            <p className="font-mono text-sm font-semibold">{name}</p>
-                            <p className="font-mono text-[10px] text-muted-foreground">{desc}</p>
-                          </div>
-                        </div>
-                        <Switch 
-                          checked={isRunning} 
-                          onCheckedChange={() => toggleAgent(key as "safe" | "scalper" | "copyTrader" | "smartTrader" | "esportsTrader")} 
-                        />
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between text-[10px] mb-1">
-                            <span className="font-mono text-muted-foreground">Capital Allocation</span>
-                            <span className="font-mono font-semibold">{theme.allocation}% · ${(data.balance * theme.allocation / 100).toFixed(2)}</span>
-                          </div>
-                          <Progress value={theme.allocation} className="h-1.5" />
-                        </div>
-                        
-                        <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                          <Badge variant={isRunning ? "default" : "secondary"} className="text-[9px]">
-                            {isRunning ? "RUNNING" : "STOPPED"}
-                          </Badge>
-                          <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[150px]">
-                            {activity}
-                          </span>
-                        </div>
-                        
-                        {agentData && 'endpoint' in agentData && (
-                          <div className="pt-2 border-t border-border/30">
-                            <span className="font-mono text-[9px] text-muted-foreground">Endpoint: </span>
-                            <span className="font-mono text-[9px] text-foreground/70 truncate">{agentData.endpoint}</span>
-                          </div>
-                        )}
-
-                        {agentData && 'trades' in agentData && (
-                          <div className="pt-2 border-t border-border/30 flex justify-between">
-                            <span className="font-mono text-[9px] text-muted-foreground">Trades: {agentData.trades}</span>
-                            {'positions' in agentData && (
-                              <span className="font-mono text-[9px] text-muted-foreground">Positions: {agentData.positions}</span>
-                            )}
-                            {'mode' in agentData && (
-                              <Badge variant="outline" className="text-[8px] h-4">{agentData.mode}</Badge>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          </TabsContent>
-
-          {/* Positions Tab */}
-          <TabsContent value="positions" className="space-y-4">
-            {/* Close All Button */}
-            {detailedPositions.length > 0 && (
-              <div className="flex justify-end">
-                <Button
-                  onClick={closeAllPositions}
-                  disabled={closingAll}
-                  variant="destructive"
-                  size="sm"
-                  className="gap-2"
-                >
-                  {closingAll ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <XCircle className="h-4 w-4" />
-                  )}
-                  {closingAll ? "Closing..." : "Close All Positions"}
-                </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={emergencyStop} className="border-red-500/30 hover:bg-red-500/10 hover:text-red-400 text-red-500 h-8 text-xs gap-2">
+              <AlertTriangle className="h-3 w-3" /> STOP ALL
+            </Button>
+            {data.walletAddress && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/40 bg-card/40 text-xs text-muted-foreground">
+                <Wallet className="h-3 w-3" />
+                {data.walletAddress.slice(0, 6)}...
               </div>
             )}
+          </div>
+        </header>
 
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="border-border/30 bg-card/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-mono text-xs font-medium">All Open Positions</span>
+        {/* Dynamic View Content */}
+        <div className="flex-1 grid grid-rows-[auto_1fr_auto] gap-6 min-h-0 overflow-y-auto pr-2 pb-2">
+
+          {/* KPI Row */}
+          <div className="grid grid-cols-3 gap-6 shrink-0 h-[100px]">
+            <Card className="glass flex items-center px-6 gap-4 border-border/40">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center"><DollarSign className="h-5 w-5 text-primary" /></div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Balance</p>
+                <p className="text-2xl font-bold">${data.balance.toFixed(2)}</p>
+              </div>
+            </Card>
+            <Card className="glass flex items-center px-6 gap-4 border-border/40">
+              <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center"><TrendingUp className="h-5 w-5 text-blue-400" /></div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Equity</p>
+                <p className="text-2xl font-bold">${data.equity.toFixed(2)}</p>
+              </div>
+            </Card>
+            <Card className="glass flex items-center px-6 gap-4 border-border/40">
+              <div className={`h-10 w-10 rounded-full flex items-center justify-center ${pnlIsPositive ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                {pnlIsPositive ? <TrendingUp className="h-5 w-5 text-emerald-400" /> : <TrendingDown className="h-5 w-5 text-red-400" />}
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Unrealized PnL</p>
+                <p className={`text-2xl font-bold ${pnlIsPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {pnlIsPositive ? '+' : ''}{data.unrealizedPnl.toFixed(2)}
+                </p>
+              </div>
+            </Card>
+          </div>
+
+          {/* Graph Section / or Detailed View */}
+          {activeView === 'overview' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-[300px]">
+              <div className="md:col-span-2 lg:col-span-3 h-full">
+                <PerformanceGraph />
+              </div>
+              <div className="flex flex-col gap-4">
+                <Card className="flex-1 glass border-border/40 p-4">
+                  <h3 className="text-xs font-semibold mb-4 flex items-center gap-2"><Activity className="h-4 w-4" /> Market Activity</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">Active Agents</span>
+                      <span className="font-bold">{activeCount}/5</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={fetchDetailedPositions}
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                      >
-                        <RefreshCw className="h-3 w-3" />
-                      </Button>
-                      <Badge variant="secondary" className="text-[9px]">{detailedPositions.length || data.positions.length}</Badge>
+                    <Progress value={(activeCount / 5) * 100} className="h-1.5" />
+                    <div className="flex justify-between items-center text-xs pt-2">
+                      <span className="text-muted-foreground">24h Volume</span>
+                      <span className="font-bold">${data.stats.volume24h.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-muted-foreground">Trades</span>
+                      <span className="font-bold">{data.stats.tradeCount}</span>
                     </div>
                   </div>
-                  {(detailedPositions.length === 0 && data.positions.length === 0) ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <Layers className="h-8 w-8 mb-2 opacity-30" />
-                      <p className="font-mono text-xs">No open positions</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                      {(detailedPositions.length > 0 ? detailedPositions : data.positions).map((pos, i) => (
-                        <div key={`pos-full-${pos.token_id || pos.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5 group hover:border-border/50 transition-colors">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-mono text-xs font-medium truncate">{pos.market}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <Badge variant="outline" className="text-[9px] h-4">{pos.side}</Badge>
-                              <span className="font-mono text-[9px] text-muted-foreground">
-                                {pos.size ? `${pos.size.toFixed(1)} shares @ ` : ''}${pos.cost?.toFixed(2) || '0.00'}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
-                              <p className="font-mono text-xs font-semibold">${pos.value?.toFixed(2) || '0.00'}</p>
-                              <p className={`font-mono text-[10px] ${(pos.pnl || 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                                {(pos.pnl || 0) >= 0 ? "+" : ""}{pos.pnl_pct?.toFixed(1) || ((pos.pnl / (pos.cost || 1)) * 100).toFixed(1)}%
-                              </p>
-                            </div>
-                            {pos.token_id && (
-                              <Button
-                                onClick={() => closePosition(pos.token_id, pos.size)}
-                                disabled={closingPosition === pos.token_id}
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 transition-all"
-                              >
-                                {closingPosition === pos.token_id ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <X className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/30 bg-card/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-mono text-xs font-medium">Trade History</span>
-                    </div>
-                    <Badge variant="secondary" className="text-[9px]">{data.trades.length}</Badge>
-                  </div>
-                  {data.trades.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <BarChart3 className="h-8 w-8 mb-2 opacity-30" />
-                      <p className="font-mono text-xs">No trade history</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                      {data.trades.map((trade, i) => (
-                        <div key={`trade-full-${trade.market}-${i}`} className="flex items-center justify-between rounded border border-border/30 bg-background/50 p-2.5">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-mono text-xs font-medium truncate">{trade.market}</p>
-                            <p className="font-mono text-[9px] text-muted-foreground mt-0.5">{trade.time}</p>
-                          </div>
-                          <div className="text-right ml-3">
-                            <p className="font-mono text-xs font-semibold">${trade.amount.toFixed(2)}</p>
-                            <Badge variant="outline" className="text-[9px] h-4">{trade.side}</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                </Card>
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card className="border-border/30 bg-card/30">
-                <CardContent className="p-4 space-y-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-mono text-xs font-medium">Trading Configuration</span>
-                  </div>
-                  
-                  {/* Max Bet */}
-                  <div className="space-y-1.5">
-                    <span className="font-mono text-[10px] text-muted-foreground">Maximum Bet Size (USDC)</span>
-                    <div className="flex items-center gap-2">
-                      <input
+          {/* Agents Grid (Compact) */}
+          {(activeView === 'overview' || activeView === 'agents') && (
+            <div className="grid grid-cols-5 gap-4 shrink-0">
+              {Object.entries(data.agents).map(([key, agent]: [string, any]) => {
+                const theme = AGENT_THEMES[key as keyof typeof AGENT_THEMES] || AGENT_THEMES.safe
+                const Icon = theme.icon
+                return (
+                  <Card key={key} className={`border-border/40 ${agent.running ? theme.bg : 'bg-card/20'} glass transition-all hover:scale-[1.02]`}>
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <Icon className={`h-4 w-4 ${theme.text}`} />
+                        <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75 origin-top-right" />
+                      </div>
+                      <p className="font-semibold text-xs mb-0.5 capitalize">{key.replace('Trader', '')}</p>
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-1.5 h-1.5 rounded-full ${agent.running ? 'bg-emerald-500 animate-pulse' : 'bg-muted'}`} />
+                        <p className="text-[9px] text-muted-foreground truncate opacity-70">{agent.lastSignal || agent.activity || 'Idle'}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Positions Table (Minified) */}
+          {(activeView === 'overview' || activeView === 'positions') && (
+            <Card className="flex-1 min-h-[200px] border-border/40 glass">
+              <CardHeader className="py-3 px-4 border-b border-border/40 flex flex-row items-center justify-between">
+                <CardTitle className="text-xs flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5" /> Active Positions ({data.positions.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 overflow-auto max-h-[300px]">
+                {data.positions.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-muted-foreground">No open positions</div>
+                ) : (
+                  <table className="w-full text-left">
+                    <thead className="bg-muted/30 text-[10px] uppercase text-muted-foreground sticky top-0 backdrop-blur-md">
+                      <tr>
+                        <th className="px-4 py-2 font-medium">Market</th>
+                        <th className="px-4 py-2 font-medium text-right">Value</th>
+                        <th className="px-4 py-2 font-medium text-right">PnL</th>
+                        <th className="px-4 py-2 font-medium w-[40px]"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/30">
+                      {data.positions.map((pos, i) => (
+                        <tr key={i} className="hover:bg-muted/20 text-xs group">
+                          <td className="px-4 py-2 truncate max-w-[200px]">{pos.market}</td>
+                          <td className="px-4 py-2 text-right text-muted-foreground">${pos.value.toFixed(2)}</td>
+                          <td className={`px-4 py-2 text-right ${(pos.pnl || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {(pos.pnl || 0) >= 0 ? '+' : ''}{pos.pnl.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-2 text-right">
+                            {pos.value > 0 && <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-red-400 rounded transition-all" onClick={() => closePosition(pos.market /* fallback if no id */, 1)}><X className="h-3 w-3" /></button>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Settings View */}
+          {activeView === 'settings' && (
+            <div className="grid grid-cols-2 gap-6">
+              <Card className="glass border-border/40">
+                <CardHeader><CardTitle className="text-sm">Risk Configuration</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs text-muted-foreground">Max Bet Amount (USDC)</label>
+                    <div className="flex gap-2">
+                      <Input
                         type="number"
                         step="0.1"
-                        min="0.1"
-                        className="flex-1 h-8 rounded-md border border-border/50 bg-background px-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/50"
                         value={maxBet}
-                        onChange={(e) => setMaxBet(parseFloat(e.target.value) || 0)}
+                        onChange={(e) => setMaxBet(parseFloat(e.target.value))}
+                        className="h-8 text-xs font-mono"
                       />
-                      <Button 
-                        onClick={updateMaxBet} 
-                        disabled={updatingConfig}
-                        size="sm"
-                        className="h-8"
-                      >
-                        {updatingConfig ? "..." : "Update"}
+                      <Button size="sm" onClick={updateMaxBet} disabled={updatingConfig}>
+                        {updatingConfig ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
                       </Button>
                     </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Trading Mode */}
-                  <div className="flex items-center justify-between rounded border border-border/50 bg-background p-3">
-                    <div>
-                      <p className="font-mono text-xs font-semibold">
-                        {data.dryRun ? "🧪 Simulation" : "💸 Live"}
-                      </p>
-                      <p className="font-mono text-[9px] text-muted-foreground mt-0.5">
-                        {data.dryRun ? "No real money at risk" : "Real trades on Polymarket"}
-                      </p>
-                    </div>
-                    <Switch 
-                      checked={!data.dryRun} 
-                      onCheckedChange={toggleDryRun}
-                    />
-                  </div>
-
-                  <Separator />
-
-                  {/* Emergency Stop */}
-                  <Button 
-                    onClick={emergencyStop} 
-                    variant="destructive" 
-                    className="w-full h-10 gap-2"
-                  >
-                    <AlertTriangle className="h-4 w-4" />
-                    EMERGENCY STOP
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/30 bg-card/30">
-                <CardContent className="p-4 space-y-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <PieChart className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-mono text-xs font-medium">Capital Allocation</span>
-                  </div>
-                  
-                  {[
-                    { name: "Safe Agent", pct: 20, theme: AGENT_THEMES.safe },
-                    { name: "Scalper", pct: 10, theme: AGENT_THEMES.scalper },
-                    { name: "Copy Trader", pct: 15, theme: AGENT_THEMES.copy },
-                    { name: "Smart Trader", pct: 25, theme: AGENT_THEMES.smart },
-                    { name: "Esports", pct: 30, theme: AGENT_THEMES.esports },
-                  ].map(({ name, pct, theme }) => (
-                    <div key={name} className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="font-mono text-[10px]">{name}</span>
-                        <span className="font-mono text-[10px] font-semibold">{pct}% · ${(data.balance * pct / 100).toFixed(2)}</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-background overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${theme.text.replace('text-', 'bg-')}`}
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <Separator className="my-2" />
-                  
-                  <div className="rounded border border-border/30 bg-background/50 p-3">
-                    <p className="font-mono text-[10px] text-muted-foreground">Total Balance</p>
-                    <p className="font-mono text-xl font-bold">${data.balance.toFixed(2)}</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-            </Tabs>
-          </div>
-        </main>
+          )}
+        </div>
+      </main>
 
-        {/* Right Panel - LLM Terminal / FBP Chat */}
-        <aside className="border-l border-border/40 flex flex-col min-h-0 bg-card/30">
-          {/* Panel Toggle */}
-          <div className="flex border-b border-border/40 glass-strong">
-            <button
-              onClick={() => setRightPanel("terminal")}
-              className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
-                rightPanel === "terminal"
-                  ? "bg-secondary text-foreground border-b-2 border-emerald-500"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-              }`}
-            >
-              <Activity className="w-3.5 h-3.5 inline mr-1.5" />
-              LLM Activity
-            </button>
-            <button
-              onClick={() => setRightPanel("chat")}
-              className={`flex-1 px-4 py-2.5 text-xs font-medium transition-all ${
-                rightPanel === "chat"
-                  ? "bg-secondary text-foreground border-b-2 border-violet-500"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-              }`}
-            >
-              <Brain className="w-3.5 h-3.5 inline mr-1.5" />
-              FBP Agent
-            </button>
+      {/* 3. Right Intelligence Panel */}
+      <aside className="w-[380px] border-l border-border/40 bg-card/20 flex flex-col z-10">
+        <Tabs defaultValue="terminal" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="w-full justify-start rounded-none border-b border-border/40 bg-transparent p-0 h-10">
+            <TabsTrigger value="terminal" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-muted/10">
+              <Terminal className="mr-2 h-4 w-4" /> Network Feed
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-muted/10">
+              <Brain className="mr-2 h-4 w-4" /> FBP Agent
+            </TabsTrigger>
+          </TabsList>
+          <div className="flex-1 overflow-hidden relative">
+            <TabsContent value="terminal" className="h-full mt-0 absolute inset-0">
+              <LLMTerminal />
+            </TabsContent>
+            <TabsContent value="chat" className="h-full mt-0 absolute inset-0">
+              <FBPChat />
+            </TabsContent>
           </div>
-          
-          {/* Panel Content */}
-          <div className="flex-1 min-h-0">
-            {rightPanel === "terminal" ? <LLMTerminal /> : <FBPChat />}
-          </div>
-        </aside>
-      </div>
+        </Tabs>
+      </aside>
+
     </div>
   )
 }

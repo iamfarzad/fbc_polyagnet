@@ -149,3 +149,20 @@ CREATE TRIGGER agent_state_updated_at
 CREATE TRIGGER positions_updated_at
     BEFORE UPDATE ON positions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Portfolio Snapshots (for historical graphs)
+CREATE TABLE IF NOT EXISTS portfolio_snapshots (
+    id SERIAL PRIMARY KEY,
+    balance DECIMAL(10,4),
+    equity DECIMAL(10,4),
+    unrealized_pnl DECIMAL(10,4),
+    cost_basis DECIMAL(10,4),
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    metadata JSONB DEFAULT '{}'
+);
+
+CREATE INDEX IF NOT EXISTS idx_snapshots_time ON portfolio_snapshots(timestamp DESC);
+
+-- RLS for snapshots
+ALTER TABLE portfolio_snapshots ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all operations on portfolio_snapshots" ON portfolio_snapshots FOR ALL USING (true);
