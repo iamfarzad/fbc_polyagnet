@@ -469,6 +469,14 @@ def update_config(req: ConfigUpdateRequest):
     # Map friendly keys to state keys
     if req.key == "max_bet":
         state["dynamic_max_bet"] = req.value
+    elif req.key == "dry_run":
+        # Global Dry Run Toggle
+        new_val = bool(req.value)
+        state["dry_run"] = new_val
+        if HAS_SUPABASE:
+            try:
+                get_supabase_state().update_agent_state("global", {"is_dry_run": new_val})
+            except: pass
     
     save_state(state)
     return {"status": "success", "state": state}

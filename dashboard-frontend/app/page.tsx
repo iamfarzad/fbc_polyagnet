@@ -8,7 +8,7 @@ import {
   Activity, Zap, Wallet, ExternalLink, Brain, Shield,
   BarChart3, Settings, PieChart,
   X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
-  ChevronRight, AlertTriangle, Monitor, Trophy
+  ChevronRight, AlertTriangle, Monitor, Trophy, Lock
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -18,8 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
-import { PerformanceGraph } from "@/components/performance-graph"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface DashboardData {
   balance: number
@@ -63,37 +62,29 @@ interface DashboardData {
 
 // Agent color schemes
 const AGENT_THEMES = {
-  safe: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", icon: Shield, allocation: 20 },
-  scalper: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", icon: Zap, allocation: 10 },
-  copy: { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400", icon: Users, allocation: 15 },
-  smart: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", icon: Brain, allocation: 25 },
-  esports: { bg: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400", icon: Gamepad2, allocation: 30 },
-  sports: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400", icon: Trophy, allocation: 20 },
+  safe: { bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400", icon: Shield, label: "Safety" },
+  scalper: { bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400", icon: Zap, label: "Scalper" },
+  copy: { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400", icon: Users, label: "Copy Trading" },
+  smart: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", icon: Brain, label: "Smart (Politics)" },
+  esports: { bg: "bg-pink-500/10", border: "border-pink-500/30", text: "text-pink-400", icon: Gamepad2, label: "eSports" },
+  sports: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400", icon: Trophy, label: "Sports Trader" },
 }
 
-export default function PolymarketDashboard() {
+export default function ProDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeView, setActiveView] = useState("overview")
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
-  const [closingPosition, setClosingPosition] = useState<string | null>(null)
-
-  // Mobile specific state
-  const [mobileTab, setMobileTab] = useState("overview") // overview, agents, positions, intel, settings
 
   const fetchDashboardData = async () => {
-    setLoading(true)
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       const response = await fetch(`${apiUrl}/api/dashboard`)
       const json = await response.json()
       setData(json)
-      if (json.maxBetAmount !== undefined) setMaxBet(json.maxBetAmount)
+      if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -111,20 +102,14 @@ export default function PolymarketDashboard() {
     }
   }
 
-  const emergencyStop = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-    await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
-    fetchDashboardData()
-  }
-
-  const updateMaxBet = async () => {
+  const toggleDryRun = async (current: boolean) => {
     setUpdatingConfig(true)
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
       await fetch(`${apiUrl}/api/update-config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: "max_bet", value: Number(maxBet) }),
+        body: JSON.stringify({ key: "dry_run", value: current ? 0 : 1 }), // Toggle inverted
       })
       fetchDashboardData()
     } finally {
@@ -132,306 +117,218 @@ export default function PolymarketDashboard() {
     }
   }
 
-  const closePosition = async (tokenId: string, size: number) => {
-    // Logic for closePosition - existing logic
-    setClosingPosition(tokenId)
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      await fetch(`${apiUrl}/api/close-position`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token_id: tokenId, size }),
-      })
-      fetchDashboardData()
-    } finally {
-      setClosingPosition(null)
-    }
+  const emergencyStop = async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+    await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
+    fetchDashboardData()
   }
 
   useEffect(() => {
     fetchDashboardData()
-    const interval = setInterval(fetchDashboardData, 10000)
+    const interval = setInterval(fetchDashboardData, 5000) // Fast refresh
     return () => clearInterval(interval)
   }, [])
 
-  // Sync mobile tab to active view (except intel)
-  useEffect(() => {
-    if (activeView !== 'intel') {
-      setMobileTab(activeView)
-    }
-  }, [activeView])
-
   if (!data) return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
 
-  const pnlIsPositive = data.unrealizedPnl >= 0
-  const activeCount = [data.agents.safe, data.agents.scalper, data.agents.copyTrader, data.agents.smartTrader, data.agents.esportsTrader].filter(a => a?.running).length
-
-  // Decide what to show based on screen size and active tabs
-  // Desktop: Sidebar + Main + Intel Panel
-  // Mobile: Bottom Bar + Main Content Area (which swaps between views)
-
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-background font-mono text-sm selection:bg-primary/20 pb-16 lg:pb-0 lg:h-screen lg:overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground font-mono text-xs flex flex-col">
 
-      {/* 1. Desktop Sidebar Navigation (Hidden on Mobile) */}
-      <nav className="hidden lg:flex w-[60px] border-r border-border/40 bg-card/20 flex-col items-center py-6 gap-6 z-20 h-full">
-        <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
-          <Brain className="h-6 w-6 text-primary" />
-        </div>
-
-        {['overview', 'agents', 'positions', 'settings'].map((view) => (
-          <button
-            key={view}
-            onClick={() => setActiveView(view)}
-            className={`p-3 rounded-xl transition-all ${activeView === view ? 'bg-primary/20 text-primary shadow-glow' : 'text-muted-foreground hover:bg-white/5'}`}
-            title={view.charAt(0).toUpperCase() + view.slice(1)}
-          >
-            {view === 'overview' && <LayoutDashboard className="h-5 w-5" />}
-            {view === 'agents' && <Users className="h-5 w-5" />}
-            {view === 'positions' && <BarChart3 className="h-5 w-5" />}
-            {view === 'settings' && <Settings className="h-5 w-5" />}
-          </button>
-        ))}
-
-        <div className="mt-auto flex flex-col gap-4">
-          <ThemeToggle />
-          <div className={`h-2 w-2 rounded-full ${data.riskStatus.safe ? "bg-emerald-500" : "bg-red-500"}`} title={data.riskStatus.message} />
-        </div>
-      </nav>
-
-      {/* 2. Main Stage (Mission Control) */}
-      {/* Hide on mobile if "intel" tab is selected */}
-      <main className={`flex-1 flex flex-col min-w-0 p-4 lg:p-6 gap-4 lg:gap-6 relative ${mobileTab === 'intel' ? 'hidden lg:flex' : 'flex'}`}>
-
-        {/* Header */}
-        <header className="flex flex-wrap items-center justify-between shrink-0 gap-4">
-          <div>
-            <h1 className="text-lg lg:text-xl font-bold tracking-tight flex items-center gap-2">
-              <span className="lg:hidden h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center"><Brain className="h-4 w-4 text-primary" /></span>
-              MISSION CONTROL
-            </h1>
-            <p className="text-[10px] lg:text-xs text-muted-foreground flex items-center gap-2 mt-1">
-              <span className={`w-2 h-2 rounded-full ${data.dryRun ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-              {data.dryRun ? 'SIM' : 'LIVE'}
-              <span className="text-border/60">|</span>
-              {new Date(data.lastUpdate).toLocaleTimeString()}
-            </p>
+      {/* 1. Header: Status & Global Controls */}
+      <header className="border-b border-border/40 bg-card/20 backdrop-blur sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Brain className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm tracking-tight">POLYAGENT PRO</span>
+              <Badge variant="outline" className="text-[10px] h-5">{data.walletAddress.slice(0, 6)}...</Badge>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 lg:gap-3">
-            <div className="hidden lg:block"><ThemeToggle /></div>
-            <Button variant="outline" size="sm" onClick={emergencyStop} className="border-red-500/30 hover:bg-red-500/10 hover:text-red-400 text-red-500 h-8 text-xs gap-2">
-              <AlertTriangle className="h-3 w-3" /> <span className="hidden sm:inline">STOP ALL</span>
-            </Button>
-            {data.walletAddress && (
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/40 bg-card/40 text-xs text-muted-foreground">
-                <Wallet className="h-3 w-3" />
-                {data.walletAddress.slice(0, 6)}...
-              </div>
-            )}
-          </div>
-        </header>
-
-        {/* Dynamic View Content */}
-        <div className="flex-1 flex flex-col gap-4 lg:gap-6 min-h-0 lg:overflow-y-auto lg:pr-2 lg:pb-2">
-
-          {/* KPI Row - Responsive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 shrink-0">
-            <Card className="glass flex items-center px-4 py-3 lg:px-6 lg:gap-4 gap-3 border-border/40">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center"><DollarSign className="h-5 w-5 text-primary" /></div>
+          <div className="flex items-center gap-6">
+            {/* Financial Summary (Compact) */}
+            <div className="hidden md:flex gap-6 text-xs">
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Balance</p>
-                <p className="text-xl lg:text-2xl font-bold">${data.balance.toFixed(2)}</p>
-              </div>
-            </Card>
-            <Card className="glass flex items-center px-4 py-3 lg:px-6 lg:gap-4 gap-3 border-border/40">
-              <div className="h-10 w-10 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center"><TrendingUp className="h-5 w-5 text-blue-400" /></div>
-              <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Equity</p>
-                <p className="text-xl lg:text-2xl font-bold">${data.equity.toFixed(2)}</p>
-              </div>
-            </Card>
-            <Card className="glass flex items-center px-4 py-3 lg:px-6 lg:gap-4 gap-3 border-border/40">
-              <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center ${pnlIsPositive ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
-                {pnlIsPositive ? <TrendingUp className="h-5 w-5 text-emerald-400" /> : <TrendingDown className="h-5 w-5 text-red-400" />}
+                <span className="text-muted-foreground mr-2">CASH</span>
+                <span className="font-bold">${data.balance.toFixed(2)}</span>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Unrealized PnL</p>
-                <p className={`text-xl lg:text-2xl font-bold ${pnlIsPositive ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {pnlIsPositive ? '+' : ''}{data.unrealizedPnl.toFixed(2)}
-                </p>
+                <span className="text-muted-foreground mr-2">EQUITY</span>
+                <span className="font-bold text-blue-400">${data.equity.toFixed(2)}</span>
               </div>
-            </Card>
-          </div>
-
-          {/* Graph Section */}
-          {(activeView === 'overview') && (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 min-h-[300px]">
-              <div className="lg:col-span-3 h-[250px] lg:h-full">
-                <PerformanceGraph />
-              </div>
-              <div className="flex flex-col gap-4">
-                <Card className="flex-1 glass border-border/40 p-4">
-                  <h3 className="text-xs font-semibold mb-4 flex items-center gap-2"><Activity className="h-4 w-4" /> Market Activity</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-muted-foreground">Active Agents</span>
-                      <span className="font-bold">{activeCount}/5</span>
-                    </div>
-                    <Progress value={(activeCount / 5) * 100} className="h-1.5" />
-                    <div className="flex justify-between items-center text-xs pt-2">
-                      <span className="text-muted-foreground">Volume (24h)</span>
-                      <span className="font-bold">${data.stats.volume24h.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-muted-foreground">Trades</span>
-                      <span className="font-bold">{data.stats.tradeCount}</span>
-                    </div>
-                  </div>
-                </Card>
+              <div>
+                <span className="text-muted-foreground mr-2">PnL</span>
+                <span className={`font-bold ${data.unrealizedPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {data.unrealizedPnl >= 0 ? '+' : ''}{data.unrealizedPnl.toFixed(2)}
+                </span>
               </div>
             </div>
-          )}
 
-          {/* Agents Grid (Responsive) */}
-          {(activeView === 'overview' || activeView === 'agents') && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 shrink-0">
-              {Object.entries(data.agents).map(([key, agent]: [string, any]) => {
-                const theme = AGENT_THEMES[key as keyof typeof AGENT_THEMES] || AGENT_THEMES.safe
-                const Icon = theme.icon
-                // Don't show stopped agents on mobile overview to save space, unless in agents tab
-                if (activeView === 'overview' && !agent.running && 'ontouchstart' in window) return null; // Simple mobile check
+            <Separator orientation="vertical" className="h-6 hidden md:block" />
 
-                return (
-                  <Card key={key} className={`border-border/40 ${agent.running ? theme.bg : 'bg-card/20'} glass transition-all hover:scale-[1.02]`}>
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <Icon className={`h-4 w-4 ${theme.text}`} />
-                        <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75 origin-top-right" />
-                      </div>
-                      <p className="font-semibold text-xs mb-0.5 capitalize">{key.replace('Trader', '')}</p>
-                      <div className="flex items-center gap-1.5">
-                        <div className={`w-1.5 h-1.5 rounded-full ${agent.running ? 'bg-emerald-500 animate-pulse' : 'bg-muted'}`} />
-                        <p className="text-[9px] text-muted-foreground truncate opacity-70">{agent.lastSignal || agent.activity || 'Idle'}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+            {/* Global Toggles */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-bold ${data.dryRun ? 'text-amber-500' : 'text-muted-foreground'}`}>SIM</span>
+                <Switch
+                  checked={!data.dryRun}
+                  onCheckedChange={() => toggleDryRun(data.dryRun)}
+                  className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-amber-500 border-none h-5 w-9"
+                />
+                <span className={`text-[10px] font-bold ${!data.dryRun ? 'text-emerald-500' : 'text-muted-foreground'}`}>LIVE</span>
+              </div>
+
+              <Button variant="ghost" size="icon" onClick={emergencyStop} className="text-red-500 hover:text-red-600 hover:bg-red-500/10">
+                <AlertTriangle className="h-4 w-4" />
+              </Button>
+              <ThemeToggle />
             </div>
-          )}
+          </div>
+        </div>
+      </header>
 
-          {/* Positions Table (Minified) */}
-          {(activeView === 'overview' || activeView === 'positions') && (
-            <Card className="flex-1 min-h-[200px] border-border/40 glass">
-              <CardHeader className="py-3 px-4 border-b border-border/40 flex flex-row items-center justify-between">
-                <CardTitle className="text-xs flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5" /> Active Positions ({data.positions.length})</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 overflow-auto max-h-[400px]">
-                {data.positions.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-muted-foreground">No open positions</div>
-                ) : (
-                  <table className="w-full text-left">
-                    <thead className="bg-muted/30 text-[10px] uppercase text-muted-foreground sticky top-0 backdrop-blur-md">
-                      <tr>
-                        <th className="px-4 py-2 font-medium">Market</th>
-                        <th className="px-4 py-2 font-medium text-right hidden sm:table-cell">Value</th>
-                        <th className="px-4 py-2 font-medium text-right">PnL</th>
-                        <th className="px-4 py-2 font-medium w-[40px]"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/30">
-                      {data.positions.map((pos, i) => (
-                        <tr key={i} className="hover:bg-muted/20 text-xs group">
-                          <td className="px-4 py-2 truncate max-w-[150px] sm:max-w-[250px]">
-                            {pos.market}
-                            <div className="sm:hidden text-[9px] text-muted-foreground pt-0.5">${pos.value.toFixed(2)}</div>
-                          </td>
-                          <td className="px-4 py-2 text-right text-muted-foreground hidden sm:table-cell">${pos.value.toFixed(2)}</td>
-                          <td className={`px-4 py-2 text-right ${(pos.pnl || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {(pos.pnl || 0) >= 0 ? '+' : ''}{pos.pnl.toFixed(2)}
-                          </td>
-                          <td className="px-4 py-2 text-right">
-                            {pos.value > 0 && <button className="opacity-100 lg:opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-red-400 rounded transition-all" onClick={() => closePosition(pos.market, 1)}><X className="h-3 w-3" /></button>}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
+      {/* 2. Main Content Grid */}
+      <main className="flex-1 container mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+        {/* Left Column: Agents & Config (25%) */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <Card className="border-border/40 glass">
+            <CardHeader className="py-3 px-4 border-b border-border/40"><CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2"><Zap className="h-3.5 w-3.5" /> Active Agents</CardTitle></CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-border/20">
+                {Object.entries(data.agents).map(([key, agent]: [string, any]) => {
+                  const theme = AGENT_THEMES[key as keyof typeof AGENT_THEMES] || AGENT_THEMES.safe
+                  const Icon = theme.icon
+                  return (
+                    <div key={key} className="p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`h-8 w-8 rounded-lg ${theme.bg} flex items-center justify-center`}>
+                          <Icon className={`h-4 w-4 ${theme.text}`} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-xs capitalize">{theme.label}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <div className={`w-1.5 h-1.5 rounded-full ${agent.running ? 'bg-emerald-500 animate-pulse' : 'bg-muted'}`} />
+                            <p className="text-[10px] text-muted-foreground truncate max-w-[100px]">{agent.activity || 'Idle'}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75" />
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Risk Config */}
+          <Card className="border-border/40 glass">
+            <CardHeader className="py-3 px-4 border-b border-border/40"><CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2"><Lock className="h-3.5 w-3.5" /> Risk Controls</CardTitle></CardHeader>
+            <CardContent className="p-4 space-y-4">
+              <div>
+                <label className="text-[10px] text-muted-foreground mb-1.5 block">MAX BET / POSITION (USDC)</label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={maxBet}
+                    onChange={(e) => setMaxBet(parseFloat(e.target.value))}
+                    className="h-8 text-xs font-mono"
+                  />
+                  {/* Auto-save on blur/enter would be better, adding basic save btn for now */}
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
+                <span>RISK CHECK</span>
+                <span className={data.riskStatus.safe ? "text-emerald-400" : "text-amber-400"}>{data.riskStatus.message}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Center Column: Data & Trade Positions (75%) */}
+        <div className="lg:col-span-3 flex flex-col gap-4">
+
+          {/* Open Positions Table */}
+          <Card className="border-border/40 glass flex-1 min-h-[300px]">
+            <CardHeader className="py-3 px-4 border-b border-border/40 flex flex-row items-center justify-between">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5" /> Active Portoflio ({data.positions.length})</CardTitle>
+              <span className="text-[10px] text-muted-foreground">Market Value: ${data.stats.volume24h.toFixed(2)}</span>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader className="bg-muted/10">
+                  <TableRow className="hover:bg-transparent border-border/20">
+                    <TableHead className="h-8 text-[10px] font-bold">MARKET</TableHead>
+                    <TableHead className="h-8 text-[10px] font-bold">SIDE</TableHead>
+                    <TableHead className="h-8 text-[10px] font-bold text-right">COST</TableHead>
+                    <TableHead className="h-8 text-[10px] font-bold text-right">VALUE</TableHead>
+                    <TableHead className="h-8 text-[10px] font-bold text-right">PnL</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.positions.length === 0 ? (
+                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active positions</TableCell></TableRow>
+                  ) : (
+                    data.positions.map((pos, i) => (
+                      <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs">
+                        <TableCell className="font-medium max-w-[200px] truncate">{pos.market}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={`text-[10px] border-border/40 ${pos.side.includes('Yes') ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
+                            {pos.side}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">${pos.cost.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-medium">${pos.value.toFixed(2)}</TableCell>
+                        <TableCell className={`text-right font-bold ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {pos.pnl >= 0 ? '+' : ''}{pos.pnl.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* Trade History & Logs Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[300px]">
+
+            {/* History */}
+            <Card className="border-border/40 glass flex flex-col">
+              <CardHeader className="py-2 px-4 border-b border-border/40"><CardTitle className="text-xs font-bold uppercase tracking-wider">Recent Activity</CardTitle></CardHeader>
+              <CardContent className="flex-1 overflow-auto p-0">
+                <Table>
+                  <TableBody>
+                    {data.trades.map((t, i) => (
+                      <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-[10px]">
+                        <TableCell className="text-muted-foreground w-[80px]">{t.time.split(' ')[1] || t.time}</TableCell>
+                        <TableCell className="truncate max-w-[120px]">{t.market}</TableCell>
+                        <TableCell className="text-right">
+                          <span className={`px-1.5 py-0.5 rounded ${t.side.includes('Buy') ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                            {t.side}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">${t.amount.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
-          )}
 
-          {/* Settings View */}
-          {activeView === 'settings' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="glass border-border/40">
-                <CardHeader><CardTitle className="text-sm">Risk Configuration</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs text-muted-foreground">Max Bet Amount (USDC)</label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={maxBet}
-                        onChange={(e) => setMaxBet(parseFloat(e.target.value))}
-                        className="h-8 text-xs font-mono"
-                      />
-                      <Button size="sm" onClick={updateMaxBet} disabled={updatingConfig}>
-                        {updatingConfig ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Terminal View */}
+            <div className="border border-border/40 rounded-xl bg-black/40 overflow-hidden flex flex-col">
+              <div className="bg-muted/10 px-3 py-1.5 border-b border-border/40 text-[10px] text-muted-foreground flex justify-between">
+                <span>TERMINAL</span>
+              </div>
+              <div className="flex-1 relative">
+                <LLMTerminal />
+              </div>
             </div>
-          )}
+
+          </div>
         </div>
       </main>
-
-      {/* 3. Right Intelligence Panel (Desktop) / Mobile Tab Content */}
-      <aside className={`w-full lg:w-[380px] border-l border-border/40 bg-card/20 flex flex-col z-10 ${mobileTab === 'intel' ? 'flex flex-1' : 'hidden lg:flex'}`}>
-        <Tabs defaultValue="terminal" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="w-full justify-start rounded-none border-b border-border/40 bg-transparent p-0 h-10">
-            <TabsTrigger value="terminal" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-muted/10">
-              <Terminal className="mr-2 h-4 w-4" /> Network
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-muted/10">
-              <Brain className="mr-2 h-4 w-4" /> Agent
-            </TabsTrigger>
-          </TabsList>
-          <div className="flex-1 overflow-hidden relative">
-            <TabsContent value="terminal" className="h-full mt-0 absolute inset-0">
-              <LLMTerminal />
-            </TabsContent>
-            <TabsContent value="chat" className="h-full mt-0 absolute inset-0">
-              <FBPChat />
-            </TabsContent>
-          </div>
-        </Tabs>
-      </aside>
-
-      {/* 4. Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-background/90 backdrop-blur-lg border-t border-border/40 flex items-center justify-around px-2 z-50">
-        {[
-          { id: 'overview', icon: LayoutDashboard, label: 'Home' },
-          { id: 'agents', icon: Users, label: 'Agents' },
-          { id: 'positions', icon: BarChart3, label: 'Pos' },
-          { id: 'intel', icon: Terminal, label: 'Intel' },
-          { id: 'settings', icon: Settings, label: 'Config' },
-        ].map((item) => (
-          <button
-            key={item.id}
-            onClick={() => { setActiveView(item.id); setMobileTab(item.id); }}
-            className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${mobileTab === item.id ? 'text-primary' : 'text-muted-foreground'}`}
-          >
-            <item.icon className="h-5 w-5" />
-            <span className="text-[10px] font-medium">{item.label}</span>
-          </button>
-        ))}
-      </nav>
 
     </div>
   )
