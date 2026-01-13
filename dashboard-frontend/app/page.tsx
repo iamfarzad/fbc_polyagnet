@@ -76,10 +76,15 @@ export default function ProDashboard() {
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
 
+  // Helper to safely get API URL without trailing slash
+  const getApiUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
+    return url.replace(/\/$/, "")
+  }
+
   const fetchDashboardData = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
-      const response = await fetch(`${apiUrl}/api/dashboard`)
+      const response = await fetch(`${getApiUrl()}/api/dashboard`)
       const json = await response.json()
       setData(json)
       if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
@@ -90,8 +95,7 @@ export default function ProDashboard() {
 
   const toggleAgent = async (agent: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
-      await fetch(`${apiUrl}/api/toggle-agent`, {
+      await fetch(`${getApiUrl()}/api/toggle-agent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agent }),
@@ -105,8 +109,7 @@ export default function ProDashboard() {
   const toggleDryRun = async (current: boolean) => {
     setUpdatingConfig(true)
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
-      await fetch(`${apiUrl}/api/update-config`, {
+      await fetch(`${getApiUrl()}/api/update-config`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ key: "dry_run", value: current ? 0 : 1 }),
@@ -118,8 +121,7 @@ export default function ProDashboard() {
   }
 
   const emergencyStop = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://polymarket-bots-farzad.fly.dev"
-    await fetch(`${apiUrl}/api/emergency-stop`, { method: "POST" })
+    await fetch(`${getApiUrl()}/api/emergency-stop`, { method: "POST" })
     fetchDashboardData()
   }
 
