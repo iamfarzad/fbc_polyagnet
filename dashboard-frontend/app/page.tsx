@@ -78,14 +78,26 @@ export default function ProDashboard() {
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
 
+  const [connectionError, setConnectionError] = useState<string | null>(null)
+
   const fetchDashboardData = async () => {
+    let id: NodeJS.Timeout | undefined
     try {
-      const response = await fetch(`${getApiUrl()}/api/dashboard`)
+      const controller = new AbortController()
+      id = setTimeout(() => controller.abort(), 5000) // 5s timeout
+
+      const response = await fetch(`${getApiUrl()}/api/dashboard`, { signal: controller.signal })
+      clearTimeout(id)
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
       const json = await response.json()
       setData(json)
+      setConnectionError(null)
       if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error)
+      setConnectionError("Failed to access Neural Core. Retrying...")
     }
   }
 
@@ -137,12 +149,12 @@ export default function ProDashboard() {
           const json = JSON.parse(event.data) as DashboardData
           setData(json)
           if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
-        } catch {}
+        } catch { }
       }
       ws.onerror = () => {
         try {
           ws?.close()
-        } catch {}
+        } catch { }
       }
       ws.onclose = () => {
         if (!pollInterval) startPolling()
@@ -155,11 +167,21 @@ export default function ProDashboard() {
       if (pollInterval) clearInterval(pollInterval)
       try {
         ws?.close()
-      } catch {}
+      } catch { }
     }
   }, [])
 
-  if (!data) return <div className="flex h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+  if (!data) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center bg-background gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground text-xs animate-pulse">Connecting to Neural Core...</p>
+        <p className="text-[10px] text-muted-foreground/50 max-w-md text-center px-4">
+          If this persists, the API might be sleeping. It should wake up in ~10s.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono text-xs flex flex-col">
