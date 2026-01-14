@@ -861,24 +861,15 @@ class EsportsTrader:
             print(f"Error saving state: {e}")
 
     def scan_and_trade(self):
-        """Main scan loop."""
+        """
+        Hybrid Strategy Scan:
+        1. Discovery: Polymarket Gamma API (Series IDs) -> Finds ALL games.
+        2. Signal: PandaScore/Riot Data -> Provides "Teemu Advantage" (Latency Edge).
+        3. Execution: Direct CLOB.
+        """
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
         
-        # Check if enabled
-        
-        # 1. Try Supabase
-        if HAS_SUPABASE:
-            try:
-                supa = get_supabase_state()
-                if supa:
-                     if not supa.is_agent_running("esports"):
-                         print("   Esports Trader paused via Supabase. Sleeping...")
-                         return POLL_INTERVAL_IDLE
-                     # self.dry_run = supa.get_global_dry_run() # Optional: sync dry run
-            except Exception as e:
-                print(f"Supabase check failed: {e}")
-
-        # 2. Local Fallback
+        # 1. Check Pause State
         try:
             with open("bot_state.json", "r") as f:
                 state = json.load(f)
@@ -886,98 +877,124 @@ class EsportsTrader:
                 print("   Esports Trader paused via dashboard. Sleeping...")
                 return POLL_INTERVAL_IDLE
             self.dry_run = state.get("dry_run", True)
-        except:
-            pass
+        except: pass
         
-        # Auto-redeem any winning positions first
+        # 2. Auto-Redeem
         if self.redeemer:
-            try:
-                print("   🔄 Checking for redeemable positions...")
-                results = self.redeemer.scan_and_redeem()
-                if results.get("redeemed", 0) > 0:
-                    print(f"   💰 Redeemed {results['redeemed']} winning positions!")
-                    time.sleep(3)  # Wait for balance update
-            except Exception as e:
-                print(f"   ⚠️ Redemption check failed: {e}")
+            try: self.redeemer.scan_and_redeem()
+            except: pass
 
-        # Get Polymarket esports markets
+        # 3. DISCOVERY: Get Polymarket markets (Gamma API)
         markets = self.pm_esports.get_esports_markets()
-        print(f"   Found {len(markets)} esports markets on Polymarket")
+        print(f"   found {len(markets)} esports markets on Polymarket")
         
         if not markets:
             return POLL_INTERVAL_IDLE
         
-        # DIRECT TRADING MODE: Trade based on market prices + LLM validation
-        # No need to wait for PandaScore - if Polymarket has a market, it's tradeable!
-        print(f"   📊 Direct market mode - analyzing prices...")
-        
-        # Trade based on market prices directly - no external data needed
+        # 4. SIGNAL: Get Live Data (PandaScore/Riot) - Non-Blocking!
+        # This is our edge. If we have it, we use it. If not, we fall back.
+        live_matches = []
+        try:
+            live_matches = self.data_aggregator.get_all_live_matches()
+            print(f"   found {len(live_matches)} active games in data feed")
+        except Exception as e:
+            print(f"   ⚠️ Data feed error (continuing in fallback mode): {e}")
+
         trades_made = 0
+        
         for market in markets:
-            # Get current market odds
-            market_yes, market_no = market.yes_price, market.no_price
             question = market.question
+            yes_price = market.yes_price
+            no_price = market.no_price
             
-            # FILTER 1: Must have a clear favorite (>55% implied)
-            if market_yes < 0.55 and market_no < 0.55:
-                continue  # Too close to 50/50, skip
-            
-            # FILTER 2: Skip very extreme prices (>90c, low upside)
-            if market_yes > 0.90 or market_no > 0.90:
+            # --- CHECK 1: INTERNAL ARBITRAGE ---
+            # If Yes + No < 0.99, it's free money (rare but happens)
+            spread_sum = yes_price + no_price
+            if spread_sum < 0.985: # 1.5% profit buffer
+                print(f"\n   🚨 ARBITRAGE DETECTED: {question[:40]}...")
+                print(f"      Yes({yes_price}) + No({no_price}) = {spread_sum:.3f}")
+                # Buy both sides? Or just the cheaper one?
+                # Usually one side is mispriced. Let's buy the favorite side if clear, or both.
+                # Simple logic: Buy the side with higher liquidity/volume to close gap
+                target_side = "YES" if yes_price < no_price else "NO" 
+                print(f"      ⚡ Executing ARB on {target_side}")
+                self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price)
                 continue
+
+            # --- CHECK 2: FILTER GARBAGE ---
+            if yes_price > 0.92 or no_price > 0.92: continue # Too expensive
+            if yes_price < 0.08 or no_price < 0.08: continue # Too cheap/lotto
+
+            # --- CHECK 3: HYBRID TRADING LOGIC ---
             
-            # Determine which side to evaluate
-            if market_yes >= market_no:
-                favorite_side = "YES"
-                favorite_price = market_yes
-                token_id = market.yes_token
+            # Match Market -> Live Data
+            live_match = self.match_market_to_live_game(market, live_matches)
+            
+            if live_match:
+                # === PATH A: TEEMU MODE (DATA DRIVEN) ===
+                # We have live stats (Gold, Kills) -> Huge Edge
+                game_type = live_match.get("game_type", "lol")
+                match_id = str(live_match.get("id"))
+                state = self.data_aggregator.get_match_state(match_id, game_type)
+                
+                if state and state.is_live:
+                    true_prob = self.model.calculate(state)
+                    
+                    # Calculate Edge
+                    market_prob = yes_price
+                    edge = true_prob - market_prob
+                    
+                    print(f"\n   ⚔️ TEEMU MODE: {question[:40]}...")
+                    print(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}")
+                    print(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%")
+                    
+                    if abs(edge) > MIN_EDGE_PERCENT / 100:
+                        side = "YES" if edge > 0 else "NO"
+                        print(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)")
+                        if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
+                            trades_made += 1
+                    else:
+                        print(f"      👀 Watching... (Edge too small)")
+                    continue
+
+            # === PATH B: FALLBACK MODE (PRICE + INTELLIGENCE) ===
+            # No live data, but market is active. Use Contrarian/LLM check.
+            
+            # Determine favorite based on price
+            if yes_price >= no_price:
+                fav_side = "YES"
+                fav_price = yes_price
             else:
-                favorite_side = "NO"
-                favorite_price = market_no
-                token_id = market.no_token
+                fav_side = "NO"
+                fav_price = no_price
+                
+            # Filter: Only trade favorites in fallback mode (trend following)
+            if fav_price < 0.55: continue
             
-            print(f"\n   📊 MARKET: {question[:60]}...")
-            print(f"      Price: {favorite_side} @ ${favorite_price:.2f}")
-            
-            # LLM Validation
-            trade_approved = False
+            print(f"\n   🧠 FALLBACK MODE: {question[:40]}...")
+            print(f"      Price: {fav_side} @ {fav_price:.2f}")
+
+            # Validate with LLM
             if self.validator:
                 try:
                     is_valid, reason, conf = self.validator.validate(
                         market_question=question,
-                        outcome=favorite_side,
-                        price=favorite_price,
+                        outcome=fav_side,
+                        price=fav_price,
                         additional_context=ESPORTS_RISK_MANAGER_PROMPT
                     )
                     if is_valid:
-                        print(f"      ✅ GREEN LIGHT: {reason} (conf: {conf*100:.0f}%)")
-                        trade_approved = True
-                    else:
-                        print(f"      🛑 PASS: {reason} (conf: {conf*100:.0f}%)")
-                except Exception as e:
-                    print(f"      ⚠️ Validator Error: {e}")
-                    # Fallback: if validator fails, allow trade if price is very good? 
-                    # No, safer to skip if intelligence fails.
-                    continue
-            else:
-                # No validator (e.g. missing keys), fallback to direct logic trust
-                # Or skip? Let's allow if no validator but print warning
-                print("      ⚠️ No validator active - proceeding with raw price logic")
-                trade_approved = True
+                        print(f"      ✅ VALIDATED: {reason} ({conf*100:.0f}%)")
+                        if self.execute_trade(market, fav_side, fav_price, fav_price):
+                            trades_made += 1
+                except:
+                    pass
+            
+            if trades_made >= MAX_CONCURRENT_POSITIONS:
+                break
 
-            if trade_approved:
-                if self.execute_trade(market, favorite_side, favorite_price, favorite_price):
-                    trades_made += 1
-                    if trades_made >= MAX_CONCURRENT_POSITIONS:
-                        print(f"   Max positions ({MAX_CONCURRENT_POSITIONS}) reached for this scan")
-                        break
-        
-        print(f"\n   📈 Session: {self.session_trades} trades")
-        
-        # Save state for dashboard
+        # Save state & Return
         self.save_state()
-        
-        # Return faster poll interval since we're now trading actively
         return POLL_INTERVAL_LIVE
     
     def run(self):
