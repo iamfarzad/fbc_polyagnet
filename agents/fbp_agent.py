@@ -120,47 +120,76 @@ TOOLS = {
 # =============================================================================
 
 def tool_get_balance() -> str:
-    """Get USDC balance."""
+    """Get USDC balance from live deployment wallet."""
     try:
-        pm = _get_pm()
-        balance = pm.get_usdc_balance()
-        address = pm.get_address_for_private_key()
+        # Use same balance fetching as live deployment dashboard
+        import requests
+        from web3 import Web3
+
+        # USDC.e contract on Polygon (same as dashboard)
+        USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        dashboard_wallet = "0xdb1f88Ab5B531911326788C018D397d352B7265c"
+
+        # Use public RPC to query balance (same as dashboard)
+        w3 = Web3(Web3.HTTPProvider("https://polygon-rpc.com"))
+        usdc_abi = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
+        usdc_contract = w3.eth.contract(address=Web3.to_checksum_address(USDC_ADDRESS), abi=usdc_abi)
+        raw_balance = usdc_contract.functions.balanceOf(Web3.to_checksum_address(dashboard_wallet)).call()
+        balance = raw_balance / 10**6  # USDC has 6 decimals
+
         return json.dumps({
             "balance_usdc": round(balance, 2),
-            "wallet": address[:10] + "..." + address[-4:]
+            "wallet": dashboard_wallet[:10] + "..." + dashboard_wallet[-4:]
         })
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        # Fallback to Polymarket API if Web3 fails
+        try:
+            pm = _get_pm()
+            balance = pm.get_usdc_balance()
+            address = pm.get_address_for_private_key()
+            return json.dumps({
+                "balance_usdc": round(balance, 2),
+                "wallet": address[:10] + "..." + address[-4:]
+            })
+        except Exception as fallback_e:
+            return json.dumps({"error": f"Both methods failed: Web3({e}), Fallback({fallback_e})"})
 
 
 def tool_get_positions() -> str:
-    """Get all open positions."""
+    """Get all open positions from live deployment wallet."""
     try:
-        pm = _get_pm()
-        address = pm.get_address_for_private_key()
-        url = f"https://data-api.polymarket.com/positions?user={address}"
+        # Use DASHBOARD_WALLET for consolidated view (same as live deployment)
+        dashboard_wallet = "0xdb1f88Ab5B531911326788C018D397d352B7265c"
+        url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
         resp = requests.get(url, timeout=10)
         positions = resp.json()
-        
+
         result = []
         total_value = 0
         total_pnl = 0
-        
+
         for p in positions:
-            value = float(p.get("currentValue", 0))
-            pnl = float(p.get("cashPnl", 0))
-            total_value += value
-            total_pnl += pnl
-            
-            result.append({
-                "title": p.get("title", "")[:50],
-                "outcome": p.get("outcome"),
-                "size": round(float(p.get("size", 0)), 2),
-                "value": round(value, 2),
-                "pnl": round(pnl, 2),
-                "market_id": p.get("conditionId", "")[:12]
-            })
-        
+            try:
+                market = p.get("title", p.get("question", "Unknown"))
+                side = p.get("outcome", "?")
+                cost = float(p.get("cost", 0))
+                val = float(p.get("currentValue", p.get("value", 0)))
+                pnl = val - cost
+                total_value += val
+                total_pnl += pnl
+
+                result.append({
+                    "title": market[:50],
+                    "outcome": side,
+                    "size": round(float(p.get("size", 0)), 2),
+                    "value": round(val, 2),
+                    "pnl": round(pnl, 2),
+                    "market_id": p.get("conditionId", "")[:12]
+                })
+            except Exception as e:
+                logger.warning(f"Error processing position: {e}")
+                continue
+
         return json.dumps({
             "positions": result,
             "total_value": round(total_value, 2),
@@ -172,25 +201,69 @@ def tool_get_positions() -> str:
 
 
 def tool_get_agents() -> str:
-    """Get status of all trading agents."""
+    """Get status of all trading agents from live deployment."""
     try:
-        with open("bot_state.json", "r") as f:
-            state = json.load(f)
-        
+        # Try Supabase first (live deployment data)
+        if HAS_SUPABASE:
+            try:
+                supa = get_supabase_state()
+                safe_running = supa.is_agent_running("safe")
+                scalper_running = supa.is_agent_running("scalper")
+                copy_running = supa.is_agent_running("copy")
+                smart_running = supa.is_agent_running("smart")
+                esports_running = supa.is_agent_running("esports")
+                sports_running = supa.is_agent_running("sport")
+                dry_run = False  # Live deployment is not dry run
+            except Exception as e:
+                logger.warning(f"Supabase not available, falling back to local: {e}")
+                # Fallback to local file
+                with open("bot_state.json", "r") as f:
+                    state = json.load(f)
+                safe_running = state.get("safe_running", False)
+                scalper_running = state.get("scalper_running", False)
+                copy_running = state.get("copy_trader_running", False)
+                smart_running = state.get("smart_trader_running", False)
+                esports_running = state.get("esports_trader_running", False)
+                sports_running = state.get("sports_trader_running", False)
+                dry_run = state.get("dry_run", True)
+        else:
+            # Fallback to local file only
+            with open("bot_state.json", "r") as f:
+                state = json.load(f)
+            safe_running = state.get("safe_running", False)
+            scalper_running = state.get("scalper_running", False)
+            copy_running = state.get("copy_trader_running", False)
+            smart_running = state.get("smart_trader_running", False)
+            esports_running = state.get("esports_trader_running", False)
+            sports_running = state.get("sports_trader_running", False)
+            dry_run = state.get("dry_run", True)
+
         return json.dumps({
             "safe": {
-                "running": state.get("safe_running", False),
-                "activity": state.get("safe_last_activity", "Idle")
+                "running": safe_running,
+                "activity": "Active" if safe_running else "Paused"
             },
             "scalper": {
-                "running": state.get("scalper_running", False),
-                "activity": state.get("scalper_last_activity", "Idle")
+                "running": scalper_running,
+                "activity": "HFT Arbitrage" if scalper_running else "Idle"
             },
             "copyTrader": {
-                "running": state.get("copy_trader_running", False),
-                "activity": state.get("last_signal", "None")
+                "running": copy_running,
+                "activity": "Monitoring whales" if copy_running else "None"
             },
-            "dry_run": state.get("dry_run", True)
+            "smartTrader": {
+                "running": smart_running,
+                "activity": "Idle" if smart_running else "Off"
+            },
+            "esportsTrader": {
+                "running": esports_running,
+                "activity": "Active" if esports_running else "Off"
+            },
+            "sportsTrader": {
+                "running": sports_running,
+                "activity": "Active" if sports_running else "Off"
+            },
+            "dry_run": dry_run
         })
     except Exception as e:
         return json.dumps({"error": str(e)})
