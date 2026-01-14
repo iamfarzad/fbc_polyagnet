@@ -113,6 +113,9 @@ class SportsTrader:
             resp = requests.get(url, timeout=10)
             if resp.status_code != 200:
                 print(f"   ⚠️ Odds API Error: {resp.status_code}")
+                try:
+                    print(f"   Response: {resp.text[:200]}")
+                except: pass
                 return []
             
             games_data = resp.json()
