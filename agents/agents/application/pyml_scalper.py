@@ -1380,7 +1380,10 @@ class CryptoScalper:
                     
                     # 2. Audit Check
                     # Audit if Forced OR Price is Skewed (>70c / <30c)
-                    needs_audit = force_trade or market_price > 0.70 or market_price < 0.30
+                    # needs_audit = force_trade or market_price > 0.70 or market_price < 0.30
+                    
+                    # === NEW HFT LOGIC (Ensures <100ms execution) ===
+                    needs_audit = False # Disable LLM check for HFT to maintain Binance speed edge
                     
                     is_valid_trade = True
                     if needs_audit:
