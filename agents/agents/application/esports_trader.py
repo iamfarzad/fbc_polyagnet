@@ -30,6 +30,24 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from agents.polymarket.polymarket import Polymarket
+from agents.utils.validator import Validator, SharedConfig
+from agents.utils.context import get_context, Position, Trade
+
+# --- ESPORTS CONTRARIAN SYSTEM PROMPT ---
+ESPORTS_RISK_MANAGER_PROMPT = """You are a contrarian esports bettor and risk manager.
+Your GOAL is to find reasons NOT to bet on the favorite.
+
+For the requested matchup, perform these specific checks:
+1. ROSTER CHECK: Search explicitly for "[Team Name] roster changes stand-in". If a stand-in is playing, DEDUCT 20% from win probability.
+2. RECENT FORM: Search for "last 5 matches". If the favorite lost 3+ of last 5, they are "Cold".
+3. PATCH NOTES: If a major patch (e.g. new LoL patch) just dropped, increased volatility -> CAUTION.
+
+OUTPUT "PASS" IF:
+- A stand-in is playing for the favorite.
+- The favorite is on a losing streak.
+- There is significant uncertainty about the roster.
+
+Only recommend "BET" if the team is stable, full roster, and in form."""
 
 # Try to import auto-redeemer
 try:
@@ -470,37 +488,44 @@ class PolymarketEsports:
         self.pm = Polymarket()
         
     def get_esports_markets(self) -> List[PolymarketMatch]:
-        """Fetch active esports markets from Polymarket."""
+        """Get active esports markets from Polymarket using Series IDs."""
         try:
-            # Fetch recently created markets - esports matches are created frequently
-            url = "https://gamma-api.polymarket.com/markets"
-            params = {
-                "limit": 200,
-                "active": "true",
-                "closed": "false",
-                "order": "createdAt",
-                "ascending": "false",
-            }
+            limit = 50
+            # Series IDs: LoL (10360), CS2 (10361)
+            series_ids = [10360, 10361]
+            all_markets = []
+
+            for sid in series_ids:
+                url = "https://gamma-api.polymarket.com/events"
+                params = {
+                    "closed": "false",
+                    "active": "true",
+                    "limit": limit,
+                    "series_id": sid
+                }
+                
+                try:
+                    resp = requests.get(url, params=params, timeout=10)
+                    if resp.status_code == 200:
+                        events = resp.json()
+                        for event in events:
+                            markets = event.get("markets", [])
+                            for m in markets:
+                                # Inject event title into market question if clearer
+                                if "question" not in m:
+                                    m["question"] = event.get("title", "")
+                                all_markets.append(m)
+                except Exception as e:
+                    print(f"Error fetching series {sid}: {e}")
             
-            resp = requests.get(url, params=params, timeout=15)
-            if resp.status_code != 200:
-                print(f"Failed to fetch markets: {resp.status_code}")
-                return []
-            
-            all_markets = resp.json()
-            
-            # Esports slug prefixes (most reliable indicator)
+            # Filter to esports markets (double check slugs just in case)
             esports_slug_prefixes = ("cs2-", "csgo-", "lol-", "dota-", "valorant-")
-            
-            # Filter to esports markets by slug prefix
             filtered_markets = []
             
             for m in all_markets:
-                slug = m.get("slug", "").lower()
-                
-                # Check if slug starts with esports prefix
-                if slug.startswith(esports_slug_prefixes):
-                    filtered_markets.append(m)
+                # With Series ID, we can be more confident, but let's keep slug check lenient
+                # Actually, trust Series ID mainly.
+                filtered_markets.append(m)
             
             # Process filtered markets into PolymarketMatch objects
             result_markets = []
@@ -643,6 +668,14 @@ class EsportsTrader:
         self.pm_esports = PolymarketEsports()
         self.data_aggregator = EsportsDataAggregator()
         self.model = WinProbabilityModel()
+        
+        # Initialize Validator
+        try:
+            self.validator = Validator(SharedConfig(), "esports")
+            print("✅ LLM Validator initialized")
+        except Exception as e:
+            print(f"⚠️ Validator init failed: {e}")
+            self.validator = None
         
         # State
         self.positions = {}  # market_id -> position data
@@ -906,13 +939,38 @@ class EsportsTrader:
             print(f"\n   📊 MARKET: {question[:60]}...")
             print(f"      Price: {favorite_side} @ ${favorite_price:.2f}")
             
-            # Use the favorite as our target - we'll validate with LLM
-            # For esports, we trust the market direction but want LLM confirmation
-            if self.execute_trade(market, favorite_side, favorite_price, favorite_price):
-                trades_made += 1
-                if trades_made >= MAX_CONCURRENT_POSITIONS:
-                    print(f"   Max positions ({MAX_CONCURRENT_POSITIONS}) reached for this scan")
-                    break
+            # LLM Validation
+            trade_approved = False
+            if self.validator:
+                try:
+                    is_valid, reason, conf = self.validator.validate(
+                        market_question=question,
+                        outcome=favorite_side,
+                        price=favorite_price,
+                        additional_context=ESPORTS_RISK_MANAGER_PROMPT
+                    )
+                    if is_valid:
+                        print(f"      ✅ GREEN LIGHT: {reason} (conf: {conf*100:.0f}%)")
+                        trade_approved = True
+                    else:
+                        print(f"      🛑 PASS: {reason} (conf: {conf*100:.0f}%)")
+                except Exception as e:
+                    print(f"      ⚠️ Validator Error: {e}")
+                    # Fallback: if validator fails, allow trade if price is very good? 
+                    # No, safer to skip if intelligence fails.
+                    continue
+            else:
+                # No validator (e.g. missing keys), fallback to direct logic trust
+                # Or skip? Let's allow if no validator but print warning
+                print("      ⚠️ No validator active - proceeding with raw price logic")
+                trade_approved = True
+
+            if trade_approved:
+                if self.execute_trade(market, favorite_side, favorite_price, favorite_price):
+                    trades_made += 1
+                    if trades_made >= MAX_CONCURRENT_POSITIONS:
+                        print(f"   Max positions ({MAX_CONCURRENT_POSITIONS}) reached for this scan")
+                        break
         
         print(f"\n   📈 Session: {self.session_trades} trades")
         

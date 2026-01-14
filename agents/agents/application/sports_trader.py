@@ -49,9 +49,21 @@ SCAN_INTERVAL = 300    # 5 minutes between scans (was 1 hour!)
 SPORTS_SERIES = {
     "NBA": 10345,
     "NFL": 10346,
+    "MLB": 10347, # Using 10347 based on user input, though user said MLB is 10347 under US Sports but soccer also 10347? Wait. 
+    # User said: MLB (10347). Soccer (EPL: 10351, etc). Let's stick to what user provided for Major US Sports.
+    # Actually user listed MLB (10347) but also listed Soccer (10347 is not listed for soccer, 10347 was General Soccer in my previous code but user says MLB).
+    # Let's follow user's explicit list:
+    "NBA": 10345,
+    "NFL": 10346,
+    "MLB": 10347,
     "NHL": 10348,
-    "Soccer": 10347,  # General soccer
-    "Tennis": 10349,
+    "EPL": 10351,
+    "Serie A": 10353,
+    "La Liga": 10352,
+    "Champions League": 10355,
+    "MLS": 10354,
+    "Tennis": 10359,
+    "UFC": 10357,
 }
 
 # Tag ID for game-specific bets (not futures)
@@ -342,7 +354,7 @@ class SportsTrader:
                     market_question=question,
                     outcome=favorite_side,
                     price=favorite_price,
-                    system_prompt=RISK_MANAGER_PROMPT
+                    additional_context=RISK_MANAGER_PROMPT
                 )
             except Exception as e:
                 print(f"      ⚠️ Validator Error: {e}")
