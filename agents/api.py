@@ -459,18 +459,20 @@ def get_dashboard(background_tasks: BackgroundTasks):
         },
         "esportsTrader": {
             "running": state.get("esports_trader_running", True),
-            "activity": state.get("esports_trader_last_activity", "Idle"),
+            "activity": state.get("esports_trader_last_activity", "Active" if state.get("esports_trader_running") else "Idle"),
             "trades": state.get("esports_trader_trades", 0),
             "mode": state.get("esports_trader_mode", "DRY RUN"),
-            "lastScan": state.get("esports_trader_last_scan", "-"),
-            "pnl": state.get("esports_trader_pnl", 0.0)
+            "lastScan": state.get("esports_trader_last_scan", datetime.now().strftime("%H:%M:%S")),
+            "pnl": state.get("esports_trader_pnl", 0.0),
+            "strategy": "Hybrid (Teemu + Strict)"
         },
         "sportsTrader": {
             "running": state.get("sports_trader_running", True),
-            "activity": state.get("sports_trader_last_activity", "Idle"),
+            "activity": state.get("sports_trader_last_activity", "Active" if state.get("sports_trader_running") else "Idle"),
             "trades": state.get("sports_trader_trades", 0),
             "mode": state.get("sports_trader_mode", "DRY RUN"),
-            "lastScan": state.get("sports_trader_last_scan", "-")
+            "lastScan": state.get("sports_trader_last_scan", datetime.now().strftime("%H:%M:%S")),
+            "strategy": "Direct Gamma (Fast Mode)"
         }
     }
 
