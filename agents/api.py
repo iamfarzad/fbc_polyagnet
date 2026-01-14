@@ -239,6 +239,8 @@ class DashboardData(BaseModel):
     equity: float
     unrealizedPnl: float
     gasSpent: float
+    total_redeemed: float = 0.0
+    costs: Dict[str, float] = {}
     riskStatus: Dict[str, Any] # {safe: bool, message: str}
     agents: Dict[str, Dict[str, Any]]
     positions: List[Dict[str, Any]]
@@ -247,6 +249,7 @@ class DashboardData(BaseModel):
     dryRun: bool
     lastUpdate: str
     walletAddress: str  # Bot's wallet address
+    maxBetAmount: float = 0.50
 
 # --- Helper Functions ---
 def fetch_positions_helper():
@@ -347,6 +350,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
             logger.error(f"Failed to sync dashboard with Supabase: {e}")
 
     pm = get_pm()
+    ctx = get_context()
     
     # 1. Balance
     balance = 0.0
@@ -387,6 +391,21 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # Polygon fees are low (~$0.01 - $0.05). Let's estimate conservatively based on txn count.
     # We assume roughly 1 txn per trade.
     gas_spent = trade_count * 0.015
+    
+    # 6b. Costs (Neural & Infra)
+    costs = {
+        "openai": 0.0,
+        "perplexity": 0.0,
+        "gemini": 0.0,
+        "fly": 0.0,
+        "neural_total": 0.0,
+        "infra_total": 0.0
+    }
+    if ctx:
+        try:
+            costs = ctx.get_financial_metrics()
+        except Exception as e:
+            logger.error(f"Failed to get financial metrics: {e}")
     
     # 7. Agents - with richer data
     scalper_activity = state.get("scalper_last_activity", "Idle")
@@ -457,7 +476,8 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "equity": equity,
         "unrealizedPnl": unrealized_pnl,
         "gasSpent": gas_spent,
-        "redemptions": total_redemptions,
+        "total_redeemed": total_redemptions,
+        "costs": costs,
         "riskStatus": {
             "safe": risk_safe,
             "message": risk_msg

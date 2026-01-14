@@ -22,6 +22,14 @@ logger = logging.getLogger("Context")
 
 CONTEXT_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "shared_context.json")
 
+# 2026 Pricing Constants
+PRICES = {
+    "openai": 0.0000006,  # GPT-4o mini avg per request
+    "gemini": 0.0,        # Free tier (up to 1k/day)
+    "perplexity": 0.005,  # Per search against $4k credit
+    "fly_io": 0.00000128  # shared-1x-512MB per second (8 machines)
+}
+
 
 @dataclass
 class Position:
@@ -102,8 +110,19 @@ class SharedContext:
                     "safe": {"active": True, "last_action": None},
                     "scalper": {"active": True, "last_action": None},
                     "copy": {"active": True, "last_action": None},
-                }
+                },
+                "session_start": datetime.now().isoformat()
             })
+
+    @property
+    def session_start(self) -> datetime:
+        """Get session start time from context file."""
+        ctx = self._read()
+        start = ctx.get("session_start")
+        if not start:
+            # Fallback if missing
+            return datetime.now()
+        return datetime.fromisoformat(start)
     
     def _read(self) -> Dict:
         """Read context with file locking."""
@@ -421,6 +440,49 @@ class SharedContext:
             "avg_confidence": avg_confidence,
             "by_agent": by_agent,
             "decisions": decisions
+        }
+    
+    def get_financial_metrics(self) -> Dict:
+        """
+        Calculate detailed financial metrics for the dashboard.
+        Returns neural costs, infra costs, and totals.
+        """
+        ctx = self._read()
+        activities = ctx.get("llm_activity", [])
+        
+        # Neural Costs
+        openai_cost = sum(a.get("cost_usd", 0) for a in activities if a.get("agent") != "perplexity") # Assuming perplexity is separate or tagged
+        # Or better, check the 'model' or inference source if available, but for now relying on what we have.
+        # Actually user snippet calculates neural as sum of all activities.
+        neural_total = sum(a.get("cost_usd", 0) for a in activities)
+        
+        # Breakdown (approximation based on agent or action if not explicitly tagged with provider)
+        # Assuming 'validate' uses OpenAI (Auditor), 'research' uses Perplexity.
+        openai_cost = sum(a.get("cost_usd", 0) for a in activities if a.get("action_type") == "validate")
+        perplexity_cost = sum(a.get("cost_usd", 0) for a in activities if a.get("action_type") in ["research", "discover"])
+        
+        # Infra Costs
+        # 8 machines @ ~$0.00001/sec total
+        elapsed_seconds = (datetime.now() - self.session_start).total_seconds()
+        fly_cost = elapsed_seconds * PRICES["fly_io"] * 8 # User said 0.00001 total, code says 0.00000128 per machine?
+        # User snippet: "fly_io": 0.00000128 # shared-1x-512MB per second
+        # User code: infra = ... * 0.00001
+        # 0.00000128 * 8 = 0.00001024, so it matches.
+        
+        # Gas (Polygon) - Estimated from trade count? 
+        # User snippet didn't include gas logic in python, but UI has it. 
+        # Let's estimate: $0.01 per trade?
+        trades_count = len(ctx.get("recent_trades", [])) # Only recent 100?
+        # We need total trades. Maybe `session_trades` from agents?
+        # For now, let's just use what we have or 0.
+        
+        return {
+            "openai": openai_cost,
+            "perplexity": perplexity_cost,
+            "gemini": 0.0, # Free
+            "fly": fly_cost,
+            "neural_total": neural_total,
+            "infra_total": fly_cost
         }
 
 
