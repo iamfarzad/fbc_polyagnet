@@ -90,18 +90,61 @@ class ExitMonitor:
                 logger.error(f"Validation failed for {market_id}: {e}")
 
     def execute_liquidation(self, pos, reason):
-        """Execute market sell (or limit sell) to close position."""
+        """Execute market sell (or limit sell as sweep) to close position."""
         logger.info(f"LIQUIDATING {pos['market_question']}...")
-        # In a real implementation, we would call self.pm.sell(...)
-        # For safety in this update, we just log and Broadcast
+        market_id = pos['market_id']
+        token_id = pos.get('token_id')
         
+        if not token_id:
+             logger.error(f"Cannot liquidate {market_id}: Missing token_id")
+             return
+
+        # Calculate shares to sell
+        # size_usd is cost basis. We need shares count.
+        # shares = size_usd / entry_price
+        try:
+            entry_price = float(pos.get('entry_price', 0.5))
+            size_usd = float(pos.get('size_usd', 0))
+            if entry_price <= 0: entry_price = 0.5 # Safety fallback
+            
+            shares = size_usd / entry_price
+        except:
+            shares = 0
+        
+        if shares <= 0:
+             logger.error(f"Cannot liquidate: Invalid share count ({shares})")
+             return
+
+        # EXECUTE THE SELL
+        result = self.pm.execute_market_sell(token_id, shares)
+        
+        # Broadcast and log result
         self.context.broadcast(
             "exit_monitor",
-            f"RECOMMEND SELL: {pos['market_question']} - {reason}",
-            {"market_id": pos['market_id']}
+            f"EXECUTED SELL: {pos['market_question']} - Result: {result}",
+            {"market_id": market_id, "status": "liquidated", "reason": reason}
         )
         
-        # TODO: Implement actual sell logic using py-clob-client
+        # Log to Supabase if available
+        try:
+             # Just repurpose log_trade with status='liquidated'
+             from agents.utils.supabase_client import get_supabase_state
+             supa = get_supabase_state()
+             supa.log_trade(
+                 agent="exit_monitor",
+                 market_id=market_id,
+                 market_question=pos['market_question'],
+                 outcome=pos.get('outcome', 'UNK'),
+                 side="SELL",
+                 size_usd=size_usd, # approximate exit value? No, log cost basis for now
+                 price=0.01, # We don't know fill price yet without looking up trade history
+                 status="liquidated",
+                 reasoning=f"Auto-Exit: {reason}"
+             )
+        except: pass
+
+        # Remove position from context so we don't loop on it
+        self.context.remove_position(market_id)
         # This requires order builder 'SELL' side logic similar to buy
         
     def run(self):

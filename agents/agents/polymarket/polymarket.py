@@ -497,6 +497,32 @@ if __name__ == "__main__":
     # print(m)
     # m = p.get_market('11015470973684177829729219287262166995141465048508201953575582100565462316088')
 
+    def execute_market_sell(self, token_id: str, size: float) -> str:
+        """
+        Exits a position by placing a market-style (FOK) SELL order.
+        """
+        try:
+            logger.info(f"Executing Market SELL for {token_id} (Size: {size})")
+            
+            # Place a limit order at $0.01 to act as a market sell
+            # (This is a standard 'sweep' tactic to exit immediately)
+            # We use py-clob-client's order builder constants if available, or string "SELL"
+            try:
+                from py_clob_client.order_builder.constants import SELL
+                side = SELL
+            except:
+                side = "SELL"
+
+            return self.place_limit_order(
+                token_id=token_id, 
+                price=0.01, # Sell at almost 0 to match any bid
+                size=size, 
+                side=side
+            )
+        except Exception as e:
+            logger.error(f"Failed to execute market sell: {e}")
+            return {"error": str(e)}
+
     # t = m[0]['token_id']
     # o = p.get_orderbook(t)
     # pdb.set_trace()

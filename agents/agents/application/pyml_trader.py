@@ -174,10 +174,37 @@ class Bot:
                         
                         # STOP LOSS: If dropped 30% from entry
                         if entry > 0 and current_price < (entry * 0.70):
-                            logger.warning(f"🚨 EMERGENCY EXIT: {pos.get('market_question')} dropped 30% ({entry} -> {current_price}). Selling.")
-                            # Sell everything
-                            # self.pm.execute_market_order(...) # TODO: Implement sell execution
-                            # For now just log it
+                            loss_pct = (entry - current_price) / entry
+                            logger.warning(f"🚨 EMERGENCY EXIT: {pos.get('market_question')} dropped {loss_pct:.1%} ({entry} -> {current_price}). Selling.")
+                            
+                            # Calculate Shares
+                            try:
+                                size_usd = float(pos.get('size_usd', 0))
+                                shares = size_usd / entry
+                            except:
+                                shares = 0
+                            
+                            if shares > 0:
+                                # Sell everything
+                                res = self.pm.execute_market_sell(token_id, shares)
+                                logger.info(f"Stop loss execution result: {res}")
+                                
+                                # Log trade
+                                self.context.add_trade(Trade(
+                                    market_id=pos.get('market_id'),
+                                    agent=self.AGENT_NAME,
+                                    outcome=pos.get('outcome'),
+                                    size_usd=size_usd,
+                                    price=current_price,
+                                    timestamp=datetime.datetime.now().isoformat(),
+                                    status="stop_loss",
+                                    # pnl = (current_price - entry) * shares
+                                ))
+                                
+                                # Remove from context
+                                self.context.remove_position(pos.get('market_id'))
+                            else:
+                                logger.error("Invalid share count for stop loss.")
                 except Exception as e:
                     logger.debug(f"Exit check failed for {pos.get('market_id')}: {e}")
         except Exception as e:
