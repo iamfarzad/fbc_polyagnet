@@ -51,6 +51,10 @@ logger = logging.getLogger("API")
 
 load_dotenv()
 
+# Dashboard wallet address - use Proxy for position tracking after consolidation
+# Falls back to deriving from private key if not set
+DASHBOARD_WALLET = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
+
 app = FastAPI(title="Polymarket Agent Dashboard API")
 
 # CORS for local dev
@@ -256,8 +260,8 @@ def fetch_positions_helper():
     pm = get_pm()
     if not pm: return []
     try:
-        # PM Data API for positions
-        url = f"https://data-api.polymarket.com/positions?user={pm.get_address_for_private_key()}"
+        # PM Data API for positions - use DASHBOARD_WALLET for consolidated view
+        url = f"https://data-api.polymarket.com/positions?user={DASHBOARD_WALLET}"
         # using requests inside synch route is blocking, better async or optimized
         # For this scale, it's fine.
         import requests
@@ -290,8 +294,8 @@ def fetch_trades_helper(limit=50):
     pm = get_pm()
     if not pm: return []
     try:
-        # Use Activity Endpoint (trades endpoint often returns empty for bot trades)
-        url = f"https://data-api.polymarket.com/activity?user={pm.get_address_for_private_key()}&limit={limit}&offset=0"
+        # Use Activity Endpoint with DASHBOARD_WALLET for consolidated view
+        url = f"https://data-api.polymarket.com/activity?user={DASHBOARD_WALLET}&limit={limit}&offset=0"
         import requests
         resp = requests.get(url, timeout=5)
         
@@ -461,12 +465,8 @@ def get_dashboard(background_tasks: BackgroundTasks):
         }
     }
 
-    # Get wallet address
-    wallet_address = ""
-    if pm:
-        try:
-            wallet_address = pm.get_address_for_private_key()
-        except: pass
+    # Get wallet address - use DASHBOARD_WALLET
+    wallet_address = DASHBOARD_WALLET
 
     # Record snapshot in background
     background_tasks.add_task(record_snapshot, balance, equity, unrealized_pnl)
@@ -592,7 +592,7 @@ def get_positions():
     
     try:
         import requests
-        address = pm.get_address_for_private_key()
+        address = DASHBOARD_WALLET
         url = f"https://data-api.polymarket.com/positions?user={address}"
         resp = requests.get(url, timeout=10)
         
@@ -649,7 +649,7 @@ def close_position(req: ClosePositionRequest):
         # Get current position info if size not provided
         if req.size is None or req.price is None:
             import requests
-            address = pm.get_address_for_private_key()
+            address = DASHBOARD_WALLET
             url = f"https://data-api.polymarket.com/positions?user={address}"
             resp = requests.get(url, timeout=10)
             
@@ -737,7 +737,7 @@ def close_all_positions():
         from py_clob_client.clob_types import OrderArgs
         from py_clob_client.order_builder.constants import SELL
         
-        address = pm.get_address_for_private_key()
+        address = DASHBOARD_WALLET
         url = f"https://data-api.polymarket.com/positions?user={address}"
         resp = requests.get(url, timeout=10)
         
