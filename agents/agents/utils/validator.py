@@ -53,8 +53,15 @@ class Validator:
             self.openai_client = None
 
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "", 
+                 fast_mode: bool = False, # NEW FLAG
                  min_confidence: float = 0.70, min_edge_pct: float = 0.05) -> Tuple[bool, str, float]:
         
+        # --- FAST MODE BYPASS ---
+        # If fast_mode is True (Live Sports/HFT), we skip the 30s LLM research entirely.
+        if fast_mode:
+            logger.info(f"⚡ FAST MODE: Bypassing LLM Audit for Live Market: {market_question[:30]}")
+            return True, "Fast-tracked live trade (No LLM delay)", 1.0
+
         # --- PHASE 1: PERPLEXITY RESEARCH (Tier 1 & 2) ---
         # Purpose: Use your $4,000 credits for heavy web-searching and news gathering.
         research_result = self._research_phase(market_question, outcome, price, additional_context)

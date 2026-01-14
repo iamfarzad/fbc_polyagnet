@@ -354,7 +354,8 @@ class SportsTrader:
                     market_question=question,
                     outcome=favorite_side,
                     price=favorite_price,
-                    additional_context=RISK_MANAGER_PROMPT
+                    additional_context=RISK_MANAGER_PROMPT,
+                    fast_mode=True # 🚀 Enable Fast Mode for live discovery
                 )
             except Exception as e:
                 print(f"      ⚠️ Validator Error: {e}")

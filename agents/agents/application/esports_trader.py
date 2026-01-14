@@ -957,41 +957,12 @@ class EsportsTrader:
                         print(f"      👀 Watching... (Edge too small)")
                     continue
 
-            # === PATH B: FALLBACK MODE (PRICE + INTELLIGENCE) ===
-            # No live data, but market is active. Use Contrarian/LLM check.
-            
-            # Determine favorite based on price
-            if yes_price >= no_price:
-                fav_side = "YES"
-                fav_price = yes_price
-            else:
-                fav_side = "NO"
-                fav_price = no_price
-                
-            # Filter: Only trade favorites in fallback mode (trend following)
-            if fav_price < 0.55: continue
-            
-            print(f"\n   🧠 FALLBACK MODE: {question[:40]}...")
-            print(f"      Price: {fav_side} @ {fav_price:.2f}")
-
-            # Validate with LLM
-            if self.validator:
-                try:
-                    is_valid, reason, conf = self.validator.validate(
-                        market_question=question,
-                        outcome=fav_side,
-                        price=fav_price,
-                        additional_context=ESPORTS_RISK_MANAGER_PROMPT
-                    )
-                    if is_valid:
-                        print(f"      ✅ VALIDATED: {reason} ({conf*100:.0f}%)")
-                        if self.execute_trade(market, fav_side, fav_price, fav_price):
-                            trades_made += 1
-                except:
-                    pass
-            
-            if trades_made >= MAX_CONCURRENT_POSITIONS:
-                break
+            # === PATH B: NO DATA (STRICT MODE - PASS) ===
+            # If we don't have live data, we HAVE NO EDGE.
+            # "Teemu Style" requires being faster than the book. Without data, we are just guessing.
+            market_price = (yes_price + no_price) / 2
+            print(f"      🚫 NO DATA EDGE: {market.question[:30]}... (Passing)")
+            continue
 
         # Save state & Return
         self.save_state()

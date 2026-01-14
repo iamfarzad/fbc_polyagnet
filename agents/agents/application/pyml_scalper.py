@@ -1388,10 +1388,12 @@ class CryptoScalper:
                         try:
                             from agents.agents.utils.validator import Validator, SharedConfig
                             v = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
+                            # Instead of full validation, use the fast_mode flag
                             is_valid, reason, conf = v.validate(
                                 market_question=market["question"],
                                 outcome=side_name,
                                 price=market_price,
+                                fast_mode=True, # 🚀 Beats the 15-minute clock
                                 min_confidence=0.60 # Lower bar for scalping
                             )
                             if not is_valid:
