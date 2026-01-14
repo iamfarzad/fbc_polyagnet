@@ -874,68 +874,53 @@ class EsportsTrader:
         if not markets:
             return POLL_INTERVAL_IDLE
         
-        # Get live matches from data providers
-        live_matches = self.data_aggregator.get_all_live_matches()
-        print(f"   Found {len(live_matches)} live matches from data feeds")
+        # DIRECT TRADING MODE: Trade based on market prices + LLM validation
+        # No need to wait for PandaScore - if Polymarket has a market, it's tradeable!
+        print(f"   📊 Direct market mode - analyzing prices...")
         
-        if not live_matches:
-            print(f"   ⏳ No live matches right now. Waiting...")
-            return POLL_INTERVAL_IDLE
-        
-        # Try to match markets to live games
+        # Trade based on market prices directly - no external data needed
         trades_made = 0
         for market in markets:
-            live_match = self.match_market_to_live_game(market, live_matches)
-            
-            if not live_match:
-                continue
-            
-            print(f"\n   📊 LIVE MATCH: {market.question[:60]}...")
-            
-            # Get detailed game state
-            game_type = live_match.get("game_type", "lol")
-            match_id = str(live_match.get("id"))
-            state = self.data_aggregator.get_match_state(match_id, game_type)
-            
-            if not state or not state.is_live:
-                print(f"      Match not live or no data available")
-                continue
-            
-            # Calculate our win probability
-            our_prob = self.model.calculate(state)
-            
             # Get current market odds
             market_yes, market_no = market.yes_price, market.no_price
+            question = market.question
             
-            # Calculate edge
-            yes_edge = our_prob - market_yes
-            no_edge = (1 - our_prob) - market_no
+            # FILTER 1: Must have a clear favorite (>55% implied)
+            if market_yes < 0.55 and market_no < 0.55:
+                continue  # Too close to 50/50, skip
             
-            print(f"      Game State: {state.team1} {state.team1_score}-{state.team2_score} {state.team2}")
-            print(f"      Gold Diff: {state.gold_diff():+d} | Our Prob: {our_prob*100:.1f}%")
-            print(f"      Market: {market_yes*100:.1f}% YES / {market_no*100:.1f}% NO")
-            print(f"      Edge: YES {yes_edge*100:+.1f}% | NO {no_edge*100:+.1f}%")
+            # FILTER 2: Skip very extreme prices (>90c, low upside)
+            if market_yes > 0.90 or market_no > 0.90:
+                continue
             
-            # Check for trading opportunity
-            if yes_edge > MIN_EDGE_PERCENT / 100:
-                print(f"      🔥 YES EDGE DETECTED!")
-                if self.execute_trade(market, "YES", our_prob, market_yes):
-                    trades_made += 1
-                    
-            elif no_edge > MIN_EDGE_PERCENT / 100:
-                print(f"      🔥 NO EDGE DETECTED!")
-                if self.execute_trade(market, "NO", 1 - our_prob, market_no):
-                    trades_made += 1
+            # Determine which side to evaluate
+            if market_yes >= market_no:
+                favorite_side = "YES"
+                favorite_price = market_yes
+                token_id = market.yes_token
             else:
-                print(f"      ⏳ No edge, watching...")
+                favorite_side = "NO"
+                favorite_price = market_no
+                token_id = market.no_token
+            
+            print(f"\n   📊 MARKET: {question[:60]}...")
+            print(f"      Price: {favorite_side} @ ${favorite_price:.2f}")
+            
+            # Use the favorite as our target - we'll validate with LLM
+            # For esports, we trust the market direction but want LLM confirmation
+            if self.execute_trade(market, favorite_side, favorite_price, favorite_price):
+                trades_made += 1
+                if trades_made >= MAX_CONCURRENT_POSITIONS:
+                    print(f"   Max positions ({MAX_CONCURRENT_POSITIONS}) reached for this scan")
+                    break
         
         print(f"\n   📈 Session: {self.session_trades} trades")
         
         # Save state for dashboard
         self.save_state()
         
-        # Return appropriate poll interval
-        return POLL_INTERVAL_LIVE if live_matches else POLL_INTERVAL_IDLE
+        # Return faster poll interval since we're now trading actively
+        return POLL_INTERVAL_LIVE
     
     def run(self):
         """Main run loop."""

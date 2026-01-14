@@ -39,21 +39,23 @@ except ImportError:
 load_dotenv()
 
 # --- CONFIGURATION ---
-ODDS_API_KEY = os.getenv("ODDS_API_KEY")
 MIN_BET_USD = 1.00
 MAX_BET_USD = 50.00
-BET_PERCENT = 0.15 # 15% of bankroll per bet (aggressive but moderated by Kelly/Edge if needed)
+BET_PERCENT = 0.15 # 15% of bankroll per bet
+MIN_CONFIDENCE = 0.65  # LLM must be 65%+ confident to trade
+SCAN_INTERVAL = 300    # 5 minutes between scans (was 1 hour!)
 
-# Sports Config Mapping (Readable -> API Key)
-SPORTS_CONFIG = {
-    "NBA": {"key": "basketball_nba", "market_type": "h2h"},
-    "NFL": {"key": "americanfootball_nfl", "market_type": "h2h"},
-    "NHL": {"key": "icehockey_nhl", "market_type": "h2h"},
-    "EPL": {"key": "soccer_epl", "market_type": "h2h"},
-    "La Liga": {"key": "soccer_spain_la_liga", "market_type": "h2h"},
-    "MLS": {"key": "soccer_usa_mls", "market_type": "h2h"},
-    "Tennis": {"key": "tennis_atp_aus_open_singles", "market_type": "h2h"}
+# Polymarket Sports Series IDs (for direct Gamma API)
+SPORTS_SERIES = {
+    "NBA": 10345,
+    "NFL": 10346,
+    "NHL": 10348,
+    "Soccer": 10347,  # General soccer
+    "Tennis": 10349,
 }
+
+# Tag ID for game-specific bets (not futures)
+GAME_TAG_ID = 100639
 
 # --- CONTRARIAN SYSTEM PROMPT ---
 RISK_MANAGER_PROMPT = """You are a contrarian sports bettor and risk manager.
@@ -95,65 +97,81 @@ class SportsTrader:
         self.redeemer = AutoRedeemer() if HAS_REDEEMER else None
 
         print(f"="*60)
-        print(f"🏟️ UNIVERSAL SPORTS TRADER - Math + Contrarian Check")
+        print(f"🏟️ SPORTS TRADER - Direct Polymarket Mode")
         print(f"="*60)
         print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE'}")
-        print(f"Odds API Key: {'✅ Found' if ODDS_API_KEY else '❌ Missing'}")
-        if ODDS_API_KEY:
-            print(f"   Key format: {ODDS_API_KEY[:4]}...{ODDS_API_KEY[-4:]} (len={len(ODDS_API_KEY)})")
+        print(f"Data Source: Polymarket Gamma API (NO external API needed)")
+        print(f"Scan Interval: {SCAN_INTERVAL}s ({SCAN_INTERVAL//60} mins)")
         print(f"Balance: ${self.balance:.2f}")
 
-    def get_fair_odds(self, sport_code: str, region="us") -> List[Dict]:
-        """Fetch odds from The Odds API and calculate no-vig probability."""
-        if not ODDS_API_KEY:
-            return []
-            
-        url = f"https://api.the-odds-api.com/v4/sports/{sport_code}/odds/?apiKey={ODDS_API_KEY}&regions={region}&markets=h2h&oddsFormat=american"
+    def get_live_polymarket_sports(self, series_id: int = None) -> List[Dict]:
+        """
+        Fetch LIVE sports markets directly from Polymarket Gamma API.
+        No external API needed - sees exactly what's on polymarket.com/sports/live
+        """
         try:
-            resp = requests.get(url, timeout=10)
+            # Build URL with optional series filter
+            base_url = "https://gamma-api.polymarket.com/events"
+            params = {
+                "active": "true",
+                "closed": "false",
+                "tag_id": GAME_TAG_ID,  # 100639 = game-specific bets
+                "limit": 50,
+            }
+            if series_id:
+                params["series_id"] = series_id
+            
+            resp = requests.get(base_url, params=params, timeout=15)
             if resp.status_code != 200:
-                print(f"   ⚠️ Odds API Error: {resp.status_code}")
-                try:
-                    print(f"   Response: {resp.text[:200]}")
-                except: pass
+                print(f"   ⚠️ Gamma API Error: {resp.status_code}")
                 return []
             
-            games_data = resp.json()
-            analyzed_games = []
-
-            for game in games_data:
-                # Use DraftKings, FanDuel, or Pinnacle as sharp anchors
-                bookie = next((b for b in game['bookmakers'] if b['key'] in ['draftkings', 'fanduel', 'pinnacle']), None)
-                if not bookie and game['bookmakers']:
-                    bookie = game['bookmakers'][0] # Fallback
+            events = resp.json()
+            markets = []
+            
+            for event in events:
+                # Get the markets within this event
+                event_markets = event.get("markets", [])
+                if not event_markets:
+                    continue
                 
-                if not bookie: continue
-
-                outcomes = bookie['markets'][0]['outcomes']
-                
-                # Calculate Implied Probabilities (with Vig)
-                probs = []
-                for outcome in outcomes:
-                    price = outcome['price'] # American Odds
-                    if price < 0: prob = abs(price) / (abs(price) + 100)
-                    else: prob = 100 / (price + 100)
-                    probs.append({"name": outcome['name'], "prob": prob, "price_american": price})
-                
-                # Remove Vig (Normalize to 100%)
-                total_implied = sum(p['prob'] for p in probs)
-                for p in probs:
-                    p['fair_prob'] = p['prob'] / total_implied
-                    p['fair_price'] = p['fair_prob'] # 0.0-1.0
-                
-                analyzed_games.append({
-                    "matchup": f"{game['away_team']} vs {game['home_team']}",
-                    "start_time": game['commence_time'],
-                    "outcomes": probs
-                })
-            return analyzed_games
+                for m in event_markets:
+                    # Parse token IDs
+                    clob_ids = m.get("clobTokenIds", "[]")
+                    try:
+                        import ast
+                        tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                        if len(tokens) < 2:
+                            continue
+                    except:
+                        continue
+                    
+                    # Parse prices
+                    outcomes = m.get("outcomePrices", "[0.5, 0.5]")
+                    if isinstance(outcomes, str):
+                        outcomes = ast.literal_eval(outcomes)
+                    
+                    yes_price = float(outcomes[0]) if outcomes else 0.5
+                    no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
+                    
+                    markets.append({
+                        "id": m.get("id"),
+                        "question": m.get("question", event.get("title", "")),
+                        "event_title": event.get("title", ""),
+                        "yes_token": tokens[0],
+                        "no_token": tokens[1],
+                        "yes_price": yes_price,
+                        "no_price": no_price,
+                        "volume": float(m.get("volume24hr", 0) or 0),
+                        "liquidity": float(m.get("liquidity", 0) or 0),
+                        "end_date": m.get("endDate", ""),
+                        "slug": m.get("slug", ""),
+                    })
+            
+            return markets
             
         except Exception as e:
-            print(f"   Error fetching odds: {e}")
+            print(f"   Error fetching Polymarket sports: {e}")
             return []
 
     def find_polymarket_match(self, home_team: str, away_team: str, sport_config: dict) -> Optional[Dict]:
@@ -276,67 +294,73 @@ class SportsTrader:
         except Exception as e:
             print(f"      ❌ Execution Error: {e}")
 
-    def run_universal_bot(self, sport_name: str):
-        config = SPORTS_CONFIG.get(sport_name)
-        if not config: return
-
-        print(f"\n🌍 SCANNING: {sport_name}...")
+    def scan_live_markets(self):
+        """
+        Scan live Polymarket sports directly using Gamma API.
+        No external API needed - trades based on what's actually live.
+        """
+        print(f"\n🌍 SCANNING POLYMARKET LIVE SPORTS...")
         
-        # 1. Fetch Mathematical Fair Price
-        games = self.get_fair_odds(config['key'])
-        if not games:
-            print("   No games found.")
+        # Fetch all live sports markets
+        markets = self.get_live_polymarket_sports()
+        
+        if not markets:
+            print("   No live sports markets found.")
             return
-
-        for game in games:
-            # Identify Favorite
-            favorite = max(game['outcomes'], key=lambda x: x['fair_prob'])
+        
+        print(f"   📡 Found {len(markets)} live markets")
+        
+        for market in markets:
+            question = market.get("question", "")
+            yes_price = market.get("yes_price", 0.5)
+            no_price = market.get("no_price", 0.5)
             
-            # FILTER 1: Only bet on Favorites > 60% (Value plays)
-            if favorite['fair_prob'] < 0.60: continue
+            # FILTER 1: Must have a clear favorite (>55% implied)
+            if yes_price < 0.55 and no_price < 0.55:
+                continue  # Too close to 50/50
             
-            # FILTER 2: Check Edge (Is Polymarket Cheaper?)
-            # We assume Polymarket is ~5 cents cheaper to make it worth checking injuries
-            target_price = favorite['fair_prob'] - 0.05 
+            # Determine which side is favorite
+            if yes_price >= no_price:
+                favorite_side = "YES"
+                favorite_price = yes_price
+                token_id = market.get("yes_token")
+            else:
+                favorite_side = "NO"
+                favorite_price = no_price
+                token_id = market.get("no_token")
             
-            print(f"   🔎 Potential: {favorite['name']} (True: {favorite['fair_prob']*100:.1f}%)")
-
-            # 3. Contrarian Check (Perplexity)
-            # Only pay for AI call if Math is good
-            synthetic_q = f"Will {favorite['name']} win {game['matchup']}?"
+            # FILTER 2: Skip very high prices (>90c, low upside)
+            if favorite_price > 0.90:
+                continue
             
+            print(f"\n   🔎 Analyzing: {question[:60]}...")
+            print(f"      Market: {favorite_side} @ ${favorite_price:.2f}")
+            
+            # 3. LLM Validation (Perplexity/Gemini)
             try:
-                # Reduced timeout to prevents hanging on one game
                 is_valid, reason, conf = self.validator.validate(
-                    market_question=synthetic_q,
-                    outcome="YES",
-                    price=target_price, 
+                    market_question=question,
+                    outcome=favorite_side,
+                    price=favorite_price,
                     system_prompt=RISK_MANAGER_PROMPT
                 )
             except Exception as e:
-                print(f"      ⚠️ Validator Error/Timeout: {e}")
-                continue # Skip this game and move to the next one
+                print(f"      ⚠️ Validator Error: {e}")
+                continue
             
-            if is_valid:
-                print(f"      ✅ GREEN LIGHT: {reason}")
-                # 4. Find Market & Execute
-                # Extract clean team names from "Away vs Home" string
-                try:
-                    away, home = game['matchup'].split(' vs ')
-                except:
-                    continue # Skip if format is weird
-                    
-                market = self.find_polymarket_match(
-                    home, 
-                    away, 
-                    config
-                )
-                if market:
-                    self.execute_bet(market, "YES", size=10.0, price=target_price)
-                else:
-                    print(f"      ⚠️ No matching Polymarket found for {game['matchup']}")
+            if is_valid and conf >= MIN_CONFIDENCE:
+                print(f"      ✅ GREEN LIGHT: {reason} (conf: {conf*100:.0f}%)")
+                
+                # Calculate bet size
+                bet_size = min(MAX_BET_USD, max(MIN_BET_USD, self.balance * BET_PERCENT))
+                if self.balance < MIN_BET_USD:
+                    print(f"      💸 Insufficient balance: ${self.balance:.2f}")
+                    continue
+                
+                # Execute trade
+                self.execute_bet(market, favorite_side, size=bet_size, price=favorite_price + 0.01)
             else:
-                print(f"      🛑 PASS: {reason}")
+                print(f"      🛑 PASS: {reason} (conf: {conf*100:.0f}%)")
 
     def save_state(self):
         """Save state to json."""
@@ -351,34 +375,37 @@ class SportsTrader:
         except: pass
 
     def run(self):
-        print("🤖 AUTO-TRADER STARTED")
+        print("🤖 SPORTS TRADER STARTED - Direct Polymarket Mode")
         while True:
-            # 0. Sync State
+            # 0. Sync State with Supabase
             if HAS_SUPABASE:
                 try: 
                     supa = get_supabase_state()
-                    if supa and not supa.is_agent_running("sport"): # Assuming 'sport' key
+                    if supa and not supa.is_agent_running("sport"):
                         print("Paused via Supabase.")
                         time.sleep(60)
                         continue
                 except: pass
 
-            # 1. Auto-Redeem
+            # 1. Auto-Redeem winning positions
             if self.redeemer:
                 try: self.redeemer.scan_and_redeem()
                 except: pass
             
-            # 2. Loop Sports
-            for sport in SPORTS_CONFIG.keys():
-                try:
-                    self.run_universal_bot(sport)
-                    time.sleep(2) # Be nice to API
-                except Exception as e:
-                    print(f"Error in {sport}: {e}")
+            # 2. Refresh balance
+            try:
+                self.balance = self.pm.get_usdc_balance()
+            except: pass
+            
+            # 3. Scan live markets directly from Polymarket
+            try:
+                self.scan_live_markets()
+            except Exception as e:
+                print(f"Error scanning markets: {e}")
             
             self.save_state()
-            print("\n⏳ Sleeping 1 hour...")
-            time.sleep(3600)
+            print(f"\n⏳ Next scan in {SCAN_INTERVAL//60} minutes...")
+            time.sleep(SCAN_INTERVAL)
 
 if __name__ == "__main__":
     is_live = "--live" in sys.argv
