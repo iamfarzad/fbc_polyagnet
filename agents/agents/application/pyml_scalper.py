@@ -1628,6 +1628,17 @@ class CryptoScalper:
             try:
                 cycle_count += 1
                 
+                # 1. TURBO REFRESH: Force balance update from chain before every cycle
+                try:
+                    # Bypass cache to get the exact USDC amount after a redemption
+                    current_live_balance = self.pm.get_usdc_balance() 
+                    if hasattr(self, 'context') and current_live_balance != self.context.total_balance:
+                        print(f"   💰 BALANCE UPDATE: ${self.context.total_balance:.2f} -> ${current_live_balance:.2f}")
+                        self.context.update_balance(current_live_balance)
+                except Exception as e:
+                    # Don't let balance check crash the loop
+                    pass
+
                 # Check if enabled - TRY SUPABASE FIRST, THEN LOCAL FILE
                 try:
                     if HAS_SUPABASE:

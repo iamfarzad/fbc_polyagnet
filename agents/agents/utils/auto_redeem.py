@@ -282,6 +282,18 @@ class AutoRedeemer:
             
             time.sleep(10) # 10s precision for unlocking capital
 
+    def scan_and_redeem(self) -> Dict:
+        """Compat wrapper for agents: one-off scan and redeem."""
+        self.update_watchlist()
+        
+        # Track what gets redeemed
+        before_count = len(self.market_watchlist)
+        self.settlement_sniper()
+        after_count = len(self.market_watchlist)
+        
+        redeemed_count = before_count - after_count
+        return {"redeemed": max(0, redeemed_count)}
+
 def redeem_all_positions() -> Dict:
     """One-shot function (standard mode)"""
     redeemer = AutoRedeemer()

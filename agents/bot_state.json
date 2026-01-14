@@ -1,1 +1,12 @@
-{"sports_trader_last_activity": "Trades: 0", "sports_trader_mode": "DRY RUN", "timestamp": "2026-01-14T13:23:55.520430"}
+{
+  "dry_run": false,
+  "safe_running": true,
+  "scalper_running": true,
+  "esports_running": true,
+  "sports_running": true,
+  "dynamic_max_bet": 20.0,
+  "scalper_bet_percent": 0.15,
+  "esports_bet_percent": 0.10,
+  "forced_trade_enabled": false,
+  "min_edge_percent": 3.5
+}

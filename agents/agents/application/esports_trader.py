@@ -765,7 +765,43 @@ class EsportsTrader:
         else:
             print(f"   ⚠️ Order issue: {result}")
             return False
-    
+
+    def run_growth_mode(self):
+        """
+        TURBO MODE: 6-Day Sprint Growth Strategy.
+        - Polls every 0.5s-1s
+        - Aggressive balance compounding
+        """
+        print("🚀 ESPORTS TURBO MODE: Active for 6-day sprint")
+        print(f"   Polling Interval: {POLL_INTERVAL_LIVE}s")
+        print(f"   Compounding: Enabled")
+        
+        while True:
+            try:
+                # SYNC BALANCE: Ensure recent wins from other agents are available
+                try:
+                    self.balance = self.pm_esports.pm.get_usdc_balance()
+                except: pass
+                
+                # Aggressive scaling: Use 10% of total bankroll per live match
+                # Dynamic sizing based on bankroll
+                current_balance = self.balance
+                target_bet = current_balance * 0.10 
+                # Cap at safe limits
+                target_bet = max(MIN_BET_USD, min(target_bet, MAX_BET_USD))
+                
+                # Scan Live Matches
+                self.scan_and_trade()
+                
+                time.sleep(POLL_INTERVAL_LIVE) # High-frequency polling
+                
+            except KeyboardInterrupt:
+                print("\nStopping...")
+                break
+            except Exception as e:
+                print(f"Error in growth loop: {e}")
+                time.sleep(1)
+
     def save_state(self):
         """Save state for dashboard."""
         try:
@@ -790,7 +826,7 @@ class EsportsTrader:
                 json.dump(state_update, f, indent=2)
         except Exception as e:
             print(f"Error saving state: {e}")
-    
+
     def scan_and_trade(self):
         """Main scan loop."""
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
@@ -930,4 +966,9 @@ if __name__ == "__main__":
     is_live = "--live" in sys.argv
     
     trader = EsportsTrader(dry_run=not is_live)
-    trader.run()
+    
+    # Check for growth mode flag
+    if "--growth" in sys.argv:
+        trader.run_growth_mode()
+    else:
+        trader.run()
