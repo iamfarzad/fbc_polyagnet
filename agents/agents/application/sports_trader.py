@@ -99,6 +99,8 @@ class SportsTrader:
         print(f"="*60)
         print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE'}")
         print(f"Odds API Key: {'✅ Found' if ODDS_API_KEY else '❌ Missing'}")
+        if ODDS_API_KEY:
+            print(f"   Key format: {ODDS_API_KEY[:4]}...{ODDS_API_KEY[-4:]} (len={len(ODDS_API_KEY)})")
         print(f"Balance: ${self.balance:.2f}")
 
     def get_fair_odds(self, sport_code: str, region="us") -> List[Dict]:
