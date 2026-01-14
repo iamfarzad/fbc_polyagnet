@@ -403,9 +403,14 @@ class Polymarket:
         return resp
 
     def get_usdc_balance(self) -> float:
-        balance_res = self.usdc.functions.balanceOf(
-            self.get_address_for_private_key()
-        ).call()
+        # Use POLYMARKET_FUNDER (Proxy wallet) if set, otherwise use EOA from private key
+        funder_address = os.getenv("POLYMARKET_FUNDER")
+        if funder_address:
+            balance_address = Web3.to_checksum_address(funder_address)
+        else:
+            balance_address = self.get_address_for_private_key()
+        
+        balance_res = self.usdc.functions.balanceOf(balance_address).call()
         return float(balance_res / 10e5)
 
 
