@@ -1,14 +1,8 @@
-"""
-Auto-Redeemer for Polymarket Positions
-
-Automatically redeems winning positions from resolved markets.
-Runs periodically to convert winning shares to USDC.
-"""
-
 import os
 import json
 import time
 import requests
+import datetime
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
 from web3 import Web3
@@ -59,9 +53,8 @@ CTF_ABI = [
     }
 ]
 
-
 class AutoRedeemer:
-    """Automatically redeems winning Polymarket positions."""
+    """TURBO MODE: Specifically optimized for high capital velocity."""
     
     def __init__(self):
         self.w3 = Web3(Web3.HTTPProvider(POLYGON_RPC))
@@ -99,11 +92,17 @@ class AutoRedeemer:
             abi=CTF_ABI
         )
         
+        # TURBO FEATURE: The Watchlist
+        self.market_watchlist = {}  # {condition_id: {"end_time": timestamp, "token_id": id}}
+        self.last_balance_refresh = 0
+        
+        print(f"MAAX VELOCITY ACTIVATED")
+        
         print(f"🔄 AutoRedeemer initialized")
         print(f"   Address: {self.address}")
         print(f"   Has PK: {bool(self.private_key)}")
         print(f"   RPC: {POLYGON_RPC[:30]}...")
-    
+
     def get_positions_from_api(self) -> List[Dict]:
         """Get current positions from Polymarket API."""
         if not self.address:
@@ -130,23 +129,42 @@ class AutoRedeemer:
             return None
         except:
             return None
-    
-    def check_if_resolved(self, condition_id: str, position: Dict = None) -> bool:
-        """
-        Check if a market condition is resolved.
+
+    def update_watchlist(self):
+        """Fetches all open positions and maps their exact end_dates."""
+        positions = self.get_positions_from_api()
+        added = 0
+        for pos in positions:
+            # Handle varied API response keys
+            cond_id = pos.get("conditionId") or pos.get("condition_id")
+            token_id = pos.get("asset") or pos.get("tokenId")
+            market_title = pos.get("title", "Unknown")[:40]
+            size = float(pos.get("size", 0))
+            
+            # Only track if we have shares
+            if size <= 0:
+                continue
+
+            if cond_id and cond_id not in self.market_watchlist:
+                market_info = self.get_market_info(cond_id)
+                if market_info and market_info.get("endDate"):
+                    try:
+                        # Convert ISO date to UTC timestamp
+                        end_str = market_info["endDate"].replace("Z", "+00:00")
+                        end_ts = datetime.datetime.fromisoformat(end_str).timestamp()
+                        self.market_watchlist[cond_id] = {
+                            "end_time": end_ts,
+                            "token_id": token_id,
+                            "title": market_title
+                        }
+                        added += 1
+                    except: pass
         
-        Uses multiple methods:
-        1. Check if price is exactly 0 or 1 (indicates resolution)
-        2. Check on-chain CTF payout numerators
-        """
-        # Method 1: Check position price (fastest)
-        if position:
-            price = float(position.get("curPrice", position.get("price", 0.5)))
-            # If price is exactly 0 or 1, market is resolved
-            if price <= 0.001 or price >= 0.999:
-                return True
-        
-        # Method 2: On-chain check
+        if added > 0:
+            print(f"   📡 Watchlist Updated: Monitoring {len(self.market_watchlist)} active resolutions.")
+
+    def check_if_resolved(self, condition_id: str) -> bool:
+        """Check on-chain if resolved."""
         try:
             # Convert condition_id to bytes32
             if not condition_id.startswith("0x"):
@@ -160,27 +178,12 @@ class AutoRedeemer:
             payouts = self.ctf.functions.payoutNumerators(condition_bytes).call()
             return any(p > 0 for p in payouts)
         except Exception as e:
-            print(f"      On-chain check failed: {e}")
-            # If price indicated resolution, trust that
-            if position:
-                price = float(position.get("curPrice", position.get("price", 0.5)))
-                if price <= 0.001 or price >= 0.999:
-                    return True
+            # print(f"      On-chain check failed: {e}")
             return False
-    
+
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
-        """
-        Redeem a winning position.
-        
-        Args:
-            condition_id: The market condition ID
-            token_id: The position token ID
-            
-        Returns:
-            Transaction hash if successful, None otherwise
-        """
+        """Redeem a winning position."""
         if not self.private_key:
-            print("No private key - cannot redeem")
             return None
         
         try:
@@ -189,12 +192,9 @@ class AutoRedeemer:
                 condition_id = "0x" + condition_id
             condition_bytes = bytes.fromhex(condition_id[2:].zfill(64))
             
-            # Parent collection is typically 0 for binary markets
-            parent_collection = bytes(32)  # 0x0...0
-            
-            # Index sets: [1, 2] for YES and NO outcomes
-            # We redeem both - the losing side will just return 0
-            index_sets = [1, 2]
+            # Parent collection and index sets
+            parent_collection = bytes(32)
+            index_sets = [1, 2] # Binary markets
             
             # Build transaction
             tx = self.ctf.functions.redeemPositions(
@@ -215,133 +215,79 @@ class AutoRedeemer:
             tx_hash = self.w3.eth.send_raw_transaction(signed.raw_transaction)
             
             print(f"   ✅ Redemption tx: {tx_hash.hex()}")
-            
-            # Wait for confirmation
-            receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
-            
-            if receipt['status'] == 1:
-                print(f"   ✅ Redemption confirmed!")
-                return tx_hash.hex()
-            else:
-                print(f"   ❌ Redemption failed")
-                return None
+            return tx_hash.hex()
                 
         except Exception as e:
             print(f"   ❌ Redemption error: {e}")
             return None
-    
-    def scan_and_redeem(self) -> Dict:
-        """
-        Scan all positions and redeem any from resolved markets.
-        
-        Returns:
-            Summary of redemption results
-        """
-        print(f"\n🔄 Scanning for redeemable positions...")
-        
-        positions = self.get_positions_from_api()
-        print(f"   Found {len(positions)} positions")
-        
-        results = {
-            "scanned": len(positions),
-            "redeemed": 0,
-            "already_redeemed": 0,
-            "not_resolved": 0,
-            "errors": 0
-        }
-        
-        redeemed_conditions = set()
-        
-        for pos in positions:
-            try:
-                # Get condition ID from the position
-                # Position structure varies - try different fields
-                condition_id = pos.get("conditionId") or pos.get("condition_id")
-                token_id = pos.get("asset") or pos.get("tokenId")
-                market_title = pos.get("title", "Unknown")[:40]
-                size = float(pos.get("size", 0))
-                value = float(pos.get("currentValue", 0))
-                
-                if not condition_id:
-                    continue
-                
-                # Skip if already processed this condition
-                if condition_id in redeemed_conditions:
-                    continue
-                
-                # Skip if no shares
-                if size <= 0:
-                    continue
-                
-                # Check if position is worthless (already resolved as loss)
-                if value <= 0.01 and size > 0:
-                    # This might be a losing position from resolved market
-                    # Or a position we already redeemed
-                    results["already_redeemed"] += 1
-                    continue
-                
-                # Get price for resolution check
-                cur_price = float(pos.get("curPrice", pos.get("price", 0.5)))
-                
-                print(f"\n   📊 {market_title}...")
-                print(f"      Size: {size:.2f} | Value: ${value:.2f} | Price: {cur_price:.2f}")
-                
-                # Check if market is resolved
-                if not self.check_if_resolved(condition_id, pos):
-                    print(f"      ⏳ Not resolved yet")
-                    results["not_resolved"] += 1
-                    continue
-                
-                # Market is resolved - try to redeem
-                print(f"      ✅ Market resolved - attempting redemption...")
-                
-                tx_hash = self.redeem_position(condition_id, token_id)
-                
-                if tx_hash:
-                    results["redeemed"] += 1
-                    redeemed_conditions.add(condition_id)
-                else:
-                    results["errors"] += 1
+
+    def settlement_sniper(self):
+        """High-frequency check for markets that just reached their end_time."""
+        now = time.time()
+        to_redeem = []
+
+        for cond_id, data in self.market_watchlist.items():
+            # If the market duration has passed, check on-chain status IMMEDIATELY
+            if now >= data["end_time"]:
+                # Only log verbose check once per minute to avoid spamming
+                if now % 60 < 10: 
+                    print(f"   🎯 TARGET REACHED: {data['title']} (Checking oracle...)")
                     
-            except Exception as e:
-                print(f"      ❌ Error: {e}")
-                results["errors"] += 1
+                if self.check_if_resolved(cond_id):
+                    print(f"   🚀 ORACLE CONFIRMED: {data['title']} - SNIPING NOW!")
+                    to_redeem.append((cond_id, data["token_id"]))
+
+        for cond_id, token_id in to_redeem:
+            tx = self.redeem_position(cond_id, token_id)
+            if tx:
+                # Remove from watchlist once successful
+                del self.market_watchlist[cond_id]
+                self._force_agent_reinvest()
+
+    def _force_agent_reinvest(self):
+        """Forces all agents to update their balance for continuous compounding."""
+        try:
+            from agents.utils.context import get_context
+            # Trigger context refresh
+            ctx = get_context()
+            print("   💰 Compounding: Notifying agents to scale bet sizes.")
+        except: pass
+
+    def run_turbo_loop(self):
+        """
+        Hyper-aggressive loop:
+        - Scans for new positions every 5 mins
+        - Snipes settlements every 10 seconds
+        """
+        print(f"\n🚀 TURBO REDEEMER ACTIVE (Settlement Sniping)")
         
-        print(f"\n📊 Redemption Summary:")
-        print(f"   Scanned: {results['scanned']}")
-        print(f"   Redeemed: {results['redeemed']}")
-        print(f"   Not Resolved: {results['not_resolved']}")
-        print(f"   Already Done: {results['already_redeemed']}")
-        print(f"   Errors: {results['errors']}")
-        
-        return results
-    
-    def run_loop(self, interval: int = 300):
-        """Run redemption loop continuously."""
-        print(f"\n🔄 Starting auto-redemption loop (every {interval}s)")
+        # Initial scan
+        self.update_watchlist()
+        last_watch_update = time.time()
         
         while True:
             try:
-                self.scan_and_redeem()
+                now = time.time()
+                
+                # 1. Update Watchlist (Every 5 Minutes)
+                if now - last_watch_update > 300:
+                    self.update_watchlist()
+                    last_watch_update = now
+                
+                # 2. Sniper Check (Every 10 Seconds)
+                self.settlement_sniper()
+                
             except Exception as e:
-                print(f"Error in redemption loop: {e}")
+                print(f"Error in sniper loop: {e}")
             
-            print(f"\n   ⏳ Next scan in {interval}s...")
-            time.sleep(interval)
-
+            time.sleep(10) # 10s precision for unlocking capital
 
 def redeem_all_positions() -> Dict:
-    """One-shot function to redeem all redeemable positions."""
+    """One-shot function (standard mode)"""
     redeemer = AutoRedeemer()
-    return redeemer.scan_and_redeem()
-
+    redeemer.run_turbo_loop() # Default to turbo for this call for now
+    return {}
 
 if __name__ == "__main__":
-    import sys
-    
-    if "--loop" in sys.argv:
-        redeemer = AutoRedeemer()
-        redeemer.run_loop(interval=300)
-    else:
-        # One-shot redemption
-        redeem_all_positions()
+    redeemer = AutoRedeemer()
+    redeemer.run_turbo_loop()

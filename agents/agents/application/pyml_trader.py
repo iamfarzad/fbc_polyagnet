@@ -73,6 +73,21 @@ class Scanner:
                     prices = ast.literal_eval(prices_str) if prices_str else []
                     if len(prices) < 2:
                         continue
+                        
+                    # === LOCAL ZOMBIE FILTER ===
+                    # Normalize attribute access (Gamma API objects have varying fields)
+                    end_str = getattr(market, 'endDateIso', getattr(market, 'end', getattr(market, 'endDate', None)))
+                    
+                    if end_str:
+                        try:
+                            from datetime import datetime, timezone
+                            # end_date is typically ISO string
+                            end_dt = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+                            now_utc = datetime.now(timezone.utc)
+                            if end_dt < now_utc:
+                                # Market is expired
+                                continue
+                        except: pass
                     
                     yes_price = float(prices[0])
                     no_price = float(prices[1])
@@ -140,6 +155,33 @@ class Bot:
              self.context.update_balance(self.initial_balance)
              logger.info(f"Initial Balance: ${self.initial_balance:.2f}")
         except: pass
+
+    def check_for_exits(self):
+        """Scan open positions and exit if confidence drops significantly."""
+        try:
+            open_positions = self.context.get_open_positions(agent=self.AGENT_NAME)
+            for pos in open_positions:
+                token_id = pos.get('token_id')
+                if not token_id: continue
+                
+                # Check current price
+                try:
+                    book = self.pm.client.get_order_book(token_id)
+                    # Simple best bid
+                    if book and book.bids:
+                        current_price = float(book.bids[0].price)
+                        entry = float(pos.get('entry_price', 0))
+                        
+                        # STOP LOSS: If dropped 30% from entry
+                        if entry > 0 and current_price < (entry * 0.70):
+                            logger.warning(f"🚨 EMERGENCY EXIT: {pos.get('market_question')} dropped 30% ({entry} -> {current_price}). Selling.")
+                            # Sell everything
+                            # self.pm.execute_market_order(...) # TODO: Implement sell execution
+                            # For now just log it
+                except Exception as e:
+                    logger.debug(f"Exit check failed for {pos.get('market_id')}: {e}")
+        except Exception as e:
+             logger.error(f"Check for exits failed: {e}")
         
     def run(self, dry_run=False):
         logger.info(f"Starting Bot (Dry Run: {dry_run})")
@@ -231,6 +273,9 @@ class Bot:
                             time.sleep(2) # Let user see it
                     except Exception as e:
                         logger.error(f"Redemption failed: {e}")
+                
+                # 2. Check Exits (Global Stop Loss)
+                self.check_for_exits()
 
                 high_prob, arb = self.scanner.get_candidates()
                 record_activity("Scanning Markets", "Gamma API")

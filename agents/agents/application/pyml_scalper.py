@@ -162,7 +162,8 @@ class CryptoScalper:
         self.binance_history = {}     # symbol -> deque of (timestamp, price)
         self.binance_momentum = {}    # symbol -> momentum %
         self.binance_connected = False
-        self.current_threshold = BASE_MOMENTUM_THRESHOLD
+        self.base_threshold = BASE_MOMENTUM_THRESHOLD # Instance variable for adaptive logic
+        self.current_threshold = self.base_threshold
         
         # SESSION STATS - Track all trades
         self.session_start = datetime.datetime.now()
@@ -217,6 +218,29 @@ class CryptoScalper:
         
         print(f"=" * 60)
         print()
+
+    def update_adaptive_threshold(self):
+        """
+        Dynamically adjusts the momentum threshold based on recent win rate.
+        """
+        # Fix: Ensure trade_log exists (it's initialized in __init__ as self.trade_log = [])
+        if not hasattr(self, 'trade_log') or not self.trade_log:
+            self.current_threshold = BASE_MOMENTUM_THRESHOLD
+            return
+
+        # Look at last 10 trades
+        recent_trades = self.trade_log[-10:]
+        wins = sum(1 for t in recent_trades if t.get("pnl_usd", 0) > 0)
+        win_rate = wins / len(recent_trades) if recent_trades else 0
+
+        if win_rate < 0.40:
+            # Struggling: Increase threshold to be more selective
+            self.current_threshold = min(MAX_MOMENTUM_THRESHOLD, self.current_threshold * 1.2)
+            print(f"   📉 Win rate low ({win_rate:.0%}). Increasing threshold to {self.current_threshold:.3f}%")
+        elif win_rate > 0.70:
+            # Crushing it: Lower threshold to catch more niche moves
+            self.current_threshold = max(MIN_MOMENTUM_THRESHOLD, self.current_threshold * 0.9)
+            print(f"   📈 Win rate high ({win_rate:.0%}). Lowering threshold to {self.current_threshold:.3f}%")
 
     def get_open_positions(self):
         """Fetch current open positions from Polymarket."""
@@ -804,6 +828,18 @@ class CryptoScalper:
                 
                 try:
                     tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                    # Parse prices (usually string array '["0.5", "0.5"]')
+                    raw_prices = m.get("outcomePrices")
+                    prices = ast.literal_eval(raw_prices) if isinstance(raw_prices, str) else raw_prices
+                    
+                    yes_price = 0.5
+                    no_price = 0.5
+                    if prices and len(prices) >= 2:
+                        try:
+                            yes_price = float(prices[0])
+                            no_price = float(prices[1])
+                        except: pass
+
                     if len(tokens) >= 2:
                         available.append({
                             "id": m.get("id"),
@@ -813,6 +849,8 @@ class CryptoScalper:
                             "down_token": tokens[1],
                             "condition_id": m.get("conditionId"),
                             "end_date": m.get("endDate"),
+                            "yes_price": yes_price,
+                            "no_price": no_price
                         })
                 except:
                     pass
@@ -884,7 +922,7 @@ class CryptoScalper:
         Returns: dynamic threshold for this specific trade
         """
         # Start with base threshold
-        threshold = BASE_MOMENTUM_THRESHOLD
+        threshold = self.base_threshold
         
         # 1. VOLATILITY ADJUSTMENT
         # Higher volatility = need stronger signal to avoid false positives
@@ -943,7 +981,7 @@ class CryptoScalper:
         symbol = symbol_map.get(asset, "")
         
         # Calculate DYNAMIC threshold for this specific trade
-        threshold = self.calculate_dynamic_threshold(symbol, market_price) if symbol else BASE_MOMENTUM_THRESHOLD
+        threshold = self.calculate_dynamic_threshold(symbol, market_price) if symbol else self.base_threshold
         volatility = self.calculate_volatility(symbol) if symbol else 0
         
         # Check Binance momentum (PRIMARY - fastest)
@@ -1327,16 +1365,52 @@ class CryptoScalper:
                     if opened >= needed:
                         break
                     # Check if we already have position in this exact market
+                    # Fix: Ensure logic handles already-open check correctly
                     up_token = market["up_token"]
                     down_token = market["down_token"]
                     if up_token in self.active_positions or down_token in self.active_positions:
                         continue
-                    if self.open_position(market, force_trade=force_trade):
-                        opened += 1
-                        if force_trade:
-                            self.forced_trades += 1
-                            self.last_forced_trade_time = datetime.datetime.now()
-                        time.sleep(1)
+                    
+                    # === MODEL ROUTER LOGIC ===
+                    # 1. Determine direction and initial checks
+                    asset = market["asset"]
+                    momentum = self.binance_momentum.get(asset, 0)
+                    side_name = "YES" if momentum > 0 else "NO"
+                    market_price = float(market["yes_price"]) if momentum > 0 else float(market["no_price"])
+                    
+                    # 2. Audit Check
+                    # Audit if Forced OR Price is Skewed (>70c / <30c)
+                    needs_audit = force_trade or market_price > 0.70 or market_price < 0.30
+                    
+                    is_valid_trade = True
+                    if needs_audit:
+                        print(f"   🛡️ ESCALATING TO AUDITOR: {asset.upper()} {side_name}")
+                        try:
+                            from agents.agents.utils.validator import Validator, SharedConfig
+                            v = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
+                            is_valid, reason, conf = v.validate(
+                                market_question=market["question"],
+                                outcome=side_name,
+                                price=market_price,
+                                min_confidence=0.60 # Lower bar for scalping
+                            )
+                            if not is_valid:
+                                print(f"   ❌ AUDITOR VETO: {reason}")
+                                is_valid_trade = False
+                        except Exception as e:
+                            print(f"   ⚠️ Auditor Error: {e} - Proceeding with caution")
+                            # If auditor fails, we default to PASSING the trade if it's forced, 
+                            # but skipping if it's just a skew check? 
+                            # Let's start safely: if auditor errors, we skip.
+                            is_valid_trade = False
+                            
+                    if is_valid_trade:
+                        if self.open_position(market, force_trade=force_trade):
+                            opened += 1
+                            if force_trade:
+                                self.forced_trades += 1
+                                self.last_forced_trade_time = datetime.datetime.now()
+                            time.sleep(1)
             
             if opened > 0:
                 print(f"   ✅ Opened {opened} new position(s)" + (" [FORCED]" if force_trade else ""))
@@ -1587,6 +1661,9 @@ class CryptoScalper:
                             self.save_state({"scalper_last_activity": msg})
                             time.sleep(2)
                     except: pass
+
+                # Update adaptive threshold based on PnL
+                self.update_adaptive_threshold()
 
                 self.check_and_rebalance()
                 

@@ -20,12 +20,17 @@ def kelly_size(balance: float, ev: float, price: float, max_risk_pct: float = 0.
         
     kelly_f = ev / (1.0 - price)
     size_pct = kelly_f * 0.5 
-    final_pct = min(size_pct, max_risk_pct)
+    
+    # PATCH: Ensure we never bet more than 10% of balance regardless of Kelly
+    SAFE_CAP = 0.10 
+    final_pct = min(size_pct, max_risk_pct, SAFE_CAP)
+    
     size_usd = balance * final_pct
     
-    # Minimum viable trade size (Polymarket floor)
-    # If calculated size is > $0.10, floor it at $0.50 (min meaningful bet)
-    # otherwise return 0 to skip.
+    # Safety: Absolute ceiling for the account size provided ($200)
+    # Don't let a single bet exceed $20 until balance grows.
+    size_usd = min(size_usd, 20.0)
+    
     return max(size_usd, 0.50) if size_usd > 0.10 else 0.0
 
 def check_drawdown(initial_balance: float, current_balance: float, drawdown_limit: float = 0.05) -> bool:

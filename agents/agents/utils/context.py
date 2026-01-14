@@ -222,6 +222,23 @@ class SharedContext:
         if last_trade and (time.time() - last_trade) < self.TRADE_COOLDOWN_SEC:
             return False, f"Trade cooldown active ({self.TRADE_COOLDOWN_SEC}s)"
         
+        # === POLARIZATION CHECK (Conflict Resolution) ===
+        # Ensure we don't bet against ourselves (e.g., Safe bets YES, Scalper bets NO)
+        # 1. Check open positions
+        for p in all_positions:
+            if p.get("market_id") == market_id and p.get("agent") != agent:
+                 # Check for opposite outcome
+                 my_outcome = "YES" # Assume intent (caller should ideally pass this, but simplified)
+                 their_outcome = p.get("outcome", "").upper()
+                 
+                 # Simplistic conflict map
+                 conflicts = {"YES": "NO", "NO": "YES", "UP": "DOWN", "DOWN": "UP"}
+                 
+                 # Optimization: access intention if passed (future) - for now conservative block
+                 # If another agent is in this market, block unless it's a "Copy" trade which might follow smart money
+                 if agent != "copy" and p.get("agent") != "copy":
+                     return False, f"Conflict: {p.get('agent')} already active in this market. Polarization risk."
+
         return True, "OK"
     
     # =========== UPDATE METHODS ===========

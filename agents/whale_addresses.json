@@ -1,70 +1,70 @@
 {
-  "timestamp": 1768078494.414001,
+  "timestamp": 1768389687.860138,
   "traders": [
     {
       "name": "kch123",
       "address": "0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee",
-      "reason": "Ranked #1 on Polymarket\u2019s overall profit leaderboard by PnL, with over $3M in realized profit.[1]"
-    },
-    {
-      "name": "SemyonMarmeladov",
-      "address": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
-      "reason": "Consistently top-ranked Polymarket trader, #2 on the overall profit leaderboard with more than $1.4M profit.[1]"
-    },
-    {
-      "name": "SeriouslySirius",
-      "address": "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881",
-      "reason": "High-profile Polymarket trader and content creator, #3 on the overall PnL leaderboard with over $1.25M profit.[1]"
+      "reason": "Top ranked trader on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "gmanas",
       "address": "0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2",
-      "reason": "Top 5 Polymarket trader by total profit, with more than $1.18M in realized gains.[1]"
+      "reason": "Second on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "DrPufferfish",
       "address": "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e",
-      "reason": "Among the highest-earning traders on Polymarket, in the top 5 by overall profit.[1]"
+      "reason": "Third on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "0x006cc834Cc092684F1B56626E23BEdB3835c16ea-1729683673397",
       "address": "0x006cc834cc092684f1b56626e23bedb3835c16ea",
-      "reason": "Anon wallet-linked account in the top 10 overall PnL leaderboard, with over $1.13M profit.[1]"
+      "reason": "Fourth on Polymarket monthly profit leaderboard[1]"
     },
     {
-      "name": "GamblingIsAllYouNeed",
-      "address": "0x507e52ef684ca2dd91f90a9d26d149dd3288beae",
-      "reason": "Well-known Polymarket \u2018whale\u2019 trader, ranked in the top 10 by overall profit with nearly $1M PnL.[1]"
+      "name": "SeriouslySirius",
+      "address": "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881",
+      "reason": "Sixth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "212121212121212121212",
       "address": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
-      "reason": "Large, pseudonymous account on the overall leaderboard with more than $800k profit.[1]"
+      "reason": "Seventh on Polymarket monthly profit leaderboard[1]"
+    },
+    {
+      "name": "SemyonMarmeladov",
+      "address": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
+      "reason": "Eighth on Polymarket monthly profit leaderboard[1]"
+    },
+    {
+      "name": "GamblingIsAllYouNeed",
+      "address": "0x507e52ef684ca2dd91f90a9d26d149dd3288beae",
+      "reason": "Tenth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "Ems123",
       "address": "0xb889590a2fab0c810584a660518c4c020325a430",
-      "reason": "Profitable trader in the top 10 overall PnL rankings with over half a million in gains.[1]"
+      "reason": "Eleventh on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "RN1",
       "address": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
-      "reason": "Top-10 Polymarket trader by lifetime profit with more than $540k PnL.[1]"
-    },
-    {
-      "name": "swisstony",
-      "address": "0x204f72f35326db932158cba6adff0b9a1da95e14",
-      "reason": "High-earning trader on the Polymarket leaderboard with nearly $451k in realized profit.[1]"
+      "reason": "Twelfth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "0xe74A4446EfD66A4de690962938F550D8921A40Ee-1764438981358",
       "address": "0xe74a4446efd66a4de690962938f550d8921a40ee",
-      "reason": "Wallet-identified account in the top ~15 overall PnL, with about $410k profit.[1]"
+      "reason": "Fifteenth on Polymarket monthly profit leaderboard[1]"
+    },
+    {
+      "name": "swisstony",
+      "address": "0x204f72f35326db932158cba6adff0b9a1da95e14",
+      "reason": "Known top trader"
     },
     {
       "name": "BlueHorseshoe86",
       "address": "0x44de2a52d8d2d3ddcf39d58e315a10df53ba9c08",
-      "reason": "Recognized \u2018whale\u2019-level trader in terms of profit, with over $319k overall PnL.[1]"
+      "reason": "Known top trader"
     }
   ]
 }

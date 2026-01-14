@@ -7,7 +7,8 @@ import time
 import uuid
 from datetime import datetime
 from dotenv import load_dotenv
-from typing import Tuple, List
+from typing import Tuple, List, Dict
+from openai import OpenAI  # Tier 3 Auditor
 
 logger = logging.getLogger("PyMLBot")
 
@@ -18,226 +19,160 @@ try:
 except ImportError:
     HAS_CONTEXT = False
 
-
 class SharedConfig:
     def __init__(self):
         load_dotenv()
         self.MIN_PROB = float(os.getenv("MIN_PROB", "0.90"))
         self.MAX_EXPOSURE = float(os.getenv("MAX_EXPOSURE", "0.25"))
         self.PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+        self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # Tier 3 Key
         self.POLYGON_WALLET_PRIVATE_KEY = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
         
         if not self.PERPLEXITY_API_KEY:
-            print("Warning: No PERPLEXITY_API_KEY found.")
-
+            logger.warning("No PERPLEXITY_API_KEY found. Research phase will fail.")
+        if not self.OPENAI_API_KEY:
+            logger.warning("No OPENAI_API_KEY found. Final Logic Audit will be skipped.")
 
 class Validator:
     """
-    Validates trading opportunities using Perplexity AI for research.
-    
-    The LLM is instructed to:
-    1. Search for recent news and developments
-    2. Analyze relevant statistics and polls
-    3. Consider market sentiment and expert opinions
-    4. Evaluate if there's an edge vs current market price
+    Three-Tier Validation System:
+    Tier 1 & 2: Perplexity Sonar-Pro (Web Research & Data Gathering - Uses Credits)
+    Tier 3: OpenAI GPT-4o mini (Logic Audit & Hallucination Check - Low Cost)
     """
     
     def __init__(self, config: SharedConfig, agent_name: str = "safe"):
         self.config = config
         self.agent_name = agent_name
-        self.api_url = "https://api.perplexity.ai/chat/completions"
+        self.perplexity_url = "https://api.perplexity.ai/chat/completions"
         self.context = get_context() if HAS_CONTEXT else None
+        
+        # Initialize OpenAI Client for Tier 3
+        if self.config.OPENAI_API_KEY:
+            self.openai_client = OpenAI(api_key=self.config.OPENAI_API_KEY)
+        else:
+            self.openai_client = None
 
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "", 
-                 min_confidence: float = 0.70, min_edge_pct: float = 0.05, system_prompt: str = None) -> Tuple[bool, str, float]:
-        """
-        Validates a trade opportunity using Perplexity.
+                 min_confidence: float = 0.70, min_edge_pct: float = 0.05) -> Tuple[bool, str, float]:
         
-        Args:
-            market_question: The Polymarket question text
-            outcome: YES or NO
-            price: Current market price (0.0-1.0)
-            additional_context: Extra info (e.g., "copy trading signal")
-            min_confidence: Minimum LLM confidence required (0.0-1.0)
-            min_edge_pct: Minimum edge required (e.g. 0.05 for 5%)
-            system_prompt: Optional custom system prompt (overrides default)
-            
-        Returns:
-            (is_valid, reason, confidence_score)
-        """
-        if not self.config.PERPLEXITY_API_KEY:
-            return True, "No Perplexity Key, skipping validation", 1.0
-
-        implied_prob = price * 100
+        # --- PHASE 1: PERPLEXITY RESEARCH (Tier 1 & 2) ---
+        # Purpose: Use your $4,000 credits for heavy web-searching and news gathering.
+        research_result = self._research_phase(market_question, outcome, price, additional_context)
         
-        if not system_prompt:
-            system_prompt = """You are an elite superforecaster AI specialized in prediction markets.
+        if not research_result or research_result.get("recommendation") == "PASS":
+            reason = research_result.get("reason", "Research phase did not find sufficient edge.") if research_result else "Research API Error"
+            return False, reason, 0.0
 
-Your task is to research and analyze betting opportunities on Polymarket.
-You have access to real-time web search - USE IT to gather the latest information.
-
-For each market, you must:
-1. SEARCH for the most recent news articles (last 24-48 hours)
-2. FIND relevant statistics, polls, or expert predictions
-3. IDENTIFY any breaking developments that affect the outcome
-4. COMPARE your estimated true probability vs the market price
-5. DETERMINE if there's a profitable edge (true prob significantly > market price)
-
-Be rigorous. Most opportunities are NOT good bets. Only recommend betting when:
-- You have HIGH confidence based on concrete evidence
-- The true probability is meaningfully higher than the market price
-- Recent news/data strongly supports the outcome
-
-IMPORTANT: If this is a sports/politics market, search for odds from professional bookmakers (Pinnacle, Betfair, PredictIt). 
-If pro bookmakers have this at 70% and Polymarket is at 60%, there may be edge. Use bookmaker odds as your anchor."""
-
-        user_prompt = f"""MARKET ANALYSIS REQUEST
-
-Question: "{market_question}"
-Outcome to evaluate: {outcome}
-Current market price: ${price:.2f} (implied {implied_prob:.1f}% probability)
-
-{f"Additional context: {additional_context}" if additional_context else ""}
-
-RESEARCH INSTRUCTIONS:
-1. Search for the latest news about this topic (last 48 hours)
-2. Find any relevant polls, statistics, or expert opinions
-3. Identify key factors that will determine the outcome
-4. Estimate the TRUE probability based on your research
-5. Calculate if there's a profitable edge vs the ${price:.2f} market price
-
-OUTPUT FORMAT (JSON only):
-{{
-  "recent_news": "Brief summary of latest developments you found",
-  "key_factors": "Main factors affecting the outcome",
-  "estimated_true_prob": 0.XX,
-  "edge_analysis": "Why the market may be mispriced (or not)",
-  "confidence": 0.XX,
-  "recommendation": "BET" or "PASS",
-  "reason": "One sentence summary"
-}}
-
-CRITICAL RULES:
-- Only recommend BET if confidence > {min_confidence:.2f} AND estimated_true_prob > {price + min_edge_pct:.2f}
-- If news is unclear or mixed, recommend PASS
-- If you can't find recent relevant news, recommend PASS
-- Be conservative - capital preservation is priority"""
-
-        headers = {
-            "Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        # --- PHASE 2: OPENAI LOGIC AUDIT (Tier 3) ---
+        # Purpose: Use GPT-4o mini's reasoning to audit the Perplexity research for "hallucinated edge."
+        # Cost: Minimal (~$0.15 / 1M tokens).
+        if self.openai_client:
+            return self._audit_phase(market_question, outcome, price, research_result, min_confidence, min_edge_pct)
         
+        # Fallback if OpenAI isn't configured
+        logger.warning("OpenAI Auditor not configured. Relying solely on Perplexity Research.")
+        is_valid = research_result.get("recommendation") == "BET"
+        return is_valid, research_result.get("reason", ""), research_result.get("confidence", 0.0)
+
+    def _research_phase(self, question: str, outcome: str, price: float, context: str) -> Dict:
+        """Deep research using Perplexity credits."""
+        prompt = f"""Search for the latest news (last 48h) and data for: "{question}"
+        Evaluate the {outcome} outcome currently priced at ${price:.2f}.
+        Identify breaking news, polls, or expert analysis.
+        
+        Context/Instructions: {context}
+        
+        RESPOND ONLY IN JSON:
+        {{
+          "news_summary": "Latest verified info",
+          "key_factors": "Pro/Con factors",
+          "estimated_true_prob": 0.XX,
+          "recommendation": "BET" or "PASS",
+          "reason": "One sentence summary",
+          "confidence": 0.XX
+        }}"""
+
+        headers = {"Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}", "Content-Type": "application/json"}
         payload = {
             "model": "sonar-pro",
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            "temperature": 0.1,
-            "max_tokens": 1000
+            "messages": [{"role": "system", "content": "You are a professional market researcher."}, {"role": "user", "content": prompt}],
+            "temperature": 0.1
         }
-        
-        start_time = time.time()
-        
-        try:
-            response = requests.post(self.api_url, json=payload, headers=headers, timeout=30)
-            response.raise_for_status()
-            result = response.json()
-            content = result["choices"][0]["message"]["content"]
-            
-            # Calculate tokens and cost
-            usage = result.get("usage", {})
-            tokens_used = usage.get("total_tokens", 0)
-            # Perplexity sonar-pro: ~$5/1M tokens
-            cost_usd = tokens_used * 0.000005
-            
-            duration_ms = int((time.time() - start_time) * 1000)
-            
-            # Parse JSON from response
-            json_match = re.search(r"\{.*\}", content, re.DOTALL)
-            if json_match:
-                data = json.loads(json_match.group(0))
-                confidence = float(data.get("confidence", 0))
-                rec = data.get("recommendation", "PASS")
-                reason = data.get("reason", "")
-                estimated_prob = float(data.get("estimated_true_prob", 0))
-                news = data.get("recent_news", "")
-                key_factors = data.get("key_factors", "")
-                edge_analysis = data.get("edge_analysis", "")
-                
-                logger.info(f"LLM Research: {rec} | Conf: {confidence:.2f} | Est Prob: {estimated_prob:.2f}")
-                logger.info(f"  News: {news[:100]}...")
-                logger.info(f"  Reason: {reason}")
-                
-                # Log to context for UI
-                if self.context and HAS_CONTEXT:
-                    self.context.log_llm_activity(LLMActivity(
-                        id=str(uuid.uuid4())[:8],
-                        agent=self.agent_name,
-                        timestamp=datetime.now().isoformat(),
-                        action_type="validate",
-                        market_question=market_question[:100],
-                        prompt_summary=f"Evaluate {outcome} @ ${price:.2f} ({implied_prob:.0f}% implied)",
-                        reasoning=f"News: {news[:150]}... | Factors: {key_factors[:100]}... | Edge: {edge_analysis[:100]}...",
-                        conclusion=rec,
-                        confidence=confidence,
-                        data_sources=[s.strip() for s in news.split(",")[:3]] if news else ["No sources"],
-                        duration_ms=duration_ms,
-                        tokens_used=tokens_used,
-                        cost_usd=cost_usd
-                    ))
-                
-                # Validate the recommendation
-                is_valid = (
-                    rec == "BET" and 
-                    confidence >= min_confidence and 
-                    estimated_prob > (price + min_edge_pct)
-                )
-                
-                return is_valid, reason, confidence
-            else:
-                logger.warning(f"Could not parse LLM response: {content[:200]}")
-                if self.context and HAS_CONTEXT:
-                    self.context.log_llm_activity(LLMActivity(
-                        id=str(uuid.uuid4())[:8],
-                        agent=self.agent_name,
-                        timestamp=datetime.now().isoformat(),
-                        action_type="validate",
-                        market_question=market_question[:100],
-                        prompt_summary=f"Evaluate {outcome} @ ${price:.2f}",
-                        reasoning=f"Parse error: {content[:100]}...",
-                        conclusion="ERROR",
-                        confidence=0.0,
-                        data_sources=[],
-                        duration_ms=duration_ms,
-                        tokens_used=tokens_used,
-                        cost_usd=cost_usd
-                    ))
-                return False, "Parse Error", 0.0
 
-        except requests.exceptions.Timeout:
-            logger.error("Perplexity API timeout")
-            if self.context and HAS_CONTEXT:
+        try:
+            response = requests.post(self.perplexity_url, json=payload, headers=headers, timeout=45)
+            content = response.json()["choices"][0]["message"]["content"]
+            json_match = re.search(r"\{.*\}", content, re.DOTALL)
+            return json.loads(json_match.group(0)) if json_match else None
+        except Exception as e:
+            logger.error(f"Perplexity Research Phase Error: {e}")
+            return None
+
+    def _audit_phase(self, question: str, outcome: str, price: float, research: Dict, min_conf: float, min_edge: float) -> Tuple[bool, str, float]:
+        """Final Logic Check using GPT-4o mini."""
+        audit_prompt = f"""
+        AUDIT REQUEST: A research bot recommends a BET on this market.
+        Market: "{question}"
+        Target Outcome: {outcome} @ ${price:.2f}
+        
+        RESEARCHER'S FINDINGS:
+        - News: {research['news_summary']}
+        - Estimated Prob: {research['estimated_true_prob']}
+        - Reason: {research['reason']}
+        
+        CRITICAL TASK:
+        Find any logical flaws or 'traps' in the researcher's thinking. 
+        Does the news actually support this outcome? Is the researcher being over-optimistic?
+        
+        RESPOND ONLY IN JSON:
+        {{
+          "audit_confidence": 0.XX,
+          "is_logic_sound": true/false,
+          "revised_prob": 0.XX,
+          "critique": "One sentence critique",
+          "final_recommendation": "BET" or "PASS"
+        }}"""
+
+        try:
+            start_time = time.time()
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "system", "content": "You are a skeptical risk manager."}, {"role": "user", "content": audit_prompt}],
+                response_format={"type": "json_object"},
+                temperature=0
+            )
+            
+            audit = json.loads(response.choices[0].message.content)
+            
+            # Final Decision Logic
+            is_valid = (
+                audit["is_logic_sound"] and 
+                audit["final_recommendation"] == "BET" and
+                audit["revised_prob"] > (price + min_edge) and
+                audit["audit_confidence"] >= min_conf
+            )
+            
+            # Log to Activity Feed
+            if self.context:
                 self.context.log_llm_activity(LLMActivity(
                     id=str(uuid.uuid4())[:8],
                     agent=self.agent_name,
                     timestamp=datetime.now().isoformat(),
-                    action_type="validate",
-                    market_question=market_question[:100],
-                    prompt_summary=f"Evaluate {outcome} @ ${price:.2f}",
-                    reasoning="API request timed out after 30s",
-                    conclusion="TIMEOUT",
-                    confidence=0.0,
-                    data_sources=[],
-                    duration_ms=30000,
-                    tokens_used=0,
-                    cost_usd=0.0
+                    action_type="logic_audit",
+                    market_question=question[:50],
+                    prompt_summary=f"Audit {outcome} @ {price}",
+                    reasoning=audit["critique"],
+                    conclusion="BET" if is_valid else "PASS",
+                    confidence=audit["audit_confidence"],
+                    data_sources=["Perplexity News", "OpenAI Logic Audit"],
+                    duration_ms=int((time.time() - start_time) * 1000)
                 ))
-            return False, "API Timeout", 0.0
+
+            return is_valid, audit["critique"], audit["audit_confidence"]
+
         except Exception as e:
-            logger.error(f"Validator Error: {e}")
-            return False, str(e), 0.0
+            logger.error(f"OpenAI Audit Phase Error: {e}")
+            return False, "Audit failed during processing", 0.0
 
     def discover_top_traders(self, cache_file: str = "whale_addresses.json") -> list[dict]:
         """
@@ -297,7 +232,8 @@ Return JSON with trader names and any addresses you find:
   "traders": [
     {"name": "trader name", "address": "0x... or null", "pnl": "$X profit", "reason": "why notable"}
   ]
-}"""
+}
+"""
 
             headers = {
                 "Authorization": f"Bearer {self.config.PERPLEXITY_API_KEY}",
@@ -313,7 +249,8 @@ Return JSON with trader names and any addresses you find:
             
             start_time = time.time()
             try:
-                response = requests.post(self.api_url, json=payload, headers=headers, timeout=60)
+                # Use self.perplexity_url initialized in __init__
+                response = requests.post(self.perplexity_url, json=payload, headers=headers, timeout=60)
                 response.raise_for_status()
                 result = response.json()
                 content = result["choices"][0]["message"]["content"]

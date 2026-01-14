@@ -16,6 +16,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
+from py_clob_client.clob_types import OrderArgs
+from py_clob_client.order_builder.constants import BUY
+from agents.utils.context import get_context, Position, Trade
 
 # Try to import auto-redeemer
 try:
@@ -75,6 +78,7 @@ class SportsTrader:
         self.dry_run = dry_run
         self.pm = Polymarket()
         self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
+        self.context = get_context()
         
         # State
         self.positions = {}
@@ -215,16 +219,57 @@ class SportsTrader:
         return None
 
     def execute_bet(self, market: Dict, side: str, size: float, price: float):
-        """Execute trade on Polymarket."""
-        print(f"      💰 EXECUTING: {side} on '{market.get('question')}' @ {price:.2f} (Amt: ${size:.2f})")
+        """Execute trade on Polymarket with real CLOB integration."""
+        question = market.get('question', 'Unknown Sports Market')
+        market_id = market.get('id')
+        
+        # Identify token (assuming 'YES' for favorites based on your strategy)
+        # Note: You'll need to ensure the market dict contains 'yes_token' or 'clobTokenIds'
+        token_id = market.get('yes_token') or market.get('clobTokenIds', [None, None])[0]
+        
+        if not token_id:
+            print(f"      ❌ Failed to execute: No Token ID found for {question}")
+            return
+
+        print(f"      💰 EXECUTING: {side} on '{question}' @ {price:.2f} (Amt: ${size:.2f})")
+        
         if self.dry_run:
             print(f"      [DRY RUN] Trade logged.")
             self.trades_made += 1
             return
-        
-        # TODO: Implement real execution using self.pm.client and market['id']
-        # This requires the CLOB client OrderArgs
-        print("      [LIVE] Execution logic not yet enabled for safety.")
+
+        try:
+            order_args = OrderArgs(
+                token_id=str(token_id),
+                price=round(price + 0.01, 2), # Add 1c buffer for sports fills
+                size=size / price,
+                side=BUY
+            )
+            
+            signed = self.pm.client.create_order(order_args)
+            result = self.pm.client.post_order(signed)
+            
+            if result.get("success") or result.get("status") == "matched":
+                print(f"      ✅ LIVE ORDER FILLED!")
+                self.trades_made += 1
+                self.total_invested += size
+                
+                # Record in Shared Context
+                self.context.add_position(Position(
+                    market_id=market_id,
+                    market_question=question,
+                    agent=self.AGENT_NAME,
+                    outcome=side,
+                    entry_price=price,
+                    size_usd=size,
+                    timestamp=datetime.datetime.now().isoformat(),
+                    token_id=token_id
+                ))
+            else:
+                print(f"      ⚠️ Order failed: {result.get('status')}")
+                
+        except Exception as e:
+            print(f"      ❌ Execution Error: {e}")
 
     def run_universal_bot(self, sport_name: str):
         config = SPORTS_CONFIG.get(sport_name)

@@ -272,17 +272,33 @@ class CopyTrader:
                         if price > 0.95 or price < 0.05:
                             continue
                         
-                        # === GAP FIX: Skip old positions (whale may be exiting) ===
+                        # === ENHANCED GAP FIX: 2h Window + Slippage Protection ===
                         pos_timestamp = pos.get("timestamp", pos.get("createdAt", ""))
                         if pos_timestamp:
                             try:
-                                from datetime import datetime, timedelta
-                                pos_time = datetime.fromisoformat(pos_timestamp.replace("Z", "+00:00"))
-                                if datetime.now(pos_time.tzinfo) - pos_time > timedelta(hours=24):
-                                    logger.info(f"Skipping old position (>24h): {question[:30]}")
+                                # Normalize to UTC
+                                if "Z" in pos_timestamp:
+                                     # pos_timestamp is ISO 8601 with Z
+                                     pos_time = datetime.datetime.fromisoformat(pos_timestamp.replace("Z", "+00:00"))
+                                else:
+                                     pos_time = datetime.datetime.fromisoformat(pos_timestamp)
+                                     if pos_time.tzinfo is None:
+                                         pos_time = pos_time.replace(tzinfo=datetime.timezone.utc)
+
+                                # Narrowed from 24h to 2h
+                                if datetime.datetime.now(datetime.timezone.utc) - pos_time > datetime.timedelta(hours=2):
+                                    logger.info(f"Skipping stale position (>2h): {question[:30]}")
                                     continue
-                            except:
-                                pass  # If parse fails, proceed anyway
+                                    
+                                # Slippage Check
+                                current_market_price = float(pos.get("currentPrice", 0))
+                                whale_entry_price = float(pos.get("price", 0))
+                                if current_market_price > (whale_entry_price * 1.05):
+                                    logger.info(f"Skipping: Price moved too much ({whale_entry_price} -> {current_market_price})")
+                                    continue
+                                    
+                            except Exception as e:
+                                logger.debug(f"Timestamp check error: {e}")
                         
                         # === CONTEXT CHECK: Can we trade this market? ===
                         balance = self.initial_balance

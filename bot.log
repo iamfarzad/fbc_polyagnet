@@ -1,0 +1,50 @@
+2026-01-14 13:00:19,607 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-14 13:00:19,685 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-14 13:00:19,888 - PyMLBot - INFO - Initial Balance: $89.76
+2026-01-14 13:00:19,888 - PyMLBot - INFO - Starting Bot (Dry Run: True)
+2026-01-14 13:00:19,897 - PyMLBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-14 13:00:19,897 - SupabaseClient - WARNING - Using local JSON fallback for state (no Supabase credentials)
+2026-01-14 13:00:20,132 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-14 13:00:20,211 - PyMLBot - INFO - Found 46 high-prob, 41 arb opportunities.
+2026-01-14 13:00:20,293 - PyMLBot - INFO - Analyzing Will Kim Kardashian and Kanye West divorce before Jan 1, 2021? - No @ 0.9999989889179475
+2026-01-14 13:00:23,620 - PyMLBot - INFO - Skipped: The market has resolved with No correct at $1.00 since divorce occurred after Jan 1, 2021, offering no betting value.
+2026-01-14 13:00:23,635 - PyMLBot - INFO - Analyzing Will Coinbase begin publicly trading before Jan 1, 2021? - No @ 0.9999989754804904
+2026-01-14 13:00:27,782 - PyMLBot - INFO - Skipped: The event 'Coinbase begin publicly trading before Jan 1, 2021' is factually impossible as the date has long passed without it occurring, regardless of recent 2026 listing plans.
+2026-01-14 13:00:27,795 - PyMLBot - INFO - Analyzing Will Trump win the 2020 U.S. presidential election? - No @ 0.999999956356965
+2026-01-14 13:00:34,040 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-01-14 13:00:34,062 - Context - INFO - [safe] LLM logic_audit: PASS (95%)
+2026-01-14 13:00:34,063 - PyMLBot - INFO - Skipped: The researcher's conclusion is sound based on the definitive outcome of the 2020 election, leaving no room for Trump's victory.
+2026-01-14 13:00:34,073 - PyMLBot - INFO - Analyzing How many confirmed Coronavirus cases will there be at EOY in the USA? - Yes @ 0.999968870970368
+2026-01-14 13:00:39,490 - PyMLBot - INFO - Skipped: The query premise assumes a specific 'Yes outcome' priced at $1.00, but no market, prediction, or defined threshold (e.g., over X cases) is specified in recent data, rendering evaluation impossible.
+2026-01-14 13:00:39,505 - PyMLBot - INFO - Analyzing Will there be a federal charge filed against Hunter Biden before 2021? - No @ 0.9999997634239863
+2026-01-14 13:00:43,452 - PyMLBot - INFO - Skipped: The No outcome at $1.00 offers no value as it is already certain based on complete historical record with zero evidence of pre-2021 federal charges.
+2026-01-14 13:00:43,463 - PyMLBot - INFO - Analyzing Will Donald Trump tweet announcing that he won the election before November 5th 2020? - No @ 0.9999980308738015
+2026-01-14 13:00:47,801 - PyMLBot - INFO - Skipped: The 'No' outcome at $1.00 is already fully priced with zero probability of Trump tweeting a pre-November 5, 2020 victory announcement, as confirmed by historical records.
+2026-01-14 13:00:47,810 - PyMLBot - INFO - Analyzing Will the Ethereum 2.0 Genesis Event happen successfully on December 1st, 2020? - Yes @ 0.9999991353509499
+2026-01-14 13:00:50,955 - PyMLBot - INFO - Stopping Bot.
+2026-01-14 13:06:49,669 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-14 13:06:49,740 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-14 13:06:50,004 - PyMLBot - INFO - Initial Balance: $89.76
+2026-01-14 13:06:50,004 - PyMLBot - INFO - Starting Bot (Dry Run: True)
+2026-01-14 13:06:50,017 - PyMLBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-14 13:06:50,017 - SupabaseClient - WARNING - Using local JSON fallback for state (no Supabase credentials)
+2026-01-14 13:06:50,184 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-14 13:06:50,214 - PyMLBot - INFO - Found 46 high-prob, 41 arb opportunities.
+2026-01-14 13:06:50,309 - PyMLBot - INFO - Analyzing Will Kim Kardashian and Kanye West divorce before Jan 1, 2021? - No @ 0.9999989889179475
+2026-01-14 13:06:54,099 - PyMLBot - INFO - Skipped: The question resolves as No since they did not divorce before Jan 1, 2021 (filing was Feb 19, 2021; finalization Nov 2022), making the $1.00 No outcome correctly priced with no value to bet.
+2026-01-14 13:06:54,110 - PyMLBot - INFO - Analyzing Will Coinbase begin publicly trading before Jan 1, 2021? - No @ 0.9999989754804904
+2026-01-14 13:06:58,502 - PyMLBot - INFO - Skipped: Research API Error
+2026-01-14 13:06:58,528 - PyMLBot - INFO - Analyzing Will Trump win the 2020 U.S. presidential election? - No @ 0.999999956356965
+2026-01-14 13:07:03,818 - PyMLBot - INFO - Skipped: Research API Error
+2026-01-14 13:07:03,824 - PyMLBot - INFO - Analyzing How many confirmed Coronavirus cases will there be at EOY in the USA? - Yes @ 0.999968870970368
+2026-01-14 13:07:06,531 - PyMLBot - INFO - Stopping Bot.
+2026-01-14 13:07:47,223 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-14 13:07:47,292 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-14 13:07:47,591 - PyMLBot - INFO - Initial Balance: $89.76
+2026-01-14 13:07:47,591 - PyMLBot - INFO - Starting Bot (Dry Run: True)
+2026-01-14 13:07:47,602 - PyMLBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-14 13:07:47,602 - SupabaseClient - WARNING - Using local JSON fallback for state (no Supabase credentials)
+2026-01-14 13:07:47,711 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-14 13:07:47,729 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+2026-01-14 13:07:47,827 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+2026-01-14 13:08:04,454 - PyMLBot - INFO - Stopping Bot.
