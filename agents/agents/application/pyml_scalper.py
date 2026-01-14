@@ -546,22 +546,40 @@ class CryptoScalper:
             pass
 
     def run_binance_ws(self):
-        """Run Binance WebSocket with reconnection logic."""
+        """Binance WebSocket with individual stream connections."""
+        import threading
+
         while True:
             try:
-                streams = "/".join([f"{k}@ticker" for k in BINANCE_SYMBOLS])
-                url = f"{BINANCE_WS_URL}/stream?streams={streams}"
-                ws = websocket.WebSocketApp(
-                    url,
-                    on_message=self.on_binance_message,
-                    on_error=lambda ws, error: print(f"   🔌 Binance WS Error: {error}"),
-                    on_close=lambda ws: print("   🔌 Binance WS Closed"),
-                    on_open=lambda ws: print("   🔌 Binance WS Connected")
-                )
-                ws.run_forever(ping_interval=30, ping_timeout=10)
+                # Use individual streams - more reliable than combined
+                for symbol in BINANCE_SYMBOLS:
+                    stream = f"{symbol}@ticker"
+                    url = f"{BINANCE_WS_URL}/ws/{stream}"
+
+                    def create_connection(url, stream):
+                        ws = websocket.WebSocketApp(
+                            url,
+                            on_message=self.on_binance_message,
+                            on_error=lambda ws, error: print(f"   🔌 {stream} Error: {error}"),
+                            on_close=lambda ws: print(f"   🔌 {stream} Closed"),
+                            on_open=lambda ws: print(f"   🔌 {stream} Connected")
+                        )
+                        ws.run_forever(ping_interval=30, ping_timeout=10)
+
+                    # Start each connection in its own thread
+                    threading.Thread(
+                        target=create_connection,
+                        args=(url, stream),
+                        daemon=True
+                    ).start()
+
+                # Keep main thread alive
+                while True:
+                    time.sleep(60)
+
             except Exception as e:
-                print(f"   🔌 Binance WS Failed: {e}")
-                time.sleep(5)  # Reconnect after 5 seconds
+                print(f"   🔌 WS Setup Failed: {e}")
+                time.sleep(5)
 
     def run(self):
         # 1. Start Feed
