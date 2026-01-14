@@ -48,11 +48,11 @@ load_dotenv()
 # MATH: $200 × 1.28^7 = $1,140/week profit
 # =============================================================================
 
-# Position management - MORE POSITIONS, SMALLER SIZE
+# Position management - MODERATE AGGRESSIVE
 MAX_POSITIONS = 5                    # More concurrent positions for diversification
-BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.15"))  # 15% per position = 75% max deployed
+BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.20"))  # 20% per position (was 15%)
 MIN_BET_USD = 1.00                   # POLYMARKET MINIMUM = $1 (can't go lower)
-MAX_BET_USD = 100.0                  # Safety cap (scales with $200 account)
+MAX_BET_USD = 75.0                   # Raised cap for growth mode
 
 # Exit strategy - TIGHT EXITS FOR HFT
 TAKE_PROFIT_PCT = 0.025             # 2.5% profit = SELL (fast compound)
@@ -101,18 +101,18 @@ MAX_SPREAD_PCT = 0.05               # Max 5% spread (was 100%)
 MIN_TIME_TO_RESOLUTION = 120        # Exit 2 min before resolution
 
 # 3. Circuit breaker - stop trading on big losses
-MAX_DAILY_DRAWDOWN_PCT = 0.10       # Halt at 10% daily loss (was 20%)
+MAX_DAILY_DRAWDOWN_PCT = 0.12       # Halt at 12% daily loss (moderate)
 
 # 4. Loss streak protection - pause on consecutive losses
-MAX_CONSECUTIVE_LOSSES = 3          # Cooldown after 3 losses (was 7)
-LOSS_STREAK_COOLDOWN = 600          # 10 min cooldown (was 3 min)
+MAX_CONSECUTIVE_LOSSES = 4          # Cooldown after 4 losses (moderate)
+LOSS_STREAK_COOLDOWN = 300          # 5 min cooldown (faster recovery)
 
 # 5. Price sanity - Strict range
 MIN_ENTRY_PRICE = 0.20              # Avoid <20¢ (too risky)
 MAX_ENTRY_PRICE = 0.80              # Avoid >80¢ (capped upside)
 
-# 6. Liquidity check - INCREASED
-MIN_LIQUIDITY_USD = 100             # Need $100+ liquidity (was $20)
+# 6. Liquidity check - MODERATE
+MIN_LIQUIDITY_USD = 50              # Need $50+ liquidity (balanced)
 
 # 7. Flash crash detection
 MAX_PRICE_MOVE_PCT = 0.08           # 8% move (was 12%)

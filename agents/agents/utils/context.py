@@ -79,11 +79,14 @@ class SharedContext:
     Uses file locking to prevent race conditions.
     """
     
-    # Capital allocation percentages per agent
+    # Capital allocation percentages per agent (6-agent mode)
     DEFAULT_ALLOCATION = {
-        "safe": 0.50,      # 50% for safe high-prob bets
-        "scalper": 0.30,   # 30% for 15-min crypto scalping  
-        "copy": 0.20,      # 20% for copy trading
+        "safe": 0.20,           # 20% for safe high-prob bets
+        "scalper": 0.20,        # 20% for 15-min crypto scalping  
+        "copy": 0.15,           # 15% for copy trading
+        "smart": 0.15,          # 15% for smart/politics
+        "sports_trader": 0.15,  # 15% for sports
+        "esports_trader": 0.15, # 15% for esports
     }
     
     # Risk limits
@@ -279,13 +282,33 @@ class SharedContext:
         self._write(ctx)
     
     def add_trade(self, trade: Trade):
-        """Record a trade (for history)."""
+        """Record a trade (for history) - logs to both local and Supabase."""
+        # 1. Local storage
         ctx = self._read()
         trades = ctx.get("recent_trades", [])
         trades.append(asdict(trade))
         # Keep last 100 trades
         ctx["recent_trades"] = trades[-100:]
         self._write(ctx)
+        
+        # 2. Supabase (centralized ledger)
+        try:
+            from agents.utils.supabase_client import get_supabase_state
+            supa = get_supabase_state()
+            supa.log_trade(
+                agent=trade.agent,
+                market_id=trade.market_id,
+                market_question=trade.market_question,
+                outcome=trade.outcome,
+                side=trade.side,
+                size_usd=trade.size_usd,
+                price=trade.entry_price,
+                token_id=getattr(trade, 'token_id', ''),
+                status=getattr(trade, 'status', 'filled'),
+                reasoning=getattr(trade, 'reasoning', '')
+            )
+        except Exception as e:
+            logger.debug(f"Supabase trade log failed (non-critical): {e}")
     
     def blacklist_market(self, market_id: str, reason: str = ""):
         """Add market to blacklist."""

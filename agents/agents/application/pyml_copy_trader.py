@@ -353,5 +353,22 @@ class CopyTrader:
 
 
 if __name__ == "__main__":
+    import sys
+    # Copy trader reads dry_run from bot_state.json
+    # --live flag can force live mode by temporarily setting it
+    if "--live" in sys.argv:
+        import json
+        try:
+            state = {}
+            if os.path.exists("bot_state.json"):
+                with open("bot_state.json", "r") as f:
+                    state = json.load(f)
+            state["dry_run"] = False
+            state["copy_trader_running"] = True
+            with open("bot_state.json", "w") as f:
+                json.dump(state, f)
+        except:
+            pass
+    
     bot = CopyTrader()
     bot.run()

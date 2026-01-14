@@ -865,6 +865,49 @@ def close_all_positions():
         return {"status": "error", "error": str(e)}
 
 
+# --- Trade Ledger Endpoints ---
+
+@app.get("/api/ledger")
+def get_trade_ledger(limit: int = 100, agent: Optional[str] = None):
+    """
+    Get comprehensive trade ledger from Supabase.
+    Includes all trades, PnL, and costs per agent.
+    """
+    if not HAS_SUPABASE:
+        return {"trades": [], "summary": {}, "error": "Supabase not configured"}
+    
+    try:
+        supa = get_supabase_state()
+        trades = supa.get_recent_trades(agent=agent, limit=limit)
+        
+        # Calculate summary
+        summary = {
+            "total_trades": len(trades),
+            "total_volume": sum(float(t.get("size_usd", 0)) for t in trades),
+            "realized_pnl": sum(float(t.get("pnl", 0)) for t in trades if t.get("status") == "closed"),
+            "by_agent": {},
+            "by_status": {"pending": 0, "filled": 0, "closed": 0, "failed": 0}
+        }
+        
+        for t in trades:
+            agent_name = t.get("agent", "unknown")
+            if agent_name not in summary["by_agent"]:
+                summary["by_agent"][agent_name] = {"trades": 0, "volume": 0, "pnl": 0}
+            summary["by_agent"][agent_name]["trades"] += 1
+            summary["by_agent"][agent_name]["volume"] += float(t.get("size_usd", 0))
+            summary["by_agent"][agent_name]["pnl"] += float(t.get("pnl", 0))
+            
+            status = t.get("status", "unknown")
+            if status in summary["by_status"]:
+                summary["by_status"][status] += 1
+        
+        return {"trades": trades, "summary": summary}
+    
+    except Exception as e:
+        logger.error(f"Error fetching ledger: {e}")
+        return {"trades": [], "summary": {}, "error": str(e)}
+
+
 # --- LLM Activity Endpoints ---
 
 @app.get("/api/llm-activity")

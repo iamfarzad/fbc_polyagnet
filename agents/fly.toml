@@ -10,13 +10,13 @@ primary_region = "ams"
   PYTHONUNBUFFERED = "1"
 
 [processes]
+  api = "python3 -m uvicorn api:app --host 0.0.0.0 --port 8000"
   safe = "python3 -m agents.application.pyml_trader"
   scalper = "python3 -m agents.application.pyml_scalper --live"
-  api = "python3 -m uvicorn api:app --host 0.0.0.0 --port 8000"
-  copy = "python3 -m agents.application.pyml_copy_trader"
-  smart = "python3 -m agents.application.smart_trader"
-  esports = "python3 -m agents.application.esports_trader"
-  sports = "python3 -m agents.application.sports_trader"
+  copy = "python3 -m agents.application.pyml_copy_trader --live"
+  smart = "python3 -m agents.application.smart_trader --live"
+  sports = "python3 -m agents.application.sports_trader --live"
+  esports = "python3 -m agents.application.esports_trader --live --growth"
 
 [http_service]
   internal_port = 8000
@@ -28,5 +28,5 @@ primary_region = "ams"
 
 [[vm]]
 size = "shared-cpu-1x"
-memory = "512mb"
+memory = "1024mb"
 cpus = 1
