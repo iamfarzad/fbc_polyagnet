@@ -183,8 +183,22 @@ class CryptoScalper:
         if len(self.market_creation_times) < 5: return
 
         # Get minutes past hour for creation times
-        minutes = [datetime.datetime.fromisoformat(t.replace('Z', '+00:00')).minute
-                  for t in self.market_creation_times[-20:]]  # Last 20 markets
+        minutes = []
+        for t in self.market_creation_times[-20:]:  # Last 20 markets
+            try:
+                # Handle different timestamp formats safely
+                if t.endswith('Z'):
+                    dt = datetime.datetime.fromisoformat(t.replace('Z', '+00:00'))
+                elif '+' in t or t.endswith(('UTC', 'GMT')):
+                    # Already has timezone info
+                    dt = datetime.datetime.fromisoformat(t.replace('UTC', '+00:00').replace('GMT', '+00:00'))
+                else:
+                    # Assume UTC if no timezone
+                    dt = datetime.datetime.fromisoformat(t + '+00:00')
+                minutes.append(dt.minute)
+            except (ValueError, AttributeError):
+                # Skip invalid timestamps
+                continue
 
         # Find most common creation minutes (clustering around :00, :15, :30, :45)
         from collections import Counter
@@ -521,17 +535,33 @@ class CryptoScalper:
     def on_binance_message(self, ws, message):
         try:
             data = json.loads(message)
-            if "data" in data:
+            if "data" in data and "s" in data["data"] and "c" in data["data"]:
                 s = data["data"]["s"].lower()
                 p = float(data["data"]["c"])
                 # Store TUPLE (time, price) for correct volatility calc
-                self.binance_history[s].append((time.time(), p))
-        except: pass
+                if s in self.binance_history:  # Defensive check
+                    self.binance_history[s].append((time.time(), p))
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError):
+            # Silently ignore malformed messages
+            pass
 
     def run_binance_ws(self):
-        streams = "/".join([f"{k}@ticker" for k in BINANCE_SYMBOLS])
-        url = f"{BINANCE_WS_URL}/stream?streams={streams}"
-        websocket.WebSocketApp(url, on_message=self.on_binance_message).run_forever()
+        """Run Binance WebSocket with reconnection logic."""
+        while True:
+            try:
+                streams = "/".join([f"{k}@ticker" for k in BINANCE_SYMBOLS])
+                url = f"{BINANCE_WS_URL}/stream?streams={streams}"
+                ws = websocket.WebSocketApp(
+                    url,
+                    on_message=self.on_binance_message,
+                    on_error=lambda ws, error: print(f"   🔌 Binance WS Error: {error}"),
+                    on_close=lambda ws: print("   🔌 Binance WS Closed"),
+                    on_open=lambda ws: print("   🔌 Binance WS Connected")
+                )
+                ws.run_forever(ping_interval=30, ping_timeout=10)
+            except Exception as e:
+                print(f"   🔌 Binance WS Failed: {e}")
+                time.sleep(5)  # Reconnect after 5 seconds
 
     def run(self):
         # 1. Start Feed
@@ -563,23 +593,37 @@ class CryptoScalper:
 
                     if markets:  # Only process if we found markets
                         for m in markets:
-                            asset = m['asset']
-                            history = self.binance_history[BINANCE_SYMBOLS[asset]]
-                            if len(history) < 2: continue
+                            try:
+                                asset = m['asset']
 
-                            # Calc Momentum (more responsive with recent prices)
-                            recent_prices = [p for t, p in history if time.time() - t < 30]  # Last 30s
-                            if len(recent_prices) < 2: continue
+                                # Defensive check: ensure we have Binance data for this asset
+                                if asset not in BINANCE_SYMBOLS:
+                                    continue
+                                symbol = BINANCE_SYMBOLS[asset]
 
-                            mom = (recent_prices[-1] - recent_prices[0]) / recent_prices[0]
+                                if symbol not in self.binance_history:
+                                    continue
 
-                            # Dynamic threshold based on volatility
-                            vol = self.calculate_volatility(BINANCE_SYMBOLS[asset])
-                            threshold = BASE_MOMENTUM_THRESHOLD * (1 + vol)  # Higher threshold in volatile markets
+                                history = self.binance_history[symbol]
+                                if len(history) < 2: continue
 
-                            if abs(mom) > threshold:
-                                direction = "UP" if mom > 0 else "DOWN"
-                                self.open_position_maker(m, direction)
+                                # Calc Momentum (more responsive with recent prices)
+                                recent_prices = [p for t, p in history if time.time() - t < 30]  # Last 30s
+                                if len(recent_prices) < 2: continue
+
+                                mom = (recent_prices[-1] - recent_prices[0]) / recent_prices[0]
+
+                                # Dynamic threshold based on volatility
+                                vol = self.calculate_volatility(symbol)  # Use symbol we already validated
+                                threshold = BASE_MOMENTUM_THRESHOLD * (1 + vol)  # Higher threshold in volatile markets
+
+                                if abs(mom) > threshold:
+                                    direction = "UP" if mom > 0 else "DOWN"
+                                    self.open_position_maker(m, direction)
+                            except Exception as e:
+                                # Log but don't crash the main loop
+                                print(f"   ⚠️ Market processing error for {m.get('asset', 'unknown')}: {e}")
+                                continue
 
                 # 5. Enhanced Reporting
                 fill_rate = (self.total_fills / max(1, self.total_orders)) * 100
