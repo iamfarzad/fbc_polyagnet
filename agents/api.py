@@ -356,12 +356,21 @@ def get_dashboard(background_tasks: BackgroundTasks):
     pm = get_pm()
     ctx = get_context()
     
-    # 1. Balance
+    # 1. Balance - fetch USDC balance for DASHBOARD_WALLET (Proxy) directly
     balance = 0.0
-    if pm:
-        try:
-            balance = pm.get_usdc_balance()
-        except: pass
+    try:
+        import requests
+        from web3 import Web3
+        # USDC.e contract on Polygon
+        USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        # Use public RPC to query balance
+        w3 = Web3(Web3.HTTPProvider("https://polygon-rpc.com"))
+        usdc_abi = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
+        usdc_contract = w3.eth.contract(address=Web3.to_checksum_address(USDC_ADDRESS), abi=usdc_abi)
+        raw_balance = usdc_contract.functions.balanceOf(Web3.to_checksum_address(DASHBOARD_WALLET)).call()
+        balance = raw_balance / 10**6  # USDC has 6 decimals
+    except Exception as e:
+        logger.error(f"Failed to fetch USDC balance for dashboard wallet: {e}")
         
     # 2. Positions & Equity
     positions = fetch_positions_helper()
