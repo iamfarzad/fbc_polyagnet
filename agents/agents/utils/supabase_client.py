@@ -232,6 +232,19 @@ class SupabaseState:
                 logger.error(f"Failed to log LLM activity: {e}")
         return False
 
+    def get_llm_activity(self, limit: int = 50, agent: str = None) -> List[Dict]:
+        """Get recent LLM activity from Supabase."""
+        if self.client:
+            try:
+                query = self.client.table("llm_activity").select("*").order("created_at", desc=True).limit(limit)
+                if agent:
+                    query = query.eq("agent", agent)
+                result = query.execute()
+                return result.data or []
+            except Exception as e:
+                logger.error(f"Failed to get LLM activity: {e}")
+        return []
+
 
 # Global singleton
 _supabase_state = None

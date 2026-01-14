@@ -383,7 +383,47 @@ class SharedContext:
     # =========== LLM ACTIVITY TRACKING ===========
     
     def log_llm_activity(self, activity: LLMActivity):
-        """Log an LLM interaction for the activity feed."""
+        """Log an LLM interaction for the activity feed (Supabase + Local)."""
+        # 1. Try Supabase (Centralized)
+        try:
+            from agents.utils.supabase_client import get_supabase_state
+            supa = get_supabase_state()
+            supa.log_llm_activity(
+                agent=activity.agent,
+                action_type=activity.action_type,
+                market_question=activity.market_question,
+                prompt_summary=activity.prompt_summary,
+                reasoning=activity.reasoning,
+                conclusion=activity.conclusion,
+                confidence=activity.confidence,
+                data_sources=activity.data_sources,
+                tokens_used=activity.tokens_used,
+                cost_usd=activity.cost_usd,
+                duration_ms=activity.duration_ms
+            )
+        except ImportError:
+            # Try relative import if main fails (e.g. running as agent)
+            try:
+                from agents.agents.utils.supabase_client import get_supabase_state
+                supa = get_supabase_state()
+                supa.log_llm_activity(
+                    agent=activity.agent,
+                    action_type=activity.action_type,
+                    market_question=activity.market_question,
+                    prompt_summary=activity.prompt_summary,
+                    reasoning=activity.reasoning,
+                    conclusion=activity.conclusion,
+                    confidence=activity.confidence,
+                    data_sources=activity.data_sources,
+                    tokens_used=activity.tokens_used,
+                    cost_usd=activity.cost_usd,
+                    duration_ms=activity.duration_ms
+                )
+            except: pass
+        except Exception as e:
+            logger.warning(f"Failed to log to Supabase: {e}")
+
+        # 2. Local Fallback (for audit trail on this machine)
         ctx = self._read()
         if "llm_activity" not in ctx:
             ctx["llm_activity"] = []
@@ -396,7 +436,25 @@ class SharedContext:
         logger.info(f"[{activity.agent}] LLM {activity.action_type}: {activity.conclusion} ({activity.confidence:.0%})")
     
     def get_llm_activity(self, limit: int = 50, agent: str = None) -> List[Dict]:
-        """Get recent LLM activity, optionally filtered by agent."""
+        """Get recent LLM activity (Prefer Supabase, fallback to local)."""
+        # 1. Try Supabase
+        try:
+            from agents.utils.supabase_client import get_supabase_state
+            supa = get_supabase_state()
+            activities = supa.get_llm_activity(limit=limit, agent=agent)
+            if activities:
+                return activities
+        except:
+            # Try alternate import path
+            try:
+                from agents.agents.utils.supabase_client import get_supabase_state
+                supa = get_supabase_state()
+                activities = supa.get_llm_activity(limit=limit, agent=agent)
+                if activities:
+                    return activities
+            except: pass
+            
+        # 2. Local Fallback
         ctx = self._read()
         activities = ctx.get("llm_activity", [])
         
