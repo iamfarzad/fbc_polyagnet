@@ -466,12 +466,7 @@ Only output the JSON, nothing else."""
                 "yes_edge": yes_edge,
                 "no_edge": no_edge
             }
-                "recommended_side": recommended_side,
-                "edge": edge,
-                "confidence_level": conf_level,
-                "yes_edge": yes_edge,
-                "no_edge": no_edge
-            }
+
             
         except Exception as e:
             print(f"   LLM analysis error: {e}")
