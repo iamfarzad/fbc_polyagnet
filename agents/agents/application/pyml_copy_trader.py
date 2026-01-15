@@ -46,7 +46,23 @@ class CopyTrader:
         self.config = CopyConfig()
         self.pm = Polymarket()
         self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
-        self.context = get_context()  # Shared context
+        self.pm = Polymarket()
+        self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
+        
+        # Robust Context Import
+        try:
+            from agents.utils.context import get_context, LLMActivity
+            self.context = get_context()
+            self.LLMActivity = LLMActivity
+        except ImportError:
+            try:
+                from agents.agents.utils.context import get_context, LLMActivity
+                self.context = get_context()
+                self.LLMActivity = LLMActivity
+            except:
+                self.context = None
+                self.LLMActivity = None
+
         self.state_file = "copy_state.json"
         self.DATA_API_URL = "https://data-api.polymarket.com"
         self.MAX_POSITIONS_PER_USER = 3
@@ -180,6 +196,26 @@ class CopyTrader:
             resp = self.pm.client.post_order(signed)
             
             logger.info(f"Order Executed: {outcome} ${amount_usd} -> {resp}")
+            
+            # Log to Dashboard
+            if self.context and self.LLMActivity:
+                try:
+                    import uuid
+                    self.context.log_llm_activity(self.LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent=self.AGENT_NAME,
+                        timestamp=datetime.datetime.now().isoformat(),
+                        action_type="COPY_EXECUTE",
+                        market_question=question,
+                        prompt_summary=f"Copying {outcome} on {question[:30]}",
+                        reasoning=f"Copied trade from top gainer. Amount: ${amount_usd}",
+                        conclusion="EXECUTED",
+                        confidence=1.0,
+                        data_sources=["Polymarket Leaderboard"],
+                        duration_ms=0
+                    ))
+                except: pass
+
             
             # === RECORD IN SHARED CONTEXT ===
             self.context.add_position(Position(

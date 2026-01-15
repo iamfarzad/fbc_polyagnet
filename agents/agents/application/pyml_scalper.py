@@ -88,7 +88,23 @@ class CryptoScalper:
     def __init__(self, dry_run=True):
         self.pm = Polymarket()
         self.dry_run = dry_run
-        self.context = get_context() if HAS_CONTEXT else None
+        self.pm = Polymarket()
+        self.dry_run = dry_run
+        
+        # Initialize Shared Context
+        try:
+            from agents.utils.context import get_context, LLMActivity
+            self.context = get_context()
+            self.LLMActivity = LLMActivity
+        except ImportError:
+            try:
+                from agents.agents.utils.context import get_context, LLMActivity
+                self.context = get_context()
+                self.LLMActivity = LLMActivity
+            except:
+                self.context = None
+                self.LLMActivity = None
+
 
         # State Tracking
         self.active_positions = {}      # token_id -> position_data
@@ -128,6 +144,28 @@ class CryptoScalper:
         print(f"Exit: Maker first, Panic Taker at {PANIC_THRESHOLD_PCT*100}% PnL")
         print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
         print(f"="*60)
+        print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
+        print(f"="*60)
+
+    def _log(self, action, question, reasoning, confidence=1.0):
+        """Log to Dashboard Terminal."""
+        if self.context and self.LLMActivity:
+            try:
+                import uuid
+                self.context.log_llm_activity(self.LLMActivity(
+                    id=str(uuid.uuid4())[:8],
+                    agent=self.AGENT_NAME,
+                    timestamp=datetime.datetime.now().isoformat(),
+                    action_type=action,
+                    market_question=question,
+                    prompt_summary=f"{action}: {question[:40]}...",
+                    reasoning=reasoning,
+                    conclusion="EXECUTED",
+                    confidence=confidence,
+                    data_sources=["Binance OrderBook", "Polymarket CLOB"],
+                    duration_ms=0
+                ))
+            except: pass
 
     # -------------------------------------------------------------------------
     # DATA & UTILS
@@ -432,6 +470,7 @@ class CryptoScalper:
                     "market_id": market["id"]
                 }
                 print("   ✅ [DRY] Simulated Fill")
+                self._log("SNIPE_DRY", market["asset"], f"Simulated Maker Entry @ {entry_price}", 0.9)
                 self.total_fills += 1
             return True
 
@@ -451,6 +490,7 @@ class CryptoScalper:
                     "timeout": self.get_dynamic_timeout(market["asset"])
                 }
                 self.total_orders += 1
+                self._log("SNIPE_LIVE", market["asset"], f"Placed Limit Order @ {entry_price} (Size: {size_usd})", 1.0)
                 return True
         except Exception as e:
             print(f"   ❌ Entry Failed: {e}")
@@ -476,6 +516,7 @@ class CryptoScalper:
                     self.pm.execute_market_order([{'metadata': {'clob_token_ids': str([None, token_id])}}], pos['size'])
                 self.panic_exits += 1
                 self.total_pnl += (pnl_pct * pos["size"] * pos["entry_price"])
+                self._log("PANIC_STOP", pos["asset"], f"Taker Exit triggered at {pnl_pct*100:.1f}% PnL", 1.0)
                 del self.active_positions[token_id]
                 continue
 

@@ -92,7 +92,23 @@ class SportsTrader:
         self.dry_run = dry_run
         self.pm = Polymarket()
         self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
-        self.context = get_context()
+        self.pm = Polymarket()
+        self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
+        
+        # Initialize Shared Context with robust import check
+        try:
+            from agents.utils.context import get_context, LLMActivity
+            self.context = get_context()
+            self.LLMActivity = LLMActivity
+        except ImportError:
+            try: 
+                from agents.agents.utils.context import get_context, LLMActivity
+                self.context = get_context()
+                self.LLMActivity = LLMActivity
+            except:
+                self.context = None
+                self.LLMActivity = None
+
         
         # State
         self.positions = {}
@@ -374,6 +390,45 @@ class SportsTrader:
                 self.execute_bet(market, favorite_side, size=bet_size, price=favorite_price + 0.01)
             else:
                 print(f"      🛑 PASS: {reason} (conf: {conf*100:.0f}%)")
+                
+                # Log PASS activity for visibility
+                if self.context and self.LLMActivity:
+                    import uuid
+                    try:
+                        self.context.log_llm_activity(self.LLMActivity(
+                            id=str(uuid.uuid4())[:8],
+                            agent=self.AGENT_NAME,
+                            timestamp=datetime.datetime.now().isoformat(),
+                            action_type="validate",
+                            market_question=question[:100],
+                            prompt_summary="Fast Mode Validation",
+                            reasoning=reason,
+                            conclusion="PASS",
+                            confidence=conf,
+                            data_sources=["Gamma API", "Pattern Match"],
+                            duration_ms=0
+                        ))
+                    except: pass
+
+            # Log BET activity (Green Light)
+            if is_valid and conf >= MIN_CONFIDENCE and self.context and self.LLMActivity:
+                import uuid
+                try:
+                    self.context.log_llm_activity(self.LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent=self.AGENT_NAME,
+                        timestamp=datetime.datetime.now().isoformat(),
+                        action_type="validate",
+                        market_question=question[:100],
+                        prompt_summary="Fast Mode Validation",
+                        reasoning=reason,
+                        conclusion="BET",
+                        confidence=conf,
+                        data_sources=["Gamma API", "Pattern Match"],
+                        duration_ms=0
+                    ))
+                except: pass
+
 
     def save_state(self):
         """Save state to json."""

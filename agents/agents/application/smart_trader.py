@@ -35,12 +35,27 @@ except ImportError:
     AutoRedeemer = None
 
 # Import Supabase state manager
+
 try:
     from agents.utils.supabase_client import get_supabase_state
-    HAS_SUPABASE = True
 except ImportError:
-    HAS_SUPABASE = False
-    get_supabase_state = None
+    try:
+        from agents.agents.utils.supabase_client import get_supabase_state
+    except ImportError:
+        get_supabase_state = None
+
+# Import Shared Context for logging
+try:
+    from agents.utils.context import get_context, LLMActivity
+    HAS_CONTEXT = True
+except ImportError:
+    try:
+        from agents.agents.utils.context import get_context, LLMActivity
+        HAS_CONTEXT = True
+    except ImportError:
+        HAS_CONTEXT = False
+        get_context = None
+
 
 load_dotenv()
 
@@ -167,6 +182,10 @@ class SmartTrader:
             except Exception as e:
                 print(f"⚠️ Auto-redeemer not available: {e}")
         
+        # Initialize Shared Context
+        self.context = get_context() if HAS_CONTEXT else None
+
+        
         print(f"=" * 60)
         print(f"🧠 SMART TRADER - Fee-Free Markets")
         print(f"=" * 60)
@@ -250,6 +269,29 @@ class SmartTrader:
         except Exception as e:
             print(f"Error fetching markets: {e}")
             return []
+
+    def _log_activity(self, market_question, action_type, reasoning, conclusion, confidence, duration_ms=0, cost=0.0):
+        """Helper to log LLM activity to SharedContext."""
+        if self.context:
+            try:
+                import uuid
+                self.context.log_llm_activity(LLMActivity(
+                    id=str(uuid.uuid4())[:8],
+                    agent=self.AGENT_NAME,
+                    timestamp=datetime.datetime.now().isoformat(),
+                    action_type=action_type,
+                    market_question=market_question[:100],
+                    prompt_summary=f"Analyze: {market_question[:50]}...",
+                    reasoning=reasoning,
+                    conclusion=conclusion,
+                    confidence=confidence,
+                    data_sources=["Perplexity", "OpenAI"] if action_type == "analyze" else [],
+                    duration_ms=duration_ms,
+                    cost_usd=cost
+                ))
+            except Exception as e:
+                print(f"Failed to log activity: {e}")
+
 
     def get_market_odds(self, market: Dict) -> Tuple[float, float]:
         """Get current YES and NO prices for a market."""
@@ -405,9 +447,25 @@ Only output the JSON, nothing else."""
                 recommended_side = "NO"
                 edge = no_edge
             
+            # Log the activity
+            self._log_activity(
+                market_question=question,
+                action_type="analyze",
+                reasoning=reasoning,
+                conclusion=recommended_side or "PASS",
+                confidence=llm_prob,
+                cost=0.0
+            )
+
             return {
                 "confidence": llm_prob,
                 "reasoning": reasoning,
+                "recommended_side": recommended_side,
+                "edge": edge,
+                "confidence_level": conf_level,
+                "yes_edge": yes_edge,
+                "no_edge": no_edge
+            }
                 "recommended_side": recommended_side,
                 "edge": edge,
                 "confidence_level": conf_level,
