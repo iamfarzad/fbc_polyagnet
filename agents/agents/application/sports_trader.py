@@ -194,6 +194,7 @@ class SportsTrader:
                         "liquidity": float(m.get("liquidity", 0) or 0),
                         "end_date": m.get("endDate", ""),
                         "slug": m.get("slug", ""),
+                        "accepting_orders": m.get("acceptingOrders", False),
                     })
             
             return markets
@@ -420,13 +421,16 @@ class SportsTrader:
             print(f"   ⚠️ Balance check failed: {e}")
 
         # Fetch all live sports markets
-        markets = self.get_live_polymarket_sports()
+        all_markets = self.get_live_polymarket_sports()
+
+        # Filter for markets that are accepting orders
+        markets = [m for m in all_markets if m.get("accepting_orders", False)]
 
         if not markets:
-            print("   No live sports markets found.")
+            print(f"   📡 Found {len(all_markets)} live markets, but none are accepting orders.")
             return
 
-        print(f"   📡 Found {len(markets)} live markets")
+        print(f"   📡 Found {len(markets)} tradeable markets (accepting orders)")
 
         trades_this_scan = 0
         max_trades_per_scan = 1  # Only allow 1 trade per scan cycle
