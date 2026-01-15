@@ -17,7 +17,17 @@ from dotenv import load_dotenv
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.context import get_context
 from agents.utils.validator import Validator, SharedConfig
-from agents.utils.supabase_client import get_supabase_state
+# Robust Supabase Import
+try:
+    from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
+except ImportError:
+    try:
+        from agents.agents.utils.supabase_client import get_supabase_state
+        HAS_SUPABASE = True
+    except ImportError:
+        HAS_SUPABASE = False
+        get_supabase_state = None
 
 load_dotenv()
 logger = logging.getLogger("FBP")
