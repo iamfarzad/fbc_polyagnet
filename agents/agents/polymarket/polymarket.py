@@ -173,8 +173,9 @@ class Polymarket:
 
         # Also approve for the main CTF contract (0x4d97dcd97ec945f40cf65f87097ace5ea0476045)
         nonce = web3.eth.get_transaction_count(pub_key)
+        ctf_contract_address = Web3.to_checksum_address("0x4d97dcd97ec945f40cf65f87097ace5ea0476045")
         raw_usdc_main_ctf_txn = usdc.functions.approve(
-            "0x4d97dcd97ec945f40cf65f87097ace5ea0476045", int(MAX_INT, 0)
+            ctf_contract_address, int(MAX_INT, 0)
         ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
         signed_usdc_main_ctf_tx = web3.eth.account.sign_transaction(
             raw_usdc_main_ctf_txn, private_key=priv_key
