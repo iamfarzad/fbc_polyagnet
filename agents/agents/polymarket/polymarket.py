@@ -6,7 +6,10 @@ import pdb
 import time
 import ast
 import json
+import base64
 import requests
+import websocket
+import threading
 from typing import Dict, List, Optional, Callable
 
 from dotenv import load_dotenv
@@ -30,7 +33,7 @@ from py_clob_client.clob_types import (
 )
 from py_clob_client.order_builder.constants import BUY
 
-from agents.utils.objects import SimpleMarket, SimpleEvent
+from agents.agents.utils.objects import SimpleMarket, SimpleEvent
 
 load_dotenv()
 
@@ -80,32 +83,59 @@ class Polymarket:
         self._init_api_keys()
         self._init_approvals(False)
 
+        # Websocket setup - isolated from main API client
+        self.ws_url = "wss://ws-subscriptions-clob.polymarket.com"
+        self.ws_connection = None
+        self.ws_channel_type = None
+        self.ws_auth_token = None
+        self.subscribed_markets = set()
+        self.subscribed_assets = set()
+        self.ws_callbacks = {
+            'user': [],
+            'market': []
+        }
+        self.ws_thread = None
+
     def _init_api_keys(self) -> None:
+        # Determine signature type and funder for proper L2 authentication
+        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "1"))  # Default to POLY_PROXY
+        funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
+
+        if funder_address:
+            print(f"   🔐 Using signature_type={signature_type}, funder={funder_address[:10]}...")
+        else:
+            print("   ⚠️ No funder address set - derived credentials may not work for trading")
+
         self.client = ClobClient(
-            self.clob_url, key=self.private_key, chain_id=self.chain_id
+            self.clob_url,
+            key=self.private_key,
+            chain_id=self.chain_id,
+            signature_type=signature_type,
+            funder=funder_address
         )
 
-        # 1. Try to use explicit Builder API keys from .env first
-        builder_api_key = os.getenv("CLOB_API_KEY")
-        builder_secret = os.getenv("CLOB_SECRET")
-        builder_passphrase = os.getenv("CLOB_PASS_PHRASE")
+        # Check for pre-derived User API credentials (CLOB_* env vars)
+        user_api_key = os.getenv("CLOB_API_KEY")
+        user_secret = os.getenv("CLOB_SECRET")
+        user_passphrase = os.getenv("CLOB_PASS_PHRASE")
 
-        if builder_api_key and builder_secret and builder_passphrase:
+        if user_api_key and user_secret and user_passphrase:
             try:
+                print("   🔑 Using User API Credentials from .env")
                 from py_clob_client.clob_types import ApiCreds
-                print("   🔑 Using Builder API Credentials from .env")
 
                 self.credentials = ApiCreds(
-                    api_key=builder_api_key,
-                    api_secret=builder_secret,  # ✅ FIX: Pass raw string. Do NOT base64 decode.
-                    api_passphrase=builder_passphrase
+                    api_key=user_api_key,
+                    api_secret=user_secret,  # Raw string, no base64 decoding
+                    api_passphrase=user_passphrase  # Raw string, no base64 decoding
                 )
+                print("   ✅ User credentials loaded successfully")
             except Exception as e:
-                print(f"   ⚠️ Failed to load Builder Keys: {e}. Falling back to derivation.")
+                print(f"   ⚠️ User credentials failed: {e}")
+                print("   🔐 Falling back to derived credentials...")
                 self.credentials = self.client.create_or_derive_api_creds()
         else:
-            # 2. Fallback to cryptographically deriving keys from the private key
-            # print("   🔐 Deriving API Credentials from Private Key...")
+            print("   🔐 No User credentials found, deriving from private key...")
             self.credentials = self.client.create_or_derive_api_creds()
 
         self.client.set_api_creds(self.credentials)
@@ -491,6 +521,160 @@ class Polymarket:
 
         balance_res = self.usdc.functions.balanceOf(balance_address).call()
         return float(balance_res / 10e5)
+
+    # ============================================================================
+    # WEBSOCKET METHODS - Real-time data feeds (Fixed for trade compatibility)
+    # ============================================================================
+
+    def _get_ws_auth_token(self) -> str:
+        """Get authentication token for websocket connection."""
+        if not self.ws_auth_token:
+            # Use existing API credentials
+            self.ws_auth_token = self.credentials.api_key
+        return self.ws_auth_token
+
+    def connect_websocket(self, channel_type: str = "market", markets: List[str] = None, assets: List[str] = None) -> bool:
+        """
+        Connect to Polymarket websocket for real-time updates.
+        Fixed to avoid conflicts with trade execution.
+
+        Args:
+            channel_type: "user" or "market"
+            markets: List of market IDs (condition IDs) for user channel
+            assets: List of asset IDs (token IDs) for market channel
+        """
+        try:
+            # Check if already connected to this channel
+            if self.ws_connection and self.ws_channel_type == channel_type:
+                print(f"WS already connected to {channel_type} channel")
+                return True
+
+            auth_token = self._get_ws_auth_token()
+
+            def on_message(ws, message):
+                try:
+                    data = json.loads(message)
+                    # Call registered callbacks
+                    for callback in self.ws_callbacks.get(channel_type, []):
+                        callback(data)
+                except Exception as e:
+                    print(f"WS message parse error: {e}")
+
+            def on_error(ws, error):
+                print(f"WS error: {error}")
+
+            def on_close(ws, close_status_code, close_msg):
+                print(f"WS closed: {close_status_code} - {close_msg}")
+                # Reset connection state
+                self.ws_connection = None
+                self.ws_channel_type = None
+
+            def on_open(ws):
+                try:
+                    # Send subscription message
+                    subscription_msg = {
+                        "auth": auth_token,
+                        "type": channel_type.upper(),
+                        "custom_feature_enabled": False
+                    }
+                    ws.send(json.dumps(subscription_msg))
+                    print(f"WS connected and subscribed to {channel_type} channel")
+                    self.ws_channel_type = channel_type
+                except Exception as e:
+                    print(f"WS subscription error: {e}")
+
+            # Use correct channel URL
+            channel_url = f"{self.ws_url}/ws/{channel_type}"
+
+            self.ws_connection = websocket.WebSocketApp(
+                channel_url,
+                on_message=on_message,
+                on_error=on_error,
+                on_close=on_close,
+                on_open=on_open
+            )
+
+            # Start websocket in background thread - NON-BLOCKING
+            self.ws_thread = threading.Thread(target=self.ws_connection.run_forever, daemon=True)
+            self.ws_thread.start()
+
+            # Store channel type
+            self.ws_channel_type = channel_type
+
+            return True
+        except Exception as e:
+            print(f"WS connection failed: {e}")
+            return False
+
+    def subscribe_to_assets(self, assets: List[str], channel_type: str = "market"):
+        """Subscribe to additional assets after connection."""
+        if not self.ws_connection:
+            print("WS not connected")
+            return False
+
+        try:
+            msg = {
+                "assets_ids": assets,
+                "operation": "subscribe",
+                "custom_feature_enabled": False
+            }
+            if channel_type == "user":
+                msg["markets"] = assets
+
+            self.ws_connection.send(json.dumps(msg))
+
+            if channel_type == "user":
+                self.subscribed_markets.update(assets)
+            else:
+                self.subscribed_assets.update(assets)
+
+            return True
+        except Exception as e:
+            print(f"WS subscribe failed: {e}")
+            return False
+
+    def unsubscribe_from_assets(self, assets: List[str], channel_type: str = "market"):
+        """Unsubscribe from assets."""
+        if not self.ws_connection:
+            return False
+
+        try:
+            msg = {
+                "assets_ids": assets,
+                "operation": "unsubscribe",
+                "custom_feature_enabled": False
+            }
+            if channel_type == "user":
+                msg["markets"] = assets
+
+            self.ws_connection.send(json.dumps(msg))
+
+            if channel_type == "user":
+                self.subscribed_markets.difference_update(assets)
+            else:
+                self.subscribed_assets.difference_update(assets)
+
+            return True
+        except Exception as e:
+            print(f"WS unsubscribe failed: {e}")
+            return False
+
+    def add_ws_callback(self, channel_type: str, callback: Callable):
+        """Add callback function for websocket messages."""
+        if channel_type not in self.ws_callbacks:
+            self.ws_callbacks[channel_type] = []
+        self.ws_callbacks[channel_type].append(callback)
+
+    def close_websocket(self):
+        """Close websocket connection."""
+        if self.ws_connection:
+            self.ws_connection.close()
+            self.ws_connection = None
+            self.ws_channel_type = None
+            self.subscribed_markets.clear()
+            self.subscribed_assets.clear()
+        if self.ws_thread and self.ws_thread.is_alive():
+            self.ws_thread.join(timeout=1)
 
 
 
