@@ -80,11 +80,25 @@ class Polymarket:
         # print(self.credentials)
 
     def get_usdc_allowance(self) -> float:
-        """Check USDC allowance for the exchange"""
+        """Check USDC allowance for both exchange and CTF contract"""
         try:
             pub_key = self.get_address_for_private_key()
-            allowance = self.usdc.functions.allowance(pub_key, self.exchange_address).call()
-            return float(allowance) / 10**6
+
+            # Check allowance for CTF Exchange
+            exchange_allowance = self.usdc.functions.allowance(pub_key, self.exchange_address).call()
+
+            # Check allowance for CTF contract
+            ctf_allowance = self.usdc.functions.allowance(pub_key, "0x4d97dcd97ec945f40cf65f87097ace5ea0476045").call()
+
+            # Return the minimum of both allowances
+            min_allowance = min(exchange_allowance, ctf_allowance)
+            allowance_usd = float(min_allowance) / 10**6
+
+            print(f"Exchange allowance: ${float(exchange_allowance) / 10**6:.2f}")
+            print(f"CTF allowance: ${float(ctf_allowance) / 10**6:.2f}")
+            print(f"Effective allowance: ${allowance_usd:.2f}")
+
+            return allowance_usd
         except Exception as e:
             print(f"Allowance check failed: {e}")
             return 0.0
@@ -107,7 +121,7 @@ class Polymarket:
         usdc = self.usdc
         ctf = self.ctf
 
-        # CTF Exchange
+        # Approve USDC for CTF Exchange
         raw_usdc_approve_txn = usdc.functions.approve(
             "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E", int(MAX_INT, 0)
         ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
@@ -120,7 +134,23 @@ class Polymarket:
         usdc_approve_tx_receipt = web3.eth.wait_for_transaction_receipt(
             send_usdc_approve_tx, 600
         )
-        print(usdc_approve_tx_receipt)
+        print("USDC approved for CTF Exchange:", usdc_approve_tx_receipt)
+
+        # Also approve USDC for CTF contract directly
+        nonce = web3.eth.get_transaction_count(pub_key)
+        raw_usdc_ctf_txn = usdc.functions.approve(
+            "0x4d97dcd97ec945f40cf65f87097ace5ea0476045", int(MAX_INT, 0)
+        ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
+        signed_usdc_ctf_tx = web3.eth.account.sign_transaction(
+            raw_usdc_ctf_txn, private_key=priv_key
+        )
+        send_usdc_ctf_tx = web3.eth.send_raw_transaction(
+            signed_usdc_ctf_tx.raw_transaction
+        )
+        usdc_ctf_tx_receipt = web3.eth.wait_for_transaction_receipt(
+            send_usdc_ctf_tx, 600
+        )
+        print("USDC approved for CTF contract:", usdc_ctf_tx_receipt)
 
         nonce = web3.eth.get_transaction_count(pub_key)
 
