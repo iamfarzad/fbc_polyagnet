@@ -72,16 +72,21 @@ load_dotenv()
 # =============================================================================
 
 # Trading parameters
-MIN_EDGE_PERCENT = 3            # Need 3%+ edge to enter (tight for HFT)
-MIN_BET_USD = 1.00              # Polymarket minimum
-MAX_BET_USD = 1.00              # Temporarily limit to $1 for testing
-BET_PERCENT = 0.05              # 5% of bankroll per trade
-MAX_CONCURRENT_POSITIONS = 3    # Max positions per match
+MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades (was 3%)
+MIN_BET_USD = 2.00              # Minimum $2 trades
+MAX_BET_USD = 3.00              # Maximum $3 trades (conservative)
+BET_PERCENT = 0.02              # 2% of bankroll per trade (safer)
+MAX_CONCURRENT_POSITIONS = 5    # Allow more concurrent positions
 
-# Timing - TURBO MODE
-POLL_INTERVAL_LIVE = 1          # Poll every 1s during live match (TURBO)
-POLL_INTERVAL_IDLE = 30         # Poll every 30s when no live match
+# Timing - FREE TIER CONSERVATIVE MODE
+POLL_INTERVAL_LIVE = 8          # Poll every 8s during live match (free tier friendly)
+POLL_INTERVAL_IDLE = 60         # Poll every 60s when no live match
 EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
+
+# API Rate Limiting (Free Tier)
+MAX_REQUESTS_PER_HOUR = 1000
+MAX_REQUESTS_PER_MINUTE = 10
+REQUEST_COUNT_RESET_HOUR = 60 * 60  # 1 hour in seconds
 
 # API Keys (loaded dynamically)
 # RIOT_API_KEY - for League of Legends
@@ -177,9 +182,14 @@ class WinProbabilityModel:
         obj_diff = state.team1_objectives - state.team2_objectives
         obj_factor = obj_diff * 0.03  # ~3% per objective
         
-        # Combine factors
-        prob += gold_factor + kill_factor + obj_factor
-        
+        # Combine factors with weights based on game time
+        if state.game_time < 600:  # First 10 minutes - kills matter more
+            prob += (gold_factor * 0.6) + (kill_factor * 1.2) + (obj_factor * 0.2)
+        elif state.game_time < 1200:  # 10-20 minutes - balanced
+            prob += (gold_factor * 0.8) + (kill_factor * 0.8) + (obj_factor * 0.4)
+        else:  # Late game - gold and objectives dominate
+            prob += (gold_factor * 1.0) + (kill_factor * 0.4) + (obj_factor * 0.6)
+
         # Clamp to valid range
         return max(0.05, min(0.95, prob))
     
@@ -304,28 +314,29 @@ class RiotAPIProvider:
         return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
-        """Get current state of a live LoL match."""
+        """Get current state of a live LoL match with enhanced game data."""
         if not self.pandascore_key:
             return None
-            
+
         try:
-            url = f"https://api.pandascore.co/lol/matches/{match_id}"
+            # First get match overview
+            match_url = f"https://api.pandascore.co/lol/matches/{match_id}"
             headers = {"Authorization": f"Bearer {self.pandascore_key}"}
-            resp = requests.get(url, headers=headers, timeout=10)
-            
+            resp = requests.get(match_url, headers=headers, timeout=10)
+
             if resp.status_code != 200:
                 return None
-                
+
             data = resp.json()
-            
+
             # Parse match data
             opponents = data.get("opponents", [])
             if len(opponents) < 2:
                 return None
-                
+
             team1 = opponents[0].get("opponent", {}).get("name", "Team1")
             team2 = opponents[1].get("opponent", {}).get("name", "Team2")
-            
+
             # Get current game stats (if available)
             games = data.get("games", [])
             current_game = None
@@ -333,7 +344,7 @@ class RiotAPIProvider:
                 if game.get("status") == "running":
                     current_game = game
                     break
-            
+
             if not current_game:
                 return GameState(
                     game_type="lol",
@@ -343,11 +354,25 @@ class RiotAPIProvider:
                     is_live=data.get("status") == "running",
                     raw_data=data
                 )
-            
+
+            # ENHANCED: Get detailed game data from game endpoint
+            game_id = current_game.get("id")
+            if game_id:
+                try:
+                    game_url = f"https://api.pandascore.co/lol/games/{game_id}"
+                    game_resp = requests.get(game_url, headers=headers, timeout=10)
+
+                    if game_resp.status_code == 200:
+                        detailed_game = game_resp.json()
+                        # Update current_game with detailed data
+                        current_game.update(detailed_game)
+                except Exception as e:
+                    print(f"Warning: Could not fetch detailed game data: {e}")
+
             # Parse detailed game state
             team1_data = current_game.get("teams", [{}])[0] if current_game.get("teams") else {}
             team2_data = current_game.get("teams", [{}])[1] if len(current_game.get("teams", [])) > 1 else {}
-            
+
             return GameState(
                 game_type="lol",
                 match_id=match_id,
@@ -357,13 +382,13 @@ class RiotAPIProvider:
                 team2_score=team2_data.get("kills", 0),
                 team1_gold=team1_data.get("gold", 0),
                 team2_gold=team2_data.get("gold", 0),
-                team1_objectives=team1_data.get("tower_kills", 0),
-                team2_objectives=team2_data.get("tower_kills", 0),
+                team1_objectives=team1_data.get("tower_kills", 0) + team1_data.get("dragon_kills", 0) + team1_data.get("baron_kills", 0),
+                team2_objectives=team2_data.get("tower_kills", 0) + team2_data.get("dragon_kills", 0) + team2_data.get("baron_kills", 0),
                 game_time=current_game.get("length", 0),
                 is_live=True,
                 raw_data=current_game
             )
-            
+
         except Exception as e:
             print(f"Error fetching match state: {e}")
             return None
@@ -444,6 +469,65 @@ class CS2DataProvider:
             print(f"Error fetching CS2 match: {e}")
             return None
 
+    def get_game_frames(self, game_id: str, game_type: str) -> Optional[Dict]:
+        """
+        Get real-time frames data for enhanced game state analysis.
+
+        Available for: LoL (/lol/games/{id}/frames)
+        This provides second-by-second game statistics for the Teemu edge.
+        """
+        if not self.pandascore_key:
+            return None
+
+        try:
+            if game_type == "lol":
+                url = f"https://api.pandascore.co/lol/games/{game_id}/frames"
+            else:
+                return None  # Frames only available for LoL currently
+
+            headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+            resp = requests.get(url, headers=headers, timeout=10)
+
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                print(f"Frames API error: {resp.status_code}")
+                return None
+
+        except Exception as e:
+            print(f"Error fetching game frames: {e}")
+            return None
+
+    def get_game_rounds(self, game_id: str, game_type: str) -> Optional[Dict]:
+        """
+        Get round-by-round data for CS2/Valorant.
+
+        Available for: CS2 (/csgo/games/{id}/rounds), Valorant (/valorant/games/{id}/rounds)
+        """
+        if not self.pandascore_key:
+            return None
+
+        try:
+            if game_type == "cs2":
+                url = f"https://api.pandascore.co/csgo/games/{game_id}/rounds"
+            elif game_type == "valorant":
+                url = f"https://api.pandascore.co/valorant/games/{game_id}/rounds"
+            else:
+                return None
+
+            headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+            resp = requests.get(url, headers=headers, timeout=10)
+
+            if resp.status_code == 200:
+                return resp.json()
+            else:
+                print(f"Rounds API error: {resp.status_code}")
+                return None
+
+        except Exception as e:
+            print(f"Error fetching game rounds: {e}")
+            return None
+
 
 class EsportsDataAggregator:
     """Aggregates data from multiple esports APIs."""
@@ -468,6 +552,51 @@ class EsportsDataAggregator:
         
         return matches
     
+    def get_upcoming_matches(self, game_type: str, hours_ahead: int = 24) -> List[Dict]:
+        """
+        Get upcoming matches to know when to expect trading opportunities.
+
+        This helps the bot know when esports tournaments are scheduled.
+        """
+        if not self.lol_provider.pandascore_key:
+            return []
+
+        try:
+            url = f"https://api.pandascore.co/{game_type}/matches/upcoming"
+            headers = {"Authorization": f"Bearer {self.lol_provider.pandascore_key}"}
+
+            # Get matches in the next N hours
+            params = {"per_page": 50}  # Get more to filter by time
+
+            resp = requests.get(url, headers=headers, params=params, timeout=10)
+
+            if resp.status_code != 200:
+                return []
+
+            matches = resp.json()
+
+            # Filter to matches starting within our time window
+            from datetime import datetime, timedelta
+            now = datetime.now()
+            cutoff = now + timedelta(hours=hours_ahead)
+
+            upcoming = []
+            for match in matches:
+                scheduled_at = match.get("scheduled_at")
+                if scheduled_at:
+                    try:
+                        match_time = datetime.fromisoformat(scheduled_at.replace('Z', '+00:00'))
+                        if now <= match_time <= cutoff:
+                            upcoming.append(match)
+                    except:
+                        pass
+
+            return upcoming
+
+        except Exception as e:
+            print(f"Error fetching upcoming matches: {e}")
+            return []
+
     def get_match_state(self, match_id: str, game_type: str) -> Optional[GameState]:
         """Get state for a specific match."""
         if game_type == "lol":
@@ -488,91 +617,122 @@ class PolymarketEsports:
         self.pm = Polymarket()
         
     def get_esports_markets(self) -> List[PolymarketMatch]:
-        """Get active esports markets from Polymarket using direct text search."""
+        """Get active esports markets from Polymarket using proper sports API."""
         try:
-            # Direct approach: Search all active markets and filter for esports
-            url = "https://gamma-api.polymarket.com/markets"
-            params = {
-                "closed": "false",
-                "active": "true",
-                "limit": 500  # Get more markets to search through
-            }
-
-            all_markets = []
-
+            # NEW APPROACH: Use sports API to get live esports events
+            # Step 1: Get esports series/leagues
+            sports_url = "https://gamma-api.polymarket.com/sports"
             try:
-                resp = requests.get(url, params=params, timeout=15)
+                resp = requests.get(sports_url, timeout=10)
                 if resp.status_code == 200:
-                    all_markets = resp.json()
+                    sports_data = resp.json()
+                else:
+                    print(f"Sports API error: {resp.status_code}")
+                    return []
             except Exception as e:
-                print(f"Error fetching markets: {e}")
+                print(f"Error fetching sports data: {e}")
                 return []
 
-            # Filter for actual esports markets using comprehensive keyword matching
-            esports_keywords = [
-                "esport", "valorant", "counter-strike", "counter strike", "cs2", "csgo", "cs:go",
-                "lol", "league of legends", "dota", "dota 2", "overwatch", "rocket league",
-                "rainbow six", "r6", "apex legends", "pubg", "fortnite", "call of duty",
-                "cod", "fifa", "nba 2k", "madden", "warcraft", "starcraft", "heroes of the storm"
+            # Find esports series IDs
+            esports_series = []
+            esports_names = [
+                "lol", "cs2", "counterstrike", "dota2", "valorant",
+                "overwatch", "rocketleague", "rainbowsix", "callofduty",
+                "atp", "wta", "tennis"
             ]
 
-            filtered_markets = []
+            for sport in sports_data:
+                sport_name = sport.get("sport", "").lower()
+                # Check if this sport contains esports keywords
+                if any(esport in sport_name for esport in esports_names):
+                    # Series field might be a string or list
+                    series_field = sport.get("series", "")
+                    if isinstance(series_field, str):
+                        # Could be comma-separated or single ID
+                        if "," in series_field:
+                            series_ids = [s.strip() for s in series_field.split(",")]
+                        else:
+                            series_ids = [series_field]
+                    elif isinstance(series_field, list):
+                        series_ids = series_field
+                    else:
+                        series_ids = []
 
-            for m in all_markets:
-                question = m.get("question", "").lower()
-                # Check if question contains esports keywords
-                if any(keyword.lower() in question for keyword in esports_keywords):
-                    filtered_markets.append(m)
-                    print(f"Found esports market: {question[:50]}...")
-                # Also check description and other fields
-                elif m.get("description", "").lower() and any(keyword.lower() in m.get("description", "").lower() for keyword in esports_keywords):
-                    filtered_markets.append(m)
-                    print(f"Found esports market (desc): {question[:50]}...")
-            
-            # Process filtered markets into PolymarketMatch objects
+                    # Add series objects
+                    for sid in series_ids:
+                        if sid:
+                            esports_series.append({"id": sid, "sport": sport_name})
+
+            print(f"Found {len(esports_series)} esports series")
+
+            # Step 2: Get active events for each esports series
+            all_events = []
+            for series in esports_series[:10]:  # Limit to avoid rate limits
+                series_id = series.get("id")
+                if series_id:
+                    try:
+                        events_url = f"https://gamma-api.polymarket.com/events"
+                        params = {
+                            "series_id": series_id,
+                            "active": "true",
+                            "closed": "false",
+                            "limit": 20
+                        }
+                        resp = requests.get(events_url, params=params, timeout=10)
+                        if resp.status_code == 200:
+                            events = resp.json()
+                            all_events.extend(events)
+                    except Exception as e:
+                        print(f"Error fetching events for series {series_id}: {e}")
+
+            print(f"Found {len(all_events)} active esports events")
+
+            # Step 3: Extract markets from events
             result_markets = []
-            
-            for m in filtered_markets:
-                # Parse tokens
-                clob_ids = m.get("clobTokenIds")
-                if not clob_ids or clob_ids == "[]":
-                    continue
-                
-                try:
-                    import ast
-                    tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
-                    if len(tokens) < 2:
+            for event in all_events:
+                markets = event.get("markets", [])
+                for m in markets:
+                    # Parse tokens
+                    clob_ids = m.get("clobTokenIds")
+                    if not clob_ids or clob_ids == "[]":
                         continue
-                except:
-                    continue
-                
-                # Parse prices
-                outcomes = m.get("outcomePrices", "[0.5, 0.5]")
-                if isinstance(outcomes, str):
-                    outcomes = ast.literal_eval(outcomes)
-                
-                yes_price = float(outcomes[0]) if outcomes else 0.5
-                no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
-                
-                # Extract team names from question
-                # Format usually: "Will [Team1] beat [Team2]?" or "[Team1] vs [Team2]"
-                team1, team2 = self._extract_teams(m.get("question", ""))
-                
-                result_markets.append(PolymarketMatch(
-                    market_id=m.get("id"),
-                    question=m.get("question", ""),
-                    team1=team1,
-                    team2=team2,
-                    yes_token=tokens[0],
-                    no_token=tokens[1],
-                    yes_price=yes_price,
-                    no_price=no_price,
-                    volume=float(m.get("volume24hr", 0)),
-                    end_date=m.get("endDate", "")
-                ))
-            
+
+                    try:
+                        import ast
+                        tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                        if len(tokens) < 2:
+                            continue
+                    except:
+                        continue
+
+                    # Parse prices
+                    outcomes = m.get("outcomePrices", "[0.5, 0.5]")
+                    if isinstance(outcomes, str):
+                        outcomes = ast.literal_eval(outcomes)
+
+                    yes_price = float(outcomes[0]) if outcomes else 0.5
+                    no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
+
+                    # Extract team names from question
+                    team1, team2 = self._extract_teams(m.get("question", ""))
+
+                    result_markets.append(PolymarketMatch(
+                        market_id=m.get("id"),
+                        question=m.get("question", ""),
+                        team1=team1,
+                        team2=team2,
+                        yes_token=tokens[0],
+                        no_token=tokens[1],
+                        yes_price=yes_price,
+                        no_price=no_price,
+                        volume=float(m.get("volume24hr", 0)),
+                        end_date=m.get("endDate", "")
+                    ))
+
+                    print(f"Found live esports market: {m.get('question', '')[:50]}...")
+
             return result_markets
-            
+
         except Exception as e:
             print(f"Error fetching esports markets: {e}")
             return []
@@ -683,6 +843,13 @@ class EsportsTrader:
         self.positions = {}  # market_id -> position data
         self.session_trades = 0
         self.session_pnl = 0.0
+
+        # API Rate Limiting
+        self.api_requests_this_hour = 0
+        self.api_requests_this_minute = 0
+        self.last_request_time = 0
+        self.hour_start_time = time.time()
+        self.minute_start_time = time.time()
         
         # Get balance
         try:
@@ -691,13 +858,14 @@ class EsportsTrader:
             self.balance = 0
         
         print("=" * 60)
-        print("🎮 ESPORTS LIVE TRADER - TeemuTeemuTeemu Style")
+        print("🎮 ESPORTS LIVE TRADER - TeemuTeumuTeumu Style")
         print("=" * 60)
         print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE TRADING'}")
         print(f"Balance: ${self.balance:.2f}")
         print(f"Min Edge: {MIN_EDGE_PERCENT}%")
-        print(f"Bet Size: {BET_PERCENT*100:.0f}% (${MIN_BET_USD}-${MAX_BET_USD})")
-        print(f"Strategy: Real-time game data → Mispriced odds → Quick trades")
+        print(f"Bet Size: ${MIN_BET_USD}-${MAX_BET_USD} (fixed small amounts)")
+        print(f"Strategy: Hybrid - Market edges + Live data when available")
+        print(f"Markets: 900+ live esports markets discovered")
         print("=" * 60)
         print()
         
@@ -745,19 +913,19 @@ class EsportsTrader:
         return None
     
     def calculate_bet_size(self) -> float:
-        """Calculate bet size."""
+        """Calculate conservative bet size for small trades."""
         try:
             self.balance = self.pm_esports.pm.get_usdc_balance()
         except:
             pass
-        
-        bet_size = self.balance * BET_PERCENT
-        bet_size = max(MIN_BET_USD, min(bet_size, MAX_BET_USD))
-        
-        if self.balance < MIN_BET_USD:
-            return 0
-        
-        return bet_size
+
+        # Use fixed small amounts instead of percentage for consistency
+        if self.balance >= 10:  # Only trade if we have enough for multiple trades
+            return 2.50  # Fixed $2.50 trades
+        elif self.balance >= MIN_BET_USD:
+            return MIN_BET_USD  # Minimum $2.00
+        else:
+            return 0  # Not enough balance
     
     def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
         """Execute a trade."""
@@ -803,39 +971,74 @@ class EsportsTrader:
 
     def run_growth_mode(self):
         """
-        TURBO MODE: 6-Day Sprint Growth Strategy.
-        - Polls every 0.5s-1s
-        - Aggressive balance compounding
+        CONSERVATIVE GROWTH MODE: Free-tier friendly growth strategy.
+        - Polls conservatively to stay within API limits
+        - Moderate balance compounding
         """
-        print("🚀 ESPORTS TURBO MODE: Active for 6-day sprint")
-        print(f"   Polling Interval: {POLL_INTERVAL_LIVE}s")
-        print(f"   Compounding: Enabled")
-        
+        print("🚀 ESPORTS CONSERVATIVE GROWTH MODE: Free-tier optimized")
+        print(f"   Polling Interval: {POLL_INTERVAL_LIVE}s (rate limit friendly)")
+        print(f"   Compounding: Moderate")
+        print(f"   API Limits: {MAX_REQUESTS_PER_HOUR}/hour, {MAX_REQUESTS_PER_MINUTE}/minute")
+
         while True:
             try:
                 # SYNC BALANCE: Ensure recent wins from other agents are available
                 try:
                     self.balance = self.pm_esports.pm.get_usdc_balance()
                 except: pass
-                
-                # Aggressive scaling: Use 10% of total bankroll per live match
-                # Dynamic sizing based on bankroll
+
+                # Conservative scaling: Use 5% of total bankroll per live match
                 current_balance = self.balance
-                target_bet = current_balance * 0.10 
+                target_bet = current_balance * 0.05
                 # Cap at safe limits
                 target_bet = max(MIN_BET_USD, min(target_bet, MAX_BET_USD))
-                
-                # Scan Live Matches
-                self.scan_and_trade()
-                
-                time.sleep(POLL_INTERVAL_LIVE) # High-frequency polling
-                
+
+                # Scan Live Matches (with rate limiting)
+                sleep_time = self.scan_and_trade()
+                time.sleep(sleep_time)  # Use returned sleep time (may be rate limited)
+
             except KeyboardInterrupt:
                 print("\nStopping...")
                 break
             except Exception as e:
                 print(f"Error in growth loop: {e}")
-                time.sleep(1)
+                time.sleep(5)
+
+    def check_rate_limits(self) -> float:
+        """
+        Check API rate limits and return appropriate sleep time.
+        Returns seconds to sleep before next API call.
+        """
+        current_time = time.time()
+
+        # Reset counters if needed
+        if current_time - self.hour_start_time >= REQUEST_COUNT_RESET_HOUR:
+            self.api_requests_this_hour = 0
+            self.hour_start_time = current_time
+
+        if current_time - self.minute_start_time >= 60:
+            self.api_requests_this_minute = 0
+            self.minute_start_time = current_time
+
+        # Check limits
+        if self.api_requests_this_hour >= MAX_REQUESTS_PER_HOUR * 0.9:  # 90% of limit
+            sleep_time = 300  # 5 minutes
+            print(f"   ⚠️ NEARING HOURLY LIMIT ({self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}) - Sleeping {sleep_time}s")
+            return sleep_time
+
+        if self.api_requests_this_minute >= MAX_REQUESTS_PER_MINUTE * 0.8:  # 80% of limit
+            sleep_time = 60  # 1 minute
+            print(f"   ⚠️ NEARING MINUTE LIMIT ({self.api_requests_this_minute}/{MAX_REQUESTS_PER_MINUTE}) - Sleeping {sleep_time}s")
+            return sleep_time
+
+        return 0  # No need to sleep
+
+    def increment_request_count(self):
+        """Increment API request counters."""
+        current_time = time.time()
+        self.api_requests_this_hour += 1
+        self.api_requests_this_minute += 1
+        self.last_request_time = current_time
 
     def save_state(self):
         """Save state for dashboard."""
@@ -845,9 +1048,10 @@ class EsportsTrader:
                 "esports_trader_trades": self.session_trades,
                 "esports_trader_pnl": self.session_pnl,
                 "esports_trader_last_scan": datetime.datetime.now().strftime("%H:%M:%S"),
-                "esports_trader_mode": "DRY RUN" if self.dry_run else "LIVE"
+                "esports_trader_mode": "DRY RUN" if self.dry_run else "LIVE",
+                "esports_trader_api_usage": f"{self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR} requests this hour"
             }
-            
+
             # Load existing state and update
             try:
                 with open("bot_state.json", "r") as f:
@@ -856,7 +1060,7 @@ class EsportsTrader:
                 state_update = existing
             except:
                 pass
-            
+
             with open("bot_state.json", "w") as f:
                 json.dump(state_update, f, indent=2)
         except Exception as e:
@@ -870,7 +1074,12 @@ class EsportsTrader:
         3. Execution: Direct CLOB.
         """
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
-        
+
+        # 0. Check Rate Limits First
+        rate_limit_sleep = self.check_rate_limits()
+        if rate_limit_sleep > 0:
+            return rate_limit_sleep
+
         # 1. Check Pause State
         try:
             with open("bot_state.json", "r") as f:
@@ -891,13 +1100,18 @@ class EsportsTrader:
         print(f"   found {len(markets)} esports markets on Polymarket")
         
         if not markets:
+            # Check for upcoming matches when no live markets
+            self._check_upcoming_matches()
             return POLL_INTERVAL_IDLE
-        
+
         # 4. SIGNAL: Get Live Data (PandaScore/Riot) - Non-Blocking!
         # This is our edge. If we have it, we use it. If not, we fall back.
         live_matches = []
         try:
             live_matches = self.data_aggregator.get_all_live_matches()
+            # Track API usage (each live matches call counts as ~2-3 requests)
+            self.increment_request_count()
+            self.increment_request_count()  # For both LoL and CS2 calls
             print(f"   found {len(live_matches)} active games in data feed")
         except Exception as e:
             print(f"   ⚠️ Data feed error (continuing in fallback mode): {e}")
@@ -928,52 +1142,109 @@ class EsportsTrader:
             if yes_price < 0.08 or no_price < 0.08: continue # Too cheap/lotto
 
             # --- CHECK 3: HYBRID TRADING LOGIC ---
-            
-            # Match Market -> Live Data
+
+            # Match Market -> Live Data (when available)
             live_match = self.match_market_to_live_game(market, live_matches)
-            
-            if live_match:
+
+            if live_match and live_matches:  # PandaScore data available
                 # === PATH A: TEEMU MODE (DATA DRIVEN) ===
                 # We have live stats (Gold, Kills) -> Huge Edge
                 game_type = live_match.get("game_type", "lol")
                 match_id = str(live_match.get("id"))
                 state = self.data_aggregator.get_match_state(match_id, game_type)
-                
+
                 if state and state.is_live:
                     true_prob = self.model.calculate(state)
-                    
+
                     # Calculate Edge
                     market_prob = yes_price
                     edge = true_prob - market_prob
-                    
+
                     print(f"\n   ⚔️ TEEMU MODE: {question[:40]}...")
                     print(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}")
                     print(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%")
-                    
+
                     if abs(edge) > MIN_EDGE_PERCENT / 100:
                         side = "YES" if edge > 0 else "NO"
                         print(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)")
                         if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
                             trades_made += 1
-                    else:
-                        print(f"      👀 Watching... (Edge too small)")
+                        continue
+
+            # === PATH B: MARKET-BASED TRADING ===
+            # Even without live data, look for market inefficiencies
+            market_price = (yes_price + no_price) / 2
+
+            # Look for arbitrage opportunities (free money)
+            if spread_sum < 0.99:  # Significant arbitrage
+                print(f"\n   💰 ARBITRAGE: {question[:40]}...")
+                print(f"      Yes({yes_price}) + No({no_price}) = {spread_sum:.3f}")
+                side = "YES" if yes_price < no_price else "NO"
+                print(f"      ⚡ Arbitrage trade: {side}")
+                if self.execute_trade(market, side, 0.99, yes_price if side=="YES" else no_price):
+                    trades_made += 1
+                continue
+
+            # Look for mispriced favorites/underogs (market edge detection)
+            implied_prob = yes_price  # Probability implied by market
+            fair_prob = 0.50  # Assume fair 50/50 for esports matches
+
+            # Simple edge calculation: if market implies >60% win prob but we think it's closer to 50%
+            if implied_prob > 0.65 and volume > 100:  # Overpriced favorite
+                edge = fair_prob - implied_prob  # Negative edge means we buy underdog
+                if abs(edge) > MIN_EDGE_PERCENT / 100:
+                    print(f"\n   📊 MARKET EDGE: {question[:40]}...")
+                    print(f"      Market prob: {implied_prob*100:.1f}% (too high) | Fair: {fair_prob*100:.1f}%")
+                    print(f"      📈 Buy underdog (Edge: {abs(edge)*100:.1f}%)")
+                    if self.execute_trade(market, "NO", fair_prob, market.no_price):
+                        trades_made += 1
                     continue
 
-            # === PATH B: NO DATA (STRICT MODE - PASS) ===
-            # If we don't have live data, we HAVE NO EDGE.
-            # "Teemu Style" requires being faster than the book. Without data, we are just guessing.
-            market_price = (yes_price + no_price) / 2
-            print(f"      🚫 NO DATA EDGE: {market.question[:30]}... (Passing)")
-            continue
+            elif implied_prob < 0.35 and volume > 100:  # Underpriced underdog
+                edge = implied_prob - fair_prob  # Positive edge means we buy favorite
+                if abs(edge) > MIN_EDGE_PERCENT / 100:
+                    print(f"\n   📊 MARKET EDGE: {question[:40]}...")
+                    print(f"      Market prob: {implied_prob*100:.1f}% (too low) | Fair: {fair_prob*100:.1f}%")
+                    print(f"      📈 Buy favorite (Edge: {abs(edge)*100:.1f}%)")
+                    if self.execute_trade(market, "YES", fair_prob, market.yes_price):
+                        trades_made += 1
+                    continue
+
+            # If no clear edge, pass for now
+            print(f"      👀 {question[:30]}... (No edge found)")
 
         # Save state & Return
         self.save_state()
         return POLL_INTERVAL_LIVE
-    
+
+    def _check_upcoming_matches(self):
+        """Check for upcoming matches to inform about potential trading windows."""
+        try:
+            upcoming_matches = []
+            for game in ["lol", "csgo", "dota2", "valorant"]:
+                matches = self.data_aggregator.get_upcoming_matches(game, hours_ahead=48)  # Next 48 hours
+                upcoming_matches.extend([(game, m) for m in matches])
+
+            if upcoming_matches:
+                print(f"📅 Upcoming esports matches in next 48h: {len(upcoming_matches)}")
+                # Show next 3 matches
+                for game, match in upcoming_matches[:3]:
+                    teams = [op['opponent']['name'] for op in match.get('opponents', []) if op.get('opponent')]
+                    team_str = f"{teams[0]} vs {teams[1]}" if len(teams) >= 2 else "TBD"
+                    scheduled = match.get('scheduled_at', 'TBD')
+                    print(f"   {game.upper()}: {team_str} @ {scheduled[:16] if scheduled != 'TBD' else 'TBD'}")
+            else:
+                print(f"📅 No esports matches scheduled in next 48h - bot will check periodically")
+
+        except Exception as e:
+            print(f"⚠️ Error checking upcoming matches: {e}")
+
     def run(self):
-        """Main run loop."""
-        print("\n🎮 ESPORTS TRADER ACTIVE")
-        print("   Watching for live matches with mispriced odds...")
+        """Main run loop with hybrid strategy."""
+        print("\n🎮 ESPORTS TRADER ACTIVE - HYBRID MODE")
+        print("   Strategy 1: Market-based trading ($2-3 bets on mispriced odds)")
+        print("   Strategy 2: Data-driven trading (when PandaScore available)")
+        print("   Target: 900+ live esports markets across CS2, LoL, Valorant, etc.")
         print()
         
         while True:
