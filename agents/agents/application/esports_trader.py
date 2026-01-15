@@ -488,44 +488,46 @@ class PolymarketEsports:
         self.pm = Polymarket()
         
     def get_esports_markets(self) -> List[PolymarketMatch]:
-        """Get active esports markets from Polymarket using Series IDs."""
+        """Get active esports markets from Polymarket using direct text search."""
         try:
-            limit = 50
-            # Series IDs: LoL (10360), CS2 (10361)
-            series_ids = [10360, 10361]
+            # Direct approach: Search all active markets and filter for esports
+            url = "https://gamma-api.polymarket.com/markets"
+            params = {
+                "closed": "false",
+                "active": "true",
+                "limit": 500  # Get more markets to search through
+            }
+
             all_markets = []
 
-            for sid in series_ids:
-                url = "https://gamma-api.polymarket.com/events"
-                params = {
-                    "closed": "false",
-                    "active": "true",
-                    "limit": limit,
-                    "series_id": sid
-                }
-                
-                try:
-                    resp = requests.get(url, params=params, timeout=10)
-                    if resp.status_code == 200:
-                        events = resp.json()
-                        for event in events:
-                            markets = event.get("markets", [])
-                            for m in markets:
-                                # Inject event title into market question if clearer
-                                if "question" not in m:
-                                    m["question"] = event.get("title", "")
-                                all_markets.append(m)
-                except Exception as e:
-                    print(f"Error fetching series {sid}: {e}")
-            
-            # Filter to esports markets (double check slugs just in case)
-            esports_slug_prefixes = ("cs2-", "csgo-", "lol-", "dota-", "valorant-")
+            try:
+                resp = requests.get(url, params=params, timeout=15)
+                if resp.status_code == 200:
+                    all_markets = resp.json()
+            except Exception as e:
+                print(f"Error fetching markets: {e}")
+                return []
+
+            # Filter for actual esports markets using comprehensive keyword matching
+            esports_keywords = [
+                "esport", "valorant", "counter-strike", "counter strike", "cs2", "csgo", "cs:go",
+                "lol", "league of legends", "dota", "dota 2", "overwatch", "rocket league",
+                "rainbow six", "r6", "apex legends", "pubg", "fortnite", "call of duty",
+                "cod", "fifa", "nba 2k", "madden", "warcraft", "starcraft", "heroes of the storm"
+            ]
+
             filtered_markets = []
-            
+
             for m in all_markets:
-                # With Series ID, we can be more confident, but let's keep slug check lenient
-                # Actually, trust Series ID mainly.
-                filtered_markets.append(m)
+                question = m.get("question", "").lower()
+                # Check if question contains esports keywords
+                if any(keyword.lower() in question for keyword in esports_keywords):
+                    filtered_markets.append(m)
+                    print(f"Found esports market: {question[:50]}...")
+                # Also check description and other fields
+                elif m.get("description", "").lower() and any(keyword.lower() in m.get("description", "").lower() for keyword in esports_keywords):
+                    filtered_markets.append(m)
+                    print(f"Found esports market (desc): {question[:50]}...")
             
             # Process filtered markets into PolymarketMatch objects
             result_markets = []

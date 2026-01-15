@@ -1,1 +1,30 @@
-{"safe_running": true, "scalper_running": true, "copy_trader_running": true, "smart_trader_running": true, "sports_trader_running": true, "esports_trader_running": true, "dry_run": false, "timestamp": "2026-01-14T21:30:00.000000", "safe_last_activity": "Scanning Markets (10:34:56)", "safe_last_endpoint": "Gamma API", "safe_heartbeat": "2026-01-15T10:34:56.218224"}
+{
+  "safe_running": false,
+  "scalper_running": false,
+  "copy_trader_running": false,
+  "smart_trader_running": true,
+  "esports_trader_running": true,
+  "dry_run": false,
+  "dynamic_max_bet": 0.5,
+  "safe_last_activity": "PASS: Will Donald Trump attend Joe Biden\u2019s inauguration ...",
+  "safe_last_endpoint": "Gamma API",
+  "scalper_last_activity": "\ud83d\ude80 0/5 | 0 trades | $+0.00 | 0%W",
+  "scalper_last_endpoint": "HFT + BINANCE ARB",
+  "scalper_prices": {
+    "sol/usd": 135.5716405086456,
+    "btc/usd": 90374.88582190817,
+    "xrp/usd": 2.084892,
+    "eth/usd": 3081.5672871981415
+  },
+  "scalper_markets": 60,
+  "last_signal": "None",
+  "copy_last_scan": "2026-01-15 14:40:21",
+  "safe_heartbeat": "2026-01-15T14:40:50.928754",
+  "scalper_heartbeat": "2026-01-14T21:16:30.529533",
+  "copy_heartbeat": null,
+  "esports_trader_last_activity": "Trades: 0 | Watching 0 positions",
+  "esports_trader_trades": 0,
+  "esports_trader_pnl": 0.0,
+  "esports_trader_last_scan": "14:41:05",
+  "esports_trader_mode": "LIVE"
+}

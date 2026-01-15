@@ -258,13 +258,75 @@ class SportsTrader:
         
         if best_score > 0.6: # Confidence threshold (lower than 85 because titles vary wildy)
             print(f"      🔗 Linked: '{my_game_str}' ↔ '{best_match['title']}' (Score: {best_score:.2f})")
-            # We need to find the specific Market ID for the "Moneyline" or "Winner" market within this event
-            # This is tricky because an event has multiple markets. 
-            # We look for the market Question that looks like "Winner?" or matches the teams.
+
             if 'markets' in best_match:
-                # Try to find the main market
-                return best_match['markets'][0] # MVP: Return the first market (usually the main one)
-            
+                # Find the best market within this event
+                for market in best_match['markets']:
+                    # Look for markets that match our teams or are winner/moneyline markets
+                    question = market.get('question', '').lower()
+                    if any(team.lower() in question for team in [home_team, away_team]) or \
+                       'winner' in question or 'moneyline' in question or 'win' in question:
+                        # Extract token IDs properly (same as get_live_polymarket_sports)
+                        clob_ids = market.get("clobTokenIds", "[]")
+                        try:
+                            import ast
+                            tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                            if len(tokens) >= 2:
+                                # Parse prices
+                                outcomes = market.get("outcomePrices", "[0.5, 0.5]")
+                                if isinstance(outcomes, str):
+                                    outcomes = ast.literal_eval(outcomes)
+
+                                yes_price = float(outcomes[0]) if outcomes else 0.5
+                                no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
+
+                                # Return properly formatted market dict
+                                return {
+                                    "id": market.get("id"),
+                                    "question": market.get("question", best_match['title']),
+                                    "event_title": best_match['title'],
+                                    "yes_token": tokens[0],
+                                    "no_token": tokens[1],
+                                    "yes_price": yes_price,
+                                    "no_price": no_price,
+                                    "volume": float(market.get("volume24hr", 0) or 0),
+                                    "liquidity": float(market.get("liquidity", 0) or 0),
+                                    "end_date": market.get("endDate", ""),
+                                    "slug": market.get("slug", ""),
+                                }
+                        except Exception as e:
+                            print(f"      ⚠️ Failed to parse market tokens: {e}")
+                            continue
+
+                # Fallback: return first market if no specific match found
+                market = best_match['markets'][0]
+                clob_ids = market.get("clobTokenIds", "[]")
+                try:
+                    import ast
+                    tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                    if len(tokens) >= 2:
+                        outcomes = market.get("outcomePrices", "[0.5, 0.5]")
+                        if isinstance(outcomes, str):
+                            outcomes = ast.literal_eval(outcomes)
+                        yes_price = float(outcomes[0]) if outcomes else 0.5
+                        no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
+
+                        return {
+                            "id": market.get("id"),
+                            "question": market.get("question", best_match['title']),
+                            "event_title": best_match['title'],
+                            "yes_token": tokens[0],
+                            "no_token": tokens[1],
+                            "yes_price": yes_price,
+                            "no_price": no_price,
+                            "volume": float(market.get("volume24hr", 0) or 0),
+                            "liquidity": float(market.get("liquidity", 0) or 0),
+                            "end_date": market.get("endDate", ""),
+                            "slug": market.get("slug", ""),
+                        }
+                except Exception as e:
+                    print(f"      ⚠️ Failed to parse fallback market: {e}")
+
             return {"id": best_match['id'], "question": best_match['title']} # Fallback
             
         return None
@@ -273,17 +335,22 @@ class SportsTrader:
         """Execute trade on Polymarket with real CLOB integration."""
         question = market.get('question', 'Unknown Sports Market')
         market_id = market.get('id')
-        
-        # Identify token (assuming 'YES' for favorites based on your strategy)
-        # Note: You'll need to ensure the market dict contains 'yes_token' or 'clobTokenIds'
-        token_id = market.get('yes_token') or market.get('clobTokenIds', [None, None])[0]
-        
+
+        # Identify correct token based on side (YES or NO)
+        if side.upper() == "YES":
+            token_id = market.get('yes_token')
+        elif side.upper() == "NO":
+            token_id = market.get('no_token')
+        else:
+            # Fallback to clobTokenIds if side format is unexpected
+            token_id = market.get('yes_token') or market.get('clobTokenIds', [None, None])[0]
+
         if not token_id:
-            print(f"      ❌ Failed to execute: No Token ID found for {question}")
+            print(f"      ❌ Failed to execute: No Token ID found for {question} (side: {side})")
             return
 
         print(f"      💰 EXECUTING: {side} on '{question}' @ {price:.2f} (Amt: ${size:.2f})")
-        
+
         if self.dry_run:
             print(f"      [DRY RUN] Trade logged.")
             self.trades_made += 1
@@ -296,15 +363,21 @@ class SportsTrader:
                 size=size / price,
                 side=BUY
             )
-            
+
             signed = self.pm.client.create_order(order_args)
             result = self.pm.client.post_order(signed)
-            
+
             if result.get("success") or result.get("status") == "matched":
                 print(f"      ✅ LIVE ORDER FILLED!")
                 self.trades_made += 1
                 self.total_invested += size
-                
+
+                # Refresh balance after successful trade
+                try:
+                    self.balance = self.pm.get_usdc_balance()
+                except:
+                    pass
+
                 # Record in Shared Context
                 self.context.add_position(Position(
                     market_id=market_id,
@@ -317,10 +390,20 @@ class SportsTrader:
                     token_id=token_id
                 ))
             else:
-                print(f"      ⚠️ Order failed: {result.get('status')}")
-                
+                error_msg = result.get('error', result.get('status', 'Unknown error'))
+                if 'allowance' in str(error_msg).lower() or 'balance' in str(error_msg).lower():
+                    print(f"      🚫 ALLOWANCE ISSUE: {error_msg}")
+                    print(f"      💡 You may need to approve USDC spending on Polymarket")
+                else:
+                    print(f"      ⚠️ Order failed: {error_msg}")
+
         except Exception as e:
-            print(f"      ❌ Execution Error: {e}")
+            error_str = str(e)
+            if 'allowance' in error_str.lower() or 'balance' in error_str.lower():
+                print(f"      🚫 ALLOWANCE/BALANCE ISSUE: {e}")
+                print(f"      💡 Check: 1) USDC balance on Polymarket, 2) Contract allowance approved")
+            else:
+                print(f"      ❌ Execution Error: {e}")
 
     def scan_live_markets(self):
         """
@@ -328,17 +411,30 @@ class SportsTrader:
         No external API needed - trades based on what's actually live.
         """
         print(f"\n🌍 SCANNING POLYMARKET LIVE SPORTS...")
-        
+
+        # Refresh balance before scanning
+        try:
+            self.balance = self.pm.get_usdc_balance()
+            print(f"   💰 Current balance: ${self.balance:.2f}")
+        except Exception as e:
+            print(f"   ⚠️ Balance check failed: {e}")
+
         # Fetch all live sports markets
         markets = self.get_live_polymarket_sports()
-        
+
         if not markets:
             print("   No live sports markets found.")
             return
-        
+
         print(f"   📡 Found {len(markets)} live markets")
-        
+
+        trades_this_scan = 0
+        max_trades_per_scan = 1  # Only allow 1 trade per scan cycle
+
         for market in markets:
+            if trades_this_scan >= max_trades_per_scan:
+                print(f"   ⏸️  Reached max trades per scan ({max_trades_per_scan}). Stopping.")
+                break
             question = market.get("question", "")
             yes_price = market.get("yes_price", 0.5)
             no_price = market.get("no_price", 0.5)
@@ -388,6 +484,8 @@ class SportsTrader:
                 
                 # Execute trade
                 self.execute_bet(market, favorite_side, size=bet_size, price=favorite_price + 0.01)
+                trades_this_scan += 1
+                break  # Exit after successful trade attempt
             else:
                 print(f"      🛑 PASS: {reason} (conf: {conf*100:.0f}%)")
                 
