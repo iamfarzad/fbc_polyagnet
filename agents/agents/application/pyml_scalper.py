@@ -21,7 +21,6 @@ from collections import deque
 from dotenv import load_dotenv
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY, SELL
-import websocket
 
 # Import Polymarket wrapper
 try:
@@ -152,9 +151,8 @@ class CryptoScalper:
         print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
         print(f"="*60)
 
-        # Initialize Polymarket Websocket for real-time data
+        # Price caching for performance
         self.price_cache = {}  # token_id -> (timestamp, price_data)
-        self._init_polymarket_websocket()
 
     def _log(self, action, question, reasoning, confidence=1.0):
         """Log to Dashboard Terminal."""
@@ -177,53 +175,6 @@ class CryptoScalper:
         except Exception as e:
             print(f"   ⚠️ Log Error: {e}")
 
-    def _init_polymarket_websocket(self):
-        """Initialize Polymarket websocket for real-time price updates."""
-        def price_update_callback(data):
-            """Handle incoming market data updates."""
-            try:
-                # Parse market data and cache prices
-                if 'asset_id' in data and 'price' in data:
-                    token_id = data['asset_id']
-                    price = float(data.get('price', 0))
-                    bid = float(data.get('best_bid', price * 0.99))
-                    ask = float(data.get('best_ask', price * 1.01))
-                    bid_size = float(data.get('bid_size', 1000))
-
-                    price_data = (price, bid, bid_size, ask)
-                    self.price_cache[token_id] = (time.time(), price_data)
-                    print(f"   📈 WS Price Update: {token_id[:8]}... @ ${price:.4f}")
-
-                elif 'updates' in data:
-                    # Handle batch updates
-                    for update in data['updates']:
-                        if 'asset_id' in update:
-                            token_id = update['asset_id']
-                            price = float(update.get('price', 0))
-                            bid = float(update.get('best_bid', price * 0.99))
-                            ask = float(update.get('best_ask', price * 1.01))
-                            bid_size = float(update.get('bid_size', 1000))
-
-                            price_data = (price, bid, bid_size, ask)
-                            self.price_cache[token_id] = (time.time(), price_data)
-
-            except Exception as e:
-                print(f"   ⚠️ WS callback error: {e}")
-
-        # Add callback and connect to market channel
-        self.pm.add_ws_callback('market', price_update_callback)
-
-        # Connect to websocket (will auto-subscribe to assets as needed)
-        if not self.pm.connect_websocket(channel_type="market"):
-            print("   ⚠️ Polymarket WS connection failed - using REST polling")
-        else:
-            print("   📡 Polymarket WS connected for real-time updates")
-
-    def subscribe_to_market_assets(self, token_ids: list):
-        """Subscribe to specific market assets for real-time updates."""
-        if self.pm.ws_connection:
-            self.pm.subscribe_to_assets(token_ids, channel_type="market")
-            print(f"   📡 Subscribed to {len(token_ids)} market assets")
 
     # -------------------------------------------------------------------------
     # DATA & UTILS

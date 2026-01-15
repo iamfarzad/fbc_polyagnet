@@ -7,7 +7,6 @@ import time
 import ast
 import json
 import requests
-import websocket
 from typing import Dict, List, Optional, Callable
 
 from dotenv import load_dotenv
@@ -71,18 +70,6 @@ class Polymarket:
 
         self._init_api_keys()
         self._init_approvals(False)
-
-        # Websocket setup
-        self.ws_url = "wss://ws-subscriptions-clob.polymarket.com"
-        self.ws_connection = None
-        self.ws_channel_type = None
-        self.ws_auth_token = None
-        self.subscribed_markets = set()
-        self.subscribed_assets = set()
-        self.ws_callbacks = {
-            'user': [],
-            'market': []
-        }
 
     def _init_api_keys(self) -> None:
         self.client = ClobClient(
@@ -427,165 +414,6 @@ class Polymarket:
         balance_res = self.usdc.functions.balanceOf(balance_address).call()
         return float(balance_res / 10e5)
 
-    # ============================================================================
-    # WEBSOCKET METHODS - Real-time data feeds
-    # ============================================================================
-
-    def _get_ws_auth_token(self) -> str:
-        """Get authentication token for websocket connection."""
-        if not self.ws_auth_token:
-            # Use existing API credentials
-            self.ws_auth_token = self.credentials.api_key
-        return self.ws_auth_token
-
-    def connect_websocket(self, channel_type: str = "market", markets: List[str] = None, assets: List[str] = None) -> bool:
-        """
-        Connect to Polymarket websocket for real-time updates.
-
-        Args:
-            channel_type: "user" or "market"
-            markets: List of market IDs (condition IDs) for user channel
-            assets: List of asset IDs (token IDs) for market channel
-        """
-        try:
-            # Check if already connected to this channel
-            if self.ws_connection and self.ws_channel_type == channel_type:
-                print(f"WS already connected to {channel_type} channel")
-                return True
-
-            auth_token = self._get_ws_auth_token()
-
-            def on_message(ws, message):
-                try:
-                    data = json.loads(message)
-                    # Call registered callbacks
-                    for callback in self.ws_callbacks.get(channel_type, []):
-                        callback(data)
-                except Exception as e:
-                    print(f"WS message parse error: {e}")
-
-            def on_error(ws, error):
-                print(f"WS error: {error}")
-
-            def on_close(ws, close_status_code, close_msg):
-                print(f"WS closed: {close_status_code} - {close_msg}")
-                # Reset connection state
-                self.ws_connection = None
-                self.ws_channel_type = None
-
-            def on_open(ws):
-                try:
-                    # Send subscription message
-                    subscription_msg = {
-                        "auth": auth_token,
-                        "type": channel_type.upper(),
-                        "custom_feature_enabled": False
-                    }
-
-                    if channel_type == "user" and markets:
-                        subscription_msg["markets"] = markets
-                        self.subscribed_markets.update(markets)
-                    elif channel_type == "market" and assets:
-                        subscription_msg["assets_ids"] = assets
-                        self.subscribed_assets.update(assets)
-
-                    ws.send(json.dumps(subscription_msg))
-                    print(f"WS connected and subscribed to {channel_type} channel")
-                    self.ws_channel_type = channel_type
-                except Exception as e:
-                    print(f"WS subscription error: {e}")
-
-            # Use correct channel URL
-            channel_url = f"{self.ws_url}/ws/{channel_type}"
-
-            self.ws_connection = websocket.WebSocketApp(
-                channel_url,
-                on_message=on_message,
-                on_error=on_error,
-                on_close=on_close,
-                on_open=on_open
-            )
-
-            # Start websocket in background thread
-            import threading
-            ws_thread = threading.Thread(target=self.ws_connection.run_forever, daemon=True)
-            ws_thread.start()
-
-            # Store channel type
-            self.ws_channel_type = channel_type
-
-            return True
-        except Exception as e:
-            print(f"WS connection failed: {e}")
-            return False
-
-    def subscribe_to_assets(self, assets: List[str], channel_type: str = "market"):
-        """Subscribe to additional assets after connection."""
-        if not self.ws_connection:
-            print("WS not connected")
-            return False
-
-        try:
-            msg = {
-                "assets_ids": assets,
-                "operation": "subscribe",
-                "custom_feature_enabled": False
-            }
-            if channel_type == "user":
-                msg["markets"] = assets
-
-            self.ws_connection.send(json.dumps(msg))
-
-            if channel_type == "user":
-                self.subscribed_markets.update(assets)
-            else:
-                self.subscribed_assets.update(assets)
-
-            return True
-        except Exception as e:
-            print(f"WS subscribe failed: {e}")
-            return False
-
-    def unsubscribe_from_assets(self, assets: List[str], channel_type: str = "market"):
-        """Unsubscribe from assets."""
-        if not self.ws_connection:
-            return False
-
-        try:
-            msg = {
-                "assets_ids": assets,
-                "operation": "unsubscribe",
-                "custom_feature_enabled": False
-            }
-            if channel_type == "user":
-                msg["markets"] = assets
-
-            self.ws_connection.send(json.dumps(msg))
-
-            if channel_type == "user":
-                self.subscribed_markets.difference_update(assets)
-            else:
-                self.subscribed_assets.difference_update(assets)
-
-            return True
-        except Exception as e:
-            print(f"WS unsubscribe failed: {e}")
-            return False
-
-    def add_ws_callback(self, channel_type: str, callback: Callable):
-        """Add callback function for websocket messages."""
-        if channel_type not in self.ws_callbacks:
-            self.ws_callbacks[channel_type] = []
-        self.ws_callbacks[channel_type].append(callback)
-
-    def close_websocket(self):
-        """Close websocket connection."""
-        if self.ws_connection:
-            self.ws_connection.close()
-            self.ws_connection = None
-            self.ws_channel_type = None
-            self.subscribed_markets.clear()
-            self.subscribed_assets.clear()
 
 
 def test():
