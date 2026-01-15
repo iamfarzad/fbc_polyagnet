@@ -36,12 +36,16 @@ except ImportError:
 
 # Import Supabase state manager
 
+# Import Supabase state manager
 try:
     from agents.utils.supabase_client import get_supabase_state
+    HAS_SUPABASE = True
 except ImportError:
     try:
         from agents.agents.utils.supabase_client import get_supabase_state
+        HAS_SUPABASE = True
     except ImportError:
+        HAS_SUPABASE = False
         get_supabase_state = None
 
 # Import Shared Context for logging
