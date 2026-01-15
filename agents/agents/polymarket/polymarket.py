@@ -87,7 +87,7 @@ class Polymarket:
 
             self.credentials = ApiCreds(
                 api_key=builder_api_key,
-                api_secret=decoded_secret.decode('utf-8') if isinstance(decoded_secret, bytes) else decoded_secret,
+                api_secret=decoded_secret,
                 api_passphrase=builder_passphrase
             )
             self.client = ClobClient(
