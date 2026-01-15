@@ -79,10 +79,15 @@ class Polymarket:
 
         if builder_api_key and builder_secret and builder_passphrase:
             # Use Builder API credentials for automated trading
+            import base64
             from py_clob_client.clob_types import ApiCreds
+
+            # Decode base64 secret
+            decoded_secret = base64.b64decode(builder_secret)
+
             self.credentials = ApiCreds(
                 api_key=builder_api_key,
-                api_secret=builder_secret,
+                api_secret=decoded_secret.decode('utf-8') if isinstance(decoded_secret, bytes) else decoded_secret,
                 api_passphrase=builder_passphrase
             )
             self.client = ClobClient(
