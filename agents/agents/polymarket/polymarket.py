@@ -45,7 +45,16 @@ class Polymarket:
         self.clob_auth_endpoint = self.clob_url + "/auth/api-key"
 
         self.chain_id = 137  # POLYGON
-        self.private_key = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
+
+        # --- KEY FIX START ---
+        # Fetch key, strip whitespace/newlines, remove quotes
+        pk = os.getenv("POLYGON_WALLET_PRIVATE_KEY", "").strip().replace('"', '').replace("'", "")
+        # Ensure '0x' prefix is present (standardizes Hex format)
+        if pk and not pk.startswith("0x"):
+            pk = "0x" + pk
+        self.private_key = pk
+        # --- KEY FIX END ---
+
         self.polygon_rpc = "https://polygon-rpc.com"
         self.w3 = Web3(Web3.HTTPProvider(self.polygon_rpc))
 
@@ -72,36 +81,34 @@ class Polymarket:
         self._init_approvals(False)
 
     def _init_api_keys(self) -> None:
-        # Check if Builder API credentials are provided
+        self.client = ClobClient(
+            self.clob_url, key=self.private_key, chain_id=self.chain_id
+        )
+
+        # 1. Try to use explicit Builder API keys from .env first
         builder_api_key = os.getenv("CLOB_API_KEY")
         builder_secret = os.getenv("CLOB_SECRET")
         builder_passphrase = os.getenv("CLOB_PASS_PHRASE")
 
         if builder_api_key and builder_secret and builder_passphrase:
-            # Use Builder API credentials for automated trading
-            import base64
-            from py_clob_client.clob_types import ApiCreds
+            try:
+                from py_clob_client.clob_types import ApiCreds
+                print("   🔑 Using Builder API Credentials from .env")
 
-            # Decode base64 secret
-            decoded_secret = base64.b64decode(builder_secret)
-
-            self.credentials = ApiCreds(
-                api_key=builder_api_key,
-                api_secret=decoded_secret,
-                api_passphrase=builder_passphrase
-            )
-            self.client = ClobClient(
-                self.clob_url, key=self.private_key, chain_id=self.chain_id, creds=self.credentials
-            )
-            print("✅ Using Builder API credentials for automated trading")
+                self.credentials = ApiCreds(
+                    api_key=builder_api_key,
+                    api_secret=builder_secret,  # ✅ FIX: Pass raw string. Do NOT base64 decode.
+                    api_passphrase=builder_passphrase
+                )
+            except Exception as e:
+                print(f"   ⚠️ Failed to load Builder Keys: {e}. Falling back to derivation.")
+                self.credentials = self.client.create_or_derive_api_creds()
         else:
-            # Fallback to derived credentials
-            self.client = ClobClient(
-                self.clob_url, key=self.private_key, chain_id=self.chain_id
-            )
+            # 2. Fallback to cryptographically deriving keys from the private key
+            # print("   🔐 Deriving API Credentials from Private Key...")
             self.credentials = self.client.create_or_derive_api_creds()
-            self.client.set_api_creds(self.credentials)
-            print("⚠️ Using derived API credentials (limited permissions)")
+
+        self.client.set_api_creds(self.credentials)
 
     def get_usdc_allowance(self) -> float:
         """Check USDC allowance for both exchange and CTF contract"""
