@@ -283,8 +283,9 @@ def tool_search_markets(query: str) -> str:
     """Search for markets."""
     try:
         url = "https://gamma-api.polymarket.com/markets"
+        # Fetch more markets to increase hit rate (Gamma search is often fuzzy/limited)
         params = {
-            "limit": 10,
+            "limit": 50,
             "active": "true",
             "closed": "false"
         }
@@ -294,6 +295,8 @@ def tool_search_markets(query: str) -> str:
         # Filter by query
         query_lower = query.lower()
         matches = []
+        
+        # 1. Exact/Substring match in filtered list
         for m in markets:
             q = m.get("question", "").lower()
             if query_lower in q:
@@ -310,8 +313,22 @@ def tool_search_markets(query: str) -> str:
                     "volume": m.get("volume", 0)
                 })
         
+        # 2. If no matches, try generic popular markets
+        if not matches:
+             matches.append({"note": "No direct matches found. Showing popular markets instead."})
+             for m in markets[:5]:
+                try:
+                    prices = json.loads(m.get("outcomePrices", "[]"))
+                    yes_price = float(prices[0]) if prices else 0
+                except: yes_price = 0
+                matches.append({
+                    "id": m.get("id", "")[:12],
+                    "question": m.get("question", "")[:80],
+                    "yes_price": round(yes_price, 3)
+                })
+
         return json.dumps({
-            "markets": matches[:5],
+            "markets": matches[:10],
             "count": len(matches)
         })
     except Exception as e:
