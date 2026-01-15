@@ -105,7 +105,7 @@ def perplexity_search(query: str, api_key: str = None) -> str:
 MAX_POSITIONS = 10                   # Max concurrent positions (increased)
 BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggressive)
 MIN_BET_USD = 1.00                   # Polymarket minimum
-MAX_BET_USD = 50.00                  # Max per position
+MAX_BET_USD = 1.00                   # Temporarily limit to $1 for testing
 
 # Edge requirements - ZERO LOSS PROTOCOL
 MIN_EDGE_PERCENT = 15               # Need 15%+ edge (was 5%)

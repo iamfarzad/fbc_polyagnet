@@ -40,10 +40,10 @@ load_dotenv()
 
 # --- CONFIGURATION ---
 MIN_BET_USD = 1.00
-MAX_BET_USD = 50.00
+MAX_BET_USD = 1.00  # Temporarily limit to $1 for testing
 BET_PERCENT = 0.15 # 15% of bankroll per bet
-MIN_CONFIDENCE = 0.65  # LLM must be 65%+ confident to trade
-SCAN_INTERVAL = 300    # 5 minutes between scans (was 1 hour!)
+MIN_CONFIDENCE = 0.50  # Temporarily lower for testing (was 0.65)
+SCAN_INTERVAL = 60     # 1 minute for faster testing (was 5 minutes)
 
 # Polymarket Sports Series IDs (for direct Gamma API)
 SPORTS_SERIES = {

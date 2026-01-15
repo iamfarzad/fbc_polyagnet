@@ -60,13 +60,13 @@ load_dotenv()
 MAX_POSITIONS = 5
 BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.25"))  # 25% sizing (more aggressive)
 MIN_BET_USD = 1.00
-MAX_BET_USD = 100.0
+MAX_BET_USD = 1.00  # Temporarily limit to $1 for testing
 MAX_DAILY_DRAWDOWN_PCT = 0.10       # 10% daily stop loss
 
 # Maker Execution (The Trap)
 LIMIT_ORDER_TIMEOUT_CALM = 15       # 15s in calm markets
 LIMIT_ORDER_TIMEOUT_VOLATILE = 3    # 3s in choppy markets (Anti-Adverse Selection)
-QUEUE_JUMP_THRESHOLD = 2000.0       # If bid wall > $2k, jump it. Else, join it.
+QUEUE_JUMP_THRESHOLD = 10.0         # Temporarily lower for testing (was 2000.0)
 MAKER_OFFSET = 0.001                # Standard tick size
 
 # Hybrid Exit (The Escape)
@@ -152,6 +152,10 @@ class CryptoScalper:
         print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
         print(f"="*60)
 
+        # Initialize Polymarket Websocket for real-time data
+        self.price_cache = {}  # token_id -> (timestamp, price_data)
+        self._init_polymarket_websocket()
+
     def _log(self, action, question, reasoning, confidence=1.0):
         """Log to Dashboard Terminal."""
         try:
@@ -173,6 +177,54 @@ class CryptoScalper:
         except Exception as e:
             print(f"   ⚠️ Log Error: {e}")
 
+    def _init_polymarket_websocket(self):
+        """Initialize Polymarket websocket for real-time price updates."""
+        def price_update_callback(data):
+            """Handle incoming market data updates."""
+            try:
+                # Parse market data and cache prices
+                if 'asset_id' in data and 'price' in data:
+                    token_id = data['asset_id']
+                    price = float(data.get('price', 0))
+                    bid = float(data.get('best_bid', price * 0.99))
+                    ask = float(data.get('best_ask', price * 1.01))
+                    bid_size = float(data.get('bid_size', 1000))
+
+                    price_data = (price, bid, bid_size, ask)
+                    self.price_cache[token_id] = (time.time(), price_data)
+                    print(f"   📈 WS Price Update: {token_id[:8]}... @ ${price:.4f}")
+
+                elif 'updates' in data:
+                    # Handle batch updates
+                    for update in data['updates']:
+                        if 'asset_id' in update:
+                            token_id = update['asset_id']
+                            price = float(update.get('price', 0))
+                            bid = float(update.get('best_bid', price * 0.99))
+                            ask = float(update.get('best_ask', price * 1.01))
+                            bid_size = float(update.get('bid_size', 1000))
+
+                            price_data = (price, bid, bid_size, ask)
+                            self.price_cache[token_id] = (time.time(), price_data)
+
+            except Exception as e:
+                print(f"   ⚠️ WS callback error: {e}")
+
+        # Add callback and connect to market channel
+        self.pm.add_ws_callback('market', price_update_callback)
+
+        # Connect to websocket (will auto-subscribe to assets as needed)
+        if not self.pm.connect_websocket(channel_type="market"):
+            print("   ⚠️ Polymarket WS connection failed - using REST polling")
+        else:
+            print("   📡 Polymarket WS connected for real-time updates")
+
+    def subscribe_to_market_assets(self, token_ids: list):
+        """Subscribe to specific market assets for real-time updates."""
+        if self.pm.ws_connection:
+            self.pm.subscribe_to_assets(token_ids, channel_type="market")
+            print(f"   📡 Subscribed to {len(token_ids)} market assets")
+
     # -------------------------------------------------------------------------
     # DATA & UTILS
     # -------------------------------------------------------------------------
@@ -182,13 +234,27 @@ class CryptoScalper:
         except: return 0.0
 
     def get_current_price(self, token_id):
+        """Get current price - prefer cached websocket data, fallback to REST."""
+        # Check if we have recent websocket data
+        if hasattr(self, 'price_cache') and token_id in self.price_cache:
+            cache_time, cached_data = self.price_cache[token_id]
+            if time.time() - cache_time < 1.0:  # Use cache if < 1 second old
+                return cached_data
+
+        # Fallback to REST API
         try:
             book = self.pm.client.get_order_book(token_id)
             best_bid = float(book.bids[0].price) if book.bids else 0.0
             bid_size = float(book.bids[0].size) if book.bids else 0.0
             best_ask = float(book.asks[0].price) if book.asks else 1.0
             if best_bid == 0 and best_ask == 1: return 0.5, 0.0, 0.0, 1.0
-            return (best_bid + best_ask)/2, best_bid, bid_size, best_ask
+
+            price_data = ((best_bid + best_ask)/2, best_bid, bid_size, best_ask)
+            # Cache the REST data
+            if not hasattr(self, 'price_cache'):
+                self.price_cache = {}
+            self.price_cache[token_id] = (time.time(), price_data)
+            return price_data
         except: return 0.5, 0.0, 0.0, 1.0
 
     def calculate_volatility(self, symbol):
@@ -333,6 +399,14 @@ class CryptoScalper:
             if new_market_count > 0:
                 self.detect_market_creation_patterns()
                 print(f"   📈 Found {new_market_count} new markets, {len(markets)} available")
+
+            # Subscribe to websocket updates for discovered assets
+            if markets:
+                asset_ids = []
+                for market in markets:
+                    asset_ids.extend([market["up_token"], market["down_token"]])
+                if asset_ids:
+                    self.subscribe_to_market_assets(asset_ids)
 
             return markets
         except Exception as e:

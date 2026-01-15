@@ -74,7 +74,7 @@ load_dotenv()
 # Trading parameters
 MIN_EDGE_PERCENT = 3            # Need 3%+ edge to enter (tight for HFT)
 MIN_BET_USD = 1.00              # Polymarket minimum
-MAX_BET_USD = 20.00             # Keep positions small for quick exits
+MAX_BET_USD = 1.00              # Temporarily limit to $1 for testing
 BET_PERCENT = 0.05              # 5% of bankroll per trade
 MAX_CONCURRENT_POSITIONS = 3    # Max positions per match
 
