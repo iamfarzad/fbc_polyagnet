@@ -154,13 +154,11 @@ class CryptoScalper:
 
     def _log(self, action, question, reasoning, confidence=1.0):
         """Log to Dashboard Terminal."""
-        if self.context and self.LLMActivity:
-            try:
-                import uuid
-                self.context.log_llm_activity(self.LLMActivity(
-                    id=str(uuid.uuid4())[:8],
+        try:
+            if HAS_SUPABASE:
+                supa = get_supabase_state()
+                supa.log_llm_activity(
                     agent=self.AGENT_NAME,
-                    timestamp=datetime.datetime.now().isoformat(),
                     action_type=action,
                     market_question=question,
                     prompt_summary=f"{action}: {question[:40]}...",
@@ -168,9 +166,12 @@ class CryptoScalper:
                     conclusion="EXECUTED",
                     confidence=confidence,
                     data_sources=["Binance OrderBook", "Polymarket CLOB"],
+                    tokens_used=0,
+                    cost_usd=0.0,
                     duration_ms=0
-                ))
-            except: pass
+                )
+        except Exception as e:
+            print(f"   ⚠️ Log Error: {e}")
 
     # -------------------------------------------------------------------------
     # DATA & UTILS

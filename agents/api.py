@@ -1190,6 +1190,39 @@ def redeem_positions():
         return {"status": "error", "error": str(e)}
 
 
+@app.get("/api/llm-activity")
+def get_llm_activity_endpoint(limit: int = 50, agent: str = None):
+    """Get recent LLM activity logs."""
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            activities = supa.get_llm_activity(limit=limit, agent=agent)
+            
+            # Simple stats calculation from fetched activities (or placeholder)
+            valid_activities = [a for a in activities if a]
+            total_cost = sum(a.get("cost_usd", 0) or 0 for a in valid_activities)
+            total_tokens = sum(a.get("tokens_used", 0) or 0 for a in valid_activities)
+            
+            stats = {
+                "total_calls": len(activities),
+                "total_tokens": total_tokens,
+                "total_cost_usd": total_cost,
+                "avg_confidence": 0,
+                "by_agent": {},
+                "decisions": {"BET": 0, "PASS": 0, "ERROR": 0}
+            }
+            
+            return {
+                "activities": activities,
+                "stats": stats
+            }
+        except Exception as e:
+            logger.error(f"Failed to get LLM activity: {e}")
+            return {"activities": [], "stats": {}, "error": str(e)}
+    
+    return {"activities": [], "stats": {}}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
