@@ -72,12 +72,31 @@ class Polymarket:
         self._init_approvals(False)
 
     def _init_api_keys(self) -> None:
-        self.client = ClobClient(
-            self.clob_url, key=self.private_key, chain_id=self.chain_id
-        )
-        self.credentials = self.client.create_or_derive_api_creds()
-        self.client.set_api_creds(self.credentials)
-        # print(self.credentials)
+        # Check if Builder API credentials are provided
+        builder_api_key = os.getenv("CLOB_API_KEY")
+        builder_secret = os.getenv("CLOB_SECRET")
+        builder_passphrase = os.getenv("CLOB_PASS_PHRASE")
+
+        if builder_api_key and builder_secret and builder_passphrase:
+            # Use Builder API credentials for automated trading
+            from py_clob_client.clob_types import ApiCreds
+            self.credentials = ApiCreds(
+                api_key=builder_api_key,
+                api_secret=builder_secret,
+                api_passphrase=builder_passphrase
+            )
+            self.client = ClobClient(
+                self.clob_url, key=self.private_key, chain_id=self.chain_id, creds=self.credentials
+            )
+            print("✅ Using Builder API credentials for automated trading")
+        else:
+            # Fallback to derived credentials
+            self.client = ClobClient(
+                self.clob_url, key=self.private_key, chain_id=self.chain_id
+            )
+            self.credentials = self.client.create_or_derive_api_creds()
+            self.client.set_api_creds(self.credentials)
+            print("⚠️ Using derived API credentials (limited permissions)")
 
     def get_usdc_allowance(self) -> float:
         """Check USDC allowance for both exchange and CTF contract"""
@@ -88,7 +107,7 @@ class Polymarket:
             exchange_allowance = self.usdc.functions.allowance(pub_key, self.exchange_address).call()
 
             # Check allowance for CTF contract
-            ctf_allowance = self.usdc.functions.allowance(pub_key, "0x4d97dcd97ec945f40cf65f87097ace5ea0476045").call()
+            ctf_allowance = self.usdc.functions.allowance(pub_key, Web3.to_checksum_address("0x4d97dcd97ec945f40cf65f87097ace5ea0476045")).call()
 
             # Return the minimum of both allowances
             min_allowance = min(exchange_allowance, ctf_allowance)
