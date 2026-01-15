@@ -26,3 +26,22 @@
 2026-01-14 12:21:28,343 - CopyBot - INFO - User 0x006c... has 100 positions.
 2026-01-14 12:21:28,487 - CopyBot - INFO - User 0x16b2... has 100 positions.
 2026-01-14 12:21:28,487 - CopyBot - ERROR - Copy Loop Error: cannot access local variable 'datetime' where it is not associated with a value
+2026-01-14 21:16:45,788 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-14 21:16:45,881 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-14 21:16:46,240 - CopyBot - INFO - Initial Balance: $0.00
+2026-01-14 21:16:46,249 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-14 21:16:46,249 - CopyBot - INFO - Starting Copy Trader...
+2026-01-14 21:16:46,249 - SupabaseClient - WARNING - Using local JSON fallback for state (no Supabase credentials)
+2026-01-14 21:16:59,995 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-14 21:16:59,996 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-14 21:16:59,996 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-14 21:17:00,100 - CopyBot - INFO - User 0x6a72... has 100 positions.
+2026-01-14 21:17:00,206 - CopyBot - INFO - User 0xe90b... has 40 positions.
+2026-01-14 21:17:00,467 - CopyBot - INFO - User 0xdb27... has 100 positions.
+2026-01-14 21:17:00,569 - CopyBot - INFO - User 0x006c... has 100 positions.
+2026-01-14 21:17:00,727 - CopyBot - INFO - User 0x16b2... has 100 positions.
+2026-01-14 21:17:00,729 - CopyBot - INFO - Sleeping 60s before next scan...
+2026-01-14 21:18:08,656 - PyMLBot - INFO - Using cached whale list (13 addresses)
+2026-01-14 21:18:08,657 - CopyBot - INFO - LLM discovered 13 top traders
+2026-01-14 21:18:08,658 - CopyBot - INFO - Scanning 5 top gainers...
+2026-01-14 21:18:08,755 - CopyBot - INFO - User 0x6a72... has 100 positions.

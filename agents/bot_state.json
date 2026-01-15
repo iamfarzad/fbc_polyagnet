@@ -1,12 +1,1 @@
-{
-  "dry_run": false,
-  "safe_running": true,
-  "scalper_running": true,
-  "esports_running": true,
-  "sports_running": true,
-  "dynamic_max_bet": 20.0,
-  "scalper_bet_percent": 0.15,
-  "esports_bet_percent": 0.10,
-  "forced_trade_enabled": false,
-  "min_edge_percent": 3.5
-}
+{"safe_running": true, "scalper_running": true, "copy_trader_running": true, "smart_trader_running": true, "sports_trader_running": true, "esports_trader_running": true, "dry_run": false, "timestamp": "2026-01-14T21:30:00.000000", "safe_last_activity": "Scanning Markets (10:34:56)", "safe_last_endpoint": "Gamma API", "safe_heartbeat": "2026-01-15T10:34:56.218224"}
