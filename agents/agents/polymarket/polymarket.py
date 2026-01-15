@@ -171,6 +171,22 @@ class Polymarket:
         )
         print("USDC approved for CTF contract:", usdc_ctf_tx_receipt)
 
+        # Also approve for the main CTF contract (0x4d97dcd97ec945f40cf65f87097ace5ea0476045)
+        nonce = web3.eth.get_transaction_count(pub_key)
+        raw_usdc_main_ctf_txn = usdc.functions.approve(
+            "0x4d97dcd97ec945f40cf65f87097ace5ea0476045", int(MAX_INT, 0)
+        ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
+        signed_usdc_main_ctf_tx = web3.eth.account.sign_transaction(
+            raw_usdc_main_ctf_txn, private_key=priv_key
+        )
+        send_usdc_main_ctf_tx = web3.eth.send_raw_transaction(
+            signed_usdc_main_ctf_tx.raw_transaction
+        )
+        usdc_main_ctf_tx_receipt = web3.eth.wait_for_transaction_receipt(
+            send_usdc_main_ctf_tx, 600
+        )
+        print("USDC approved for main CTF contract:", usdc_main_ctf_tx_receipt)
+
         nonce = web3.eth.get_transaction_count(pub_key)
 
         raw_ctf_approval_txn = ctf.functions.setApprovalForAll(
