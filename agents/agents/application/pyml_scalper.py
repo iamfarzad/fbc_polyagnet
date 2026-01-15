@@ -38,12 +38,17 @@ try:
 except ImportError:
     HAS_CONTEXT = False
 
-# Import Supabase
+# Robust Supabase Import
 try:
     from agents.utils.supabase_client import get_supabase_state
     HAS_SUPABASE = True
 except ImportError:
-    HAS_SUPABASE = False
+    try:
+        from agents.agents.utils.supabase_client import get_supabase_state
+        HAS_SUPABASE = True
+    except ImportError:
+        HAS_SUPABASE = False
+        get_supabase_state = None
 
 load_dotenv()
 
