@@ -133,6 +133,7 @@ class Polymarket:
                     api_secret=user_secret,  # Raw string, no base64 decoding
                     api_passphrase=user_passphrase  # Raw string, no base64 decoding
                 )
+
                 print("   ✅ User credentials loaded successfully")
             except Exception as e:
                 print(f"   ⚠️ User credentials failed: {e}")
@@ -143,6 +144,7 @@ class Polymarket:
         else:
             print("   🔐 No User credentials found, deriving from private key...")
             self.credentials = self.client.create_or_derive_api_creds()
+
 
         # Ensure funder_address is set even for derived credentials
         if not hasattr(self, 'funder_address') or not self.funder_address:
