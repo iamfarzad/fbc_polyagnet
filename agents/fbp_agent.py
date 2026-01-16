@@ -685,6 +685,7 @@ def build_system_prompt() -> str:
         balance = 0
     
     # Get agent states
+    state = {}
     try:
         with open("bot_state.json", "r") as f:
             state = json.load(f)
@@ -695,6 +696,7 @@ def build_system_prompt() -> str:
     except:
         safe_running = scalper_running = copy_running = False
         dry_run = True
+        state = {}
     
     tools_desc = "\n".join([
         f"- {name}: {info['description']} | params: {info['params']}"
