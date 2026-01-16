@@ -67,7 +67,7 @@ load_dotenv()
 MAX_POSITIONS = 5
 BET_PERCENT = 0.20  # 20% of total wallet balance maximum allocation
 MIN_BET_USD = 1.00  # Minimum $1.00 per trade
-MAX_BET_USD = None  # Will be calculated as 20% of balance
+MAX_BET_USD = 1000.0  # Large limit for 20% allocation
 MAX_DAILY_DRAWDOWN_PCT = 0.50       # Relaxed daily stop loss for testing
 
 # Maker Execution (The Trap)
