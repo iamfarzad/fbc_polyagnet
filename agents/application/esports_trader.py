@@ -963,6 +963,7 @@ class EsportsTrader:
         print(f"   Polling Interval: {POLL_INTERVAL_LIVE}s (rate limit friendly)")
         print(f"   Compounding: Moderate")
         print(f"   API Limits: {MAX_REQUESTS_PER_HOUR}/hour, {MAX_REQUESTS_PER_MINUTE}/minute")
+        print(f"   ⚠️  WARNING: Requires PANDASCORE_API_KEY for profitable trading")
 
         while True:
             try:
@@ -1088,9 +1089,17 @@ class EsportsTrader:
             self._check_upcoming_matches()
             return POLL_INTERVAL_IDLE
 
-        # 4. SIGNAL: Get Live Data (PandaScore/Riot) - Non-Blocking!
-        # This is our edge. If we have it, we use it. If not, we fall back.
+        # 4. SIGNAL: Get Live Data (PandaScore/Riot) - REQUIRED FOR EDGE!
+        # This is our competitive advantage. Without it, we don't trade.
         live_matches = []
+        pandascore_available = bool(os.getenv("PANDASCORE_API_KEY"))
+
+        if not pandascore_available:
+            print(f"   ❌ NO PANDASCORE API KEY: Esports trading disabled")
+            print(f"      Get free API key at pandascore.co to enable profitable trading")
+            print(f"      Without data, esports trading becomes unprofitable gambling")
+            return POLL_INTERVAL_IDLE
+
         try:
             live_matches = self.data_aggregator.get_all_live_matches()
             # Track API usage (each live matches call counts as ~2-3 requests)
@@ -1098,7 +1107,9 @@ class EsportsTrader:
             self.increment_request_count()  # For both LoL and CS2 calls
             print(f"   found {len(live_matches)} active games in data feed")
         except Exception as e:
-            print(f"   ⚠️ Data feed error (continuing in fallback mode): {e}")
+            print(f"   ⚠️ Data feed error: {e}")
+            print(f"      Disabling trading until Pandascore is working")
+            return POLL_INTERVAL_IDLE
 
         trades_made = 0
         
@@ -1155,47 +1166,29 @@ class EsportsTrader:
                             trades_made += 1
                         continue
 
-            # === PATH B: MARKET-BASED TRADING ===
-            # Even without live data, look for market inefficiencies
-            market_price = (yes_price + no_price) / 2
+            # === PATH B: MARKET-BASED TRADING (DISABLED - TOO RISKY WITHOUT DATA) ===
+            # WARNING: Without Pandascore data, this is essentially gambling
+            # The market-based heuristics are often wrong and lead to losses
 
-            # Look for arbitrage opportunities (free money)
-            if spread_sum < 0.99:  # Significant arbitrage
-                print(f"\n   💰 ARBITRAGE: {question[:40]}...")
-                print(f"      Yes({yes_price}) + No({no_price}) = {spread_sum:.3f}")
-                side = "YES" if yes_price < no_price else "NO"
-                print(f"      ⚡ Arbitrage trade: {side}")
-                if self.execute_trade(market, side, 0.99, yes_price if side=="YES" else no_price):
-                    trades_made += 1
-                continue
+            print(f"   ⚠️ NO PANDASCORE DATA: Skipping market-based trading for {question[:30]}...")
+            print(f"      Get Pandascore API key at pandascore.co to enable data-driven trading")
+            print(f"      Market odds: Yes={yes_price:.3f}, No={no_price:.3f}")
 
-            # Look for mispriced favorites/underogs (market edge detection)
-            implied_prob = yes_price  # Probability implied by market
-            fair_prob = 0.50  # Assume fair 50/50 for esports matches
+            # DISABLED: Don't make trades without data advantage
+            # The following code would gamble based on simplistic assumptions:
 
-            # Simple edge calculation: if market implies >60% win prob but we think it's closer to 50%
-            if implied_prob > 0.65 and market.volume > 100:  # Overpriced favorite
-                edge = fair_prob - implied_prob  # Negative edge means we buy underdog
-                if abs(edge) > MIN_EDGE_PERCENT / 100:
-                    print(f"\n   📊 MARKET EDGE: {question[:40]}...")
-                    print(f"      Market prob: {implied_prob*100:.1f}% (too high) | Fair: {fair_prob*100:.1f}%")
-                    print(f"      📈 Buy underdog (Edge: {abs(edge)*100:.1f}%)")
-                    if self.execute_trade(market, "NO", fair_prob, market.no_price):
-                        trades_made += 1
-                    continue
+            # Look for arbitrage opportunities (rare and usually already arbitraged)
+            # if spread_sum < 0.985:  # Only true arbitrage
+            #     print(f"\n   💰 TRUE ARBITRAGE: {question[:40]}...")
+            #     side = "YES" if yes_price < no_price else "NO"
+            #     if self.execute_trade(market, side, 0.99, yes_price if side=="YES" else no_price):
+            #         trades_made += 1
+            #     continue
 
-            elif implied_prob < 0.35 and market.volume > 100:  # Underpriced underdog
-                edge = implied_prob - fair_prob  # Positive edge means we buy favorite
-                if abs(edge) > MIN_EDGE_PERCENT / 100:
-                    print(f"\n   📊 MARKET EDGE: {question[:40]}...")
-                    print(f"      Market prob: {implied_prob*100:.1f}% (too low) | Fair: {fair_prob*100:.1f}%")
-                    print(f"      📈 Buy favorite (Edge: {abs(edge)*100:.1f}%)")
-                    if self.execute_trade(market, "YES", fair_prob, market.yes_price):
-                        trades_made += 1
-                    continue
+            # # Don't do market edge detection without data - it's gambling
+            # print(f"      ❌ SKIPPING: No data advantage = no trade")
 
-            # If no clear edge, pass for now
-            print(f"      👀 {question[:30]}... (No edge found)")
+            continue
 
         # Save state & Return
         self.save_state()
@@ -1225,11 +1218,25 @@ class EsportsTrader:
 
     def run(self):
         """Main run loop with hybrid strategy."""
-        print("\n🎮 ESPORTS TRADER ACTIVE - HYBRID MODE")
-        print("   Strategy 1: Market-based trading ($2-3 bets on mispriced odds)")
-        print("   Strategy 2: Data-driven trading (when PandaScore available)")
-        print("   Target: 900+ live esports markets across CS2, LoL, Valorant, etc.")
+        print("\n🎮 ESPORTS TRADER ACTIVE - DATA-DRIVEN MODE")
+        print("   ⚠️  REQUIRES PANDASCORE API KEY for profitable trading")
+        print("   📊 Strategy: Live game stats vs market odds (latency arbitrage)")
+        print("   🎯 Target: 0.5-2% edge per trade on 900+ live esports markets")
+        print("   🛑 Without Pandascore: Trading DISABLED (prevents losses)")
         print()
+
+        # Check for Pandascore immediately
+        if not os.getenv("PANDASCORE_API_KEY"):
+            print("❌ PANDASCORE_API_KEY not found!")
+            print("   1. Go to https://pandascore.co")
+            print("   2. Sign up for free account")
+            print("   3. Get API key from dashboard")
+            print("   4. Set PANDASCORE_API_KEY environment variable")
+            print("   5. Restart the esports trader")
+            print("\n   Without this key, the bot will not trade (to prevent losses)")
+            print("\n   💡 Pro tip: Pandascore has a generous free tier (1000 requests/day)")
+            print("   This gives you ~1 year of data for development and testing")
+            return
         
         while True:
             try:
