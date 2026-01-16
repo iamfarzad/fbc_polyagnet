@@ -187,103 +187,70 @@ class AutoRedeemer:
             return False
 
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
-        """Redeem a winning position. Supports both EOA and Gnosis Safe Proxy."""
-        if not self.private_key:
-            return None
-        
+        if not self.private_key: return None
         try:
-            # Prepare condition_id as bytes32
-            if not condition_id.startswith("0x"):
-                condition_id = "0x" + condition_id
+            if not condition_id.startswith("0x"): condition_id = "0x" + condition_id
             condition_bytes = bytes.fromhex(condition_id[2:].zfill(64))
-            
-            # Check if using Proxy
+
             is_proxy = False
             proxy_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
-            # If our configured address matches the proxy environment variable, we are in Proxy Mode
             if proxy_address and self.address.lower() == proxy_address.lower():
                 is_proxy = True
-                print(f"   🛡️ Detected Proxy Mode: {proxy_address}")
 
-            # Parent collection and index sets
             parent_collection = bytes(32)
-            index_sets = [1, 2] # Binary markets
-            
-            # ---------------------------------------------------------
-            # PATH A: GNOSIS SAFE PROXY REDEMPTION
-            # ---------------------------------------------------------
+            index_sets = [1, 2] # Yes and No
+
+            # Encode the action the Safe will perform
+            inner_data = self.ctf.encodeABI(
+                fn_name="redeemPositions",
+                args=[Web3.to_checksum_address(USDC_ADDRESS), parent_collection, condition_bytes, index_sets]
+            )
+
             if is_proxy:
-                # 1. Encode Inner Call (CTF.redeemPositions)
-                inner_data = self.ctf.encodeABI(
-                    fn_name="redeemPositions",
-                    args=[
-                        Web3.to_checksum_address(USDC_ADDRESS),
-                        parent_collection,
-                        condition_bytes,
-                        index_sets
-                    ]
-                )
-                
-                # 2. Setup Proxy Contract
-                # Minimal Safe ABI for execTransaction and nonce
-                SAFE_ABI_MIN = [
+                # 1. Setup Safe Contract with getTransactionHash
+                SAFE_ABI_EXTENDED = [
+                    {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"},{"internalType":"uint8","name":"operation","type":"uint8"},{"internalType":"uint256","name":"safeTxGas","type":"uint256"},{"internalType":"uint256","name":"baseGas","type":"uint256"},{"internalType":"uint256","name":"gasPrice","type":"uint256"},{"internalType":"address","name":"gasToken","type":"address"},{"internalType":"address","name":"refundReceiver","type":"address"},{"internalType":"uint256","name":"nonce","type":"uint256"}],"name":"getTransactionHash","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},
                     {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"},{"internalType":"uint8","name":"operation","type":"uint8"},{"internalType":"uint256","name":"safeTxGas","type":"uint256"},{"internalType":"uint256","name":"baseGas","type":"uint256"},{"internalType":"uint256","name":"gasPrice","type":"uint256"},{"internalType":"address","name":"gasToken","type":"address"},{"internalType":"address","name":"refundReceiver","type":"address"},{"internalType":"bytes","name":"signatures","type":"bytes"}],"name":"execTransaction","outputs":[{"internalType":"bool","name":"success","type":"bool"}],"stateMutability":"payable","type":"function"},
                     {"inputs":[],"name":"nonce","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
                 ]
-                proxy_contract = self.w3.eth.contract(address=self.address, abi=SAFE_ABI_MIN)
-                
-                # 3. Get Safe Nonce
-                safe_nonce = proxy_contract.functions.nonce().call()
-                
-                # 4. Helper to calculate Safe Hash (EIP-712)
-                def get_safe_tx_hash(safe_address, to, value, data, operation, safe_tx_gas, base_gas, gas_price, gas_token, refund_receiver, nonce, chain_id):
-                    DOMAIN_SEPARATOR_TYPEHASH = Web3.keccak(text="EIP712Domain(uint256 chainId,address verifyingContract)")
-                    domain_separator = Web3.solidity_keccak(['bytes32', 'uint256', 'address'], [DOMAIN_SEPARATOR_TYPEHASH, chain_id, safe_address])
-                    SAFE_TX_TYPEHASH = Web3.keccak(text="SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)")
-                    data_hash = Web3.keccak(hexstr=data)
-                    safe_tx_hash = Web3.solidity_keccak(['bytes32', 'address', 'uint256', 'bytes32', 'uint8', 'uint256', 'uint256', 'uint256', 'address', 'address', 'uint256'], [SAFE_TX_TYPEHASH, to, value, data_hash, operation, safe_tx_gas, base_gas, gas_price, gas_token, refund_receiver, nonce])
-                    return Web3.solidity_keccak(['bytes1', 'bytes1', 'bytes32', 'bytes32'], [bytes.fromhex('19'), bytes.fromhex('01'), domain_separator, safe_tx_hash])
+                proxy_contract = self.w3.eth.contract(address=self.address, abi=SAFE_ABI_EXTENDED)
 
-                # 5. Build Safe Transaction Params
+                # 2. Get the Safe's current nonce and official hash
+                safe_nonce = proxy_contract.functions.nonce().call()
                 to_addr = Web3.to_checksum_address(CONDITIONAL_TOKENS)
-                value = 0
-                operation = 0 # Call
-                safe_tx_gas = 500000
-                base_gas = 0
-                gas_price = 0
-                gas_token = "0x0000000000000000000000000000000000000000"
-                refund_receiver = "0x0000000000000000000000000000000000000000"
-                chain_id = 137
-                
-                # 6. Sign Hash
-                tx_hash_bytes = get_safe_tx_hash(self.address, to_addr, value, inner_data, operation, safe_tx_gas, base_gas, gas_price, gas_token, refund_receiver, safe_nonce, chain_id)
+
+                # Use the contract to generate the hash (Foolproof)
+                tx_hash_bytes = proxy_contract.functions.getTransactionHash(
+                    to_addr, 0, inner_data, 0, 500000, 0, 0,
+                    "0x0000000000000000000000000000000000000000",
+                    "0x0000000000000000000000000000000000000000",
+                    safe_nonce
+                ).call()
+
+                # 3. Sign the hash
                 signed_hash = self.w3.eth.account._sign_hash(tx_hash_bytes, private_key=self.private_key)
-                
-                # Pack Signature (r + s + v)
                 signature = signed_hash.r.to_bytes(32, 'big') + signed_hash.s.to_bytes(32, 'big') + signed_hash.v.to_bytes(1, 'big')
 
-                # 7. Execute Outer Transaction (Meta-Transaction)
-                # Note: 'from' must be the EOA (private key holder), calling 'execTransaction' on the Proxy
+                # 4. Execute Outer Tx (CRITICAL: gas > 500,000)
                 tx = proxy_contract.functions.execTransaction(
-                    to_addr, value, inner_data, operation, 
-                    safe_tx_gas, base_gas, gas_price, gas_token, refund_receiver, 
+                    to_addr, 0, inner_data, 0, 500000, 0, 0,
+                    "0x0000000000000000000000000000000000000000",
+                    "0x0000000000000000000000000000000000000000",
                     signature
                 ).build_transaction({
-                    'from': self.account.address, # Use EOA address here
+                    'from': self.account.address,
                     'nonce': self.w3.eth.get_transaction_count(self.account.address),
-                    'gas': 400000,
+                    'gas': 650000, # Set to 650k to cover inner 500k + overhead
                     'gasPrice': self.w3.eth.gas_price,
                     'chainId': 137
                 })
-                
+
                 signed_tx = self.w3.eth.account.sign_transaction(tx, self.private_key)
                 tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-                print(f"   ✅ Proxy Redemption Sent: {tx_hash.hex()}")
+                print(f"   ✅ Turbo Redemption Sent: {tx_hash.hex()}")
                 return tx_hash.hex()
 
-            # ---------------------------------------------------------
-            # PATH B: STANDARD EOA REDEMPTION
-            # ---------------------------------------------------------
+            # Standard EOA logic below... (keep as is)
             else:
                 # Build transaction directly on CTF
                 tx = self.ctf.functions.redeemPositions(
@@ -298,14 +265,14 @@ class AutoRedeemer:
                     'gasPrice': self.w3.eth.gas_price,
                     'chainId': 137
                 })
-                
+
                 # Sign and send
                 signed = self.w3.eth.account.sign_transaction(tx, self.private_key)
                 tx_hash = self.w3.eth.send_raw_transaction(signed.raw_transaction)
-                
+
                 print(f"   ✅ Redemption tx: {tx_hash.hex()}")
                 return tx_hash.hex()
-                
+
         except Exception as e:
             print(f"   ❌ Redemption error: {e}")
             return None
