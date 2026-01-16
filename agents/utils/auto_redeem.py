@@ -62,16 +62,21 @@ class AutoRedeemer:
         # Try multiple env var names for private key
         self.private_key = (
             os.getenv("POLYGON_WALLET_PRIVATE_KEY") or
-            os.getenv("PRIVATE_KEY") or 
-            os.getenv("PK") or 
+            os.getenv("PRIVATE_KEY") or
+            os.getenv("PK") or
             ""
         )
-        
-        # Try to get address from Polymarket client if private key not found
+
+        # CRITICAL FIX: For Gnosis Safe operations, self.address MUST be the proxy
+        # The proxy holds the tokens, not the EOA signer
+        self.proxy_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
+
         self.address = None
         if self.private_key:
             self.account = Account.from_key(self.private_key)
-            self.address = self.account.address
+            # PRIORITIZE PROXY ADDRESS for Gnosis Safe operations
+            self.address = self.proxy_address if self.proxy_address else self.account.address
+            print(f"   🏦 AutoRedeemer using address: {self.address} (Proxy: {self.proxy_address is not None})")
         else:
             # Fallback: try to import Polymarket and get address
             try:
