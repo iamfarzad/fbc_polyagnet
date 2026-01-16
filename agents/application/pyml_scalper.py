@@ -370,6 +370,7 @@ class CryptoScalper:
         Poll Data API to reconcile Pending Orders -> Active Positions.
         This is the 'source of truth' check.
         """
+        print(f"   🔄 SYNC_POSITIONS: Checking positions for user={self.pm.funder_address}")
         if self.dry_run: return
 
         try:
