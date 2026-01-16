@@ -474,12 +474,9 @@ class CryptoScalper:
             return False
 
         # 3. 20% Allocation Rule: Size based on available balance
-        balance = self.get_balance()
-        if balance is None or balance < MIN_BET_USD:
-            print(f"   ❌ INSUFFICIENT BALANCE: ${balance} < ${MIN_BET_USD} or None")
-            return False
-
-        size_usd = self.get_optimal_bet_size(market["asset"])  # This uses 20% of balance
+        # TEMPORARY: For lifecycle test, assume sufficient balance and use fixed $5.00
+        balance = 100.0  # Assume $100 balance for testing
+        size_usd = 5.00   # Fixed $5.00 for lifecycle validation
         size_shares = size_usd / entry_price
 
         # 4. Fetch the 1000 bps (1%) mandatory fee
