@@ -685,10 +685,13 @@ class CryptoScalper:
                 self.manage_positions()
 
                 # 4. Scan & Enter (Optimized)
+                print(f"   🔄 SCAN: active_positions={len(self.active_positions)}, MAX_POSITIONS={MAX_POSITIONS}")
                 if len(self.active_positions) < MAX_POSITIONS:
                     markets = self.get_available_markets()
+                    print(f"   📊 MARKETS FOUND: {len(markets) if markets else 0}")
 
                     if markets:  # Only process if we found markets
+                        print(f"   🔍 PROCESSING {len(markets)} markets...")
                         for m in markets:
                             try:
                                 asset = m['asset']
