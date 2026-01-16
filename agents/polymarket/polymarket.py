@@ -127,13 +127,18 @@ class Polymarket:
         user_secret = clean_env("CLOB_SECRET")
         user_passphrase = clean_env("CLOB_PASS_PHRASE")
 
-        if user_api_key and user_secret and user_passphrase:
-            print("   🔑 Using User API Credentials from .env")
+        if user_api_key and len(user_secret) > 30 and user_passphrase:  # Valid secrets are ~44 chars
+            print(f"   🔑 Loading sanitized L2 credentials...")
             from py_clob_client.clob_types import ApiCreds
             self.credentials = ApiCreds(api_key=user_api_key, api_secret=user_secret, api_passphrase=user_passphrase)
-            self.client.set_api_creds(self.credentials)
             print("   ✅ User credentials loaded and set successfully")
         else:
+            print(f"   🔐 Corrupt or missing L2 keys. Re-deriving from wallet...")
+            self.credentials = self.client.create_or_derive_api_creds()
+            # Log these so you can save them properly
+            print(f"   ✅ NEW API KEY: {self.credentials.api_key}")
+            print(f"   ✅ NEW SECRET: {self.credentials.api_secret[:20]}...")
+            print(f"   ✅ NEW PASSPHRASE: {self.credentials.api_passphrase}")
             print("   🔐 No User credentials found, deriving from private key...")
             self.credentials = self.client.create_or_derive_api_creds()
 
