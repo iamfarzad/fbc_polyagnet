@@ -110,7 +110,7 @@ class Polymarket:
         if self.funder_address:
             self.funder_address = Web3.to_checksum_address(self.funder_address)
 
-        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))
+        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "1"))  # TEMP: Test with EOA signature
 
         self.client = ClobClient(
             self.clob_url, key=self.private_key, chain_id=self.chain_id,
