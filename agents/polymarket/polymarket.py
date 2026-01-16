@@ -106,6 +106,10 @@ class Polymarket:
         self.private_key = clean_env("POLYGON_WALLET_PRIVATE_KEY")
         self.funder_address = clean_env("POLYMARKET_PROXY_ADDRESS") or clean_env("POLYMARKET_FUNDER")
 
+        # CRITICAL: Checksum the funder address to prevent base64 encoding errors
+        if self.funder_address:
+            self.funder_address = Web3.to_checksum_address(self.funder_address)
+
         signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))
 
         self.client = ClobClient(
