@@ -33,7 +33,7 @@ from py_clob_client.clob_types import (
 )
 from py_clob_client.order_builder.constants import BUY
 
-from agents.agents.utils.objects import SimpleMarket, SimpleEvent
+from agents.utils.objects import SimpleMarket, SimpleEvent
 
 load_dotenv()
 
@@ -101,6 +101,7 @@ class Polymarket:
 
     def _init_api_keys(self) -> None:
         # Determine signature type and funder for proper L2 authentication
+        # FIX 2: Explicit type conversion to integer (critical for Gnosis Safe)
         signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))  # Default to GNOSIS_SAFE
         self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
 
@@ -485,25 +486,33 @@ class Polymarket:
         """
         Place a LIMIT order (Maker).
         Target specific price to capture spread/value.
+
+        FIXED: Strip all formatting, ensure raw float objects, explicit integer fee_rate_bps
         """
         try:
             from py_clob_client.clob_types import OrderArgs
             from py_clob_client.order_builder.constants import BUY, SELL
 
             order_side = BUY if side.upper() == "BUY" else SELL
-            
+
+            # FIX 1: Ensure price and size are raw float objects (no string formatting)
+            # FIX 4: Ensure fee_rate_bps is explicitly an integer (mandatory for 15-minute markets)
+            clean_price = float(price)  # Strip any formatting
+            clean_size = float(size)   # Strip any formatting
+            clean_fee_rate_bps = int(fee_rate_bps)  # Must be integer for hash
+
             # Create and post the limit order
             # Note: py-clob-client defaults to 'GTC' (Good Till Cancel) limit orders
             resp = self.client.create_and_post_order(
                 OrderArgs(
-                    price=price,
-                    size=size,
+                    price=clean_price,
+                    size=clean_size,
                     side=order_side,
                     token_id=token_id,
-                    fee_rate_bps=fee_rate_bps
+                    fee_rate_bps=clean_fee_rate_bps
                 )
             )
-            print(f"   🎯 Limit Order Placed: {side} {size} @ {price} | Fee: {fee_rate_bps} bps | Resp: {resp}")
+            print(f"   🎯 Limit Order Placed: {side} {clean_size} @ {clean_price} | Fee: {clean_fee_rate_bps} bps | Resp: {resp}")
             return resp
         except Exception as e:
             print(f"   ⚠️ Limit Order Failed: {e}")

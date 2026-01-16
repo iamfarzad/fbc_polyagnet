@@ -4,7 +4,7 @@ import requests
 import datetime
 
 from agents.polymarket.polymarket import Polymarket
-from agents.agents.utils.objects import Market, PolymarketEvent, ClobReward, Tag
+from agents.utils.objects import Market, PolymarketEvent, ClobReward, Tag
 
 
 class GammaMarketClient:
@@ -22,11 +22,17 @@ class GammaMarketClient:
 
         found_markets = []
 
-        # Use the known working timestamps from our earlier discovery
+        # Calculate current valid 15-minute time windows dynamically
+        import datetime
+        now = datetime.datetime.now(datetime.timezone.utc)
+        current_minute = now.minute
+        rounded_minute = (current_minute // 15) * 15
+        current_boundary = now.replace(minute=rounded_minute, second=0, microsecond=0)
+
         time_windows = [
-            1768572000,  # 9:00 AM ET / 14:00 UTC (ends 14:15)
-            1768572900,  # 9:15 AM ET / 14:15 UTC (ends 14:30)
-            1768573800,  # 9:30 AM ET / 14:30 UTC (ends 14:45)
+            int(current_boundary.timestamp()),                                    # Current window
+            int((current_boundary + datetime.timedelta(minutes=15)).timestamp()), # Next window
+            int((current_boundary + datetime.timedelta(minutes=30)).timestamp()), # Next next window
         ]
 
         print(f"   ⏰ Checking time windows: {[datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc).strftime('%H:%M') for ts in time_windows]}")
@@ -68,7 +74,18 @@ class GammaMarketClient:
                                 'xrp': 'xrp'
                             }.get(asset, asset)
 
-                            print(f"      ✅ {m['question']}")
+                            # Get fee rate for the market
+                            fee_bps = 1000  # Default for 15-minute markets
+                            try:
+                                # Try to fetch actual fee rate
+                                resp = requests.get("https://clob.polymarket.com/fee-rate", params={"token_id": clob_ids[0]}, timeout=2)
+                                if resp.status_code == 200:
+                                    data = resp.json()
+                                    fee_bps = int(data.get("base_fee", 1000))
+                            except:
+                                pass  # Use default if API fails
+
+                            print(f"      ✅ {m['question']} (Fee: {fee_bps} bps)")
 
                             found_markets.append({
                                 "id": m["id"],
@@ -78,7 +95,8 @@ class GammaMarketClient:
                                 "down_token": clob_ids[1],  # No/Down token
                                 "end_date": m.get("endDate", ""),
                                 "created_at": m.get("createdAt", ""),
-                                "event_slug": slug
+                                "event_slug": slug,
+                                "fee_bps": fee_bps
                             })
 
                 except Exception as e:
