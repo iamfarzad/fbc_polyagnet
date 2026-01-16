@@ -63,17 +63,17 @@ load_dotenv()
 # CONFIGURATION
 # =============================================================================
 
-# Portfolio & Size
+# Portfolio & Size - RELAXED FOR $5.00 COMPOUNDING CYCLE
 MAX_POSITIONS = 5
 BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.25"))  # 25% sizing (more aggressive)
-MIN_BET_USD = 1.00
-MAX_BET_USD = 1.00  # Temporarily limit to $1 for testing
-MAX_DAILY_DRAWDOWN_PCT = 0.10       # 10% daily stop loss
+MIN_BET_USD = 5.00  # FORCED $5.00
+MAX_BET_USD = 5.00  # FORCED $5.00
+MAX_DAILY_DRAWDOWN_PCT = 0.50       # Relaxed daily stop loss for testing
 
 # Maker Execution (The Trap)
-LIMIT_ORDER_TIMEOUT_CALM = 15       # 15s in calm markets
-LIMIT_ORDER_TIMEOUT_VOLATILE = 3    # 3s in choppy markets (Anti-Adverse Selection)
-QUEUE_JUMP_THRESHOLD = 10.0         # Temporarily lower for testing (was 2000.0)
+LIMIT_ORDER_TIMEOUT_CALM = 10       # 10s in calm markets
+LIMIT_ORDER_TIMEOUT_VOLATILE = 2    # 2s in choppy markets (Anti-Adverse Selection)
+QUEUE_JUMP_THRESHOLD = 0.0          # Always jump to the front of the queue
 MAKER_OFFSET = 0.001                # Standard tick size
 
 # Hybrid Exit (The Escape)
@@ -90,7 +90,7 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.00001   # 0.00001% momentum (ultra-aggressive for test validation)
+BASE_MOMENTUM_THRESHOLD = 0.0       # 0.0% momentum - immediate trades for $5.00 compounding cycle
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
 
 
@@ -695,6 +695,13 @@ class CryptoScalper:
                         for m in markets:
                             try:
                                 asset = m['asset']
+
+                                # TEMPORARY: Skip Binance validation for testing - force trade on bitcoin
+                                if asset == "bitcoin":
+                                    print(f"   🎯 FORCED TEST TRADE: {asset.upper()} UP (bypassing Binance)")
+                                    self.open_position_maker(m, "UP")
+                                    continue
+
                                 # Invert the BINANCE_SYMBOLS mapping (symbol -> asset) to (asset -> symbol)
                                 asset_to_symbol = {v: k for k, v in BINANCE_SYMBOLS.items()}
                                 print(f"   🔍 CHECKING {asset.upper()}: in_mapping={asset in asset_to_symbol}")

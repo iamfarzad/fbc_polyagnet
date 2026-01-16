@@ -88,6 +88,18 @@ MAX_REQUESTS_PER_HOUR = 1000
 MAX_REQUESTS_PER_MINUTE = 10
 REQUEST_COUNT_RESET_HOUR = 60 * 60  # 1 hour in seconds
 
+# ESPORTS SERIES IDs (from Gamma /sports API - DO NOT CHANGE)
+# These are the correct series IDs for fetching live match markets
+ESPORTS_SERIES = {
+    "cs2": 10310,       # Counter-Strike 2
+    "lol": 10311,       # League of Legends
+    "dota2": 10309,     # Dota 2
+    "valorant": 10437,  # Valorant
+    "lcs": 10288,       # League Championship Series
+    "wildrift": 10429,  # Wild Rift
+    "hok": 10434,       # Honor of Kings
+}
+
 # API Keys (loaded dynamically)
 # RIOT_API_KEY - for League of Legends
 # PANDASCORE_API_KEY - for CS2/Dota2 (alternative)
@@ -617,125 +629,93 @@ class PolymarketEsports:
         self.pm = Polymarket()
         
     def get_esports_markets(self) -> List[PolymarketMatch]:
-        """Get active esports markets from Polymarket using proper sports API."""
-        try:
-            # NEW APPROACH: Use sports API to get live esports events
-            # Step 1: Get esports series/leagues
-            sports_url = "https://gamma-api.polymarket.com/sports"
+        """
+        Get active esports markets using correct series IDs.
+        
+        Uses ESPORTS_SERIES dict to fetch live match markets directly.
+        This replaces the broken keyword-search approach.
+        """
+        import ast
+        result_markets = []
+        
+        print(f"   Fetching esports from {len(ESPORTS_SERIES)} game types...")
+        
+        for game_type, series_id in ESPORTS_SERIES.items():
             try:
-                resp = requests.get(sports_url, timeout=10)
-                if resp.status_code == 200:
-                    sports_data = resp.json()
-                else:
-                    print(f"Sports API error: {resp.status_code}")
-                    return []
-            except Exception as e:
-                print(f"Error fetching sports data: {e}")
-                return []
-
-            # Find esports series IDs
-            esports_series = []
-            esports_names = [
-                "lol", "cs2", "counterstrike", "dota2", "valorant",
-                "overwatch", "rocketleague", "rainbowsix", "callofduty",
-                "atp", "wta", "tennis"
-            ]
-
-            for sport in sports_data:
-                sport_name = sport.get("sport", "").lower()
-                # Check if this sport contains esports keywords
-                if any(esport in sport_name for esport in esports_names):
-                    # Series field might be a string or list
-                    series_field = sport.get("series", "")
-                    if isinstance(series_field, str):
-                        # Could be comma-separated or single ID
-                        if "," in series_field:
-                            series_ids = [s.strip() for s in series_field.split(",")]
-                        else:
-                            series_ids = [series_field]
-                    elif isinstance(series_field, list):
-                        series_ids = series_field
-                    else:
-                        series_ids = []
-
-                    # Add series objects
-                    for sid in series_ids:
-                        if sid:
-                            esports_series.append({"id": sid, "sport": sport_name})
-
-            print(f"Found {len(esports_series)} esports series")
-
-            # Step 2: Get active events for each esports series
-            all_events = []
-            for series in esports_series[:10]:  # Limit to avoid rate limits
-                series_id = series.get("id")
-                if series_id:
-                    try:
-                        events_url = f"https://gamma-api.polymarket.com/events"
-                        params = {
-                            "series_id": series_id,
-                            "active": "true",
-                            "closed": "false",
-                            "limit": 20
-                        }
-                        resp = requests.get(events_url, params=params, timeout=10)
-                        if resp.status_code == 200:
-                            events = resp.json()
-                            all_events.extend(events)
-                    except Exception as e:
-                        print(f"Error fetching events for series {series_id}: {e}")
-
-            print(f"Found {len(all_events)} active esports events")
-
-            # Step 3: Extract markets from events
-            result_markets = []
-            for event in all_events:
-                markets = event.get("markets", [])
-                for m in markets:
-                    # Parse tokens
-                    clob_ids = m.get("clobTokenIds")
-                    if not clob_ids or clob_ids == "[]":
-                        continue
-
-                    try:
-                        import ast
-                        tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
-                        if len(tokens) < 2:
+                url = "https://gamma-api.polymarket.com/events"
+                params = {
+                    "series_id": series_id,
+                    "active": "true",
+                    "closed": "false",
+                    "limit": 50
+                }
+                
+                resp = requests.get(url, params=params, timeout=15)
+                if resp.status_code != 200:
+                    print(f"   ⚠️ {game_type} API error: {resp.status_code}")
+                    continue
+                
+                events = resp.json()
+                
+                if not events:
+                    continue
+                    
+                print(f"   📊 {game_type.upper()}: {len(events)} events")
+                
+                # Extract markets from events
+                for event in events:
+                    markets = event.get("markets", [])
+                    
+                    for m in markets:
+                        # Skip if not accepting orders
+                        if not m.get("acceptingOrders", True):
                             continue
-                    except:
-                        continue
-
-                    # Parse prices
-                    outcomes = m.get("outcomePrices", "[0.5, 0.5]")
-                    if isinstance(outcomes, str):
-                        outcomes = ast.literal_eval(outcomes)
-
-                    yes_price = float(outcomes[0]) if outcomes else 0.5
-                    no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
-
-                    # Extract team names from question
-                    team1, team2 = self._extract_teams(m.get("question", ""))
-
-                    result_markets.append(PolymarketMatch(
-                        market_id=m.get("id"),
-                        question=m.get("question", ""),
-                        team1=team1,
-                        team2=team2,
-                        yes_token=tokens[0],
-                        no_token=tokens[1],
-                        yes_price=yes_price,
-                        no_price=no_price,
-                        volume=float(m.get("volume24hr", 0)),
-                        end_date=m.get("endDate", "")
-                    ))
-
-                    print(f"Found live esports market: {m.get('question', '')[:50]}...")
-
-            return result_markets
-
-        except Exception as e:
-            print(f"Error fetching esports markets: {e}")
-            return []
+                            
+                        # Parse tokens
+                        clob_ids = m.get("clobTokenIds")
+                        if not clob_ids or clob_ids == "[]":
+                            continue
+                        
+                        try:
+                            tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                            if len(tokens) < 2:
+                                continue
+                        except:
+                            continue
+                        
+                        # Parse prices
+                        outcomes = m.get("outcomePrices", "[0.5, 0.5]")
+                        if isinstance(outcomes, str):
+                            try:
+                                outcomes = ast.literal_eval(outcomes)
+                            except:
+                                outcomes = [0.5, 0.5]
+                        
+                        yes_price = float(outcomes[0]) if outcomes else 0.5
+                        no_price = float(outcomes[1]) if len(outcomes) > 1 else 1 - yes_price
+                        
+                        # Extract team names from question
+                        team1, team2 = self._extract_teams(m.get("question", ""))
+                        
+                        result_markets.append(PolymarketMatch(
+                            market_id=m.get("id"),
+                            question=m.get("question", ""),
+                            team1=team1,
+                            team2=team2,
+                            yes_token=tokens[0],
+                            no_token=tokens[1],
+                            yes_price=yes_price,
+                            no_price=no_price,
+                            volume=float(m.get("volume24hr", 0) or 0),
+                            end_date=m.get("endDate", "")
+                        ))
+                        
+            except Exception as e:
+                print(f"   ⚠️ {game_type} fetch error: {e}")
+                continue
+        
+        print(f"   ✅ Total: {len(result_markets)} esports markets found")
+        return result_markets
     
     def _extract_teams(self, question: str) -> Tuple[str, str]:
         """Extract team names from market question."""
@@ -1190,7 +1170,7 @@ class EsportsTrader:
             fair_prob = 0.50  # Assume fair 50/50 for esports matches
 
             # Simple edge calculation: if market implies >60% win prob but we think it's closer to 50%
-            if implied_prob > 0.65 and volume > 100:  # Overpriced favorite
+            if implied_prob > 0.65 and market.volume > 100:  # Overpriced favorite
                 edge = fair_prob - implied_prob  # Negative edge means we buy underdog
                 if abs(edge) > MIN_EDGE_PERCENT / 100:
                     print(f"\n   📊 MARKET EDGE: {question[:40]}...")
@@ -1200,7 +1180,7 @@ class EsportsTrader:
                         trades_made += 1
                     continue
 
-            elif implied_prob < 0.35 and volume > 100:  # Underpriced underdog
+            elif implied_prob < 0.35 and market.volume > 100:  # Underpriced underdog
                 edge = implied_prob - fair_prob  # Positive edge means we buy favorite
                 if abs(edge) > MIN_EDGE_PERCENT / 100:
                     print(f"\n   📊 MARKET EDGE: {question[:40]}...")
