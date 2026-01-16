@@ -100,51 +100,30 @@ class Polymarket:
         self.ws_thread = None
 
     def _init_api_keys(self) -> None:
-        # Determine signature type and funder for proper L2 authentication
-        # FIX 2: Explicit type conversion to integer (critical for Gnosis Safe)
-        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))  # Default to GNOSIS_SAFE
-        self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
+        # SANITIZE ALL ENV VARS: Strip whitespace and quotes
+        def clean_env(var): return os.getenv(var, '').strip().replace('"', '').replace("'", "")
 
-        # CRITICAL FIX: Checksum the funder address to prevent base64 signature errors
-        if self.funder_address:
-            self.funder_address = Web3.to_checksum_address(self.funder_address)
+        self.private_key = clean_env("POLYGON_WALLET_PRIVATE_KEY")
+        self.funder_address = clean_env("POLYMARKET_PROXY_ADDRESS") or clean_env("POLYMARKET_FUNDER")
 
-        if self.funder_address:
-            print(f"   🔐 Using signature_type={signature_type}, funder={self.funder_address[:10]}...")
-        else:
-            print("   ⚠️ No funder address set - derived credentials may not work for trading")
+        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))
 
         self.client = ClobClient(
-            self.clob_url,
-            key=self.private_key,
-            chain_id=self.chain_id,
-            signature_type=signature_type,
-            funder=self.funder_address
+            self.clob_url, key=self.private_key, chain_id=self.chain_id,
+            signature_type=signature_type, funder=self.funder_address
         )
 
-        # Check for pre-derived User API credentials (CLOB_* env vars)
-        user_api_key = os.getenv("CLOB_API_KEY")
-        user_secret = os.getenv("CLOB_SECRET")
-        user_passphrase = os.getenv("CLOB_PASS_PHRASE")
+        # Sanitize L2 Credentials
+        user_api_key = clean_env("CLOB_API_KEY")
+        user_secret = clean_env("CLOB_SECRET")
+        user_passphrase = clean_env("CLOB_PASS_PHRASE")
 
         if user_api_key and user_secret and user_passphrase:
-            try:
-                print("   🔑 Using User API Credentials from .env")
-                from py_clob_client.clob_types import ApiCreds
-
-                self.credentials = ApiCreds(
-                    api_key=user_api_key,
-                    api_secret=user_secret,  # Raw string, no base64 decoding
-                    api_passphrase=user_passphrase  # Raw string, no base64 decoding
-                )
-
-                print("   ✅ User credentials loaded successfully")
-            except Exception as e:
-                print(f"   ⚠️ User credentials failed: {e}")
-                import traceback
-                traceback.print_exc()
-                print("   🔐 Falling back to derived credentials...")
-                self.credentials = self.client.create_or_derive_api_creds()
+            print("   🔑 Using User API Credentials from .env")
+            from py_clob_client.clob_types import ApiCreds
+            self.credentials = ApiCreds(api_key=user_api_key, api_secret=user_secret, api_passphrase=user_passphrase)
+            self.client.set_api_creds(self.credentials)
+            print("   ✅ User credentials loaded and set successfully")
         else:
             print("   🔐 No User credentials found, deriving from private key...")
             self.credentials = self.client.create_or_derive_api_creds()
@@ -498,24 +477,17 @@ class Polymarket:
         try:
             from py_clob_client.clob_types import OrderArgs
 
-            # CRITICAL FIX: Ensure all inputs are strictly typed and token_id is checksummed
+            # CRITICAL: Strict typing and sanitization
             clean_token_id = str(token_id).strip()
-            clean_price = float(round(price, 4))  # Round to prevent floating point precision issues
-            clean_size = float(round(size, 2))    # Round to prevent floating point precision issues
+            clean_price = float(price)
+            clean_size = float(size)
 
-            # Funder is already checksummed during client initialization
-
-            resp = self.client.create_and_post_order(
+            return self.client.create_and_post_order(
                 OrderArgs(
-                    price=clean_price,
-                    size=clean_size,
-                    side=side.upper(),  # Ensure uppercase
-                    token_id=clean_token_id,
-                    fee_rate_bps=int(fee_rate_bps)  # Must be integer
+                    price=clean_price, size=clean_size, side=side.upper(),
+                    token_id=clean_token_id, fee_rate_bps=int(fee_rate_bps)
                 )
             )
-            print(f"   🎯 Limit Order Placed: {side} {clean_size} @ {clean_price} | Fee: {fee_rate_bps} bps | Resp: {resp}")
-            return resp
         except Exception as e:
             print(f"   ⚠️ Limit Order Failed: {e}")
             return {"error": str(e)}
