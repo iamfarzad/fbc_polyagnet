@@ -378,9 +378,12 @@ class CryptoScalper:
             # For Gnosis Safe proxy, use the proxy address instead of EOA
             user = self.pm.funder_address if self.pm.funder_address else self.pm.get_address_for_private_key()
             url = f"https://data-api.polymarket.com/positions?user={user}"
+            print(f"   📊 FETCHING POSITIONS: {url}")
             positions = requests.get(url, timeout=5).json()
+            print(f"   📊 FOUND {len(positions)} total positions")
 
             held_token_ids = {p["asset"]: p for p in positions if float(p["size"]) > 0.1}
+            print(f"   📊 HELD TOKENS: {len(held_token_ids)} with size > 0.1")
 
             # 2. Reconcile Entry Orders
             for order_id, meta in list(self.pending_orders.items()):
