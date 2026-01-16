@@ -90,7 +90,7 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.015     # 0.015% momentum (more aggressive for 4 assets)
+BASE_MOMENTUM_THRESHOLD = 0.001     # 0.001% momentum (very aggressive for immediate trades)
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
 
 
