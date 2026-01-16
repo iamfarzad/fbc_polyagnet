@@ -499,6 +499,8 @@ class Polymarket:
 
             # FIX 1: Ensure price and size are raw float objects (no string formatting)
             # FIX 4: Ensure fee_rate_bps is explicitly an integer (mandatory for 15-minute markets)
+            # FIX: Ensure token_id is a clean string (prevents "unhashable type: 'slice'" error)
+            clean_token_id = str(token_id).strip()  # Must be clean string for py-clob-client
             clean_price = float(price)  # Strip any formatting
             clean_size = float(size)   # Strip any formatting
             clean_fee_rate_bps = int(fee_rate_bps)  # Must be integer for hash
@@ -510,7 +512,7 @@ class Polymarket:
                     price=clean_price,
                     size=clean_size,
                     side=order_side,
-                    token_id=token_id,
+                    token_id=clean_token_id,
                     fee_rate_bps=clean_fee_rate_bps
                 )
             )
