@@ -469,14 +469,14 @@ class CryptoScalper:
         entry_price = round(best_bid + MAKER_OFFSET, 3)
 
         # LIFECYCLE TEST: Accept any reasonable price for testing
-        if entry_price > 0.95 or entry_price < 0.01:
-            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 1¢-95¢ range")
+        if entry_price is None or entry_price > 0.95 or entry_price < 0.001:
+            print(f"   ❌ PRICE FILTER: ${entry_price} outside 0.1¢-95¢ range or None")
             return False
 
         # 3. 20% Allocation Rule: Size based on available balance
         balance = self.get_balance()
-        if balance < MIN_BET_USD:
-            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} < ${MIN_BET_USD}")
+        if balance is None or balance < MIN_BET_USD:
+            print(f"   ❌ INSUFFICIENT BALANCE: ${balance} < ${MIN_BET_USD} or None")
             return False
 
         size_usd = self.get_optimal_bet_size(market["asset"])  # This uses 20% of balance
