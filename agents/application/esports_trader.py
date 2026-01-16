@@ -1096,6 +1096,7 @@ class EsportsTrader:
 
         if not pandascore_available:
             print(f"   ❌ NO PANDASCORE API KEY: Esports trading disabled")
+            print(f"      Environment check: {[k for k in os.environ.keys() if 'panda' in k.lower()]}")
             print(f"      Get free API key at pandascore.co to enable profitable trading")
             print(f"      Without data, esports trading becomes unprofitable gambling")
             return POLL_INTERVAL_IDLE
@@ -1226,7 +1227,11 @@ class EsportsTrader:
         print()
 
         # Check for Pandascore immediately
-        if not os.getenv("PANDASCORE_API_KEY"):
+        pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        print(f"🔍 PANDASCORE_API_KEY status: {'FOUND' if pandascore_key else 'NOT FOUND'}")
+        if pandascore_key:
+            print(f"   Key preview: {pandascore_key[:10]}...")
+        else:
             print("❌ PANDASCORE_API_KEY not found!")
             print("   1. Go to https://pandascore.co")
             print("   2. Sign up for free account")
@@ -1236,6 +1241,9 @@ class EsportsTrader:
             print("\n   Without this key, the bot will not trade (to prevent losses)")
             print("\n   💡 Pro tip: Pandascore has a generous free tier (1000 requests/day)")
             print("   This gives you ~1 year of data for development and testing")
+            print("\n   🚀 QUICK SETUP:")
+            print("   export PANDASCORE_API_KEY='your_key_here'  # Add to your .env or Fly.io secrets")
+            print("   fly secrets set PANDASCORE_API_KEY=your_key_here  # For Fly.io deployment")
             return
         
         while True:
