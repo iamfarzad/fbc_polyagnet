@@ -374,7 +374,8 @@ class CryptoScalper:
 
         try:
             # 1. Fetch actual held positions
-            user = self.pm.get_address_for_private_key()
+            # For Gnosis Safe proxy, use the proxy address instead of EOA
+            user = self.pm.funder_address if self.pm.funder_address else self.pm.get_address_for_private_key()
             url = f"https://data-api.polymarket.com/positions?user={user}"
             positions = requests.get(url, timeout=5).json()
 
