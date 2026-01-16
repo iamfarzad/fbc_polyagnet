@@ -513,9 +513,8 @@ def toggle_agent(req: AgentToggleRequest):
     # Map frontend names to database names
     agent_map = {
         "safe": "safe",
-        "scalper": "scalper", 
+        "scalper": "scalper",
         "copyTrader": "copy",
-        "smartTrader": "smart",
         "smartTrader": "smart",
         "esportsTrader": "esports",
         "sportsTrader": "sport"
@@ -910,23 +909,6 @@ def get_trade_ledger(limit: int = 100, agent: Optional[str] = None):
 
 # --- LLM Activity Endpoints ---
 
-@app.get("/api/llm-activity")
-def get_llm_activity(limit: int = 50, agent: Optional[str] = None):
-    """Get recent LLM activity across all agents."""
-    if not get_context:
-        return {"activities": [], "stats": {}}
-    
-    try:
-        ctx = get_context()
-        activities = ctx.get_llm_activity(limit=limit, agent=agent)
-        stats = ctx.get_llm_stats()
-        return {
-            "activities": activities,
-            "stats": stats
-        }
-    except Exception as e:
-        logger.error(f"Error fetching LLM activity: {e}")
-        return {"activities": [], "stats": {}, "error": str(e)}
 
 
 @app.get("/api/context-summary")
