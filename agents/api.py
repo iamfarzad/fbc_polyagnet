@@ -229,6 +229,18 @@ def health_check():
         "polymarket_initialized": _pm_instance is not None
     }
 
+@app.get("/api/test-env")
+def test_env():
+    """Test environment variables for debugging."""
+    import os
+    pandascore_key = os.getenv("PANDASCORE_API_KEY")
+    return {
+        "pandascore_set": bool(pandascore_key),
+        "pandascore_length": len(pandascore_key) if pandascore_key else 0,
+        "pandascore_preview": pandascore_key[:10] if pandascore_key else None,
+        "all_env_keys": [k for k in os.environ.keys() if 'panda' in k.lower()]
+    }
+
 @app.get("/")
 def root():
     """Root endpoint for Vercel."""
