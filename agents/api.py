@@ -599,19 +599,19 @@ def get_positions():
     pm = get_pm()
     if not pm:
         return {"positions": [], "error": "Polymarket client not initialized"}
-    
+
     try:
         import requests
         address = DASHBOARD_WALLET
         url = f"https://data-api.polymarket.com/positions?user={address}"
         resp = requests.get(url, timeout=10)
-        
+
         if resp.status_code != 200:
             return {"positions": [], "error": f"API error: {resp.status_code}"}
-        
+
         raw = resp.json()
         positions = []
-        
+
         for p in raw:
             try:
                 positions.append({
@@ -629,12 +629,159 @@ def get_positions():
             except Exception as e:
                 logger.error(f"Error parsing position: {e}")
                 continue
-        
+
         return {"positions": positions, "count": len(positions)}
-    
+
     except Exception as e:
         logger.error(f"Error fetching positions: {e}")
         return {"positions": [], "error": str(e)}
+
+
+@app.get("/api/open-orders")
+def get_open_orders():
+    """Get all open (pending) orders that haven't been filled yet."""
+    pm = get_pm()
+    if not pm:
+        return {"orders": [], "error": "Polymarket client not initialized"}
+
+    try:
+        # Get open orders from CLOB API
+        # The py_clob_client has methods to get orders
+        orders_data = pm.client.get_orders()
+
+        if not orders_data or not hasattr(orders_data, 'orders'):
+            return {"orders": [], "message": "No open orders found"}
+
+        orders = []
+        for order in orders_data.orders:
+            try:
+                # Get market info for the token
+                token_id = order.token_id
+                market_info = None
+
+                # Try to get market details from token_id
+                try:
+                    import requests
+                    # Extract condition_id from token_id if possible
+                    # Token IDs follow pattern: condition_id-outcome_index
+                    if '-' in token_id:
+                        condition_id = token_id.split('-')[0]
+                        market_url = f"https://gamma-api.polymarket.com/markets?condition_id={condition_id}"
+                        market_resp = requests.get(market_url, timeout=5)
+                        if market_resp.status_code == 200:
+                            markets = market_resp.json()
+                            if markets:
+                                market_info = markets[0]
+                except:
+                    pass
+
+                order_info = {
+                    "id": order.id,
+                    "token_id": token_id,
+                    "market": market_info.get("question", "Unknown Market") if market_info else "Unknown Market",
+                    "side": "BUY" if order.side == 0 else "SELL",
+                    "price": float(order.price),
+                    "size": float(order.size),
+                    "remaining_size": float(order.size) - float(getattr(order, 'size_filled', 0)),
+                    "status": "open",
+                    "created_at": getattr(order, 'created_at', str(datetime.now())),
+                    "outcome": "Unknown"  # Would need additional logic to determine YES/NO
+                }
+                orders.append(order_info)
+
+            except Exception as e:
+                logger.error(f"Error parsing order {getattr(order, 'id', 'unknown')}: {e}")
+                continue
+
+        return {"orders": orders, "count": len(orders)}
+
+    except Exception as e:
+        logger.error(f"Error fetching open orders: {e}")
+        return {"orders": [], "error": str(e)}
+
+
+class CancelOrderRequest(BaseModel):
+    order_id: str
+
+
+@app.post("/api/cancel-order")
+def cancel_order(req: CancelOrderRequest):
+    """Cancel a specific open order."""
+    pm = get_pm()
+    if not pm:
+        return {"status": "error", "error": "Polymarket client not initialized"}
+
+    try:
+        # Cancel order using CLOB client
+        result = pm.client.cancel_order(req.order_id)
+
+        if result.get("success"):
+            return {
+                "status": "success",
+                "message": f"Order {req.order_id} cancelled successfully",
+                "order_id": req.order_id
+            }
+        else:
+            return {
+                "status": "error",
+                "error": result.get("error", "Unknown cancellation error"),
+                "order_id": req.order_id
+            }
+
+    except Exception as e:
+        logger.error(f"Error cancelling order {req.order_id}: {e}")
+        return {"status": "error", "error": str(e), "order_id": req.order_id}
+
+
+@app.post("/api/cancel-all-orders")
+def cancel_all_orders():
+    """Cancel all open orders."""
+    pm = get_pm()
+    if not pm:
+        return {"status": "error", "error": "Polymarket client not initialized"}
+
+    try:
+        # Get all open orders first
+        orders_data = pm.client.get_orders()
+        if not orders_data or not hasattr(orders_data, 'orders'):
+            return {"status": "success", "message": "No open orders to cancel", "cancelled": 0}
+
+        cancelled = 0
+        failed = 0
+        results = []
+
+        for order in orders_data.orders:
+            try:
+                order_id = getattr(order, 'id', None)
+                if not order_id:
+                    continue
+
+                result = pm.client.cancel_order(order_id)
+                if result.get("success"):
+                    cancelled += 1
+                    results.append({"order_id": order_id, "status": "cancelled"})
+                else:
+                    failed += 1
+                    results.append({"order_id": order_id, "status": "failed", "error": result.get("error")})
+
+                import time
+                time.sleep(0.5)  # Rate limit
+
+            except Exception as e:
+                failed += 1
+                results.append({"order_id": getattr(order, 'id', 'unknown'), "status": "error", "error": str(e)})
+
+        return {
+            "status": "success",
+            "cancelled": cancelled,
+            "failed": failed,
+            "total": len(orders_data.orders),
+            "results": results
+        }
+
+    except Exception as e:
+        logger.error(f"Error cancelling all orders: {e}")
+        return {"status": "error", "error": str(e)}
 
 
 class ClosePositionRequest(BaseModel):
@@ -987,7 +1134,7 @@ def get_history(period: str = "24h"):
                 # Reverse to chronological
                 return {"history": data[::-1], "source": "supabase"}
         except: pass
-        
+
     # 2. Local Fallback
     if os.path.exists(SNAPSHOTS_FILE):
         try:
@@ -995,8 +1142,105 @@ def get_history(period: str = "24h"):
                 data = json.load(f)
                 return {"history": data, "source": "local"}
         except: pass
-        
+
     return {"history": [], "source": "empty"}
+
+
+@app.get("/api/trade-history")
+def get_trade_history(limit: int = 50, offset: int = 0):
+    """Get complete trade history (fills, redemptions, etc.) like Polymarket portfolio."""
+    pm = get_pm()
+    if not pm:
+        return {"trades": [], "error": "Polymarket client not initialized"}
+
+    try:
+        import requests
+        address = DASHBOARD_WALLET
+
+        # Get activity (trades) from Data API
+        url = f"https://data-api.polymarket.com/activity?user={address}&limit={limit}&offset={offset}"
+        resp = requests.get(url, timeout=10)
+
+        if resp.status_code != 200:
+            return {"trades": [], "error": f"API error: {resp.status_code}"}
+
+        raw = resp.json()
+        trades = []
+
+        for t in raw:
+            try:
+                # Parse timestamp
+                ts_int = t.get("timestamp")
+                ts_str = str(datetime.fromtimestamp(ts_int)) if ts_int else str(datetime.now())
+
+                # Determine trade type and details
+                trade_type = t.get("type", "UNKNOWN")
+                market_title = t.get("title", "Unknown")
+
+                # Handle different trade types
+                if trade_type == "TRADE":
+                    outcome = t.get("outcome", "")
+                    side = t.get("side", "UNKNOWN")
+
+                    # Format side nicely
+                    if outcome:
+                        side = f"{side} {outcome}"
+
+                    trade_info = {
+                        "id": t.get("id", ""),
+                        "timestamp": ts_str,
+                        "type": "TRADE",
+                        "market": market_title,
+                        "side": side,
+                        "amount": float(t.get("usdcSize", 0)),
+                        "price": float(t.get("price", 0)),
+                        "fee": float(t.get("fee", 0)),
+                        "status": "filled"
+                    }
+
+                elif trade_type == "REDEMPTION":
+                    trade_info = {
+                        "id": t.get("id", ""),
+                        "timestamp": ts_str,
+                        "type": "REDEMPTION",
+                        "market": market_title,
+                        "side": "REDEEM",
+                        "amount": float(t.get("usdcSize", 0)),
+                        "price": 0,
+                        "fee": 0,
+                        "status": "redeemed"
+                    }
+
+                else:
+                    # Other activity types
+                    trade_info = {
+                        "id": t.get("id", ""),
+                        "timestamp": ts_str,
+                        "type": trade_type,
+                        "market": market_title,
+                        "side": t.get("description", trade_type),
+                        "amount": float(t.get("usdcSize", 0)),
+                        "price": 0,
+                        "fee": 0,
+                        "status": "other"
+                    }
+
+                trades.append(trade_info)
+
+            except Exception as e:
+                logger.error(f"Error parsing trade: {e}")
+                continue
+
+        return {
+            "trades": trades,
+            "count": len(trades),
+            "limit": limit,
+            "offset": offset
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching trade history: {e}")
+        return {"trades": [], "error": str(e)}
 
 
 # =============================================================================
