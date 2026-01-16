@@ -695,13 +695,15 @@ class CryptoScalper:
                         for m in markets:
                             try:
                                 asset = m['asset']
-                                print(f"   🔍 CHECKING {asset.upper()}: in_symbols={asset in BINANCE_SYMBOLS}")
+                                # Invert the BINANCE_SYMBOLS mapping (symbol -> asset) to (asset -> symbol)
+                                asset_to_symbol = {v: k for k, v in BINANCE_SYMBOLS.items()}
+                                print(f"   🔍 CHECKING {asset.upper()}: in_mapping={asset in asset_to_symbol}")
 
                                 # Defensive check: ensure we have Binance data for this asset
-                                if asset not in BINANCE_SYMBOLS:
-                                    print(f"   ❌ {asset.upper()}: not in BINANCE_SYMBOLS")
+                                if asset not in asset_to_symbol:
+                                    print(f"   ❌ {asset.upper()}: not in asset_to_symbol mapping")
                                     continue
-                                symbol = BINANCE_SYMBOLS[asset]
+                                symbol = asset_to_symbol[asset]
                                 print(f"   🔍 {asset.upper()}: symbol={symbol}, in_history={symbol in self.binance_history}")
 
                                 if symbol not in self.binance_history:
