@@ -1097,6 +1097,7 @@ class EsportsTrader:
         if not pandascore_available:
             print(f"   ❌ NO PANDASCORE API KEY: Esports trading disabled")
             print(f"      Environment check: {[k for k in os.environ.keys() if 'panda' in k.lower()]}")
+            print(f"      Fly.io secrets should be available - check fly secrets list")
             print(f"      Get free API key at pandascore.co to enable profitable trading")
             print(f"      Without data, esports trading becomes unprofitable gambling")
             return POLL_INTERVAL_IDLE
@@ -1232,6 +1233,25 @@ class EsportsTrader:
         if pandascore_key:
             print(f"   Key preview: {pandascore_key[:10]}...")
         else:
+            # Try alternative environment variable names that Fly.io might use
+            alt_keys = ["PANDASCORE_API_KEY", "pandascore_api_key", "PANDA_KEY"]
+            for alt_key in alt_keys:
+                alt_value = os.getenv(alt_key)
+                if alt_value:
+                    print(f"   ✅ Found key under alt name: {alt_key}")
+                    pandascore_key = alt_value
+                    break
+
+            # Check all environment variables for anything containing 'panda'
+            all_panda_vars = {k: v for k, v in os.environ.items() if 'panda' in k.lower()}
+            if all_panda_vars:
+                print(f"   🐼 Found panda vars: {list(all_panda_vars.keys())}")
+                for k, v in all_panda_vars.items():
+                    print(f"      {k}: {v[:10]}...")
+                    if not pandascore_key:
+                        pandascore_key = v
+
+            if not pandascore_key:
             print("❌ PANDASCORE_API_KEY not found!")
             print("   1. Go to https://pandascore.co")
             print("   2. Sign up for free account")
