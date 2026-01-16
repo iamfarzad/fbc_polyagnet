@@ -714,8 +714,11 @@ class CryptoScalper:
                                 vol = self.calculate_volatility(symbol)  # Use symbol we already validated
                                 threshold = BASE_MOMENTUM_THRESHOLD * (1 + vol)  # Higher threshold in volatile markets
 
-                                if abs(mom) > threshold:
+                                # TEMPORARY: Force trade on first valid market for testing
+                                force_test_trade = (len(self.active_positions) == 0 and asset == "bitcoin")
+                                if abs(mom) > threshold or force_test_trade:
                                     direction = "UP" if mom > 0 else "DOWN"
+                                    print(f"   🎯 TEST TRADE: {asset.upper()} {direction} (mom={mom:.8f}, threshold={threshold:.8f})")
                                     self.open_position_maker(m, direction)
                             except Exception as e:
                                 # Log but don't crash the main loop
