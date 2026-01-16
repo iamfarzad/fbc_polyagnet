@@ -487,9 +487,12 @@ class CryptoScalper:
             return False
 
         # 3. 20% Allocation Rule: Size based on available balance
-        # TEMPORARY: For lifecycle test, assume sufficient balance and use fixed $5.00
-        balance = 100.0  # Assume $100 balance for testing
-        size_usd = 5.00   # Fixed $5.00 for lifecycle validation
+        balance = self.get_balance()
+        if balance < 5.01:  # Need at least $5.01 for $5.00 trade + fees
+            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $5.01+ for trade)")
+            return False
+
+        size_usd = min(5.00, balance * 0.20)  # 20% of balance, max $5.00
         size_shares = size_usd / entry_price
 
         # 4. Fetch the 1000 bps (1%) mandatory fee
