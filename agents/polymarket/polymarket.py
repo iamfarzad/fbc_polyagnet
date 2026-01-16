@@ -494,7 +494,7 @@ class Polymarket:
             return self.client.create_and_post_order(
                 OrderArgs(
                     price=clean_price, size=clean_size, side=side.upper(),
-                    token_id=clean_token_id, fee_rate_bps=int(fee_rate_bps)
+                    token_id=clean_token_id, fee_rate_bps=str(fee_rate_bps)
                 )
             )
         except Exception as e:
