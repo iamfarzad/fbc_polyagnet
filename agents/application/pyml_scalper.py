@@ -468,9 +468,9 @@ class CryptoScalper:
         _, best_bid, _, _ = self.get_current_price(token_id)
         entry_price = round(best_bid + MAKER_OFFSET, 3)
 
-        # RELAXED FILTER: Accept any price between 5c and 90c
-        if entry_price > 0.90 or entry_price < 0.05:
-            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 5¢-90¢ range")
+        # LIFECYCLE TEST: Accept any reasonable price for testing
+        if entry_price > 0.95 or entry_price < 0.01:
+            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 1¢-95¢ range")
             return False
 
         # 3. 20% Allocation Rule: Size based on available balance
