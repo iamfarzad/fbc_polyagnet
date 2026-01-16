@@ -695,17 +695,24 @@ class CryptoScalper:
                         for m in markets:
                             try:
                                 asset = m['asset']
+                                print(f"   🔍 CHECKING {asset.upper()}: in_symbols={asset in BINANCE_SYMBOLS}")
 
                                 # Defensive check: ensure we have Binance data for this asset
                                 if asset not in BINANCE_SYMBOLS:
+                                    print(f"   ❌ {asset.upper()}: not in BINANCE_SYMBOLS")
                                     continue
                                 symbol = BINANCE_SYMBOLS[asset]
+                                print(f"   🔍 {asset.upper()}: symbol={symbol}, in_history={symbol in self.binance_history}")
 
                                 if symbol not in self.binance_history:
+                                    print(f"   ❌ {asset.upper()}: no Binance history for {symbol}")
                                     continue
 
                                 history = self.binance_history[symbol]
-                                if len(history) < 2: continue
+                                print(f"   🔍 {asset.upper()}: history_length={len(history)}")
+                                if len(history) < 2:
+                                    print(f"   ❌ {asset.upper()}: insufficient history ({len(history)} < 2)")
+                                    continue
 
                                 # Calc Momentum (more responsive with recent prices)
                                 recent_prices = [p for t, p in history if time.time() - t < 30]  # Last 30s
