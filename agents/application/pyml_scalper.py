@@ -465,12 +465,20 @@ class CryptoScalper:
             return False
 
         # 2. Price Analysis: Get the best bid to front-run the queue
-        _, best_bid, _, _ = self.get_current_price(token_id)
-        entry_price = round(best_bid + MAKER_OFFSET, 3)
+        try:
+            price_result = self.get_current_price(token_id)
+            print(f"   🔍 PRICE RESULT: {price_result}")
+            _, best_bid, _, _ = price_result
+            print(f"   🔍 BEST BID: {best_bid} (type: {type(best_bid)})")
+            entry_price = round(float(best_bid) + MAKER_OFFSET, 3)
+            print(f"   🔍 ENTRY PRICE: {entry_price} (type: {type(entry_price)})")
+        except Exception as e:
+            print(f"   ❌ PRICE ERROR: {e}")
+            return False
 
         # LIFECYCLE TEST: Accept any reasonable price for testing
-        if entry_price is None or entry_price > 0.95 or entry_price < 0.001:
-            print(f"   ❌ PRICE FILTER: ${entry_price} outside 0.1¢-95¢ range or None")
+        if entry_price > 0.95 or entry_price < 0.001:
+            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 0.1¢-95¢ range")
             return False
 
         # 3. 20% Allocation Rule: Size based on available balance
