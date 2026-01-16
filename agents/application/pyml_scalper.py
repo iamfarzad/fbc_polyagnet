@@ -714,6 +714,8 @@ class CryptoScalper:
                                 vol = self.calculate_volatility(symbol)  # Use symbol we already validated
                                 threshold = BASE_MOMENTUM_THRESHOLD * (1 + vol)  # Higher threshold in volatile markets
 
+                                print(f"   🔍 CHECKING {asset.upper()}: mom={mom:.8f}, threshold={threshold:.8f}, prices={len(recent_prices)}")
+
                                 # TEMPORARY: Force trade on bitcoin for testing
                                 force_test_trade = (asset == "bitcoin")
                                 if abs(mom) > threshold or force_test_trade:
