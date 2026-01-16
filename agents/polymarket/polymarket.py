@@ -101,7 +101,12 @@ class Polymarket:
 
     def _init_api_keys(self) -> None:
         # SANITIZE ALL ENV VARS: Strip whitespace and quotes
-        def clean_env(var): return os.getenv(var, '').strip().replace('"', '').replace("'", "")
+        def clean_env(var): 
+            val = os.getenv(var, '').strip().replace('"', '').replace("'", "")
+            # Fix base64 padding for CLOB_SECRET (must be multiple of 4)
+            if var == "CLOB_SECRET" and val and len(val) % 4 != 0:
+                val = val + '=' * (4 - len(val) % 4)
+            return val
 
         self.private_key = clean_env("POLYGON_WALLET_PRIVATE_KEY")
         self.funder_address = clean_env("POLYMARKET_PROXY_ADDRESS") or clean_env("POLYMARKET_FUNDER")
