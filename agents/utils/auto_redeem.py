@@ -172,6 +172,36 @@ class AutoRedeemer:
         if added > 0:
             print(f"   📡 Watchlist Updated: Monitoring {len(self.market_watchlist)} active resolutions.")
 
+    def redeem_settled_positions(self) -> int:
+        """Check all positions and redeem any that are already settled."""
+        positions = self.get_positions_from_api()
+        redeemed = 0
+
+        for pos in positions:
+            # Skip if already claimed
+            if pos.get("claimed"):
+                continue
+
+            cond_id = pos.get("conditionId") or pos.get("condition_id")
+            token_id = pos.get("asset") or pos.get("tokenId")
+            market_title = pos.get("title", "Unknown")[:40]
+            size = float(pos.get("size", 0))
+
+            if not cond_id or size <= 0:
+                continue
+
+            # Check if this market is already resolved
+            if self.check_if_resolved(cond_id):
+                print(f"   🎯 SETTLED POSITION FOUND: {market_title} (Size: {size})")
+                tx = self.redeem_position(cond_id, token_id)
+                if tx:
+                    redeemed += 1
+                    print(f"   💰 REDEEMED SETTLED POSITION: {tx}")
+                else:
+                    print(f"   ❌ FAILED TO REDEEM SETTLED POSITION")
+
+        return redeemed
+
     def check_if_resolved(self, condition_id: str) -> bool:
         """Check on-chain if resolved."""
         try:
@@ -345,14 +375,18 @@ class AutoRedeemer:
     def scan_and_redeem(self) -> Dict:
         """Compat wrapper for agents: one-off scan and redeem."""
         self.update_watchlist()
-        
-        # Track what gets redeemed
+
+        # NEW: Also check for already settled positions and redeem them immediately
+        settled_redeemed = self.redeem_settled_positions()
+
+        # Track what gets redeemed from watchlist
         before_count = len(self.market_watchlist)
         self.settlement_sniper()
         after_count = len(self.market_watchlist)
-        
-        redeemed_count = before_count - after_count
-        return {"redeemed": max(0, redeemed_count)}
+
+        watchlist_redeemed = before_count - after_count
+        total_redeemed = settled_redeemed + watchlist_redeemed
+        return {"redeemed": max(0, total_redeemed)}
 
 def redeem_all_positions() -> Dict:
     """One-shot function (standard mode)"""
