@@ -71,12 +71,12 @@ load_dotenv()
 # CONFIGURATION
 # =============================================================================
 
-# Trading parameters
-MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades (was 3%)
-MIN_BET_USD = 2.00              # Minimum $2 trades
-MAX_BET_USD = 3.00              # Maximum $3 trades (conservative)
-BET_PERCENT = 0.02              # 2% of bankroll per trade (safer)
-MAX_CONCURRENT_POSITIONS = 5    # Allow more concurrent positions
+# Trading parameters - LIVE CONFIG
+MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades
+MIN_BET_USD = 5.00              # Fixed $5 trades
+MAX_BET_USD = 5.00              # Fixed $5 trades
+BET_PERCENT = 0.40              # 40% of bankroll allocated to esports
+MAX_CONCURRENT_POSITIONS = 10   # Allow 10 concurrent positions
 
 # Timing - FREE TIER CONSERVATIVE MODE
 POLL_INTERVAL_LIVE = 8          # Poll every 8s during live match (free tier friendly)
@@ -893,18 +893,20 @@ class EsportsTrader:
         return None
     
     def calculate_bet_size(self) -> float:
-        """Calculate conservative bet size for small trades."""
+        """Calculate bet size - fixed $5 trades with 40% wallet allocation."""
         try:
             self.balance = self.pm_esports.pm.get_usdc_balance()
         except:
             pass
 
-        # Use fixed small amounts instead of percentage for consistency
-        if self.balance >= 10:  # Only trade if we have enough for multiple trades
-            return 2.50  # Fixed $2.50 trades
-        elif self.balance >= MIN_BET_USD:
-            return MIN_BET_USD  # Minimum $2.00
+        # 40% of wallet allocated to esports
+        esports_allocation = self.balance * BET_PERCENT
+        
+        # Fixed $5 trades, but cap at allocated amount
+        if esports_allocation >= MIN_BET_USD:
+            return min(MAX_BET_USD, esports_allocation / MAX_CONCURRENT_POSITIONS)
         else:
+            print(f"   ⚠️ Insufficient esports allocation: ${esports_allocation:.2f} (need ${MIN_BET_USD})")
             return 0  # Not enough balance
     
     def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
@@ -1060,14 +1062,14 @@ class EsportsTrader:
         if rate_limit_sleep > 0:
             return rate_limit_sleep
 
-        # 1. Check Pause State
+        # 1. Check Pause State (only for pausing, NOT for dry_run - respect --live flag)
         try:
             with open("bot_state.json", "r") as f:
                 state = json.load(f)
             if not state.get("esports_trader_running", True):
                 print("   Esports Trader paused via dashboard. Sleeping...")
                 return POLL_INTERVAL_IDLE
-            self.dry_run = state.get("dry_run", True)
+            # NOTE: Do NOT override self.dry_run here - respect the --live flag from command line
         except: pass
         
         # 2. Auto-Redeem
