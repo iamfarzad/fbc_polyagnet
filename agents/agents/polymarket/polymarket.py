@@ -105,6 +105,10 @@ class Polymarket:
         signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))  # Default to GNOSIS_SAFE
         self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
 
+        # CRITICAL FIX: Checksum the funder address to prevent base64 signature errors
+        if self.funder_address:
+            self.funder_address = Web3.to_checksum_address(self.funder_address)
+
         if self.funder_address:
             print(f"   🔐 Using signature_type={signature_type}, funder={self.funder_address[:10]}...")
         else:
@@ -499,9 +503,7 @@ class Polymarket:
             clean_price = float(round(price, 4))  # Round to prevent floating point precision issues
             clean_size = float(round(size, 2))    # Round to prevent floating point precision issues
 
-            # Ensure funder is checksummed to prevent signature mismatch (CRITICAL FOR BASE64!)
-            if self.funder_address:
-                self.client.funder = Web3.to_checksum_address(self.funder_address)
+            # Funder is already checksummed during client initialization
 
             resp = self.client.create_and_post_order(
                 OrderArgs(
