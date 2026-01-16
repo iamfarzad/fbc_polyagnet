@@ -1252,19 +1252,19 @@ class EsportsTrader:
                         pandascore_key = v
 
             if not pandascore_key:
-            print("❌ PANDASCORE_API_KEY not found!")
-            print("   1. Go to https://pandascore.co")
-            print("   2. Sign up for free account")
-            print("   3. Get API key from dashboard")
-            print("   4. Set PANDASCORE_API_KEY environment variable")
-            print("   5. Restart the esports trader")
-            print("\n   Without this key, the bot will not trade (to prevent losses)")
-            print("\n   💡 Pro tip: Pandascore has a generous free tier (1000 requests/day)")
-            print("   This gives you ~1 year of data for development and testing")
-            print("\n   🚀 QUICK SETUP:")
-            print("   export PANDASCORE_API_KEY='your_key_here'  # Add to your .env or Fly.io secrets")
-            print("   fly secrets set PANDASCORE_API_KEY=your_key_here  # For Fly.io deployment")
-            return
+                print("❌ PANDASCORE_API_KEY not found!")
+                print("   1. Go to https://pandascore.co")
+                print("   2. Sign up for free account")
+                print("   3. Get API key from dashboard")
+                print("   4. Set PANDASCORE_API_KEY environment variable")
+                print("   5. Restart the esports trader")
+                print("\n   Without this key, the bot will not trade (to prevent losses)")
+                print("\n   💡 Pro tip: Pandascore has a generous free tier (1000 requests/day)")
+                print("   This gives you ~1 year of data for development and testing")
+                print("\n   🚀 QUICK SETUP:")
+                print("   export PANDASCORE_API_KEY='your_key_here'  # Add to your .env or Fly.io secrets")
+                print("   fly secrets set PANDASCORE_API_KEY=your_key_here  # For Fly.io deployment")
+                return
         
         while True:
             try:
