@@ -138,17 +138,21 @@ class AutoRedeemer:
     def update_watchlist(self):
         """Fetches all open positions and maps their exact end_dates."""
         positions = self.get_positions_from_api()
+        print(f"   📡 REDEEMER: Found {len(positions)} positions from API")
         added = 0
-        for pos in positions:
+        for i, pos in enumerate(positions[:5]):  # Debug first 5
             # Handle varied API response keys
             cond_id = pos.get("conditionId") or pos.get("condition_id")
             token_id = pos.get("asset") or pos.get("tokenId")
             market_title = pos.get("title", "Unknown")[:40]
             size = float(pos.get("size", 0))
-            
+
             # Only track if we have shares
             if size <= 0:
                 continue
+
+            if i < 3:  # Debug log first 3
+                print(f"   📡 Processing position {i+1}: {market_title} (size: {size})")
 
             if cond_id and cond_id not in self.market_watchlist:
                 market_info = self.get_market_info(cond_id)
