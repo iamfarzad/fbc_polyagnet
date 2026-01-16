@@ -3,10 +3,9 @@ FROM python:3.9
 # Create the agents directory structure in the container
 WORKDIR /app
 COPY agents/ ./agents/
-COPY requirements.txt ./
 
 # Install dependencies
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r agents/requirements.txt
 
 # Set the Python path to the root so 'agents.' imports work
 ENV PYTHONPATH=/app
