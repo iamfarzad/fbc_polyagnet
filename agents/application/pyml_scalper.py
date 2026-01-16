@@ -663,8 +663,15 @@ class CryptoScalper:
                 if self.check_circuit_breaker(): continue
 
                 if self.redeemer:
-                    try: self.redeemer.scan_and_redeem()
-                    except: pass
+                    try:
+                        print("   🔄 RUNNING AUTO-REDEEMER...")
+                        result = self.redeemer.scan_and_redeem()
+                        if result and result.get('redeemed', 0) > 0:
+                            print(f"   💰 REDEEMED: {result['redeemed']} positions")
+                    except Exception as e:
+                        print(f"   ❌ REDEEMER ERROR: {e}")
+                else:
+                    print("   ⚠️ NO REDEEMER INITIALIZED")
 
                 # 3. Manage Exits
                 self.manage_positions()
