@@ -191,7 +191,10 @@ class AutoRedeemer:
                 continue
 
             # Check if this market is already resolved
-            if self.check_if_resolved(cond_id):
+            print(f"   🔍 Checking if {market_title[:30]}... is resolved (cond_id: {cond_id[:10]}...)")
+            is_resolved = self.check_if_resolved(cond_id)
+            print(f"   🔍 Resolution check result: {is_resolved}")
+            if is_resolved:
                 print(f"   🎯 SETTLED POSITION FOUND: {market_title} (Size: {size})")
                 tx = self.redeem_position(cond_id, token_id)
                 if tx:
@@ -208,16 +211,18 @@ class AutoRedeemer:
             # Convert condition_id to bytes32
             if not condition_id.startswith("0x"):
                 condition_id = "0x" + condition_id
-            
+
             # Pad to 32 bytes if needed
             condition_hex = condition_id[2:].zfill(64)
             condition_bytes = bytes.fromhex(condition_hex)
-            
+
             # Get payout numerators - if non-zero, market is resolved
             payouts = self.ctf.functions.payoutNumerators(condition_bytes).call()
-            return any(p > 0 for p in payouts)
+            resolved = any(p > 0 for p in payouts)
+            print(f"   🔗 On-chain check for {condition_id[:10]}...: payouts={payouts}, resolved={resolved}")
+            return resolved
         except Exception as e:
-            # print(f"      On-chain check failed: {e}")
+            print(f"   🔗 On-chain check failed for {condition_id[:10]}...: {e}")
             return False
 
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
