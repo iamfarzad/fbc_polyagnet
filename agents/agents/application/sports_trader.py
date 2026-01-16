@@ -14,15 +14,15 @@ from dotenv import load_dotenv
 # Add parent paths
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from agents.polymarket.polymarket import Polymarket
-from agents.utils.validator import Validator, SharedConfig
+from agents.agents.polymarket.polymarket import Polymarket
+from agents.agents.utils.validator import Validator, SharedConfig
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY
-from agents.utils.context import get_context, Position, Trade
+from agents.agents.utils.context import get_context, Position, Trade
 
 # Try to import auto-redeemer
 try:
-    from agents.utils.auto_redeem import AutoRedeemer
+    from agents.agents.utils.auto_redeem import AutoRedeemer
     HAS_REDEEMER = True
 except ImportError:
     HAS_REDEEMER = False
@@ -30,7 +30,7 @@ except ImportError:
 
 # Import Supabase state manager
 try:
-    from agents.utils.supabase_client import get_supabase_state
+    from agents.agents.utils.supabase_client import get_supabase_state
     HAS_SUPABASE = True
 except ImportError:
     HAS_SUPABASE = False
@@ -92,17 +92,26 @@ class SportsTrader:
         self.dry_run = dry_run
         self.pm = Polymarket()
         self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
-        self.pm = Polymarket()
-        self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
+
+        # Check global dry run state from Supabase and override local setting
+        try:
+            from agents.agents.utils.supabase_client import get_supabase_state
+            supabase = get_supabase_state()
+            if supabase:
+                global_dry_run = supabase.get_global_dry_run()
+                self.dry_run = global_dry_run
+                print(f"🔄 Overriding local dry_run={dry_run} with global dry_run={global_dry_run}")
+        except Exception as e:
+            print(f"⚠️ Could not check global dry run: {e}. Using local setting.")
         
         # Initialize Shared Context with robust import check
         try:
-            from agents.utils.context import get_context, LLMActivity
+            from agents.agents.utils.context import get_context, LLMActivity
             self.context = get_context()
             self.LLMActivity = LLMActivity
         except ImportError:
             try: 
-                from agents.agents.utils.context import get_context, LLMActivity
+                from agents.agents.agents.utils.context import get_context, LLMActivity
                 self.context = get_context()
                 self.LLMActivity = LLMActivity
             except:
@@ -537,9 +546,9 @@ class SportsTrader:
         try:
             state = {
                 "sports_trader_last_activity": f"Trades: {self.trades_made}",
-                "sports_trader_mode": "DRY RUN" if self.dry_run else "LIVE",
                 "timestamp": datetime.datetime.now().isoformat()
             }
+            # Don't write mode to state file - let dashboard determine from global dry_run
             with open("bot_state.json", "w") as f:
                 json.dump(state, f)
         except: pass

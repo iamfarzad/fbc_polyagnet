@@ -21,14 +21,22 @@ from collections import deque
 from dotenv import load_dotenv
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY, SELL
+import websocket
 
-# Import Polymarket wrapper
+# Import Polymarket wrapper and Gamma client
 try:
     from agents.polymarket.polymarket import Polymarket
+    from agents.polymarket.gamma import GammaMarketClient
 except ImportError:
-    # Fallback for running as script
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    from agents.polymarket.polymarket import Polymarket
+    # Fallback for running as script - try the correct module path
+    try:
+        from agents.agents.polymarket.polymarket import Polymarket
+        from agents.agents.polymarket.gamma import GammaMarketClient
+        print("Direct module import successful")
+    except ImportError:
+        print(f"All import attempts failed")
+        print(f"Current dir: {os.getcwd()}")
+        raise
 
 # Import Context
 try:
@@ -91,8 +99,7 @@ class CryptoScalper:
 
     def __init__(self, dry_run=True):
         self.pm = Polymarket()
-        self.dry_run = dry_run
-        self.pm = Polymarket()
+        self.gamma = GammaMarketClient()
         self.dry_run = dry_run
         
         # Initialize Shared Context
@@ -153,6 +160,7 @@ class CryptoScalper:
 
         # Price caching for performance
         self.price_cache = {}  # token_id -> (timestamp, price_data)
+        self._init_polymarket_websocket()
 
     def _log(self, action, question, reasoning, confidence=1.0):
         """Log to Dashboard Terminal."""
@@ -175,6 +183,53 @@ class CryptoScalper:
         except Exception as e:
             print(f"   ⚠️ Log Error: {e}")
 
+    def _init_polymarket_websocket(self):
+        """Initialize Polymarket websocket for real-time price updates."""
+        def price_update_callback(data):
+            """Handle incoming market data updates."""
+            try:
+                # Parse market data and cache prices
+                if 'asset_id' in data and 'price' in data:
+                    token_id = data['asset_id']
+                    price = float(data.get('price', 0))
+                    bid = float(data.get('best_bid', price * 0.99))
+                    ask = float(data.get('best_ask', price * 1.01))
+                    bid_size = float(data.get('bid_size', 1000))
+
+                    price_data = (price, bid, bid_size, ask)
+                    self.price_cache[token_id] = (time.time(), price_data)
+                    print(f"   📈 WS Price Update: {token_id[:8]}... @ ${price:.4f}")
+
+                elif 'updates' in data:
+                    # Handle batch updates
+                    for update in data['updates']:
+                        if 'asset_id' in update:
+                            token_id = update['asset_id']
+                            price = float(update.get('price', 0))
+                            bid = float(update.get('best_bid', price * 0.99))
+                            ask = float(update.get('best_ask', price * 1.01))
+                            bid_size = float(update.get('bid_size', 1000))
+
+                            price_data = (price, bid, bid_size, ask)
+                            self.price_cache[token_id] = (time.time(), price_data)
+
+            except Exception as e:
+                print(f"   ⚠️ WS callback error: {e}")
+
+        # Add callback and connect to market channel
+        self.pm.add_ws_callback('market', price_update_callback)
+
+        # Connect to websocket (will auto-subscribe to assets as needed)
+        if not self.pm.connect_websocket(channel_type="market"):
+            print("   ⚠️ Polymarket WS connection failed - using REST polling")
+        else:
+            print("   📡 Polymarket WS connected for real-time updates")
+
+    def subscribe_to_market_assets(self, token_ids: list):
+        """Subscribe to specific market assets for real-time updates."""
+        if self.pm.ws_connection:
+            self.pm.subscribe_to_assets(token_ids, channel_type="market")
+            print(f"   📡 Subscribed to {len(token_ids)} market assets")
 
     # -------------------------------------------------------------------------
     # DATA & UTILS
@@ -283,86 +338,28 @@ class CryptoScalper:
             self.market_scan_interval = max(10, min(60, optimal_delay))  # Between 10-60s
 
     def get_available_markets(self):
-        """Fetch 15-min crypto markets from Gamma API with intelligence."""
-        now = time.time()
-        if now - self.last_market_scan < self.market_scan_interval:
-            return []  # Too soon, skip scan
+        """
+        Discovers 15-minute crypto markets using the WORKING approach:
+        1. Generate event slugs for current time windows
+        2. Query events API with specific slugs
+        3. Extract markets from found events
+        """
+        # Use CENTRALIZED discovery method from GammaMarketClient
+        return self.gamma.discover_15min_crypto_markets()
 
-        self.last_market_scan = now
-
+    def get_fee_bps(self, token_id):
         try:
-            url = "https://gamma-api.polymarket.com/markets"
-            params = {
-                "limit": 50,
-                "active": "true",
-                "closed": "false",
-                "order": "createdAt",
-                "ascending": "false"
-            }
+            url = "https://clob.polymarket.com/fee-rate"
+            resp = requests.get(url, params={"token_id": token_id}, timeout=2)
+            if resp.status_code == 200:
+                data = resp.json()
+                return int(data.get("base_fee", 0))  # API returns "base_fee", not "fee_rate_bps"
+            return 0
+        except:
+            return 0
 
-            # Focus on crypto assets only (no tag_id filter needed for our 4)
-            resp = requests.get(url, params=params, timeout=5).json()
 
-            markets = []
-            new_market_count = 0
 
-            for m in resp:
-                # Filter for "Up or Down" 15-min markets ONLY for our 4 cryptos
-                question = m.get("question", "")
-                if "Up or Down" not in question: continue
-
-                # Only our 4 cryptos
-                asset = None
-                q_lower = question.lower()
-                for symbol, name in BINANCE_SYMBOLS.items():
-                    if name in q_lower:
-                        asset = name
-                        break
-                if not asset: continue
-
-                # Track market creation for pattern analysis
-                created_at = m.get("createdAt", "")
-                if created_at and created_at not in self.market_creation_times:
-                    self.market_creation_times.append(created_at)
-                    new_market_count += 1
-
-                # Parse tokens
-                try:
-                    clob_ids = json.loads(m.get("clobTokenIds", "[]"))
-                    if len(clob_ids) != 2: continue
-
-                    # Check if already traded this market
-                    market_id = m["id"]
-                    if market_id in self.traded_markets: continue
-
-                    markets.append({
-                        "id": market_id,
-                        "question": question,
-                        "asset": asset,
-                        "up_token": clob_ids[0],
-                        "down_token": clob_ids[1],
-                        "end_date": m.get("endDate", ""),
-                        "created_at": created_at
-                    })
-                except: continue
-
-            # Update pattern detection if we found new markets
-            if new_market_count > 0:
-                self.detect_market_creation_patterns()
-                print(f"   📈 Found {new_market_count} new markets, {len(markets)} available")
-
-            # Subscribe to websocket updates for discovered assets
-            if markets:
-                asset_ids = []
-                for market in markets:
-                    asset_ids.extend([market["up_token"], market["down_token"]])
-                if asset_ids:
-                    self.subscribe_to_market_assets(asset_ids)
-
-            return markets
-        except Exception as e:
-            print(f"   ⚠️ Scanner Error: {e}")
-            return []
 
     # -------------------------------------------------------------------------
     # ORDER RECONCILIATION (The Missing "check_fills")
@@ -483,8 +480,17 @@ class CryptoScalper:
         size_usd = self.get_optimal_bet_size(market["asset"])
         size_shares = size_usd / entry_price
 
-        # 4. Place Limit Order
-        print(f"   🔫 SNIPING: Maker {direction} {market['asset']} @ ${entry_price:.3f} (${size_usd:.0f})")
+        # 4. Fetch Fee Rate
+        fee_rate_bps = 0
+        try:
+            fee_url = f"https://clob.polymarket.com/fee-rate?token_id={token_id}"
+            fee_resp = requests.get(fee_url, timeout=2).json()
+            fee_rate_bps = int(fee_resp.get("fee_rate_bps", 0))
+        except Exception as e:
+            print(f"   ⚠️ Fee Fetch Failed (Defaulting to 0): {e}")
+
+        # 5. Place Limit Order
+        print(f"   🔫 SNIPING: Maker {direction} {market['asset']} @ ${entry_price:.3f} (${size_usd:.0f}) | Fee: {fee_rate_bps} bps")
 
         if self.dry_run:
             # Simulate with better fill rate
@@ -506,7 +512,8 @@ class CryptoScalper:
             return True
 
         try:
-            resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY")
+            # Pass fee_rate_bps to place_limit_order
+            resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps)
             order_id = resp.get("orderID")
 
             if order_id:

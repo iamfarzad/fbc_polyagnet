@@ -138,7 +138,7 @@ def tool_get_balance() -> str:
 
         # USDC.e contract on Polygon (same as dashboard)
         USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
-        dashboard_wallet = "0xdb1f88Ab5B531911326788C018D397d352B7265c"
+        dashboard_wallet = os.getenv("POLYMARKET_PROXY_ADDRESS", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
 
         # Use public RPC to query balance (same as dashboard)
         w3 = Web3(Web3.HTTPProvider("https://polygon-rpc.com"))
@@ -169,7 +169,7 @@ def tool_get_positions() -> str:
     """Get all open positions from live deployment wallet."""
     try:
         # Use DASHBOARD_WALLET for consolidated view (same as live deployment)
-        dashboard_wallet = "0xdb1f88Ab5B531911326788C018D397d352B7265c"
+        dashboard_wallet = os.getenv("POLYMARKET_PROXY_ADDRESS", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
         url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
         resp = requests.get(url, timeout=10)
         positions = resp.json()

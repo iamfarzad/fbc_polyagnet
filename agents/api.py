@@ -470,7 +470,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
             "running": state.get("sports_trader_running", True),
             "activity": state.get("sports_trader_last_activity", "Active" if state.get("sports_trader_running") else "Idle"),
             "trades": state.get("sports_trader_trades", 0),
-            "mode": state.get("sports_trader_mode", "DRY RUN"),
+            "mode": "DRY RUN" if state.get("dry_run", True) else "LIVE",
             "lastScan": state.get("sports_trader_last_scan", datetime.now().strftime("%H:%M:%S")),
             "strategy": "Direct Gamma (Fast Mode)"
         }

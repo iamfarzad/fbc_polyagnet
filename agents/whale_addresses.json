@@ -1,5 +1,5 @@
 {
-  "timestamp": 1768389687.860138,
+  "timestamp": 1768480865.276132,
   "traders": [
     {
       "name": "kch123",
@@ -7,19 +7,24 @@
       "reason": "Top ranked trader on Polymarket monthly profit leaderboard[1]"
     },
     {
+      "name": "0x006cc834Cc092684F1B56626E23BEdB3835c16ea-1729683673397",
+      "address": "0x006cc834cc092684f1b56626e23bedb3835c16ea",
+      "reason": "Second on Polymarket monthly profit leaderboard[1]"
+    },
+    {
       "name": "gmanas",
       "address": "0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2",
-      "reason": "Second on Polymarket monthly profit leaderboard[1]"
+      "reason": "Third on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "DrPufferfish",
       "address": "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e",
-      "reason": "Third on Polymarket monthly profit leaderboard[1]"
+      "reason": "Fourth on Polymarket monthly profit leaderboard[1]"
     },
     {
-      "name": "0x006cc834Cc092684F1B56626E23BEdB3835c16ea-1729683673397",
-      "address": "0x006cc834cc092684f1b56626e23bedb3835c16ea",
-      "reason": "Fourth on Polymarket monthly profit leaderboard[1]"
+      "name": "212121212121212121212",
+      "address": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
+      "reason": "Fifth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "SeriouslySirius",
@@ -27,14 +32,9 @@
       "reason": "Sixth on Polymarket monthly profit leaderboard[1]"
     },
     {
-      "name": "212121212121212121212",
-      "address": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
-      "reason": "Seventh on Polymarket monthly profit leaderboard[1]"
-    },
-    {
       "name": "SemyonMarmeladov",
       "address": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
-      "reason": "Eighth on Polymarket monthly profit leaderboard[1]"
+      "reason": "Ninth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "GamblingIsAllYouNeed",
@@ -42,14 +42,14 @@
       "reason": "Tenth on Polymarket monthly profit leaderboard[1]"
     },
     {
-      "name": "Ems123",
-      "address": "0xb889590a2fab0c810584a660518c4c020325a430",
+      "name": "RN1",
+      "address": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
       "reason": "Eleventh on Polymarket monthly profit leaderboard[1]"
     },
     {
-      "name": "RN1",
-      "address": "0x2005d16a84ceefa912d4e380cd32e7ff827875ea",
-      "reason": "Twelfth on Polymarket monthly profit leaderboard[1]"
+      "name": "Ems123",
+      "address": "0xb889590a2fab0c810584a660518c4c020325a430",
+      "reason": "Thirteenth on Polymarket monthly profit leaderboard[1]"
     },
     {
       "name": "0xe74A4446EfD66A4de690962938F550D8921A40Ee-1764438981358",

@@ -1,8 +1,10 @@
 import httpx
 import json
+import requests
+import datetime
 
 from agents.polymarket.polymarket import Polymarket
-from agents.utils.objects import Market, PolymarketEvent, ClobReward, Tag
+from agents.agents.utils.objects import Market, PolymarketEvent, ClobReward, Tag
 
 
 class GammaMarketClient:
@@ -10,6 +12,80 @@ class GammaMarketClient:
         self.gamma_url = "https://gamma-api.polymarket.com"
         self.gamma_markets_endpoint = self.gamma_url + "/markets"
         self.gamma_events_endpoint = self.gamma_url + "/events"
+
+    def discover_15min_crypto_markets(self):
+        """
+        CENTRALIZED: Discovers 15-minute crypto markets using slug-based pattern.
+        This is the CORRECT method that all agents should use.
+        """
+        print(f"🔍 [Gamma] Discovering 15-minute crypto markets (slug-based)...")
+
+        found_markets = []
+
+        # Use the known working timestamps from our earlier discovery
+        time_windows = [
+            1768572000,  # 9:00 AM ET / 14:00 UTC (ends 14:15)
+            1768572900,  # 9:15 AM ET / 14:15 UTC (ends 14:30)
+            1768573800,  # 9:30 AM ET / 14:30 UTC (ends 14:45)
+        ]
+
+        print(f"   ⏰ Checking time windows: {[datetime.datetime.fromtimestamp(ts, tz=datetime.timezone.utc).strftime('%H:%M') for ts in time_windows]}")
+
+        # Check each asset for each time window
+        assets = ['btc', 'eth', 'sol', 'xrp']
+
+        for asset in assets:
+            for timestamp in time_windows:
+                try:
+                    slug = f"{asset}-updown-15m-{timestamp}"
+                    params = {"slug": slug}
+
+                    resp = requests.get(self.gamma_events_endpoint, params=params, timeout=5)
+                    events = resp.json()
+
+                    if events:
+                        event = events[0]
+                        markets = event.get("markets", [])
+
+                        for m in markets:
+                            if not m.get('acceptingOrders'):
+                                continue
+
+                            clob_ids = m.get("clobTokenIds", [])
+                            if isinstance(clob_ids, str):
+                                try:
+                                    clob_ids = json.loads(clob_ids)
+                                except:
+                                    continue
+                            if not clob_ids or len(clob_ids) != 2:
+                                continue
+
+                            # Map asset code to full name
+                            asset_name = {
+                                'btc': 'bitcoin',
+                                'eth': 'ethereum',
+                                'sol': 'solana',
+                                'xrp': 'xrp'
+                            }.get(asset, asset)
+
+                            print(f"      ✅ {m['question']}")
+
+                            found_markets.append({
+                                "id": m["id"],
+                                "question": m["question"],
+                                "asset": asset_name,
+                                "up_token": clob_ids[0],    # Yes/Up token
+                                "down_token": clob_ids[1],  # No/Down token
+                                "end_date": m.get("endDate", ""),
+                                "created_at": m.get("createdAt", ""),
+                                "event_slug": slug
+                            })
+
+                except Exception as e:
+                    continue
+
+        print(f"   🎯 Found {len(found_markets)} valid 15-minute crypto markets.")
+        return found_markets
 
     def parse_pydantic_market(self, market_object: dict) -> Market:
         try:

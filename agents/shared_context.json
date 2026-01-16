@@ -39,8 +39,8 @@
     "scalper": 0.8,
     "copy": 0.1
   },
-  "total_balance": 0.0,
-  "last_update": "2026-01-14T21:16:46.236327",
+  "total_balance": 111.890414,
+  "last_update": "2026-01-15T14:30:29.054770",
   "agent_status": {
     "safe": {
       "active": true,
@@ -72,1844 +72,1804 @@
   ],
   "llm_activity": [
     {
-      "id": "26e834e4",
+      "id": "2f50aedb",
       "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:36:39.324483",
+      "timestamp": "2026-01-15T14:06:32.049452",
       "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Rams QB Matthew Stafford is nursing a throwing hand injury but expected to play; spread opened at Rams -4.5 but moved to -3.5 with betting support for... | Factors: Stafford's hand injury may limit Rams' passing attack; Bears strong at home ATS (6-3), recent comeba... | Edge: Market at 58.7% overprices Rams due to Stafford injury doubt and Bears' home momentum; simulations s...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Rams QB Matthew Stafford is nursing a throwing hand injury but expected to play; spread opened at Rams -4.5 but moved to -3.5 with betting support for Bears; Bears rallied from 18 down in Wild Card win.[1][2]"
-      ],
-      "duration_ms": 3946,
-      "tokens_used": 707,
-      "cost_usd": 0.0035350000000000004
-    },
-    {
-      "id": "f3ad5ef0",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:36:55.532251",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win against Burnley?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: Insufficient recent data - search results lack news from last 48 hours... | Factors: Liverpool injuries (Isak, Bradley, Leoni, Bajcetic, Endo) vs strong home record and league position ... | Edge: Market at 73.4% may be overvaluing Liverpool given multiple injury absences. However, without recent...",
-      "conclusion": "PASS",
-      "confidence": 0.55,
-      "data_sources": [
-        "Insufficient recent data - search results lack news from last 48 hours"
-      ],
-      "duration_ms": 11430,
-      "tokens_used": 1131,
-      "cost_usd": 0.005655
-    },
-    {
-      "id": "91b24749",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:00.868698",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; Arsenal leads PL with 15-4-2 record (49 pts), Nottingham Forest 17th at... | Factors: Arsenal top of table with strong form (15W in 21), dominant H2H (recent 3-0 win); Forest poor form (... | Edge: Market at 57% undervalues Arsenal's superior form, table position, and H2H dominance (Arsenal unbeat...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; Arsenal leads PL with 15-4-2 record (49 pts)"
-      ],
-      "duration_ms": 5322,
-      "tokens_used": 781,
-      "cost_usd": 0.0039050000000000005
-    },
-    {
-      "id": "a1647067",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:06.011411",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match is scheduled for Jan 24, 2026. Manchester City currently 2nd with 13-4-4 record (43 pts), Wolves 20th with... | Factors: Manchester City have key injuries: John Stones, Josko Gvardiol, Mateo Kovacic, Oscar Bobb, Ruben Dia... | Edge: Market at 76.9% overprices City due to multiple key defender and midfielder injuries (Stones, Gvardi...",
-      "conclusion": "PASS",
-      "confidence": 0.75,
-      "data_sources": [
-        "No news from the last 48 hours found; match is scheduled for Jan 24",
-        "2026. Manchester City currently 2nd with 13-4-4 record (43 pts)",
-        "Wolves 20th with 1-4-16 (7 pts). Recent City results: W 2-0 vs Newcastle"
-      ],
-      "duration_ms": 5131,
-      "tokens_used": 814,
-      "cost_usd": 0.004070000000000001
-    },
-    {
-      "id": "5eb00628",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:10.760438",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Manchester United?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 25, 2026. Arsenal leads EPL with 15-4-2 record (49 pts), Man United mid-table at 8-8-5 (... | Factors: Arsenal's strong form (15W in 21GP, +26 GD) and home advantage vs weaker Man United; recent H2H domi... | Edge: Market at 61.2% undervalues Arsenal's superior record and H2H edge, but lacks recent news and potent...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 25",
-        "2026. Arsenal leads EPL with 15-4-2 record (49 pts)",
-        "Man United mid-table at 8-8-5 (32 pts). Arsenal beat Man United 1-0 in last 5 games (Aug 17"
-      ],
-      "duration_ms": 4734,
-      "tokens_used": 751,
-      "cost_usd": 0.003755
-    },
-    {
-      "id": "8c442f6b",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:18.377889",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win against Levante?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No news from the last 48 hours found; search results show Real Madrid playing Copa del Rey vs Albacete today (Jan 14), with LaLiga vs Levante on Jan 1... | Factors: Real Madrid strong home form at Bernab\u00e9u, dominant H2H (16-5-4), top scorer Mbapp\u00e9 (18 goals); Levan... | Edge: Market at 78.1% overprices slightly due to ignoring Real Madrid's tight schedule (Copa del Rey today...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No news from the last 48 hours found; search results show Real Madrid playing Copa del Rey vs Albacete today (Jan 14)",
-        "with LaLiga vs Levante on Jan 17. Real Madrid leads LaLiga with 14-3-2 record",
-        "45 pts; Levante near bottom at 3-5-10"
-      ],
-      "duration_ms": 5226,
-      "tokens_used": 767,
-      "cost_usd": 0.0038350000000000003
-    },
-    {
-      "id": "50ea80e0",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:23.517795",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries or team news; Atl\u00e9tico Madrid's recent form is LLWWD (losses to Real Madrid and Osasuna, wins/draw... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, 38 pts), strong home record (Alav\u00e9s aims for their first home... | Edge: Market at 67.6% aligns with standings/home advantage, but back-to-back schedule and recent losses (2...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries or team news; Atl\u00e9tico Madrid's recent form is LLWWD (losses to Real Madrid and Osasuna",
-        "wins/draws prior)",
-        "with Pablo Barrios back from undisclosed issue; Alav\u00e9s form WLLDL"
-      ],
-      "duration_ms": 5129,
-      "tokens_used": 771,
-      "cost_usd": 0.0038550000000000004
-    },
-    {
-      "id": "8bb1b97a",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:34.611124",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: No recent news (last 48 hours) found in search results. Data reflects historical standings as of mid-January 2026.... | Factors: Barcelona in elite form (5-0 last 5 games, 16-1-2 record, +33 GD). Real Sociedad struggling (5-6-8 r... | Edge: Market price of $0.56 (55.7% implied probability) appears undervalued given Barcelona's dominant for...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
-      "data_sources": [
-        "No recent news (last 48 hours) found in search results. Data reflects historical standings as of mid-January 2026."
-      ],
-      "duration_ms": 11084,
-      "tokens_used": 1195,
-      "cost_usd": 0.005975
-    },
-    {
-      "id": "d9c37ed4",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:40.779305",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or major developments; Mallorca lost 2-1 to Rayo Vallecano on Jan 11 (away), while Atl\u00e9t... | Factors: Atl\u00e9tico Madrid (4th, 11-5-3, form LLWWD) hosts struggling Mallorca (17th, 4-6-9, form DWDLL) at hom... | Edge: Market at 69.9% ($0.70) slightly undervalues Atl\u00e9tico's home strength, solid form, and H2H dominance...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or major developments; Mallorca lost 2-1 to Rayo Vallecano on Jan 11 (away)"
-      ],
-      "duration_ms": 6155,
-      "tokens_used": 830,
-      "cost_usd": 0.00415
-    },
-    {
-      "id": "1b637b3e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:37:45.811702",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Oviedo?",
-      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
-      "reasoning": "News: No news from the last 48 hours found; latest updates include Joao Cancelo joining Barcelona on loan and Oviedo players like Haissem Hassan and Alex Fo... | Factors: Barcelona top La Liga (16-1-3, 53 GF/26 GA, 2.75 goals/game, WWWWW last 5); Oviedo 20th (2-7-11, 11 ... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's elite form (16W-1D-3L, unbeaten home), offensive fir...",
+      "market_question": "Will Charlton Athletic FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
       "conclusion": "BET",
-      "confidence": 0.82,
+      "confidence": 1.0,
       "data_sources": [
-        "No news from the last 48 hours found; latest updates include Joao Cancelo joining Barcelona on loan and Oviedo players like Haissem Hassan and Alex Fores active in recent 1-1 draw vs Betis. Barcelona unbeaten at home",
-        "5 straight wins; Oviedo LDLDD form[1][2][5]."
+        "Gamma API",
+        "Pattern Match"
       ],
-      "duration_ms": 5027,
-      "tokens_used": 800,
-      "cost_usd": 0.004
-    },
-    {
-      "id": "c255a847",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:50:50.527773",
-      "action_type": "validate",
-      "market_question": "Will New York Knicks win against Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.76 (76% implied)",
-      "reasoning": "News: Knicks defeated Trail Blazers 123-114 on Sunday; Kings beat Lakers 124-112 on Monday. Knicks are healthy; Kings missing Sabonis (knee) and Murray (ank... | Factors: Knicks' superior scoring (119.5 vs 110.2 PPG), defense (114.9 vs 121.2 PPG allowed), 5-5 recent form... | Edge: Market at 75.7% vs estimated 79% suggests slight undervaluation of Knicks. Edge exists but is margin...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Knicks defeated Trail Blazers 123-114 on Sunday; Kings beat Lakers 124-112 on Monday. Knicks are healthy; Kings missing Sabonis (knee) and Murray (ankle)."
-      ],
-      "duration_ms": 12115,
-      "tokens_used": 1306,
-      "cost_usd": 0.00653
-    },
-    {
-      "id": "3f4c967b",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:50:55.570549",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win against Washington Wizards?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers (16-23) on a three-game win streak and 10-2 since Dec. 20, fresh off a 117-109 win over Hornets on Monday with Kawhi Leonard (35 pts) and Jam... | Factors: Clippers surging with key stars healthy, home favorites by 11.5-12.5 pts; Wizards short-handed post-... | Edge: Market at 79% undervalues Clippers' hot streak (W3, 10-2 form), home edge vs struggling Wizards on r...",
-      "conclusion": "PASS",
-      "confidence": 0.78,
-      "data_sources": [
-        "Clippers (16-23) on a three-game win streak and 10-2 since Dec. 20",
-        "fresh off a 117-109 win over Hornets on Monday with Kawhi Leonard (35 pts) and James Harden (32 pts",
-        "10 ast); Wizards (10-28) lost 112-93 to Suns Sunday to extend three-game slide"
-      ],
-      "duration_ms": 5032,
-      "tokens_used": 777,
-      "cost_usd": 0.0038850000000000004
-    },
-    {
-      "id": "dbad7fc4",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:09.341739",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: 49ers defeated Philadelphia 23-19 in Wild Card round (Jan 11). Seahawks had bye week after securing NFC's #1 seed (14-3 record). Game scheduled for Sa... | Factors: TRAP GAME ALERT: 49ers on back-to-back short weeks (played Sunday vs PHI, now playing Saturday vs SE... | Edge: Market at 70.7% undervalues Seahawks. The 49ers' short-week fatigue combined with travel from Philad...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "49ers defeated Philadelphia 23-19 in Wild Card round (Jan 11). Seahawks had bye week after securing NFC's #1 seed (14-3 record). Game scheduled for Saturday",
-        "Jan 17 at 8 p.m. ET in Seattle. 49ers facing short week after traveling from Philadelphia; this is their second short-week game in two weeks."
-      ],
-      "duration_ms": 11388,
-      "tokens_used": 1177,
-      "cost_usd": 0.0058850000000000005
-    },
-    {
-      "id": "0c62f829",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:14.876706",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win against Houston Texans?",
-      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
-      "reasoning": "News: Patriots (14-3) shut down Chargers 16-3 in Wild Card with elite red zone defense (no TDs allowed inside 10-yard line); Texans (12-5) dominated Steeler... | Factors: Patriots' home dominance (24-5 playoff record at Gillette), rested after Wild Card win with 7 days p... | Edge: Market at 55.4% slightly underprices Patriots' home edge and Texans' injury/turnover risks, but Texa...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Patriots (14-3) shut down Chargers 16-3 in Wild Card with elite red zone defense (no TDs allowed inside 10-yard line); Texans (12-5) dominated Steelers 30-6 but QB C.J. Stroud had 2 fumbles lost and 1 INT",
-        "while WR Nico Collins suffered a hard-hit concussion with only 6 days to clear protocol before Jan 18 game[1][2][4]."
-      ],
-      "duration_ms": 5522,
-      "tokens_used": 790,
-      "cost_usd": 0.00395
-    },
-    {
-      "id": "7c3d1578",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:20.486842",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Both teams advanced with thrilling Wild Card comebacks: Rams edged Panthers 34-31 on the road with Matthew Stafford's late TD pass; Bears overcame 21-... | Factors: Rams on road vs NFC North (lost 17/19 historically), close road games recently (1-2 in last 3 by \u22643 ... | Edge: Market at 58.7% aligns closely with lower-end models (AccuScore 51%, trends favoring Bears at home/r...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Both teams advanced with thrilling Wild Card comebacks: Rams edged Panthers 34-31 on the road with Matthew Stafford's late TD pass; Bears overcame 21-3 deficit to beat Packers 31-27 behind Caleb Williams' 361 yards and 2 TDs[1][2][4][7]. Game set for Jan 18 at Soldier Field",
-        "Rams favored -3.5",
-        "moneyline -192 (implied ~66%)[1][2]."
-      ],
-      "duration_ms": 5593,
-      "tokens_used": 802,
-      "cost_usd": 0.0040100000000000005
-    },
-    {
-      "id": "847c25a3",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:31.977203",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win against Burnley?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 17, 2026 at Anfield. Liverpool currently 4th (10-5-6, 35 pts), Burnley 19th (3-4-14, 13 ... | Factors: Liverpool favored at home with strong H2H (13 wins vs Burnley's 2); Burnley poor form and bottom of ... | Edge: Market at 73.4% aligns closely with standings, H2H, and home advantage, but Liverpool's injuries (in...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 17",
-        "2026 at Anfield. Liverpool currently 4th (10-5-6",
-        "35 pts)"
-      ],
-      "duration_ms": 6712,
-      "tokens_used": 811,
-      "cost_usd": 0.0040550000000000004
-    },
-    {
-      "id": "1a60b433",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:37.878062",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: Arsenal's William Saliba is doubtful due to injury, Riccardo Calafiori out for weeks with muscle injury; Nottingham Forest's Sangare and Boly returnin... | Factors: Arsenal strong favorites as league leaders with dominant H2H (won last 3 meetings 3-0, 3-0, 2-1), bu... | Edge: Market at 57% aligns closely with standings/H2H dominance, but Arsenal injuries deduct ~10-15% from ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Arsenal's William Saliba is doubtful due to injury",
-        "Riccardo Calafiori out for weeks with muscle injury; Nottingham Forest's Sangare and Boly returning from AFCON duties. Arsenal top Premier League with 15-4-2 record (49 pts)",
-        "Forest 17th with 6-3-12 (21 pts). Recent form: Arsenal W D W W W in last 5; Forest mixed with recent draw and loss.[2][3]"
-      ],
-      "duration_ms": 5884,
-      "tokens_used": 795,
-      "cost_usd": 0.003975
-    },
-    {
-      "id": "0af628c6",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:43.439206",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 24, 2026. Manchester City currently 2nd with 13-4-4 record (43 pts), Wolves 20th with 1-... | Factors: City have key injuries: John Stones, Josko Gvardiol, Mateo Kovacic, Oscar Bobb, Ruben Dias, Savinho ... | Edge: Market at 76.9% overprices City due to multiple key defender/midfielder injuries weakening defense; ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 24",
-        "2026. Manchester City currently 2nd with 13-4-4 record (43 pts)",
-        "Wolves 20th with 1-4-16 (7 pts). City won recent H2H 4-0 and 1-0[1][4][6]."
-      ],
-      "duration_ms": 5554,
-      "tokens_used": 796,
-      "cost_usd": 0.00398
-    },
-    {
-      "id": "d5e227d3",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:49.376376",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Manchester United?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: No news from the last 48 hours found on injuries, lineups, or specific previews for the Arsenal vs Manchester United match scheduled for Jan 25, 2026;... | Factors: Arsenal's strong form (15W in 21 games) and home advantage vs Man United's weaker record; historical... | Edge: Market at 61.2% may undervalue Arsenal's superior form and home edge, but lack of recent news, poten...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
-      "data_sources": [
-        "No news from the last 48 hours found on injuries",
-        "lineups",
-        "or specific previews for the Arsenal vs Manchester United match scheduled for Jan 25"
-      ],
-      "duration_ms": 5931,
-      "tokens_used": 754,
-      "cost_usd": 0.0037700000000000003
-    },
-    {
-      "id": "84204906",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:51:56.178221",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win against Levante?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No news from the last 48 hours found; search results show Real Madrid playing Copa del Rey vs Albacete today (Jan 14), with LaLiga vs Levante on Jan 1... | Factors: Real Madrid strong home form at Bernab\u00e9u, dominant H2H (16 wins vs Levante's 5), top scorer Mbapp\u00e9 w... | Edge: Market at 78.1% slightly underestimates Real Madrid's dominance (84% win prob in stats, strong stand...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; search results show Real Madrid playing Copa del Rey vs Albacete today (Jan 14)",
-        "with LaLiga vs Levante on Jan 17. Real Madrid leads LaLiga with 14-3-2 record",
-        "45 pts; Levante near bottom at 3-5-10"
-      ],
-      "duration_ms": 4400,
-      "tokens_used": 756,
-      "cost_usd": 0.0037800000000000004
-    },
-    {
-      "id": "96653619",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:52:02.704461",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries or team status; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13 vs Deportivo, Alav... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, 38 pts), strong home record (Alav\u00e9s aims for their first home... | Edge: Market at 67.6% ($0.68) aligns closely with form and standings, but recent LLWWD (2 losses in last 5...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries or team status; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13 vs Deportivo",
-        "Alav\u00e9s form WLLDL with recent 3-1 loss; Carlos Benavidez available for Alav\u00e9s",
-        "Pablo Barrios back for Atl\u00e9tico[1][3][4]."
-      ],
-      "duration_ms": 6516,
-      "tokens_used": 819,
-      "cost_usd": 0.0040950000000000005
-    },
-    {
-      "id": "f5cba12e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:52:07.767959",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 18, 2026. Barcelona leads LaLiga with 16-1-2 record (49 pts), Real Sociedad 12th with 5-... | Factors: Barcelona dominant form, top scorers (Torres 11 goals, Lewandowski 9, Yamal 7+7 assists), strong awa... | Edge: Market at 55.7% ($0.56) undervalues Barcelona's superior form, record, and H2H dominance; true prob ...",
-      "conclusion": "BET",
-      "confidence": 0.78,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 18",
-        "2026. Barcelona leads LaLiga with 16-1-2 record (49 pts)",
-        "Real Sociedad 12th with 5-6-8 (21 pts). Barcelona on 5-game win streak (WWWWW)"
-      ],
-      "duration_ms": 5053,
-      "tokens_used": 782,
-      "cost_usd": 0.00391
-    },
-    {
-      "id": "0a5c47b6",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:52:13.637895",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No news from the last 48 hours available in search results; match scheduled for Jan 25, 2026. Atl\u00e9tico recent form LLWWD (last 5: losses to Rayo Valle... | Factors: Atl\u00e9tico 4th in LaLiga (11-5-3, 38 pts), strong home form, unbeaten at Riyadh Air Metropolitano; rec... | Edge: Market at 69.9% ($0.70) slightly undervalues Atl\u00e9tico's home strength and H2H dominance, but recent ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No news from the last 48 hours available in search results; match scheduled for Jan 25",
-        "2026. Atl\u00e9tico recent form LLWWD (last 5: losses to Rayo Vallecano and Girona",
-        "prior win); Mallorca DWDLL (recent losses to Rayo 2-1 and Depor 1-0).[2][4][5]"
-      ],
-      "duration_ms": 5858,
-      "tokens_used": 792,
-      "cost_usd": 0.00396
-    },
-    {
-      "id": "f74819f4",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T09:52:18.689977",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Oviedo?",
-      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
-      "reasoning": "News: No news from the last 48 hours found; latest available info shows Barcelona on a 5-game win streak (WWWWW), Oviedo struggling (LDLDD with recent draws... | Factors: Barcelona leads La Liga (16-1-2, 49 pts, +33 GD, unbeaten at home) vs Oviedo (2-7-10, 13 pts, -19 GD... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's dominance (top of table, hot form, home unbeaten, su...",
-      "conclusion": "BET",
-      "confidence": 0.75,
-      "data_sources": [
-        "No news from the last 48 hours found; latest available info shows Barcelona on a 5-game win streak (WWWWW)",
-        "Oviedo struggling (LDLDD with recent draws and a loss)",
-        "Joao Cancelo joining Barcelona on loan"
-      ],
-      "duration_ms": 5047,
-      "tokens_used": 812,
-      "cost_usd": 0.00406
-    },
-    {
-      "id": "e96089ad",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:05.103965",
-      "action_type": "validate",
-      "market_question": "Will New York Knicks win against Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.75",
-      "reasoning": "Parse error: I need to conduct the contrarian sports bettor analysis on the Knicks vs. Kings matchup. Let me work...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 8804,
-      "tokens_used": 1005,
-      "cost_usd": 0.005025000000000001
-    },
-    {
-      "id": "a2f3fd91",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:10.827883",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win against Washington Wizards?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers are surging at 10-2 since Dec. 20, with wins in last 3 including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts, James Harden 32 pts/10... | Factors: Clippers hot (8-2 last 10, W3 streak, Kawhi/Harden dominant) vs Wizards cold (L3, poor road 4-15, tu... | Edge: Market at 78.7% overprices Clippers slightly due to unaddressed schedule fatigue (short home game be...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Clippers are surging at 10-2 since Dec. 20",
-        "with wins in last 3 including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts",
-        "James Harden 32 pts/10 asts); played 3 games in 4 days on recent East Coast trip. Wizards on 3-game slide (10-28 record)"
-      ],
-      "duration_ms": 5707,
-      "tokens_used": 831,
-      "cost_usd": 0.004155000000000001
-    },
-    {
-      "id": "c11de70a",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:18.312526",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: Seahawks (14-3, NFC #1 seed) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at Lumen Field; 49ers on short week after Wild Card win at PHI (23-... | Factors: Seahawks rested with bye, elite home form (6-2), recent 13-3 win over 49ers, Sam Darnold strong (4,0... | Edge: Market at 70.7% overprices Seahawks due to home seed and bye; 49ers' road prowess, recent rivalry ed...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Seahawks (14-3",
-        "NFC #1 seed) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at Lumen Field; 49ers on short week after Wild Card win at PHI (23-19) and recent 3-13 loss to SEA; multiple 49ers players questionable (Trent Williams OT-hamstring",
-        "Dee Winters LB-ankle"
-      ],
-      "duration_ms": 5062,
-      "tokens_used": 800,
-      "cost_usd": 0.004
-    },
-    {
-      "id": "ab51a229",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:26.204449",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win against Houston Texans?",
-      "prompt_summary": "Evaluate YES @ $0.55",
-      "reasoning": "Parse error: I need to conduct the contrarian sports bettor analysis on the Patriots-Texans matchup. Let me work ...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 7880,
-      "tokens_used": 887,
-      "cost_usd": 0.004435000000000001
-    },
-    {
-      "id": "543a4fe2",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:30.988663",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Rams QB Matthew Stafford is nursing a throwing hand injury, expected to play but limited, causing the spread to move from -4.5 to -3.5 toward Bears; B... | Factors: Stafford's hand injury may limit Rams' passing attack; Bears strong at home (6-3 ATS), excellent 2H ... | Edge: Market at 58.7% overprices Rams due to injury doubt on Stafford and Bears' home trends/momentum; mod...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Rams QB Matthew Stafford is nursing a throwing hand injury",
-        "expected to play but limited",
-        "causing the spread to move from -4.5 to -3.5 toward Bears; Bears rallied from 18 down in Wild Card win; game set for Jan 18 at Soldier Field.[1][2]"
-      ],
-      "duration_ms": 4777,
-      "tokens_used": 730,
-      "cost_usd": 0.0036500000000000005
-    },
-    {
-      "id": "389f3c37",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:41.143223",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win against Burnley?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours available in search results; match scheduled for Jan 17, 2026 at Anfield. Liverpool 4th (10-5-6, 35 pts), Burnley 19th ... | Factors: Liverpool's strong H2H dominance (13 wins, 2 losses, 2 draws; won last 6)[2][5]; home at Anfield; su... | Edge: Market at 73.4% may undervalue Liverpool's H2H edge and home advantage vs weak Burnley, but Liverpoo...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No news from the last 48 hours available in search results; match scheduled for Jan 17",
-        "2026 at Anfield. Liverpool 4th (10-5-6",
-        "35 pts)"
-      ],
-      "duration_ms": 5407,
-      "tokens_used": 811,
-      "cost_usd": 0.0040550000000000004
-    },
-    {
-      "id": "ba5bd51e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:46.281162",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: Arsenal's William Saliba is doubtful due to injury for recent matches, Riccardo Calafiori out several weeks with muscle injury; Nottingham Forest's Sa... | Factors: Arsenal strong favorites as league leaders with superior form and H2H dominance, but key defenders S... | Edge: Market at 57% undervalues Arsenal's overall quality and standing vs struggling Forest, but injuries ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Arsenal's William Saliba is doubtful due to injury for recent matches",
-        "Riccardo Calafiori out several weeks with muscle injury; Nottingham Forest's Sangare and Boly returning from international duty and available. Arsenal top Premier League with 15-4-2 record (49 pts)",
-        "Forest 17th with 6-3-12 (21 pts). Recent H2H: Arsenal 3-0 win Sep 2025[1][2][3]."
-      ],
-      "duration_ms": 5126,
-      "tokens_used": 776,
-      "cost_usd": 0.00388
-    },
-    {
-      "id": "ecbc3902",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:51.898737",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: Manchester City have multiple key defenders and players out with injuries including John Stones, Josko Gvardiol, Ruben Dias, Mateo Kovacic, Oscar Bobb... | Factors: City's severe defensive injury crisis (Stones, Gvardiol, Dias out) deducts 15%+ from win probability... | Edge: Market at 76.9% overprices City due to ignoring their extensive injury list weakening defense agains...",
-      "conclusion": "PASS",
-      "confidence": 0.75,
-      "data_sources": [
-        "Manchester City have multiple key defenders and players out with injuries including John Stones",
-        "Josko Gvardiol",
-        "Ruben Dias"
-      ],
-      "duration_ms": 5608,
-      "tokens_used": 783,
-      "cost_usd": 0.003915
-    },
-    {
-      "id": "64214a34",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:38:58.869595",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Manchester United?",
-      "prompt_summary": "Evaluate YES @ $0.61",
-      "reasoning": "Parse error: I cannot provide the JSON betting analysis you've requested because the search results lack the crit...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 6963,
-      "tokens_used": 838,
-      "cost_usd": 0.00419
-    },
-    {
-      "id": "4f2a3f7e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:39:05.914016",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win against Levante?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or form for Real Madrid vs Levante on Jan 17; Real Madrid plays Copa del Rey vs Albacete... | Factors: Real Madrid leads LaLiga (14-3-2, 45 pts) vs Levante's poor form (3-5-10, 14 pts); home at Bernab\u00e9u;... | Edge: Market at 78.1% aligns with Real Madrid's dominance and standings, but lacks edge due to no recent i...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or form for Real Madrid vs Levante on Jan 17; Real Madrid plays Copa del Rey vs Albacete today (Jan 14)"
-      ],
-      "duration_ms": 4646,
-      "tokens_used": 760,
-      "cost_usd": 0.0038000000000000004
-    },
-    {
-      "id": "8e063a75",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:39:11.043752",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13 vs Depo... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, 38 pts) vs Alav\u00e9s 15th (5-4-10, 19 pts); ATM strong home reco... | Edge: Market at 67.6% aligns closely with standings, form, and H2H; no clear mispricing as recent news is ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13 vs Deportivo"
-      ],
-      "duration_ms": 5116,
-      "tokens_used": 805,
-      "cost_usd": 0.004025
-    },
-    {
-      "id": "8139ad67",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:39:15.857556",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: No specific news from the last 48 hours found; current standings show Barcelona leading LaLiga with 16-1-2 record (49 pts) vs Real Sociedad's 5-6-8 (2... | Factors: Barcelona dominant form (16W-1D-2L, +33 GD), top scorers healthy (Torres 11G, Lewandowski 9G, Yamal ... | Edge: Market at 55.7% ($0.56) undervalues Barcelona's elite form, streak, and H2H dominance vs Sociedad's ...",
-      "conclusion": "BET",
-      "confidence": 0.82,
-      "data_sources": [
-        "No specific news from the last 48 hours found; current standings show Barcelona leading LaLiga with 16-1-2 record (49 pts) vs Real Sociedad's 5-6-8 (21 pts). Barcelona on 5-game win streak (WWWWW)",
-        "Real Sociedad poor form (LLDDW)[2][3]."
-      ],
-      "duration_ms": 4806,
-      "tokens_used": 771,
-      "cost_usd": 0.0038550000000000004
-    },
-    {
-      "id": "1fd82911",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:39:23.286588",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
-      "prompt_summary": "Evaluate YES @ $0.70",
-      "reasoning": "Parse error: I cannot provide the JSON analysis you've requested because the search results provided do not conta...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 7416,
-      "tokens_used": 856,
-      "cost_usd": 0.00428
-    },
-    {
-      "id": "729d5eca",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:39:29.142607",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Oviedo?",
-      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
-      "reasoning": "News: No news from the last 48 hours found; latest updates show Barcelona on a 5-game win streak (WWWWW), Oviedo struggling (LDLDD or 2W-7D-10L), Joao Cance... | Factors: Barcelona leads La Liga (16-1-3, 53 GF/26 GA, unbeaten at home, 2.75 goals/game); Oviedo 20th (2-7-1... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's dominance (1st place, 16W in 20 games, superior stat...",
-      "conclusion": "BET",
-      "confidence": 0.82,
-      "data_sources": [
-        "No news from the last 48 hours found; latest updates show Barcelona on a 5-game win streak (WWWWW)",
-        "Oviedo struggling (LDLDD or 2W-7D-10L)",
-        "Joao Cancelo joining Barcelona on loan"
-      ],
-      "duration_ms": 5843,
-      "tokens_used": 805,
-      "cost_usd": 0.004025
-    },
-    {
-      "id": "81a95f53",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:52:32.421894",
-      "action_type": "validate",
-      "market_question": "Will New York Knicks win against Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.75 (75% implied)",
-      "reasoning": "News: Kings (10-30) on back-to-back wins led by Malik Monk's strong performances after Schroder's suspension ends today; Knicks (25-14) won 123-114 at Portl... | Factors: Knicks superior record (25-14 vs 10-30), won 4 straight and 8 of last 9 vs Kings, key players like B... | Edge: Market at 75.2% slightly underprices Knicks' historical dominance and talent edge over struggling Ki...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Kings (10-30) on back-to-back wins led by Malik Monk's strong performances after Schroder's suspension ends today; Knicks (25-14) won 123-114 at Portland Sunday",
-        "just their 2nd win in 7 games; Knicks coach Mike Brown returns to Sacramento where he was fired[1][2][3]."
-      ],
-      "duration_ms": 5526,
-      "tokens_used": 788,
-      "cost_usd": 0.00394
-    },
-    {
-      "id": "fd0a7abe",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:52:38.273042",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win against Washington Wizards?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers are surging at 10-2 since Dec. 20, with wins including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts, James Harden 32 pts/10 ast); com... | Factors: Clippers hot (8-2 last 10, W3 streak, Kawhi/Harden dominant) vs Wizards poor (10-28, L3, weak offens... | Edge: Market at 78.7% overprices Clippers slightly given recent travel fatigue (3 games in 4 days on East ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Clippers are surging at 10-2 since Dec. 20",
-        "with wins including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts",
-        "James Harden 32 pts/10 ast); coming off East Coast trip (3 games in 4 days) but at home; Wizards 10-28"
-      ],
-      "duration_ms": 5841,
-      "tokens_used": 817,
-      "cost_usd": 0.004085
-    },
-    {
-      "id": "d7f41dbd",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:52:46.812826",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: Seahawks (14-3, NFC #1 seed) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at 8pm ET in Seattle after bye; 49ers advanced with 23-19 win at Ph... | Factors: Seahawks rested with bye, strong home (6-2), lead series recently (won Week 18 13-3), QB Sam Darnold... | Edge: Market at 70.7% overprices Seahawks slightly given 49ers' road strength and recent dominance (7 of l...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Seahawks (14-3",
-        "NFC #1 seed) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at 8pm ET in Seattle after bye; 49ers advanced with 23-19 win at Philly on Jan 11",
-        "now on short week with travel; recent Week 18 matchup won by Seahawks 13-3; multiple 49ers players questionable (Trent Williams OT-hamstring"
-      ],
-      "duration_ms": 6145,
-      "tokens_used": 854,
-      "cost_usd": 0.00427
-    },
-    {
-      "id": "38775557",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:52:55.580006",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win against Houston Texans?",
-      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
-      "reasoning": "News: Patriots defeated Chargers 16-3 in wild-card round with dominant red zone defense. Texans beat Steelers in wild-card with strong defensive performance... | Factors: Patriots are 2-seed (14-3) at home vs 5-seed Texans (12-5); Patriots showed elite red zone defense i... | Edge: Market prices Patriots at 55.4% win probability, but the data suggests slightly higher probability (...",
-      "conclusion": "PASS",
-      "confidence": 0.58,
-      "data_sources": [
-        "Patriots defeated Chargers 16-3 in wild-card round with dominant red zone defense. Texans beat Steelers in wild-card with strong defensive performance despite QB C.J. Stroud's five fumbles and three turnovers. Texans WR Nico Collins suffered a concussion in the Steelers game and must pass protocol within six days before the Jan 18 matchup."
-      ],
-      "duration_ms": 8755,
-      "tokens_used": 993,
-      "cost_usd": 0.004965000000000001
-    },
-    {
-      "id": "130cee59",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:01.490273",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Bears advanced with a 31-27 wild-card win over Packers on Jan 10; Rams won 34-31 over Panthers. Bears lost key starters LB T.J. Edwards (IR lower leg)... | Factors: Bears home advantage (6-2 home) and momentum from playoff win, but major injuries to LB Edwards and ... | Edge: Market at 58.7% overprices Rams due to Bears' home edge and favoritism (-198), but Bears' key injuri...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Bears advanced with a 31-27 wild-card win over Packers on Jan 10; Rams won 34-31 over Panthers. Bears lost key starters LB T.J. Edwards (IR lower leg) and OT Ozzy Trapilo (IR knee) in their win. Game set for Jan 18 at Soldier Field",
-        "Bears favored by 3.5-4.5 points.[1][2][6]"
-      ],
-      "duration_ms": 5902,
-      "tokens_used": 777,
-      "cost_usd": 0.0038850000000000004
-    },
-    {
-      "id": "0a971bd3",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:12.069616",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win against Burnley?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 17, 2026 at Anfield. Liverpool currently 4th (10-5-6, 35 pts), Burnley 19th (3-4-14, 13 ... | Factors: Liverpool's home advantage at Anfield, strong H2H dominance (13 wins vs Burnley's 2), superior form ... | Edge: Market at 73.4% aligns closely with estimated 74% true probability given Liverpool's edge but injury...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 17",
-        "2026 at Anfield. Liverpool currently 4th (10-5-6",
-        "35 pts)"
-      ],
-      "duration_ms": 5786,
-      "tokens_used": 842,
-      "cost_usd": 0.00421
-    },
-    {
-      "id": "88ca6fb4",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:16.824266",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games; Nottingham Forest are 17th with 6-3-12 and 21 points. Arsenal injurie... | Factors: Arsenal top of table with strong form (recent wins/draws), dominant H2H (3-0 win Sep 2025, unbeaten ... | Edge: Market at 57% is fairly priced given Arsenal's quality edge, but deducting for Saliba doubtful (key ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games; Nottingham Forest are 17th with 6-3-12 and 21 points. Arsenal injuries: William Saliba doubtful (recently mentioned vs Chelsea)",
-        "Riccardo Calafiori out several weeks with muscle injury. Forest's Sangare and Boly returning from AFCON duty.[1][2][3]"
-      ],
-      "duration_ms": 4742,
-      "tokens_used": 785,
-      "cost_usd": 0.0039250000000000005
-    },
-    {
-      "id": "71d398dd",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:26.851508",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: Manchester City heavily favored as 2-time defending champions with dominant home record. Wolverhampton in severe crisis: 1-4-16 record (7 points, dead... | Factors: CRITICAL INJURY CONCERN: Manchester City missing 6 players including defensive anchors John Stones, ... | Edge: Market price of $0.77 (76.9% probability) OVERVALUES Manchester City. The absence of THREE elite def...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
-      "data_sources": [
-        "Manchester City heavily favored as 2-time defending champions with dominant home record. Wolverhampton in severe crisis: 1-4-16 record (7 points",
-        "dead last in Premier League). City demolished Wolves 4-0 in season opener (Aug 2025). Match scheduled Jan 24",
-        "2026 at Etihad Stadium."
-      ],
-      "duration_ms": 10015,
-      "tokens_used": 1075,
-      "cost_usd": 0.0053750000000000004
-    },
-    {
-      "id": "4873f75d",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:30.986729",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Manchester United?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: No news from the last 48 hours available; match scheduled for Jan 25, 2026. Arsenal leads Premier League with 15-4-2 record (49 pts), Manchester Unite... | Factors: Arsenal strong home form at Emirates, superior league position and recent H2H win; no injury or sche... | Edge: Market at 61.2% may undervalue Arsenal's dominance (15W in 21 games), but lack of recent news/injury...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
-      "data_sources": [
-        "No news from the last 48 hours available; match scheduled for Jan 25",
-        "2026. Arsenal leads Premier League with 15-4-2 record (49 pts)",
-        "Manchester United at 8-8-5 (32 pts). Arsenal won last meeting 1-0 on Aug 17"
-      ],
-      "duration_ms": 4121,
-      "tokens_used": 710,
-      "cost_usd": 0.00355
-    },
-    {
-      "id": "d3db2a14",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:38.158958",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win against Levante?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: Real Madrid has multiple star players out due to injury including Kylian Mbapp\u00e9, Rodrygo, Ferland Mendy, and \u00c9der Milit\u00e3o; team has a Copa del Rey mat... | Factors: Real Madrid's key injuries to Mbapp\u00e9 (18 goals), Rodrygo, Milit\u00e3o, and Mendy weaken attack and defen... | Edge: Market at 78.1% overprices Real Madrid due to ignoring major injuries to star attackers Mbapp\u00e9 and R...",
-      "conclusion": "PASS",
-      "confidence": 0.75,
-      "data_sources": [
-        "Real Madrid has multiple star players out due to injury including Kylian Mbapp\u00e9",
-        "Rodrygo",
-        "Ferland Mendy"
-      ],
-      "duration_ms": 4797,
-      "tokens_used": 806,
-      "cost_usd": 0.004030000000000001
-    },
-    {
-      "id": "8e580212",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:44.324621",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments for the Jan 18 match; Atl\u00e9tico recent form LLWWD (losses to RMD and OSA,... | Factors: Atl\u00e9tico Madrid (11-5-3, 4th place) strong at home with no losses mentioned, top scorers J. \u00c1lvarez ... | Edge: Market at 67.6% ($0.68) aligns closely with standings/form (ATM favored -326 odds), but recent LL fo...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments for the Jan 18 match; Atl\u00e9tico recent form LLWWD (losses to RMD and OSA"
-      ],
-      "duration_ms": 6148,
-      "tokens_used": 789,
-      "cost_usd": 0.003945000000000001
-    },
-    {
-      "id": "dde1fd99",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:49.202997",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: No news from the last 48 hours found in search results; upcoming match on Jan 18, 2026, with Barcelona leading LaLiga at 16-1-2 (49 pts) and Real Soci... | Factors: Barcelona dominant league position, superior goal differential (+33 vs -3), top players healthy and ... | Edge: Market at 55.7% ($0.56) undervalues Barcelona's form (16-1-2 record, 5 straight wins) and historical...",
-      "conclusion": "BET",
-      "confidence": 0.78,
-      "data_sources": [
-        "No news from the last 48 hours found in search results; upcoming match on Jan 18",
-        "2026",
-        "with Barcelona leading LaLiga at 16-1-2 (49 pts) and Real Sociedad at 5-6-8 (21 pts)[2]. Barcelona on 5-game win streak (WWWWW)"
-      ],
-      "duration_ms": 4866,
-      "tokens_used": 786,
-      "cost_usd": 0.00393
-    },
-    {
-      "id": "d366f370",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:53:54.169440",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; Mallorca lost 2-1 to Rayo Vallecano on Jan 11 (old), Atletico recent fo... | Factors: Atletico 4th in LaLiga (11-5-3, 38 pts, home unbeaten), strong H2H (won last 4 vs Mallorca), Alvarez... | Edge: Market at 69.9% ($0.70) slightly undervalues Atletico's home strength and H2H dominance, but recent ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; Mallorca lost 2-1 to Rayo Vallecano on Jan 11 (old)"
-      ],
-      "duration_ms": 4955,
-      "tokens_used": 774,
-      "cost_usd": 0.00387
-    },
-    {
-      "id": "7bc018a8",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:54:01.915811",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Oviedo?",
-      "prompt_summary": "Evaluate YES @ $0.80",
-      "reasoning": "Parse error: I cannot provide the analysis in the requested JSON format because the search results provided do no...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 7729,
-      "tokens_used": 859,
-      "cost_usd": 0.004295
-    },
-    {
-      "id": "503c7d1e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T10:54:12.067780",
-      "action_type": "validate",
-      "market_question": "Will Nishesh Basavareddy win against George Loffhagen?",
-      "prompt_summary": "Evaluate YES @ $0.65 (65% implied)",
-      "reasoning": "News: Basavareddy advanced to the final qualifying round with a dramatic 4-6 6-4 7-6(13-11) win over Sebastian Ofner on January 14, 2026, capitalizing on Of... | Factors: Basavareddy (20yo American, recent momentum from comeback win, prior AO main draw experience) vs Lof... | Edge: Market at 65.1% slightly overprices Basavareddy given lack of recent form stats, no H2H, and Loffhag...",
-      "conclusion": "PASS",
-      "confidence": 0.55,
-      "data_sources": [
-        "Basavareddy advanced to the final qualifying round with a dramatic 4-6 6-4 7-6(13-11) win over Sebastian Ofner on January 14",
-        "2026",
-        "capitalizing on Ofner's premature celebration in the match tiebreak; he now faces Loffhagen later today at 23:00 UTC for Australian Open main draw entry[1][2][8]. Loffhagen beat Yoshihito Nishioka (who retired) in the second round[7]."
-      ],
-      "duration_ms": 5340,
-      "tokens_used": 801,
-      "cost_usd": 0.004005000000000001
-    },
-    {
-      "id": "7ab7d7ea",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:39:46.503342",
-      "action_type": "validate",
-      "market_question": "Will New York Knicks win against Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.75 (75% implied)",
-      "reasoning": "News: Knicks (25-14) won their last game 123-114 vs Trail Blazers; Kings (10-30) won 124-112 vs Lakers with DeMar DeRozan scoring 32 points. No injury repor... | Factors: Knicks strong record (25-14, 119.5 PPG, 5th in league), superior shooting/rebounding; Kings weak (10... | Edge: Market at 75.2% underprices Knicks' dominance over struggling Kings (20-game win gap, better stats a...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Knicks (25-14) won their last game 123-114 vs Trail Blazers; Kings (10-30) won 124-112 vs Lakers with DeMar DeRozan scoring 32 points. No injury reports in last 48 hours; Knicks on 1-game win streak",
-        "Kings recent win but poor season[1][2][4]."
-      ],
-      "duration_ms": 6651,
-      "tokens_used": 769,
-      "cost_usd": 0.0038450000000000003
-    },
-    {
-      "id": "be1a4225",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:39:53.450773",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win against Washington Wizards?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers are surging at 10-2 since Dec. 20, with wins including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts, James Harden 32 pts/10 ast); the... | Factors: Clippers hot streak (W3, 10-2 recently), home game, star players healthy and dominant; Wizards deple... | Edge: Market at 79% underprices Clippers' edge vs weakened Wizards (no Young, recent trade losses, 3-game ...",
-      "conclusion": "PASS",
-      "confidence": 0.78,
-      "data_sources": [
-        "Clippers are surging at 10-2 since Dec. 20",
-        "with wins including 117-109 over Hornets on Monday (Kawhi Leonard 35 pts",
-        "James Harden 32 pts/10 ast); they played 3 games in 4 days on recent East Coast trip but had one-day rest. Wizards (10-28) on 3-game slide"
-      ],
-      "duration_ms": 6638,
-      "tokens_used": 820,
-      "cost_usd": 0.0041
-    },
-    {
-      "id": "ba34dc2c",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:04.977346",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win against San Francisco 49ers?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: Seahawks (14-3, home favorite) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at 8pm ET; third meeting this season after Seahawks won Week 18 1... | Factors: Seahawks superior record (14-3 vs 12-5), home field (6-2 home), recent divisional win over 49ers; 49... | Edge: Market at 70.7% undervalues Seahawks due to 49ers' short prep/travel (third game in ~10 days), quest...",
-      "conclusion": "BET",
-      "confidence": 0.75,
-      "data_sources": [
-        "Seahawks (14-3",
-        "home favorite) host 49ers (12-5) in NFC Divisional playoff on Jan 17 at 8pm ET; third meeting this season after Seahawks won Week 18 13-3 in SF; 49ers on short week after wild-card win vs Eagles (Jan 11)",
-        "with travel to Seattle; injury reports show multiple 49ers players questionable (Trent Williams OT-hamstring"
-      ],
-      "duration_ms": 8758,
-      "tokens_used": 850,
-      "cost_usd": 0.00425
-    },
-    {
-      "id": "b0dbbca2",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:11.429242",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win against Houston Texans?",
-      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
-      "reasoning": "News: Patriots (14-3) host Texans (12-5) in AFC Divisional Playoffs on Jan 18 at Gillette Stadium; Patriots advanced with 16-3 wild card win over Chargers, ... | Factors: Patriots are top seed at home with strong 6-3 home record; both teams healthy per available updates,... | Edge: Market at 55.4% undervalues Patriots' home advantage and superior regular season record (14-3 vs 12-...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Patriots (14-3) host Texans (12-5) in AFC Divisional Playoffs on Jan 18 at Gillette Stadium; Patriots advanced with 16-3 wild card win over Chargers",
-        "Texans beat Steelers with dominant defense despite C.J. Stroud's 5 fumbles[1][2][3]."
-      ],
-      "duration_ms": 6387,
-      "tokens_used": 725,
-      "cost_usd": 0.003625
-    },
-    {
-      "id": "0a993297",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:17.240454",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win against Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Rams QB Matthew Stafford is nursing a throwing hand injury but expected to play; spread opened at Rams -4.5 but moved to -3.5 with betting support for... | Factors: Stafford's hand injury may limit Rams' passing attack; Bears strong home ATS (6-3), recent momentum ... | Edge: Market at 58.7% overprices Rams due to Stafford injury doubt and Bears' home trends/momentum; models...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Rams QB Matthew Stafford is nursing a throwing hand injury but expected to play; spread opened at Rams -4.5 but moved to -3.5 with betting support for Bears; Bears rallied from 18 down in Wild Card win hosting at Soldier Field.[1]"
-      ],
-      "duration_ms": 5790,
-      "tokens_used": 717,
-      "cost_usd": 0.003585
-    },
-    {
-      "id": "9673abc0",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:27.612588",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win against Burnley?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours found in search results; match details confirm Liverpool (4th, 10-5-6) host bottom-placed Burnley (19th, 3-4-14) on Jan... | Factors: Liverpool's superior stats (9.9 shots/5th, 1.52 goals/T8th, 549 passes/2nd) vs Burnley's poor metric... | Edge: Market at 73.4% may undervalue Liverpool's home dominance and stat edge over weak Burnley, but lack ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found in search results; match details confirm Liverpool (4th",
-        "10-5-6) host bottom-placed Burnley (19th",
-        "3-4-14) on Jan 17 at Anfield"
-      ],
-      "duration_ms": 5514,
-      "tokens_used": 737,
-      "cost_usd": 0.0036850000000000003
-    },
-    {
-      "id": "f6fbfdc5",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:38.597875",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: Riccardo Calafiori (Arsenal defender) ruled out for 'a few more weeks' with muscle injury. William Saliba doubtful. Nottingham Forest receiving Sangar... | Factors: Arsenal's defensive injury (Calafiori out), 28-point table gap, Arsenal's recent form (2W-1D), Fores... | Edge: Market at 57% appears slightly overpriced for Arsenal given Calafiori's absence weakens their defens...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Riccardo Calafiori (Arsenal defender) ruled out for 'a few more weeks' with muscle injury. William Saliba doubtful. Nottingham Forest receiving Sangare and Boly back from AFCON."
-      ],
-      "duration_ms": 10944,
-      "tokens_used": 1224,
-      "cost_usd": 0.0061200000000000004
-    },
-    {
-      "id": "0678de3d",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:50.685724",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win against Wolverhampton Wanderers?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: Manchester City heavily favored as dominant force in Premier League. Currently 2nd place with 43 points from 21 matches (13W-4D-4L). Wolverhampton in ... | Factors: MAJOR CONCERN - Manchester City has 6 unavailable players due to injury: John Stones, Josko Gvardiol... | Edge: Market price of $0.77 (76.9% implied probability) appears OVERVALUED. While City is clearly superior...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
-      "data_sources": [
-        "Manchester City heavily favored as dominant force in Premier League. Currently 2nd place with 43 points from 21 matches (13W-4D-4L). Wolverhampton in severe crisis: last place with only 7 points from 21 matches (1W-4D-16L)",
-        "-26 goal differential. City demolished Wolves 4-0 in season opener (Aug 2025). Match scheduled Jan 24",
-        "2026 at Etihad Stadium."
-      ],
-      "duration_ms": 12025,
-      "tokens_used": 1161,
-      "cost_usd": 0.005805
-    },
-    {
-      "id": "179845bf",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:40:57.176121",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win against Manchester United?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games, dominating recent H2H vs Man Utd (5 wins in last 6 PL matches); Willi... | Factors: Arsenal's **set-piece dominance**, home advantage at Emirates, superior league position and form; Ma... | Edge: Market at 61.2% overprices Arsenal due to ignoring Saliba doubt (15% deduction from ~67% baseline) a...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Arsenal lead the Premier League with 15-4-2 record and 49 points after 21 games",
-        "dominating recent H2H vs Man Utd (5 wins in last 6 PL matches); William Saliba doubtful after Chelsea match on Jan 14",
-        "while Man Utd at 8-8-5 with 32 points[1][2][3][7]"
-      ],
-      "duration_ms": 6058,
-      "tokens_used": 764,
-      "cost_usd": 0.0038200000000000005
-    },
-    {
-      "id": "d44250ca",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:04.813072",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win against Levante?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or form for Real Madrid vs Levante (match on Jan 17); Real Madrid plays Copa del Rey vs ... | Factors: Real Madrid leads LaLiga (14-3-2, 45 pts, 2nd place), strong H2H (16 wins vs Levante's 5), home at B... | Edge: Market at 78.1% may undervalue Real Madrid's dominance (H2H, form, home advantage), but lacks edge d...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or form for Real Madrid vs Levante (match on Jan 17); Real Madrid plays Copa del Rey vs Albacete today (Jan 14)"
-      ],
-      "duration_ms": 5037,
-      "tokens_used": 763,
-      "cost_usd": 0.0038150000000000002
-    },
-    {
-      "id": "7908f110",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:11.568332",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Alav\u00e9s?",
-      "prompt_summary": "Evaluate YES @ $0.68",
-      "reasoning": "Parse error: I cannot provide the JSON analysis you've requested because the search results lack critical informa...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 6641,
-      "tokens_used": 843,
-      "cost_usd": 0.004215
-    },
-    {
-      "id": "7aaa777d",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:19.204211",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: No specific news from the last 48 hours found; available data shows Barcelona leading LaLiga with 16-1-2 record (49 pts) vs Real Sociedad's 5-6-8 (21 ... | Factors: Barcelona's dominant form (WWWWW last 5, +33 GD), top players healthy and performing (Torres 11 goal... | Edge: Market at 55.7% ($0.56) undervalues Barcelona's superior record, form, and stats (2.79 goals/match v...",
-      "conclusion": "BET",
-      "confidence": 0.75,
-      "data_sources": [
-        "No specific news from the last 48 hours found; available data shows Barcelona leading LaLiga with 16-1-2 record (49 pts) vs Real Sociedad's 5-6-8 (21 pts)",
-        "upcoming match on Jan 18",
-        "2026 at Reale Arena[2][3]."
-      ],
-      "duration_ms": 7591,
-      "tokens_used": 781,
-      "cost_usd": 0.0039050000000000005
-    },
-    {
-      "id": "f30b6dd9",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:24.894310",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win against Mallorca?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or major developments; Atl\u00e9tico Madrid recently played Supercopa semifinal vs Real Madri... | Factors: Atl\u00e9tico Madrid (4th, 11-5-3 form LLWWD) hosts at home with strong record vs Mallorca (5 straight wi... | Edge: Market at 69.9% ($0.70) slightly undervalues Atl\u00e9tico's home dominance and H2H edge, but recent LLWW...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or major developments; Atl\u00e9tico Madrid recently played Supercopa semifinal vs Real Madrid on Jan 8 (result not specified)"
-      ],
-      "duration_ms": 5540,
-      "tokens_used": 774,
-      "cost_usd": 0.00387
-    },
-    {
-      "id": "e5cdf4c7",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:31.084403",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win against Oviedo?",
-      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
-      "reasoning": "News: No news from the last 48 hours found; available previews show Barcelona unbeaten at home, leading La Liga with 16-1-2 record, 53 GF/26 GA; Oviedo 20th... | Factors: Barcelona's dominant home form (unbeaten), superior stats (2.75 goals/game vs Oviedo's 0.55), top sc... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's overwhelming dominance (1st place +33 GD vs Oviedo's...",
-      "conclusion": "BET",
-      "confidence": 0.82,
-      "data_sources": [
-        "No news from the last 48 hours found; available previews show Barcelona unbeaten at home",
-        "leading La Liga with 16-1-2 record",
-        "53 GF/26 GA; Oviedo 20th with 2-7-11"
-      ],
-      "duration_ms": 6089,
-      "tokens_used": 797,
-      "cost_usd": 0.003985000000000001
-    },
-    {
-      "id": "2cd5b0cf",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T11:41:41.658934",
-      "action_type": "validate",
-      "market_question": "Will Nishesh Basavareddy win against George Loffhagen?",
-      "prompt_summary": "Evaluate YES @ $0.64 (64% implied)",
-      "reasoning": "News: Nishesh Basavareddy won a dramatic qualifying match against Sebastian Ofner on January 13-14, 2026, coming back from 1-7 in the tiebreak after Ofner's... | Factors: Basavareddy (ATP 239) shows strong mental toughness in comeback win; Loffhagen (ATP 211) higher rank... | Edge: Market at 64.1% overprices Basavareddy given Loffhagen's higher ranking and solid form despite retir...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Nishesh Basavareddy won a dramatic qualifying match against Sebastian Ofner on January 13-14",
-        "2026",
-        "coming back from 1-7 in the tiebreak after Ofner's premature celebration to win 4-6 6-4 7-6(13-11)"
-      ],
-      "duration_ms": 5293,
-      "tokens_used": 832,
-      "cost_usd": 0.0041600000000000005
-    },
-    {
-      "id": "df4401bf",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:20:48.100125",
-      "action_type": "validate",
-      "market_question": "Will New York Knicks win New York Knicks vs Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.75 (75% implied)",
-      "reasoning": "News: Knicks (25-14) won 123-114 vs Trail Blazers on Sunday, but just 2-5 in last 7; Kings (10-30) won back-to-back games (111-98 vs Rockets, 124-112 vs Lak... | Factors: Knicks strong record (25-14, 119.5 PPG, 5th), won 4 straight vs Kings, but 1-1 on 4-game road trip a... | Edge: Market at 75.4% overprices Knicks given their 2-5 recent slump (cold momentum), road game late in tr...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Knicks (25-14) won 123-114 vs Trail Blazers on Sunday",
-        "but just 2-5 in last 7; Kings (10-30) won back-to-back games (111-98 vs Rockets",
-        "124-112 vs Lakers) led by Malik Monk's 26 pts vs Lakers and DeMar DeRozan's 32 pts"
-      ],
-      "duration_ms": 5951,
-      "tokens_used": 838,
-      "cost_usd": 0.00419
-    },
-    {
-      "id": "9fc8af1d",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:20:52.811762",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win Washington Wizards vs Los Angeles Clippers?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers (16-23, 11th West) on 3-game win streak (wins over CHA, DET, BKN); Wizards (10-28, 14th East) on 3-game losing streak (losses to PHX, NOP, PH... | Factors: Clippers healthy with strong recent form at home (10-9); Wizards struggling (4-15 away, poor defense... | Edge: Market at 79% undervalues Clippers' momentum (W3), home edge, and Wizards' woes (L3, key injury, bot...",
-      "conclusion": "PASS",
-      "confidence": 0.82,
-      "data_sources": [
-        "Clippers (16-23",
-        "11th West) on 3-game win streak (wins over CHA",
-        "DET"
-      ],
-      "duration_ms": 4698,
-      "tokens_used": 759,
-      "cost_usd": 0.003795
-    },
-    {
-      "id": "63260552",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:00.530415",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win San Francisco 49ers vs Seattle Seahawks?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: NFL confirmed Seahawks host 49ers in NFC Divisional Round on Jan 17 at 8pm ET in Seattle; both teams have extensive injury reports with multiple quest... | Factors: Seahawks (14-3) are home favorites (-7.5 spread, -375 ML) with strong record (6-2 home); recent 13-3... | Edge: Market at 70.7% may undervalue Seahawks' home advantage, superior record, and recent dominance over ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "NFL confirmed Seahawks host 49ers in NFC Divisional Round on Jan 17 at 8pm ET in Seattle; both teams have extensive injury reports with multiple questionables (Seahawks 11 players",
-        "49ers 10); recent Week 18 matchup won by Seahawks 13-3 in SF; 49ers on short week after wild-card win over Eagles[1][2][4][5]."
-      ],
-      "duration_ms": 5302,
-      "tokens_used": 822,
-      "cost_usd": 0.00411
-    },
-    {
-      "id": "c611183a",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:09.928892",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win Houston Texans vs New England Patriots?",
-      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
-      "reasoning": "News: Patriots defeated Chargers 16-3 in Wild Card round; Texans defeated Steelers in Wild Card; both teams healthy and rested heading into divisional round... | Factors: Patriots #2 seed vs #5 seed Texans; home field advantage; Patriots superior regular season record an... | Edge: Market at 55.4% appears slightly undervaluing Patriots given seed advantage, home field, and strong ...",
-      "conclusion": "PASS",
-      "confidence": 0.55,
-      "data_sources": [
-        "Patriots defeated Chargers 16-3 in Wild Card round; Texans defeated Steelers in Wild Card; both teams healthy and rested heading into divisional round"
-      ],
-      "duration_ms": 9388,
-      "tokens_used": 1104,
-      "cost_usd": 0.005520000000000001
-    },
-    {
-      "id": "c8b9751f",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:15.176451",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win Los Angeles Rams vs Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Rams advanced with a close 34-31 wild-card win over Panthers on Jan 10; Bears won 31-27 over Packers on Jan 11 and host at Soldier Field on Jan 18. Ga... | Factors: Rams on road after close playoff win (12-5 record, strong offense 30.5 PPG); Bears home (11-6, 6-2 h... | Edge: Market at 58.7% overprices Rams due to road game vs rested home favorite Bears (62% per ESPN), recen...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Rams advanced with a close 34-31 wild-card win over Panthers on Jan 10; Bears won 31-27 over Packers on Jan 11 and host at Soldier Field on Jan 18. Game opens with Bears -4.5 favorites (62% implied win prob for CHI); ESPN odds show Bears -198 ML[1][2]."
-      ],
-      "duration_ms": 5242,
-      "tokens_used": 768,
-      "cost_usd": 0.0038400000000000005
-    },
-    {
-      "id": "97951ec9",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:25.770434",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win Burnley vs Liverpool?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours found; match scheduled for Jan 17, 2026 at Anfield. Liverpool currently 4th (10-5-6, 35 pts), Burnley 19th (3-4-14, 13 ... | Factors: Liverpool's strong H2H dominance (13 wins, last 6 straight vs Burnley); home at Anfield; superior st... | Edge: Market at 73.4% aligns closely with estimated 74% true prob given Liverpool's home edge and H2H but ...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; match scheduled for Jan 17",
-        "2026 at Anfield. Liverpool currently 4th (10-5-6",
-        "35 pts)"
-      ],
-      "duration_ms": 5824,
-      "tokens_used": 856,
-      "cost_usd": 0.00428
-    },
-    {
-      "id": "643d9e4f",
-      "agent": "copy",
-      "timestamp": "2026-01-14T12:21:27.856578",
-      "action_type": "discover",
-      "market_question": "Top Polymarket Traders Discovery",
-      "prompt_summary": "Search for top performing traders on leaderboard",
-      "reasoning": "Found 15 traders from LLM search",
-      "conclusion": "FOUND_15",
-      "confidence": 0.8,
-      "data_sources": [
-        "Polymarket Leaderboard",
-        "Twitter/X",
-        "News"
-      ],
-      "duration_ms": 6858,
-      "tokens_used": 896,
-      "cost_usd": 0.0044800000000000005
-    },
-    {
-      "id": "5d01e6a6",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:30.940748",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win Arsenal vs Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; available info shows Arsenal leading the Premier League with 15-4-2 rec... | Factors: Arsenal's superior league position and form (15W in 21 games) vs Forest's poor standing and LLLLW st... | Edge: Market at 57% undervalues Arsenal's dominant form and table lead, but away vs improving Forest (rece...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; available info shows Arsenal leading the Premier League with 15-4-2 record (49 pts)"
-      ],
-      "duration_ms": 5163,
-      "tokens_used": 781,
-      "cost_usd": 0.0039050000000000005
-    },
-    {
-      "id": "cd3831f9",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:35.821347",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win Wolverhampton Wanderers vs Manchester City?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: Manchester City have multiple key defenders out for the January 24, 2026 match: John Stones, Josko Gvardiol, Ruben Dias (injuries); Wolves have minor ... | Factors: City's injury crisis in defense (Stones, Gvardiol, Dias out) weakens favorite; home at Etihad vs bot... | Edge: Market at 76.9% overprices City due to ignoring defensive injuries to multiple starters; true prob l...",
-      "conclusion": "PASS",
-      "confidence": 0.75,
-      "data_sources": [
-        "Manchester City have multiple key defenders out for the January 24",
-        "2026 match: John Stones",
-        "Josko Gvardiol"
-      ],
-      "duration_ms": 4874,
-      "tokens_used": 773,
-      "cost_usd": 0.0038650000000000004
-    },
-    {
-      "id": "264643cd",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:40.020037",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win Manchester United vs Arsenal?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: No news from the last 48 hours available; match scheduled for Jan 25, 2026 at Emirates Stadium. Arsenal leads Premier League with 15-4-2 record (49 pt... | Factors: Arsenal strong home form at Emirates, superior league position (+26 GD vs +4), unbeaten recent H2H; ... | Edge: Market at 61.2% may undervalue Arsenal's dominance (top table, home advantage, H2H edge), but lack o...",
-      "conclusion": "PASS",
-      "confidence": 0.6,
-      "data_sources": [
-        "No news from the last 48 hours available; match scheduled for Jan 25",
-        "2026 at Emirates Stadium. Arsenal leads Premier League with 15-4-2 record (49 pts)",
-        "Manchester United at 8-8-5 (32 pts). Recent H2H: Arsenal unbeaten vs United in last 5 (W3 D2).[1][2]"
-      ],
-      "duration_ms": 4188,
-      "tokens_used": 720,
-      "cost_usd": 0.0036000000000000003
-    },
-    {
-      "id": "c59f2cbc",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:54.245736",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win Levante vs Real Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No injury reports or recent news developments found in search results. Match scheduled for January 17, 2026.... | Factors: Real Madrid 2nd place (45 pts) vs Levante 18th place (14 pts); 31-point gap; Mbapp\u00e9 in form (18 goal... | Edge: Market at 78.1% is reasonably efficient given the massive quality gap. True probability ~83% offers ...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No injury reports or recent news developments found in search results. Match scheduled for January 17",
-        "2026."
-      ],
-      "duration_ms": 11841,
-      "tokens_used": 1324,
-      "cost_usd": 0.006620000000000001
-    },
-    {
-      "id": "edc4ff41",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:21:59.048521",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win Alav\u00e9s vs Atl\u00e9tico Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13, 1-2 ho... | Factors: Atl\u00e9tico Madrid 4th in LaLiga (11-5-3, 38 pts), strong home record (unbeaten per sources), top score... | Edge: Market at 67.6% ($0.68) slightly underprices Atl\u00e9tico's home strength and superior form vs strugglin...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; Atl\u00e9tico Madrid recent form LLWWD with a 1-0 away win on Jan 13"
-      ],
-      "duration_ms": 4792,
-      "tokens_used": 830,
-      "cost_usd": 0.00415
-    },
-    {
-      "id": "c53e8ea1",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:22:03.841146",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win Barcelona vs Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: Barcelona top La Liga with 16-1-2 record and 49 points, on a 9-match league win streak; Real Sociedad 11th with 5-6-8 record, on 5-game unbeaten run i... | Factors: Barcelona's dominant form (9 straight La Liga wins), superior record (16W-1D-2L), historical edge (1... | Edge: Market at 55.7% undervalues Barcelona's form and stats leadership, but Real Sociedad's recent unbeat...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Barcelona top La Liga with 16-1-2 record and 49 points",
-        "on a 9-match league win streak; Real Sociedad 11th with 5-6-8 record",
-        "on 5-game unbeaten run including recent league win[2][3]. No injury reports or back-to-back mentions in last 48 hours news."
-      ],
-      "duration_ms": 4781,
-      "tokens_used": 746,
-      "cost_usd": 0.0037300000000000002
-    },
-    {
-      "id": "3604d41e",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:22:08.698947",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win Mallorca vs Atl\u00e9tico Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No news from the last 48 hours found; most recent data shows a 1-1 draw between the teams on Sep 21, 2025, with Mallorca's Muriqi scoring a late equal... | Factors: Atl\u00e9tico Madrid (11-5-3, 2nd in LaLiga) hosts at home with strong record but recent LLWWD form inclu... | Edge: Market at 69.9% ($0.70) may undervalue Atl\u00e9tico's home strength and superior record (11W vs 4W), but...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found; most recent data shows a 1-1 draw between the teams on Sep 21",
-        "2025",
-        "with Mallorca's Muriqi scoring a late equalizer after Atl\u00e9tico took the lead[3][4]. Atl\u00e9tico's form is LLWWD (2 losses in last 5)"
-      ],
-      "duration_ms": 4847,
-      "tokens_used": 807,
-      "cost_usd": 0.004035
-    },
-    {
-      "id": "b5a1ba35",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:22:15.720783",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win Oviedo vs Barcelona?",
-      "prompt_summary": "Evaluate YES @ $0.80",
-      "reasoning": "Parse error: I cannot provide the analysis in the requested JSON format because the search results provided do no...",
-      "conclusion": "ERROR",
-      "confidence": 0.0,
-      "data_sources": [],
-      "duration_ms": 7010,
-      "tokens_used": 874,
-      "cost_usd": 0.004370000000000001
-    },
-    {
-      "id": "9fd80b8c",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T12:22:25.810277",
-      "action_type": "validate",
-      "market_question": "Will Nishesh Basavareddy win Nishesh Basavareddy vs George Loffhagen?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: Match is Australian Open Qualifying final round on Jan 14, 2026; Basavareddy advanced by benefiting from Ofner's scoreboard stumble (walkover?)[7][8];... | Factors: Loffhagen ranked ATP 211 with stronger 2025 record (50-18 overall, 27-8 hard)[2]; Basavareddy ATP 23... | Edge: Market at 68.4% overprices Basavareddy given Loffhagen's higher ranking, superior recent form (50-18...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Match is Australian Open Qualifying final round on Jan 14",
-        "2026; Basavareddy advanced by benefiting from Ofner's scoreboard stumble (walkover?)[7][8]; Loffhagen beat Nishioka 6-3 6-4 in Q2[7]; no other news in last 48 hours[1][2][6]."
-      ],
-      "duration_ms": 5321,
-      "tokens_used": 808,
-      "cost_usd": 0.00404
-    },
-    {
-      "id": "db9904da",
-      "agent": "safe",
-      "timestamp": "2026-01-14T13:00:34.056099",
-      "action_type": "logic_audit",
-      "market_question": "Will Trump win the 2020 U.S. presidential election",
-      "prompt_summary": "Audit No @ 0.999999956356965",
-      "reasoning": "The researcher's conclusion is sound based on the definitive outcome of the 2020 election, leaving no room for Trump's victory.",
-      "conclusion": "PASS",
-      "confidence": 0.95,
-      "data_sources": [
-        "Perplexity News",
-        "OpenAI Logic Audit"
-      ],
-      "duration_ms": 2606,
+      "duration_ms": 0,
       "tokens_used": 0,
       "cost_usd": 0.0
     },
     {
-      "id": "ac134965",
+      "id": "570d49b1",
       "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:22:32.934516",
+      "timestamp": "2026-01-15T14:06:32.121301",
       "action_type": "validate",
-      "market_question": "Will New York Knicks win New York Knicks vs Sacramento Kings?",
-      "prompt_summary": "Evaluate YES @ $0.75 (75% implied)",
-      "reasoning": "News: Knicks (25-14) won their last game 123-114 vs Trail Blazers, averaging 119.5 PPG (5th in NBA); Kings (10-30) won 124-112 vs Lakers with DeMar DeRozan ... | Factors: Knicks strong offense (47.3% FG, 38.3% 3PT) vs Kings weak defense (49.5% opp FG allowed, 30th); King... | Edge: Market at 75.4% underprices Knicks due to their superior record, scoring, and matchup vs struggling ...",
-      "conclusion": "PASS",
-      "confidence": 0.78,
-      "data_sources": [
-        "Knicks (25-14) won their last game 123-114 vs Trail Blazers",
-        "averaging 119.5 PPG (5th in NBA); Kings (10-30) won 124-112 vs Lakers with DeMar DeRozan scoring 32",
-        "but rank last in scoring (110.2 PPG) and poor defensively (121.2 PPG allowed"
-      ],
-      "duration_ms": 4139,
-      "tokens_used": 777,
-      "cost_usd": 0.0038850000000000004
-    },
-    {
-      "id": "31813cd2",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:22:37.733077",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Clippers win Washington Wizards vs Los Angeles Clippers?",
-      "prompt_summary": "Evaluate YES @ $0.79 (79% implied)",
-      "reasoning": "News: Clippers are surging at 10-2 since Dec. 20, with wins in last 3 games including 117-109 over Hornets (Leonard 35 pts, Harden 32 pts/10 ast); Wizards o... | Factors: Clippers healthy with Leonard (32.7 PPG last 12) and Harden dominating, home at Intuit Dome after 1-... | Edge: Market at 79% underprices Clippers' edge over depleted Wizards (no key injuries for LAC, hot streak ...",
-      "conclusion": "PASS",
-      "confidence": 0.82,
-      "data_sources": [
-        "Clippers are surging at 10-2 since Dec. 20",
-        "with wins in last 3 games including 117-109 over Hornets (Leonard 35 pts",
-        "Harden 32 pts/10 ast); Wizards on 3-game losing streak (10-28 record)"
-      ],
-      "duration_ms": 4790,
-      "tokens_used": 790,
-      "cost_usd": 0.00395
-    },
-    {
-      "id": "e0e9069f",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:22:45.245721",
-      "action_type": "validate",
-      "market_question": "Will Seattle Seahawks win San Francisco 49ers vs Seattle Seahawks?",
-      "prompt_summary": "Evaluate YES @ $0.71 (71% implied)",
-      "reasoning": "News: NFL confirmed Seahawks host 49ers in NFC Divisional Round on Jan 17 at 8pm ET in Seattle; Seahawks (14-3, top seed) had bye, 49ers (12-5) won wild car... | Factors: Seahawks home field, rest advantage (bye vs 49ers short week/travel), superior record (14-3 vs 12-5)... | Edge: Market at 70.7% undervalues Seahawks' rest/home/rest edge and record, but 49ers H2H success and mutu...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "NFL confirmed Seahawks host 49ers in NFC Divisional Round on Jan 17 at 8pm ET in Seattle; Seahawks (14-3",
-        "top seed) had bye",
-        "49ers (12-5) won wild card 23-19 at Philly last Sunday; both teams have multiple injuries (Seahawks 11 players"
-      ],
-      "duration_ms": 5148,
-      "tokens_used": 819,
-      "cost_usd": 0.0040950000000000005
-    },
-    {
-      "id": "9224ec21",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:22:48.822429",
-      "action_type": "validate",
-      "market_question": "Will New England Patriots win Houston Texans vs New England Patriots?",
-      "prompt_summary": "Evaluate YES @ $0.55 (55% implied)",
-      "reasoning": "News: Patriots (14-3) host Texans (12-5) in AFC Divisional playoffs on Jan 18 at Gillette Stadium; Patriots beat Chargers 16-3 in Wild Card; Texans beat Ste... | Factors: Patriots have superior record, home advantage, stronger offense (28.8 PPG vs 23.8), better defense (... | Edge: Market at 55.4% undervalues Patriots' home dominance, record, and Texans' injury risk to Collins, cr...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "Patriots (14-3) host Texans (12-5) in AFC Divisional playoffs on Jan 18 at Gillette Stadium; Patriots beat Chargers 16-3 in Wild Card; Texans beat Steelers 30-6; Texans' Nico Collins suffered concussion in last game",
-        "uncertain to pass protocol in 6 days[2][3][4]."
-      ],
-      "duration_ms": 3569,
-      "tokens_used": 735,
-      "cost_usd": 0.0036750000000000003
-    },
-    {
-      "id": "e9990394",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:22:52.752802",
-      "action_type": "validate",
-      "market_question": "Will Los Angeles Rams win Los Angeles Rams vs Chicago Bears?",
-      "prompt_summary": "Evaluate YES @ $0.59 (59% implied)",
-      "reasoning": "News: Rams (12-5) advanced with a close 34-31 wild-card win over Panthers; Bears (11-6) won 31-27 over Packers, their first playoff victory in 15 years. Gam... | Factors: Rams on road after close win, strong offense (30.5 PPG, Stafford with Puka Nacua/Devonte Adams) but ... | Edge: Market at 58.7% overprices Rams as underdogs (+164, Bears -198), with Bears' home advantage, form, a...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "Rams (12-5) advanced with a close 34-31 wild-card win over Panthers; Bears (11-6) won 31-27 over Packers",
-        "their first playoff victory in 15 years. Game set for Jan 18",
-        "2026 at Soldier Field"
-      ],
-      "duration_ms": 3925,
-      "tokens_used": 761,
-      "cost_usd": 0.0038050000000000002
-    },
-    {
-      "id": "6b33f60b",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:02.332880",
-      "action_type": "validate",
-      "market_question": "Will Liverpool win Burnley vs Liverpool?",
-      "prompt_summary": "Evaluate YES @ $0.73 (73% implied)",
-      "reasoning": "News: No news from the last 48 hours found in search results; match details confirm Liverpool (4th, 10-5-6) host bottom-placed Burnley (19th, 3-4-14) on Jan... | Factors: Liverpool's strong home form at Anfield, historical dominance (won last 6 H2H), superior stats (9.9 ... | Edge: Market at 73.4% is fairly priced given Liverpool's mid-table position, recent draws, and lack of rec...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No news from the last 48 hours found in search results; match details confirm Liverpool (4th",
-        "10-5-6) host bottom-placed Burnley (19th",
-        "3-4-14) on Jan 17 at Anfield"
-      ],
-      "duration_ms": 4767,
-      "tokens_used": 759,
-      "cost_usd": 0.003795
-    },
-    {
-      "id": "be7429be",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:06.006754",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win Arsenal vs Nottingham Forest?",
-      "prompt_summary": "Evaluate YES @ $0.57 (57% implied)",
-      "reasoning": "News: No specific news from the last 48 hours found in search results; match details confirm Nottingham Forest (17th, 6-3-12) vs Arsenal (1st, 15-4-2) on Ja... | Factors: Arsenal lead PL with 49 pts, strong away H2H (3-0 win Sep 2025); Forest poor form (5 losses last 6),... | Edge: Market at 57% undervalues Arsenal's top form and H2H dominance vs Forest's struggles, but lack of re...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours found in search results; match details confirm Nottingham Forest (17th",
-        "6-3-12) vs Arsenal (1st",
-        "15-4-2) on Jan 17 at City Ground. Forest recent form LLLLW"
-      ],
-      "duration_ms": 3666,
-      "tokens_used": 701,
-      "cost_usd": 0.0035050000000000003
-    },
-    {
-      "id": "8e141f25",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:10.688576",
-      "action_type": "validate",
-      "market_question": "Will Manchester City win Wolverhampton Wanderers vs Manchester City?",
-      "prompt_summary": "Evaluate YES @ $0.77 (77% implied)",
-      "reasoning": "News: Manchester City have multiple key defenders out including John Stones, Josko Gvardiol, Ruben Dias (all injuries), plus Mateo Kovacic, Oscar Bobb, and ... | Factors: City's injury crisis in defense (Stones, Gvardiol, Dias out) deducts 15% win prob; home at Etihad bu... | Edge: Market at 76.9% overprices City due to ignoring multiple star defender injuries weakening backline v...",
-      "conclusion": "PASS",
-      "confidence": 0.75,
-      "data_sources": [
-        "Manchester City have multiple key defenders out including John Stones",
-        "Josko Gvardiol",
-        "Ruben Dias (all injuries)"
-      ],
-      "duration_ms": 4672,
-      "tokens_used": 779,
-      "cost_usd": 0.0038950000000000005
-    },
-    {
-      "id": "94a2253b",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:14.513413",
-      "action_type": "validate",
-      "market_question": "Will Arsenal win Manchester United vs Arsenal?",
-      "prompt_summary": "Evaluate YES @ $0.61 (61% implied)",
-      "reasoning": "News: No news from the last 48 hours available; match scheduled for Jan 25, 2026 at Emirates Stadium. Arsenal leads Premier League with 15-4-2 record (49 pt... | Factors: Arsenal strong home form at Emirates, superior league position and goal difference (+26 vs +4), rece... | Edge: Market at 61.2% may undervalue Arsenal's home advantage and form, but lack of recent news (within 48...",
-      "conclusion": "PASS",
-      "confidence": 0.6,
-      "data_sources": [
-        "No news from the last 48 hours available; match scheduled for Jan 25",
-        "2026 at Emirates Stadium. Arsenal leads Premier League with 15-4-2 record (49 pts)",
-        "Manchester United at 8-8-5 (32 pts). Arsenal won last meeting 1-0 on Aug 17"
-      ],
-      "duration_ms": 3820,
-      "tokens_used": 743,
-      "cost_usd": 0.0037150000000000004
-    },
-    {
-      "id": "0b0d96f2",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:20.996316",
-      "action_type": "validate",
-      "market_question": "Will Real Madrid win Levante vs Real Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.78 (78% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or developments; match previews confirm Real Madrid (2nd in LaLiga, 14-3-2, 45 pts) host... | Factors: Real Madrid's strong home form and superior league position vs Levante's poor record; lack of recent... | Edge: Market at 78.1% undervalues Real Madrid's quality edge over weak Levante, but no recent news on inju...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or developments; match previews confirm Real Madrid (2nd in LaLiga"
-      ],
-      "duration_ms": 4098,
-      "tokens_used": 717,
-      "cost_usd": 0.003585
-    },
-    {
-      "id": "ed97fc81",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:25.099154",
-      "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win Alav\u00e9s vs Atl\u00e9tico Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.68 (68% implied)",
-      "reasoning": "News: No specific news from the last 48 hours found on injuries, lineups, or developments for the January 18, 2026 match; available data shows Atl\u00e9tico Madr... | Factors: Atl\u00e9tico Madrid's superior league position and home advantage at Riyadh Air Metropolitano; top score... | Edge: Market at 67.6% aligns closely with Sports Mole's 65.5% model; no clear mispricing as Atl\u00e9tico is st...",
-      "conclusion": "PASS",
-      "confidence": 0.65,
-      "data_sources": [
-        "No specific news from the last 48 hours found on injuries",
-        "lineups",
-        "or developments for the January 18"
-      ],
-      "duration_ms": 4098,
-      "tokens_used": 782,
-      "cost_usd": 0.00391
-    },
-    {
-      "id": "ed66e7e8",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:32.112771",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win Barcelona vs Real Sociedad?",
-      "prompt_summary": "Evaluate YES @ $0.56 (56% implied)",
-      "reasoning": "News: Barcelona top La Liga with 16-1-2 record and 49 points, four points ahead of Real Madrid; won Spanish Super Cup 3-2 vs Real Madrid on Jan 11; confirme... | Factors: Barcelona on 9-game La Liga win streak (WWWWW form), dominant H2H (117 wins vs 38); key players Lewa... | Edge: Market at 55.7% undervalues Barcelona's elite form, table lead, and H2H dominance vs Sociedad's mid-...",
+      "market_question": "Will Charlton Athletic FC vs. Portsmouth FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
       "conclusion": "BET",
-      "confidence": 0.82,
+      "confidence": 1.0,
       "data_sources": [
-        "Barcelona top La Liga with 16-1-2 record and 49 points",
-        "four points ahead of Real Madrid; won Spanish Super Cup 3-2 vs Real Madrid on Jan 11; confirmed Joao Cancelo signing; game on Jan 18 at Real Sociedad's Anoeta",
-        "where Sociedad beat Barca 1-0 last season[1][2][6]"
+        "Gamma API",
+        "Pattern Match"
       ],
-      "duration_ms": 7009,
-      "tokens_used": 798,
-      "cost_usd": 0.0039900000000000005
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
     },
     {
-      "id": "d17f3b6c",
+      "id": "e8403705",
       "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:37.029382",
+      "timestamp": "2026-01-15T14:06:32.196909",
       "action_type": "validate",
-      "market_question": "Will Atl\u00e9tico Madrid win Mallorca vs Atl\u00e9tico Madrid?",
-      "prompt_summary": "Evaluate YES @ $0.70 (70% implied)",
-      "reasoning": "News: No news from the last 48 hours found; most recent data shows Atl\u00e9tico Madrid form LLWWD (2 losses in last 5), Mallorca DWDLL (also 2 losses in last 5)... | Factors: Atl\u00e9tico Madrid strong home record and 2nd in LaLiga (11W-5D-3L, 38 pts) vs Mallorca 15th (4W-6D-9L,... | Edge: Market at 69.9% may undervalue Atl\u00e9tico's home strength and superior form/standings, but recent loss...",
-      "conclusion": "PASS",
-      "confidence": 0.68,
-      "data_sources": [
-        "No news from the last 48 hours found; most recent data shows Atl\u00e9tico Madrid form LLWWD (2 losses in last 5)",
-        "Mallorca DWDLL (also 2 losses in last 5)",
-        "and a 1-1 draw between them on Sep 21"
-      ],
-      "duration_ms": 4496,
-      "tokens_used": 746,
-      "cost_usd": 0.0037300000000000002
-    },
-    {
-      "id": "b652ccfe",
-      "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:41.076206",
-      "action_type": "validate",
-      "market_question": "Will Barcelona win Oviedo vs Barcelona?",
-      "prompt_summary": "Evaluate YES @ $0.80 (80% implied)",
-      "reasoning": "News: No specific news from the last 48 hours on injuries, lineups, or incidents; latest mentions include Joao Cancelo joining Barcelona on loan and Oviedo ... | Factors: Barcelona leads La Liga with 16-1-3 record, 55 GF/26 GA, dominant stats (67% possession, 2.75 goals/... | Edge: Market at 79.8% ($0.80) undervalues Barcelona's dominance (1st place, unbeaten home, superior stats/...",
+      "market_question": "Will Portsmouth FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
       "conclusion": "BET",
-      "confidence": 0.82,
+      "confidence": 1.0,
       "data_sources": [
-        "No specific news from the last 48 hours on injuries",
-        "lineups",
-        "or incidents; latest mentions include Joao Cancelo joining Barcelona on loan and Oviedo players like Haissem Hassan and Alex Fores active in recent draw vs Betis[1]. Barcelona unbeaten at home and on 5-game win streak[1][5]."
+        "Gamma API",
+        "Pattern Match"
       ],
-      "duration_ms": 4040,
-      "tokens_used": 777,
-      "cost_usd": 0.0038850000000000004
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
     },
     {
-      "id": "c639a4ce",
+      "id": "6bfa9fc7",
       "agent": "sports_trader",
-      "timestamp": "2026-01-14T13:23:53.510791",
+      "timestamp": "2026-01-15T14:06:32.258576",
       "action_type": "validate",
-      "market_question": "Will Nishesh Basavareddy win Nishesh Basavareddy vs George Loffhagen?",
-      "prompt_summary": "Evaluate YES @ $0.63 (63% implied)",
-      "reasoning": "News: Basavareddy defeated Sebastian Ofner on January 13, 2026 (6-4, 6-4) in Australian Open qualifying to advance to this final qualifying round. Loffhagen... | Factors: Basavareddy has superior recent form (3-1 record in 2026 on hard courts) compared to Loffhagen (2-1 ... | Edge: Market prices Basavareddy at 63.2% win probability, but recent form data shows both players are even...",
-      "conclusion": "PASS",
-      "confidence": 0.62,
+      "market_question": "Will Blackburn Rovers FC vs. Sheffield Wednesday FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
       "data_sources": [
-        "Basavareddy defeated Sebastian Ofner on January 13",
-        "2026 (6-4",
-        "6-4) in Australian Open qualifying to advance to this final qualifying round. Loffhagen defeated Yoshihito Nishioka on January 13"
+        "Gamma API",
+        "Pattern Match"
       ],
-      "duration_ms": 7119,
-      "tokens_used": 927,
-      "cost_usd": 0.004635
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "21a05889",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.331524",
+      "action_type": "validate",
+      "market_question": "Will Sheffield Wednesday FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "7179d36c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.413402",
+      "action_type": "validate",
+      "market_question": "Will the Steam Machine cost $700 or more at release?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "94ff36ae",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.503712",
+      "action_type": "validate",
+      "market_question": "Saint Joseph's Hawks vs. Syracuse Orange",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "db9a56ef",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.577273",
+      "action_type": "validate",
+      "market_question": "Will SBV Excelsior win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "18a590cb",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.656398",
+      "action_type": "validate",
+      "market_question": "South Carolina State Bulldogs vs. South Dakota Coyotes",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "2f8c6126",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.726007",
+      "action_type": "validate",
+      "market_question": "Will Al Taawoun Saudi Club win on 2025-12-19?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "9aa13688",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.797918",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "31f33a62",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.870072",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club vs. NEOM SC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f3fa1883",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:32.946273",
+      "action_type": "validate",
+      "market_question": "Will NEOM SC win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "cb3ba91b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.031126",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "24f0553a",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.103710",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club vs. Al Kholood Saudi Club end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "fbe42305",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.192894",
+      "action_type": "validate",
+      "market_question": "Will Al Kholood Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "77ec96a0",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.294410",
+      "action_type": "validate",
+      "market_question": "Will Al Najmah Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "bd9204af",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.364072",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "5c6ef1f3",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.440572",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "2305f2d9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.515239",
+      "action_type": "validate",
+      "market_question": "Spread: Charlton Athletic FC (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d047b9fb",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.586021",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "11437b2b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.648541",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "62c99af5",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.720863",
+      "action_type": "validate",
+      "market_question": "Will Levante UD win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "daa3eea7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.799166",
+      "action_type": "validate",
+      "market_question": "Will Levante UD vs. Villarreal CF end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "812dde8b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.881074",
+      "action_type": "validate",
+      "market_question": "Spread: Villarreal CF (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "75603eba",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:33.955931",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "2c6072f0",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.019655",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 2.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "a30873f2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.118066",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: Both Teams to Score",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c0e9a2a3",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.174756",
+      "action_type": "validate",
+      "market_question": "Spread: AZ (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f15b7708",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.260178",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC vs. Oxford United FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "a261cee9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.324779",
+      "action_type": "validate",
+      "market_question": "Will Oxford United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "20bcebb9",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:06:34.400827",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "a05f5842",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:28.321730",
+      "action_type": "validate",
+      "market_question": "Fulton-Montgomery Raiders vs. Western Illinois Leathernecks (W)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d48fe2e3",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:28.583121",
+      "action_type": "validate",
+      "market_question": "Roberts Wesleyan Redhawks vs. LIU Sharks",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "b290b7cf",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:28.864353",
+      "action_type": "validate",
+      "market_question": "Will Charlton Athletic FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f80b049e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:29.181859",
+      "action_type": "validate",
+      "market_question": "Will Charlton Athletic FC vs. Portsmouth FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "e184a54b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:29.474132",
+      "action_type": "validate",
+      "market_question": "Will Portsmouth FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "021b8cac",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:29.767808",
+      "action_type": "validate",
+      "market_question": "Will Blackburn Rovers FC vs. Sheffield Wednesday FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "a291e81a",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:30.162269",
+      "action_type": "validate",
+      "market_question": "Will Sheffield Wednesday FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "7c6540ab",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:30.456890",
+      "action_type": "validate",
+      "market_question": "Will the Steam Machine cost $700 or more at release?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "96ff58cd",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:30.721137",
+      "action_type": "validate",
+      "market_question": "Saint Joseph's Hawks vs. Syracuse Orange",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "dfc43681",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:31.065794",
+      "action_type": "validate",
+      "market_question": "Will SBV Excelsior win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "794b4ded",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:31.378720",
+      "action_type": "validate",
+      "market_question": "South Carolina State Bulldogs vs. South Dakota Coyotes",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "775f67de",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:31.674606",
+      "action_type": "validate",
+      "market_question": "Will Al Taawoun Saudi Club win on 2025-12-19?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "3fda9826",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:31.940921",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "580a572b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:32.178956",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club vs. NEOM SC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "677dcee2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:32.456209",
+      "action_type": "validate",
+      "market_question": "Will NEOM SC win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "cf886e5d",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:32.710612",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "56268810",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:33.006350",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club vs. Al Kholood Saudi Club end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "08bae661",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:33.270698",
+      "action_type": "validate",
+      "market_question": "Will Al Kholood Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "60d1afc8",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:33.580163",
+      "action_type": "validate",
+      "market_question": "Will Al Najmah Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "6ff860ff",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:33.855994",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d567345c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:34.121262",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "bc5238f4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:34.389540",
+      "action_type": "validate",
+      "market_question": "Spread: Charlton Athletic FC (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "91dc9e2c",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:34.661698",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "79db950f",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:34.925651",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "fd773315",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:35.189310",
+      "action_type": "validate",
+      "market_question": "Will Levante UD win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "bcd8d2be",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:35.510904",
+      "action_type": "validate",
+      "market_question": "Will Levante UD vs. Villarreal CF end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "b67cc52e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:35.760105",
+      "action_type": "validate",
+      "market_question": "Spread: Villarreal CF (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d4534c30",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:36.040223",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "5a14ed76",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:36.307529",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 2.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "c6a69b8b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:36.584463",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: Both Teams to Score",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "7fd1dc9b",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:36.854714",
+      "action_type": "validate",
+      "market_question": "Spread: AZ (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "f6764cc6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:37.161822",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC vs. Oxford United FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "fc126ab6",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:37.430983",
+      "action_type": "validate",
+      "market_question": "Will Oxford United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "961c95d5",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:37.739714",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "84b2a062",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:51.765066",
+      "action_type": "validate",
+      "market_question": "Fulton-Montgomery Raiders vs. Western Illinois Leathernecks (W)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "e8df4645",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:52.092500",
+      "action_type": "validate",
+      "market_question": "Roberts Wesleyan Redhawks vs. LIU Sharks",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "e82076fe",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:52.417721",
+      "action_type": "validate",
+      "market_question": "Will Charlton Athletic FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "fc969322",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:52.729661",
+      "action_type": "validate",
+      "market_question": "Will Charlton Athletic FC vs. Portsmouth FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "8989acba",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:53.007532",
+      "action_type": "validate",
+      "market_question": "Will Portsmouth FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "82a7659f",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:53.362121",
+      "action_type": "validate",
+      "market_question": "Will Blackburn Rovers FC vs. Sheffield Wednesday FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "7ffe6400",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:53.748376",
+      "action_type": "validate",
+      "market_question": "Will Sheffield Wednesday FC win on 2025-12-06?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "ddb56b96",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:54.033192",
+      "action_type": "validate",
+      "market_question": "Will the Steam Machine cost $700 or more at release?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "bc41fcf1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:54.267192",
+      "action_type": "validate",
+      "market_question": "Saint Joseph's Hawks vs. Syracuse Orange",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "0ba689dd",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:54.529248",
+      "action_type": "validate",
+      "market_question": "Will SBV Excelsior win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "44cee1fb",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:54.801825",
+      "action_type": "validate",
+      "market_question": "South Carolina State Bulldogs vs. South Dakota Coyotes",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "adbc0133",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:55.112947",
+      "action_type": "validate",
+      "market_question": "Will Al Taawoun Saudi Club win on 2025-12-19?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "33278072",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:55.355986",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "2adf0d6d",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:55.606525",
+      "action_type": "validate",
+      "market_question": "Will Al Fayha Saudi Club vs. NEOM SC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "aa261f24",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:55.848396",
+      "action_type": "validate",
+      "market_question": "Will NEOM SC win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "e7aac4f8",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:56.144318",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "1e2926f2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:56.453933",
+      "action_type": "validate",
+      "market_question": "Will Al Khaleej Saudi Club vs. Al Kholood Saudi Club end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "7a94f866",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:56.714266",
+      "action_type": "validate",
+      "market_question": "Will Al Kholood Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "075c03e2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:57.022623",
+      "action_type": "validate",
+      "market_question": "Will Al Najmah Saudi Club win on 2025-12-21?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "52a6f785",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:57.350498",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "3dcecdd4",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:57.684975",
+      "action_type": "validate",
+      "market_question": "Blackburn Rovers FC vs. Sheffield Wednesday FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "10657239",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:57.978619",
+      "action_type": "validate",
+      "market_question": "Spread: Charlton Athletic FC (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "1ce60802",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:58.259256",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "01746d50",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:58.574991",
+      "action_type": "validate",
+      "market_question": "Charlton Athletic FC vs. Portsmouth FC: O/U 3.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "29820cb7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:58.854405",
+      "action_type": "validate",
+      "market_question": "Will Levante UD win on 2025-12-14?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "253477c7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:59.093262",
+      "action_type": "validate",
+      "market_question": "Will Levante UD vs. Villarreal CF end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "136565b1",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:59.461617",
+      "action_type": "validate",
+      "market_question": "Spread: Villarreal CF (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "84ed08f0",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:09:59.717785",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 1.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "d88667cf",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:00.024573",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: O/U 2.5",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "61f3b27a",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:00.300009",
+      "action_type": "validate",
+      "market_question": "Levante UD vs. Villarreal CF: Both Teams to Score",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "a655c5c8",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:00.601389",
+      "action_type": "validate",
+      "market_question": "Spread: AZ (-1.5)",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "177cdda2",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:00.886008",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC vs. Oxford United FC end in a draw?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "26a64b8e",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:01.334069",
+      "action_type": "validate",
+      "market_question": "Will Oxford United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
+    },
+    {
+      "id": "978d6af7",
+      "agent": "sports_trader",
+      "timestamp": "2026-01-15T14:10:01.718625",
+      "action_type": "validate",
+      "market_question": "Will Sheffield United FC win on 2026-01-04?",
+      "prompt_summary": "Fast Mode Validation",
+      "reasoning": "Fast-tracked live trade (No LLM delay)",
+      "conclusion": "BET",
+      "confidence": 1.0,
+      "data_sources": [
+        "Gamma API",
+        "Pattern Match"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0
     }
   ]
 }

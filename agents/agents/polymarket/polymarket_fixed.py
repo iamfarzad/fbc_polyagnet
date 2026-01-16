@@ -6,10 +6,7 @@ import pdb
 import time
 import ast
 import json
-import base64
 import requests
-import websocket
-import threading
 from typing import Dict, List, Optional, Callable
 
 from dotenv import load_dotenv
@@ -33,7 +30,7 @@ from py_clob_client.clob_types import (
 )
 from py_clob_client.order_builder.constants import BUY
 
-from agents.agents.utils.objects import SimpleMarket, SimpleEvent
+from agents.utils.objects import SimpleMarket, SimpleEvent
 
 load_dotenv()
 
@@ -48,16 +45,7 @@ class Polymarket:
         self.clob_auth_endpoint = self.clob_url + "/auth/api-key"
 
         self.chain_id = 137  # POLYGON
-
-        # --- KEY FIX START ---
-        # Fetch key, strip whitespace/newlines, remove quotes
-        pk = os.getenv("POLYGON_WALLET_PRIVATE_KEY", "").strip().replace('"', '').replace("'", "")
-        # Ensure '0x' prefix is present (standardizes Hex format)
-        if pk and not pk.startswith("0x"):
-            pk = "0x" + pk
-        self.private_key = pk
-        # --- KEY FIX END ---
-
+        self.private_key = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
         self.polygon_rpc = "https://polygon-rpc.com"
         self.w3 = Web3(Web3.HTTPProvider(self.polygon_rpc))
 
@@ -80,96 +68,23 @@ class Polymarket:
             address=self.ctf_address, abi=self.erc1155_set_approval
         )
 
-        # Ensure funder_address is always set
-        self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER") or "0xdb1f88Ab5B531911326788C018D397d352B7265c"
-
         self._init_api_keys()
         self._init_approvals(False)
 
-        # Websocket setup - isolated from main API client
-        self.ws_url = "wss://ws-subscriptions-clob.polymarket.com"
-        self.ws_connection = None
-        self.ws_channel_type = None
-        self.ws_auth_token = None
-        self.subscribed_markets = set()
-        self.subscribed_assets = set()
-        self.ws_callbacks = {
-            'user': [],
-            'market': []
-        }
-        self.ws_thread = None
-
     def _init_api_keys(self) -> None:
-        # Determine signature type and funder for proper L2 authentication
-        signature_type = int(os.getenv("POLYMARKET_SIGNATURE_TYPE", "2"))  # Default to GNOSIS_SAFE
-        self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
-
-        if self.funder_address:
-            print(f"   🔐 Using signature_type={signature_type}, funder={self.funder_address[:10]}...")
-        else:
-            print("   ⚠️ No funder address set - derived credentials may not work for trading")
-
         self.client = ClobClient(
-            self.clob_url,
-            key=self.private_key,
-            chain_id=self.chain_id,
-            signature_type=signature_type,
-            funder=self.funder_address
+            self.clob_url, key=self.private_key, chain_id=self.chain_id
         )
-
-        # Check for pre-derived User API credentials (CLOB_* env vars)
-        user_api_key = os.getenv("CLOB_API_KEY")
-        user_secret = os.getenv("CLOB_SECRET")
-        user_passphrase = os.getenv("CLOB_PASS_PHRASE")
-
-        if user_api_key and user_secret and user_passphrase:
-            try:
-                print("   🔑 Using User API Credentials from .env")
-                from py_clob_client.clob_types import ApiCreds
-
-                self.credentials = ApiCreds(
-                    api_key=user_api_key,
-                    api_secret=user_secret,  # Raw string, no base64 decoding
-                    api_passphrase=user_passphrase  # Raw string, no base64 decoding
-                )
-                print("   ✅ User credentials loaded successfully")
-            except Exception as e:
-                print(f"   ⚠️ User credentials failed: {e}")
-                import traceback
-                traceback.print_exc()
-                print("   🔐 Falling back to derived credentials...")
-                self.credentials = self.client.create_or_derive_api_creds()
-        else:
-            print("   🔐 No User credentials found, deriving from private key...")
-            self.credentials = self.client.create_or_derive_api_creds()
-
-        # Ensure funder_address is set even for derived credentials
-        if not hasattr(self, 'funder_address') or not self.funder_address:
-            self.funder_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
-
+        self.credentials = self.client.create_or_derive_api_creds()
         self.client.set_api_creds(self.credentials)
+        # print(self.credentials)
 
     def get_usdc_allowance(self) -> float:
-        """Check USDC allowance for both exchange and CTF contract"""
+        """Check USDC allowance for the exchange"""
         try:
-            # For MetaMask users, check allowance from proxy wallet (funder), not EOA
-            allowance_address = self.funder_address or self.get_address_for_private_key()
-
-            # Check allowance for CTF Exchange
-            exchange_allowance = self.usdc.functions.allowance(allowance_address, self.exchange_address).call()
-
-            # Check allowance for CTF contract
-            ctf_allowance = self.usdc.functions.allowance(allowance_address, Web3.to_checksum_address("0x4d97dcd97ec945f40cf65f87097ace5ea0476045")).call()
-
-            # Return the minimum of both allowances
-            min_allowance = min(exchange_allowance, ctf_allowance)
-            allowance_usd = float(min_allowance) / 10**6
-
-            print(f"Exchange allowance: ${float(exchange_allowance) / 10**6:.2f}")
-            print(f"CTF allowance: ${float(ctf_allowance) / 10**6:.2f}")
-            print(f"Effective allowance: ${allowance_usd:.2f}")
-
-            return allowance_usd
+            pub_key = self.get_address_for_private_key()
+            allowance = self.usdc.functions.allowance(pub_key, self.exchange_address).call()
+            return float(allowance) / 10**6
         except Exception as e:
             print(f"Allowance check failed: {e}")
             return 0.0
@@ -192,7 +107,7 @@ class Polymarket:
         usdc = self.usdc
         ctf = self.ctf
 
-        # Approve USDC for CTF Exchange
+        # CTF Exchange
         raw_usdc_approve_txn = usdc.functions.approve(
             "0x4bFb41d5B3570DeFd03C39a9A4D8dE6Bd8B8982E", int(MAX_INT, 0)
         ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
@@ -205,40 +120,7 @@ class Polymarket:
         usdc_approve_tx_receipt = web3.eth.wait_for_transaction_receipt(
             send_usdc_approve_tx, 600
         )
-        print("USDC approved for CTF Exchange:", usdc_approve_tx_receipt)
-
-        # Also approve USDC for CTF contract directly
-        nonce = web3.eth.get_transaction_count(pub_key)
-        raw_usdc_ctf_txn = usdc.functions.approve(
-            Web3.to_checksum_address("0x4d97dcd97ec945f40cf65f87097ace5ea0476045"), int(MAX_INT, 0)
-        ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
-        signed_usdc_ctf_tx = web3.eth.account.sign_transaction(
-            raw_usdc_ctf_txn, private_key=priv_key
-        )
-        send_usdc_ctf_tx = web3.eth.send_raw_transaction(
-            signed_usdc_ctf_tx.raw_transaction
-        )
-        usdc_ctf_tx_receipt = web3.eth.wait_for_transaction_receipt(
-            send_usdc_ctf_tx, 600
-        )
-        print("USDC approved for CTF contract:", usdc_ctf_tx_receipt)
-
-        # Also approve for the main CTF contract (0x4d97dcd97ec945f40cf65f87097ace5ea0476045)
-        nonce = web3.eth.get_transaction_count(pub_key)
-        ctf_contract_address = Web3.to_checksum_address("0x4d97dcd97ec945f40cf65f87097ace5ea0476045")
-        raw_usdc_main_ctf_txn = usdc.functions.approve(
-            ctf_contract_address, int(MAX_INT, 0)
-        ).build_transaction({"chainId": chain_id, "from": pub_key, "nonce": nonce})
-        signed_usdc_main_ctf_tx = web3.eth.account.sign_transaction(
-            raw_usdc_main_ctf_txn, private_key=priv_key
-        )
-        send_usdc_main_ctf_tx = web3.eth.send_raw_transaction(
-            signed_usdc_main_ctf_tx.raw_transaction
-        )
-        usdc_main_ctf_tx_receipt = web3.eth.wait_for_transaction_receipt(
-            send_usdc_main_ctf_tx, 600
-        )
-        print("USDC approved for main CTF contract:", usdc_main_ctf_tx_receipt)
+        print(usdc_approve_tx_receipt)
 
         nonce = web3.eth.get_transaction_count(pub_key)
 
@@ -464,7 +346,7 @@ class Polymarket:
         maker_amount = amount if buy else 0
         taker_amount = amount if not buy else 0
         order_data = OrderData(
-            maker=self.funder_address or self.get_address_for_private_key(),
+            maker=self.get_address_for_private_key(),
             tokenId=market_token,
             makerAmount=maker_amount,
             takerAmount=taker_amount,
@@ -481,7 +363,7 @@ class Polymarket:
             OrderArgs(price=price, size=size, side=side, token_id=token_id)
         )
 
-    def place_limit_order(self, token_id: str, price: float, size: float, side: str = "BUY", fee_rate_bps: int = 0) -> Dict:
+    def place_limit_order(self, token_id: str, price: float, size: float, side: str = "BUY") -> Dict:
         """
         Place a LIMIT order (Maker).
         Target specific price to capture spread/value.
@@ -499,11 +381,10 @@ class Polymarket:
                     price=price,
                     size=size,
                     side=order_side,
-                    token_id=token_id,
-                    fee_rate_bps=fee_rate_bps
+                    token_id=token_id
                 )
             )
-            print(f"   🎯 Limit Order Placed: {side} {size} @ {price} | Fee: {fee_rate_bps} bps | Resp: {resp}")
+            print(f"   🎯 Limit Order Placed: {side} {size} @ {price} | Resp: {resp}")
             return resp
         except Exception as e:
             print(f"   ⚠️ Limit Order Failed: {e}")
@@ -532,160 +413,6 @@ class Polymarket:
 
         balance_res = self.usdc.functions.balanceOf(balance_address).call()
         return float(balance_res / 10e5)
-
-    # ============================================================================
-    # WEBSOCKET METHODS - Real-time data feeds (Fixed for trade compatibility)
-    # ============================================================================
-
-    def _get_ws_auth_token(self) -> str:
-        """Get authentication token for websocket connection."""
-        if not self.ws_auth_token:
-            # Use existing API credentials
-            self.ws_auth_token = self.credentials.api_key
-        return self.ws_auth_token
-
-    def connect_websocket(self, channel_type: str = "market", markets: List[str] = None, assets: List[str] = None) -> bool:
-        """
-        Connect to Polymarket websocket for real-time updates.
-        Fixed to avoid conflicts with trade execution.
-
-        Args:
-            channel_type: "user" or "market"
-            markets: List of market IDs (condition IDs) for user channel
-            assets: List of asset IDs (token IDs) for market channel
-        """
-        try:
-            # Check if already connected to this channel
-            if self.ws_connection and self.ws_channel_type == channel_type:
-                print(f"WS already connected to {channel_type} channel")
-                return True
-
-            auth_token = self._get_ws_auth_token()
-
-            def on_message(ws, message):
-                try:
-                    data = json.loads(message)
-                    # Call registered callbacks
-                    for callback in self.ws_callbacks.get(channel_type, []):
-                        callback(data)
-                except Exception as e:
-                    print(f"WS message parse error: {e}")
-
-            def on_error(ws, error):
-                print(f"WS error: {error}")
-
-            def on_close(ws, close_status_code, close_msg):
-                print(f"WS closed: {close_status_code} - {close_msg}")
-                # Reset connection state
-                self.ws_connection = None
-                self.ws_channel_type = None
-
-            def on_open(ws):
-                try:
-                    # Send subscription message
-                    subscription_msg = {
-                        "auth": auth_token,
-                        "type": channel_type.upper(),
-                        "custom_feature_enabled": False
-                    }
-                    ws.send(json.dumps(subscription_msg))
-                    print(f"WS connected and subscribed to {channel_type} channel")
-                    self.ws_channel_type = channel_type
-                except Exception as e:
-                    print(f"WS subscription error: {e}")
-
-            # Use correct channel URL
-            channel_url = f"{self.ws_url}/ws/{channel_type}"
-
-            self.ws_connection = websocket.WebSocketApp(
-                channel_url,
-                on_message=on_message,
-                on_error=on_error,
-                on_close=on_close,
-                on_open=on_open
-            )
-
-            # Start websocket in background thread - NON-BLOCKING
-            self.ws_thread = threading.Thread(target=self.ws_connection.run_forever, daemon=True)
-            self.ws_thread.start()
-
-            # Store channel type
-            self.ws_channel_type = channel_type
-
-            return True
-        except Exception as e:
-            print(f"WS connection failed: {e}")
-            return False
-
-    def subscribe_to_assets(self, assets: List[str], channel_type: str = "market"):
-        """Subscribe to additional assets after connection."""
-        if not self.ws_connection:
-            print("WS not connected")
-            return False
-
-        try:
-            msg = {
-                "assets_ids": assets,
-                "operation": "subscribe",
-                "custom_feature_enabled": False
-            }
-            if channel_type == "user":
-                msg["markets"] = assets
-
-            self.ws_connection.send(json.dumps(msg))
-
-            if channel_type == "user":
-                self.subscribed_markets.update(assets)
-            else:
-                self.subscribed_assets.update(assets)
-
-            return True
-        except Exception as e:
-            print(f"WS subscribe failed: {e}")
-            return False
-
-    def unsubscribe_from_assets(self, assets: List[str], channel_type: str = "market"):
-        """Unsubscribe from assets."""
-        if not self.ws_connection:
-            return False
-
-        try:
-            msg = {
-                "assets_ids": assets,
-                "operation": "unsubscribe",
-                "custom_feature_enabled": False
-            }
-            if channel_type == "user":
-                msg["markets"] = assets
-
-            self.ws_connection.send(json.dumps(msg))
-
-            if channel_type == "user":
-                self.subscribed_markets.difference_update(assets)
-            else:
-                self.subscribed_assets.difference_update(assets)
-
-            return True
-        except Exception as e:
-            print(f"WS unsubscribe failed: {e}")
-            return False
-
-    def add_ws_callback(self, channel_type: str, callback: Callable):
-        """Add callback function for websocket messages."""
-        if channel_type not in self.ws_callbacks:
-            self.ws_callbacks[channel_type] = []
-        self.ws_callbacks[channel_type].append(callback)
-
-    def close_websocket(self):
-        """Close websocket connection."""
-        if self.ws_connection:
-            self.ws_connection.close()
-            self.ws_connection = None
-            self.ws_channel_type = None
-            self.subscribed_markets.clear()
-            self.subscribed_assets.clear()
-        if self.ws_thread and self.ws_thread.is_alive():
-            self.ws_thread.join(timeout=1)
 
 
 
