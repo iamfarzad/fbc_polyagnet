@@ -489,34 +489,30 @@ class Polymarket:
         Place a LIMIT order (Maker).
         Target specific price to capture spread/value.
 
-        FIXED: Strip all formatting, ensure raw float objects, explicit integer fee_rate_bps
+        FINAL FIX: Ensure all inputs are strictly typed and funder is checksummed to prevent 29-char base64 error
         """
         try:
             from py_clob_client.clob_types import OrderArgs
-            from py_clob_client.order_builder.constants import BUY, SELL
 
-            order_side = BUY if side.upper() == "BUY" else SELL
+            # CRITICAL FIX: Ensure all inputs are strictly typed and token_id is checksummed
+            clean_token_id = str(token_id).strip()
+            clean_price = float(round(price, 4))  # Round to prevent floating point precision issues
+            clean_size = float(round(size, 2))    # Round to prevent floating point precision issues
 
-            # FIX 1: Ensure price and size are raw float objects (no string formatting)
-            # FIX 4: Ensure fee_rate_bps is explicitly an integer (mandatory for 15-minute markets)
-            # FIX: Ensure token_id is a clean string (prevents "unhashable type: 'slice'" error)
-            clean_token_id = str(token_id).strip()  # Must be clean string for py-clob-client
-            clean_price = float(price)  # Strip any formatting
-            clean_size = float(size)   # Strip any formatting
-            clean_fee_rate_bps = int(fee_rate_bps)  # Must be integer for hash
+            # Ensure funder is checksummed to prevent signature mismatch (CRITICAL FOR BASE64!)
+            if self.funder_address:
+                self.client.funder = Web3.to_checksum_address(self.funder_address)
 
-            # Create and post the limit order
-            # Note: py-clob-client defaults to 'GTC' (Good Till Cancel) limit orders
             resp = self.client.create_and_post_order(
                 OrderArgs(
                     price=clean_price,
                     size=clean_size,
-                    side=order_side,
+                    side=side.upper(),  # Ensure uppercase
                     token_id=clean_token_id,
-                    fee_rate_bps=clean_fee_rate_bps
+                    fee_rate_bps=int(fee_rate_bps)  # Must be integer
                 )
             )
-            print(f"   🎯 Limit Order Placed: {side} {clean_size} @ {clean_price} | Fee: {clean_fee_rate_bps} bps | Resp: {resp}")
+            print(f"   🎯 Limit Order Placed: {side} {clean_size} @ {clean_price} | Fee: {fee_rate_bps} bps | Resp: {resp}")
             return resp
         except Exception as e:
             print(f"   ⚠️ Limit Order Failed: {e}")
