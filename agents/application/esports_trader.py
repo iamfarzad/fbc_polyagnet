@@ -78,14 +78,14 @@ MAX_BET_USD = 5.00              # Fixed $5 trades
 BET_PERCENT = 0.40              # 40% of bankroll allocated to esports
 MAX_CONCURRENT_POSITIONS = 10   # Allow 10 concurrent positions
 
-# Timing - FREE TIER CONSERVATIVE MODE
-POLL_INTERVAL_LIVE = 8          # Poll every 8s during live match (free tier friendly)
-POLL_INTERVAL_IDLE = 60         # Poll every 60s when no live match
+# Timing - LIVE TRADING MODE (aggressive)
+POLL_INTERVAL_LIVE = 5          # Poll every 5s during live match
+POLL_INTERVAL_IDLE = 30         # Poll every 30s when no live match
 EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
 
-# API Rate Limiting (Free Tier)
-MAX_REQUESTS_PER_HOUR = 1000
-MAX_REQUESTS_PER_MINUTE = 10
+# API Rate Limiting (Gamma API is generous - no strict limits for reads)
+MAX_REQUESTS_PER_HOUR = 10000   # Gamma API is very permissive
+MAX_REQUESTS_PER_MINUTE = 100   # Allow 100 requests per minute (safe for Gamma)
 REQUEST_COUNT_RESET_HOUR = 60 * 60  # 1 hour in seconds
 
 # ESPORTS SERIES IDs (from Gamma /sports API - DO NOT CHANGE)
@@ -831,10 +831,12 @@ class EsportsTrader:
         self.hour_start_time = time.time()
         self.minute_start_time = time.time()
         
-        # Get balance
+        # Get balance with error logging
         try:
             self.balance = self.pm_esports.pm.get_usdc_balance()
-        except:
+            print(f"   💰 Initial balance: ${self.balance:.2f}")
+        except Exception as e:
+            print(f"   ⚠️ Balance retrieval error: {e}")
             self.balance = 0
         
         print("=" * 60)
