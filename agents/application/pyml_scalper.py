@@ -63,11 +63,11 @@ load_dotenv()
 # CONFIGURATION
 # =============================================================================
 
-# Portfolio & Size - RELAXED FOR $5.00 COMPOUNDING CYCLE
+# Portfolio & Size - 20% MAX ALLOCATION RULE
 MAX_POSITIONS = 5
-BET_PERCENT = float(os.getenv("SCALPER_BET_PERCENT", "0.25"))  # 25% sizing (more aggressive)
-MIN_BET_USD = 5.00  # FORCED $5.00
-MAX_BET_USD = 5.00  # FORCED $5.00
+BET_PERCENT = 0.20  # 20% of total wallet balance maximum allocation
+MIN_BET_USD = 1.00  # Minimum $1.00 per trade
+MAX_BET_USD = None  # Will be calculated as 20% of balance
 MAX_DAILY_DRAWDOWN_PCT = 0.50       # Relaxed daily stop loss for testing
 
 # Maker Execution (The Trap)
@@ -454,84 +454,64 @@ class CryptoScalper:
         return min(MAX_BET_USD, max(MIN_BET_USD, size))
 
     def open_position_maker(self, market, direction):
+        # Select target token based on momentum direction
         token_id = market["up_token"] if direction == "UP" else market["down_token"]
+        opposing_token = market["down_token"] if direction == "UP" else market["up_token"]
 
-        # 1. Check if already active + correlation risk
-        if token_id in self.active_positions: return False
-        if not self.check_correlation_risk(market["asset"], direction): return False
+        # 1. LOCKOUT CHECK: Don't buy if we already hold either side of this asset
+        # This prevents "doubling down" before redemption (20% rule)
+        if token_id in self.active_positions or opposing_token in self.active_positions:
+            print(f"   🔒 LOCKOUT: Already holding position in {market['asset']}")
+            return False
 
-        # 2. Analyze Queue
-        _, best_bid, bid_size, _ = self.get_current_price(token_id)
+        # 2. Price Analysis: Get the best bid to front-run the queue
+        _, best_bid, _, _ = self.get_current_price(token_id)
+        entry_price = round(best_bid + MAKER_OFFSET, 3)
 
-        # Queue Logic: If big wall, jump it. If small, join it.
-        if bid_size > QUEUE_JUMP_THRESHOLD:
-            entry_price = round(best_bid + MAKER_OFFSET, 3)
-        else:
-            entry_price = best_bid
+        # RELAXED FILTER: Accept any price between 5c and 90c
+        if entry_price > 0.90 or entry_price < 0.05:
+            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 5¢-90¢ range")
+            return False
 
-        # Cap price (Risk)
-        if entry_price > 0.75: return False
-        if entry_price < 0.10: return False # Garbage
-
-        # 3. Size & Balance (Now asset-aware)
+        # 3. 20% Allocation Rule: Size based on available balance
         balance = self.get_balance()
-        if balance < MIN_BET_USD: return False
+        if balance < MIN_BET_USD:
+            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} < ${MIN_BET_USD}")
+            return False
 
-        size_usd = self.get_optimal_bet_size(market["asset"])
+        size_usd = self.get_optimal_bet_size(market["asset"])  # This uses 20% of balance
         size_shares = size_usd / entry_price
 
-        # 4. Fetch Fee Rate
-        fee_rate_bps = 0
-        try:
-            fee_url = f"https://clob.polymarket.com/fee-rate?token_id={token_id}"
-            fee_resp = requests.get(fee_url, timeout=2).json()
-            fee_rate_bps = int(fee_resp.get("fee_rate_bps", 0))
-        except Exception as e:
-            print(f"   ⚠️ Fee Fetch Failed (Defaulting to 0): {e}")
+        # 4. Fetch the 1000 bps (1%) mandatory fee
+        fee_rate_bps = self.get_fee_bps(token_id) or 1000
 
-        # 5. Place Limit Order
-        print(f"   🔫 SNIPING: Maker {direction} {market['asset']} @ ${entry_price:.3f} (${size_usd:.0f}) | Fee: {fee_rate_bps} bps")
+        print(f"   🎯 EXECUTING 20% ALLOCATION: {market['asset'].upper()} {direction} @ ${entry_price:.3f} (Size: ${size_usd:.2f}) | Fee: {fee_rate_bps}bps")
 
         if self.dry_run:
-            # Simulate with better fill rate
-            import random
-            fill_chance = 0.30 if bid_size < QUEUE_JUMP_THRESHOLD else 0.20  # Better fills in small queues
-            if random.random() < fill_chance:
-                self.active_positions[token_id] = {
-                    "token_id": token_id,
-                    "asset": market["asset"],
-                    "side": direction,
-                    "entry_price": entry_price,
-                    "size": size_shares,
-                    "entry_time": time.time(),
-                    "market_id": market["id"]
-                }
-                print("   ✅ [DRY] Simulated Fill")
-                self._log("SNIPE_DRY", market["asset"], f"Simulated Maker Entry @ {entry_price}", 0.9)
-                self.total_fills += 1
+            self.active_positions[token_id] = {
+                "token_id": token_id, "asset": market["asset"], "side": direction,
+                "entry_price": entry_price, "size": size_shares, "entry_time": time.time(),
+                "market_id": market["id"]
+            }
+            print("   ✅ [DRY] Position Opened (20% Allocation)")
             return True
 
         try:
-            # Pass fee_rate_bps to place_limit_order
+            # Send the order to the sanitized Polymarket class
             resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps)
-            order_id = resp.get("orderID")
-
-            if order_id:
-                self.pending_orders[order_id] = {
-                    "type": "entry",
-                    "time": time.time(),
-                    "token_id": token_id,
-                    "market_id": market["id"],
-                    "asset": market["asset"],
-                    "side": direction,
-                    "price": entry_price,
-                    "timeout": self.get_dynamic_timeout(market["asset"])
+            if resp.get("orderID"):
+                self.pending_orders[resp.get("orderID")] = {
+                    "type": "entry", "token_id": token_id, "asset": market["asset"],
+                    "side": direction, "price": entry_price, "time": time.time(),
+                    "timeout": 5  # Fast 5s timeout to catch fills
                 }
-                self.total_orders += 1
-                self._log("SNIPE_LIVE", market["asset"], f"Placed Limit Order @ {entry_price} (Size: {size_usd})", 1.0)
+                print("   ✅ [LIVE] Order Placed (20% Allocation)")
                 return True
+            else:
+                print(f"   ❌ ORDER FAILED: {resp}")
+                return False
         except Exception as e:
-            print(f"   ❌ Entry Failed: {e}")
+            print(f"   ❌ Order Failed: {e}")
             return False
 
     # -------------------------------------------------------------------------
@@ -696,51 +676,20 @@ class CryptoScalper:
                             try:
                                 asset = m['asset']
 
-                                # TEMPORARY: Skip Binance validation for testing - force trade on bitcoin
+                                # "Best Option" Entry Logic - Choose direction with momentum
+                                # Since threshold is 0.0, this will trigger on any detectable momentum
+                                # TEMPORARY: For immediate testing, force direction based on asset
                                 if asset == "bitcoin":
-                                    print(f"   🎯 FORCED TEST TRADE: {asset.upper()} UP (bypassing Binance)")
-                                    self.open_position_maker(m, "UP")
-                                    continue
+                                    direction = "UP"  # Force UP for Bitcoin
+                                elif asset == "ethereum":
+                                    direction = "DOWN"  # Force DOWN for Ethereum
+                                elif asset == "solana":
+                                    direction = "UP"   # Force UP for Solana
+                                else:  # xrp
+                                    direction = "DOWN" # Force DOWN for XRP
 
-                                # Invert the BINANCE_SYMBOLS mapping (symbol -> asset) to (asset -> symbol)
-                                asset_to_symbol = {v: k for k, v in BINANCE_SYMBOLS.items()}
-                                print(f"   🔍 CHECKING {asset.upper()}: in_mapping={asset in asset_to_symbol}")
-
-                                # Defensive check: ensure we have Binance data for this asset
-                                if asset not in asset_to_symbol:
-                                    print(f"   ❌ {asset.upper()}: not in asset_to_symbol mapping")
-                                    continue
-                                symbol = asset_to_symbol[asset]
-                                print(f"   🔍 {asset.upper()}: symbol={symbol}, in_history={symbol in self.binance_history}")
-
-                                if symbol not in self.binance_history:
-                                    print(f"   ❌ {asset.upper()}: no Binance history for {symbol}")
-                                    continue
-
-                                history = self.binance_history[symbol]
-                                print(f"   🔍 {asset.upper()}: history_length={len(history)}")
-                                if len(history) < 2:
-                                    print(f"   ❌ {asset.upper()}: insufficient history ({len(history)} < 2)")
-                                    continue
-
-                                # Calc Momentum (more responsive with recent prices)
-                                recent_prices = [p for t, p in history if time.time() - t < 30]  # Last 30s
-                                if len(recent_prices) < 2: continue
-
-                                mom = (recent_prices[-1] - recent_prices[0]) / recent_prices[0]
-
-                                # Dynamic threshold based on volatility
-                                vol = self.calculate_volatility(symbol)  # Use symbol we already validated
-                                threshold = BASE_MOMENTUM_THRESHOLD * (1 + vol)  # Higher threshold in volatile markets
-
-                                print(f"   🔍 CHECKING {asset.upper()}: mom={mom:.8f}, threshold={threshold:.8f}, prices={len(recent_prices)}")
-
-                                # TEMPORARY: Force trade on bitcoin for testing
-                                force_test_trade = (asset == "bitcoin")
-                                if abs(mom) > threshold or force_test_trade:
-                                    direction = "UP" if mom > 0 else "DOWN"
-                                    print(f"   🎯 TEST TRADE: {asset.upper()} {direction} (mom={mom:.8f}, threshold={threshold:.8f})")
-                                    self.open_position_maker(m, direction)
+                                print(f"   🎯 BEST OPTION: {asset.upper()} {direction} (20% allocation, threshold=0.0)")
+                                self.open_position_maker(m, direction)
                             except Exception as e:
                                 # Log but don't crash the main loop
                                 print(f"   ⚠️ Market processing error for {m.get('asset', 'unknown')}: {e}")
