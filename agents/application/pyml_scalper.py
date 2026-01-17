@@ -90,10 +90,11 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.0005    # 0.05% momentum - filters noise, catches trends
+BASE_MOMENTUM_THRESHOLD = 0.001     # 0.1% momentum - more conservative
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
 PRICE_CAP = 0.75                    # Don't buy if price > $0.75 (risk > reward)
-MAX_POSITIONS = 3                   # Reduce from 5 for $3.16 balance
+MAX_POSITIONS = 2                   # Conservative: max 2 positions at once
+MIN_SENTIMENT_CONFIDENCE = 0.6      # Only trade if sentiment >60% confident
 
 
 class CryptoScalper:
@@ -282,6 +283,76 @@ class CryptoScalper:
 
         momentum = (current_price - oldest_price) / oldest_price
         return momentum
+
+    def get_market_sentiment(self, asset, binance_symbol):
+        """Calculate comprehensive market sentiment score (0-1 scale, 0.5=neutral)."""
+        try:
+            history = self.binance_history.get(binance_symbol, [])
+            if len(history) < 20:  # Need enough data
+                return 0.5
+
+            # Get recent prices (last 10 minutes)
+            now = time.time()
+            recent_prices = [(t, p) for t, p in history if now - t < 600]
+            if len(recent_prices) < 10:
+                return 0.5
+
+            prices = [p for t, p in recent_prices]
+
+            # 1. TREND ANALYSIS (30% weight)
+            # Simple moving averages
+            if len(prices) >= 5:
+                ma_short = sum(prices[-5:]) / 5
+                ma_long = sum(prices[-10:]) / 10
+                trend_score = 0.5 + (ma_short - ma_long) / ma_long * 2  # Scale to 0-1
+                trend_score = max(0, min(1, trend_score))  # Clamp
+            else:
+                trend_score = 0.5
+
+            # 2. MOMENTUM STRENGTH (25% weight)
+            momentum_pct = (prices[-1] - prices[0]) / prices[0]
+            momentum_score = 0.5 + momentum_pct * 10  # Scale momentum to 0-1
+            momentum_score = max(0, min(1, momentum_score))
+
+            # 3. VOLATILITY FILTER (20% weight)
+            # Lower volatility = cleaner signals = higher confidence
+            returns = [(prices[i] - prices[i-1])/prices[i-1] for i in range(1, len(prices))]
+            volatility = sum(abs(r) for r in returns) / len(returns) if returns else 0
+            volatility_score = max(0, 1 - volatility * 20)  # Lower volatility = higher score
+
+            # 4. RECENT STRENGTH (15% weight)
+            # Compare last 3 prices vs first 3
+            if len(prices) >= 6:
+                recent_avg = sum(prices[-3:]) / 3
+                older_avg = sum(prices[:3]) / 3
+                strength_score = 0.5 + (recent_avg - older_avg) / older_avg * 2
+                strength_score = max(0, min(1, strength_score))
+            else:
+                strength_score = 0.5
+
+            # 5. ASSET-SPECIFIC BIAS (10% weight) - based on market conditions
+            asset_bias = {
+                "bitcoin": 0.55,   # BTC slightly bullish bias (digital gold)
+                "ethereum": 0.45,  # ETH slightly bearish (competition from layer2)
+                "solana": 0.60,    # SOL bullish (fast growth)
+                "xrp": 0.40        # XRP bearish (regulation concerns)
+            }.get(asset, 0.5)
+
+            # Combine scores with weights
+            final_score = (
+                trend_score * 0.30 +
+                momentum_score * 0.25 +
+                volatility_score * 0.20 +
+                strength_score * 0.15 +
+                asset_bias * 0.10
+            )
+
+            print(f"   📊 {asset.upper()} Sentiment: Trend={trend_score:.2f}, Momentum={momentum_score:.2f}, Volatility={volatility_score:.2f}, Strength={strength_score:.2f}, Bias={asset_bias:.2f} → {final_score:.3f}")
+            return final_score
+
+        except Exception as e:
+            print(f"   ❌ Sentiment calc error for {asset}: {e}")
+            return 0.5  # Neutral fallback
 
     def calculate_volatility(self, symbol):
         """Calculate recent volatility (Standard Deviation) from Binance deque."""
@@ -737,21 +808,35 @@ class CryptoScalper:
                             try:
                                 asset = m['asset']
 
-                                # "Best Option" Entry Logic - Choose direction with momentum
-                                # Calculate real momentum from Binance data
+                                # "Best Option" Entry Logic - Choose direction with REAL market sentiment
                                 binance_symbol = [k for k, v in BINANCE_SYMBOLS.items() if v == asset][0]
                                 momentum = self.calculate_momentum(binance_symbol)
 
-                                # Only trade if momentum exceeds threshold
+                                # Get broader market sentiment indicators
+                                sentiment_score = self.get_market_sentiment(asset, binance_symbol)
+
+                                # Only trade if momentum exceeds threshold AND sentiment is clear
                                 if abs(momentum) < BASE_MOMENTUM_THRESHOLD:
                                     print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {BASE_MOMENTUM_THRESHOLD:.4f})")
                                     continue
 
-                                # Choose direction based on momentum
-                                direction = "UP" if momentum > 0 else "DOWN"
+                                # Use BOTH momentum AND sentiment for direction
+                                momentum_signal = momentum > 0
+                                sentiment_signal = sentiment_score > 0.5  # 0.5 = neutral, >0.5 bullish, <0.5 bearish
 
-                                print(f"   🎯 MOMENTUM SIGNAL: {asset.upper()} {direction} ({momentum:.4f}% > {BASE_MOMENTUM_THRESHOLD:.4f}%)")
-                                self.open_position_maker(m, direction)
+                                # Only trade if sentiment confidence is high enough
+                                confidence = abs(sentiment_score - 0.5) * 2  # 0-1 scale
+                                if confidence < MIN_SENTIMENT_CONFIDENCE:
+                                    print(f"   🤔 LOW CONFIDENCE: {asset.upper()} {confidence:.1f} < {MIN_SENTIMENT_CONFIDENCE:.1f} - SKIPPING")
+                                    continue
+
+                                # Only trade if momentum and sentiment agree (avoid conflicting signals)
+                                if momentum_signal == sentiment_signal:
+                                    direction = "UP" if momentum_signal else "DOWN"
+                                    print(f"   🎯 STRONG SIGNAL: {asset.upper()} {direction} ({momentum:.4f}% momentum, {confidence:.1f} confidence)")
+                                    self.open_position_maker(m, direction)
+                                else:
+                                    print(f"   ⚠️ CONFLICTING SIGNALS: {asset.upper()} momentum={momentum:.4f}%, sentiment={sentiment_score:.2f} - SKIPPING")
                             except Exception as e:
                                 # Log but don't crash the main loop
                                 print(f"   ⚠️ Market processing error for {m.get('asset', 'unknown')}: {e}")
