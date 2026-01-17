@@ -230,7 +230,7 @@ class SmartTrader:
         return True
 
     def get_fee_free_markets(self, limit=50) -> List[Dict]:
-        """Fetch active fee-free markets from Polymarket."""
+        """Fetch active fee-free markets from Polymarket (future events only)."""
         try:
             url = "https://gamma-api.polymarket.com/markets"
             params = {
@@ -248,7 +248,10 @@ class SmartTrader:
             
             markets = resp.json()
             
-            # Filter to fee-free only
+            # Get current timestamp for filtering historical markets
+            now = datetime.datetime.now(datetime.timezone.utc)
+            
+            # Filter to fee-free only AND future events
             fee_free = []
             for m in markets:
                 if not m.get("acceptingOrders", False):
@@ -257,6 +260,18 @@ class SmartTrader:
                     continue
                 if m.get("id") in self.traded_markets:
                     continue
+                
+                # CRITICAL: Skip historical/resolved markets (the "Zombie Trap")
+                end_date_str = m.get("endDate", "")
+                if end_date_str:
+                    try:
+                        # Parse ISO format date
+                        end_date = datetime.datetime.fromisoformat(end_date_str.replace("Z", "+00:00"))
+                        if end_date < now:
+                            # Market has already resolved - skip it
+                            continue
+                    except:
+                        pass  # If parsing fails, include the market
                 
                 # Parse tokens
                 clob_ids = m.get("clobTokenIds")
