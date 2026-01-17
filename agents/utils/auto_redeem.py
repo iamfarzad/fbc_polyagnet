@@ -233,7 +233,7 @@ class AutoRedeemer:
 
             is_proxy = False
             proxy_address = self.proxy_address
-            if proxy_address and proxy_address.lower() != self.dashboard_wallet.lower():
+            if proxy_address and self.address.lower() == proxy_address.lower():
                 is_proxy = True
 
             parent_collection = bytes(32)
