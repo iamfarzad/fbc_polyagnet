@@ -56,6 +56,14 @@ interface DashboardData {
     value: number
     pnl: number
   }>
+  openOrders: Array<{
+    id: string
+    market: string
+    side: string
+    size: number
+    price: number
+    filled: number
+  }>
   trades: Array<{
     time: string
     market: string
@@ -308,46 +316,95 @@ export default function ProDashboard() {
             </CardContent>
           </Card>
 
-          {/* Active Portfolio */}
+          {/* Active Portfolio & Orders */}
           <Card className="border-border/40 glass flex-1 min-h-[300px]">
-            <CardHeader className="py-2 px-3 border-b border-border/40 flex flex-row items-center justify-between h-9">
-              <CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2"><BarChart3 className="h-3 w-3" /> Active Positions ({data.positions.length})</CardTitle>
-              <span className="text-[10px] text-muted-foreground">Open Value: ${data.stats.volume24h.toFixed(2)}</span>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader className="bg-muted/10">
-                  <TableRow className="hover:bg-transparent border-border/20 h-8">
-                    <TableHead className="h-8 text-[10px] font-bold">MARKET</TableHead>
-                    <TableHead className="h-8 text-[10px] font-bold w-[60px]">SIDE</TableHead>
-                    <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">COST</TableHead>
-                    <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">VALUE</TableHead>
-                    <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">PnL</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.positions.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active positions</TableCell></TableRow>
-                  ) : (
-                    data.positions.map((pos, i) => (
-                      <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
-                        <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{pos.market}</TableCell>
-                        <TableCell className="py-1">
-                          <Badge variant="outline" className={`text-[9px] border-border/40 px-1.5 h-5 ${pos.side.includes('Yes') ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
-                            {pos.side}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right text-muted-foreground py-1">${pos.cost.toFixed(2)}</TableCell>
-                        <TableCell className="text-right font-medium py-1">${pos.value.toFixed(2)}</TableCell>
-                        <TableCell className={`text-right font-bold py-1 ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {pos.pnl >= 0 ? '+' : ''}{pos.pnl.toFixed(2)}
-                        </TableCell>
+            <Tabs defaultValue="positions" className="h-full flex flex-col">
+              <CardHeader className="py-2 px-3 border-b border-border/40 flex flex-row items-center justify-between h-9">
+                <div className="flex items-center gap-4">
+                  <CardTitle className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-2">
+                    <BarChart3 className="h-3 w-3" /> Portfolio
+                  </CardTitle>
+                  <TabsList className="h-6 bg-secondary/50 p-0 ml-2">
+                    <TabsTrigger value="positions" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
+                      Positions ({data.positions.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="orders" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
+                      Orders ({data.openOrders?.length || 0})
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Open Value: ${data.stats.volume24h.toFixed(2)}</span>
+              </CardHeader>
+              <CardContent className="p-0 flex-1">
+                <TabsContent value="positions" className="m-0 h-full">
+                  <Table>
+                    <TableHeader className="bg-muted/10">
+                      <TableRow className="hover:bg-transparent border-border/20 h-8">
+                        <TableHead className="h-8 text-[10px] font-bold">MARKET</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold w-[60px]">SIDE</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">COST</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">VALUE</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">PnL</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
+                    </TableHeader>
+                    <TableBody>
+                      {data.positions.length === 0 ? (
+                        <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active positions</TableCell></TableRow>
+                      ) : (
+                        data.positions.map((pos, i) => (
+                          <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
+                            <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{pos.market}</TableCell>
+                            <TableCell className="py-1">
+                              <Badge variant="outline" className={`text-[9px] border-border/40 px-1.5 h-5 ${pos.side.includes('Yes') ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
+                                {pos.side}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right text-muted-foreground py-1">${pos.cost.toFixed(2)}</TableCell>
+                            <TableCell className="text-right font-medium py-1">${pos.value.toFixed(2)}</TableCell>
+                            <TableCell className={`text-right font-bold py-1 ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {pos.pnl >= 0 ? '+' : ''}{pos.pnl.toFixed(2)}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+
+                <TabsContent value="orders" className="m-0 h-full">
+                  <Table>
+                    <TableHeader className="bg-muted/10">
+                      <TableRow className="hover:bg-transparent border-border/20 h-8">
+                        <TableHead className="h-8 text-[10px] font-bold">MARKET</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold w-[60px]">SIDE</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">PRICE</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">SIZE</TableHead>
+                        <TableHead className="h-8 text-[10px] font-bold text-right w-[80px]">STATUS</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(!data.openOrders || data.openOrders.length === 0) ? (
+                        <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No open orders</TableCell></TableRow>
+                      ) : (
+                        data.openOrders.map((ord, i) => (
+                          <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
+                            <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{ord.market}</TableCell>
+                            <TableCell className="py-1">
+                              <Badge variant="outline" className={`text-[9px] border-border/40 px-1.5 h-5 ${ord.side === 'BUY' ? 'text-emerald-400 bg-emerald-500/10' : 'text-amber-400 bg-amber-500/10'}`}>
+                                {ord.side}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-mono py-1">${ord.price.toFixed(3)}</TableCell>
+                            <TableCell className="text-right font-mono py-1">${ord.size.toFixed(2)}</TableCell>
+                            <TableCell className="text-right text-muted-foreground py-1 text-[10px]">OPEN</TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+              </CardContent>
+            </Tabs>
           </Card>
 
           {/* Recent History */}

@@ -265,6 +265,7 @@ class DashboardData(BaseModel):
     riskStatus: Dict[str, Any] # {safe: bool, message: str}
     agents: Dict[str, Dict[str, Any]]
     positions: List[Dict[str, Any]]
+    openOrders: List[Dict[str, Any]] = []
     trades: List[Dict[str, Any]]
     stats: Dict[str, Any]
     dryRun: bool
@@ -273,6 +274,60 @@ class DashboardData(BaseModel):
     maxBetAmount: float = 0.50
 
 # --- Helper Functions ---
+
+# Singleton Polymarket client
+
+
+def fetch_open_orders_helper() -> List[Dict]:
+    """Fetch active orders from CLOB and enrich with market info."""
+    pm = get_pm()
+    if not pm:
+        return []
+    
+    try:
+        orders = pm.get_open_orders()
+        enriched = []
+        for o in orders:
+            # Default structure
+            item = {
+                "id": o.get("orderID"),
+                "token_id": o.get("asset_id") or o.get("token_id"),
+                "price": float(o.get("price", 0)),
+                "size": float(o.get("size", 0)), # Remaining size
+                "side": o.get("side"),
+                "market": "Loading..."
+            }
+            
+            # Enrich with Question & Outcome
+            try:
+                # Fetch market details
+                m = pm.get_market(item["token_id"])
+                if m:
+                    item["market"] = m.question
+                    
+                    # Try to map token ID to outcome
+                    try:
+                        import ast
+                        # 'clob_token_ids' is usually a string repr of list "['idx1', 'idx2']"
+                        tokens = ast.literal_eval(m.clob_token_ids)
+                        outcomes = ast.literal_eval(m.outcomes)
+                        
+                        if item["token_id"] in tokens:
+                            idx = tokens.index(item["token_id"])
+                            if idx < len(outcomes):
+                                item["outcome"] = outcomes[idx]
+                    except:
+                        item["outcome"] = "Unknown"
+            except Exception as e:
+                logger.error(f"Failed to enrich order: {e}")
+                pass
+                
+            enriched.append(item)
+        return enriched
+    except Exception as e:
+        logger.error(f"Error fetching open orders: {e}")
+        return []
+
 def fetch_positions_helper():
     pm = get_pm()
     if not pm: return []
@@ -499,6 +554,9 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # Record snapshot in background
     background_tasks.add_task(record_snapshot, balance, equity, unrealized_pnl)
 
+    # 8. Open Orders
+    open_orders = fetch_open_orders_helper()
+
     return {
         "balance": balance,
         "equity": equity,
@@ -512,6 +570,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
         },
         "agents": agents_data,
         "positions": positions,
+        "openOrders": open_orders,
         "trades": trades,
         "stats": {
             "tradeCount": trade_count,

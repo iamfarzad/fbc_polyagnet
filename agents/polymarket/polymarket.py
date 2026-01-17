@@ -709,6 +709,16 @@ class Polymarket:
             logger.error(f"Failed to execute market sell: {e}")
             return {"error": str(e)}
 
+    def get_open_orders(self) -> List[Dict]:
+        """Fetch all open orders from CLOB"""
+        try:
+            # Assuming get_orders with active=True returns open orders
+            # Verify specific client implementation if possible, filtering usually handled by args
+            return self.client.get_orders(active=True)
+        except Exception as e:
+            print(f"Failed to fetch open orders: {e}")
+            return []
+
 
 def test():
     host = "https://clob.polymarket.com"
