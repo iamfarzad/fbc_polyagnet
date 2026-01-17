@@ -328,12 +328,11 @@ export default function ProDashboard() {
                     <TabsTrigger value="positions" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
                       Positions ({data.positions.length})
                     </TabsTrigger>
-                    <TabsTrigger value="orders" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
-                      Orders ({data.openOrders?.length || 0})
-                    </TabsTrigger>
                   </TabsList>
                 </div>
-                <span className="text-[10px] text-muted-foreground">Open Value: ${data.stats.volume24h.toFixed(2)}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  Open Value: ${data.positions.reduce((acc, p) => acc + p.value, 0).toFixed(2)}
+                </span>
               </CardHeader>
               <CardContent className="p-0 flex-1">
                 <TabsContent value="positions" className="m-0 h-full">

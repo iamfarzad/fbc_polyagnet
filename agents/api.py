@@ -445,9 +445,12 @@ def get_dashboard(background_tasks: BackgroundTasks):
         logger.error(f"Failed to fetch USDC balance for dashboard wallet: {e}")
         
     # 2. Positions & Equity
+    # 2. Positions & Equity
     positions = fetch_positions_helper()
+    total_position_value = sum(p['value'] for p in positions)
     unrealized_pnl = sum(p['pnl'] for p in positions)
-    equity = balance + unrealized_pnl # Simplified equity (cash + open pnl? Or cash + open value?)
+    # Equity = Cash + Market Value of Positions
+    equity = balance + total_position_value
     # Equity usually = Cash + Market Value of Positions
     market_value = sum(p['value'] for p in positions)
     equity = balance + market_value 
