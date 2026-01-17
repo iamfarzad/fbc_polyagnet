@@ -561,23 +561,29 @@ class EsportsDataAggregator:
         print("🔍 DEBUG: get_all_live_matches called")
         matches = []
 
-        # LoL matches
-        print("🔍 DEBUG: Getting LoL matches...")
-        lol_matches = self.lol_provider.get_live_matches()
-        print(f"🔍 DEBUG: LoL provider returned {len(lol_matches)} matches")
-        for match in lol_matches:
-            match["game_type"] = "lol"
-            matches.append(match)
+        try:
+            # LoL matches
+            print("🔍 DEBUG: Getting LoL matches...")
+            lol_matches = self.lol_provider.get_live_matches()
+            print(f"🔍 DEBUG: LoL provider returned {len(lol_matches)} matches")
+            for match in lol_matches:
+                match["game_type"] = "lol"
+                matches.append(match)
 
-        # CS2 matches
-        print("🔍 DEBUG: Getting CS2 matches...")
-        cs2_matches = self.cs2_provider.get_live_matches()
-        print(f"🔍 DEBUG: CS2 provider returned {len(cs2_matches)} matches")
-        for match in cs2_matches:
-            match["game_type"] = "cs2"
-            matches.append(match)
+            # CS2 matches
+            print("🔍 DEBUG: Getting CS2 matches...")
+            cs2_matches = self.cs2_provider.get_live_matches()
+            print(f"🔍 DEBUG: CS2 provider returned {len(cs2_matches)} matches")
+            for match in cs2_matches:
+                match["game_type"] = "cs2"
+                matches.append(match)
 
-        print(f"🔍 DEBUG: Total live matches found: {len(matches)}")
+            print(f"🔍 DEBUG: Total live matches found: {len(matches)}")
+        except Exception as e:
+            print(f"🔍 DEBUG: Exception in get_all_live_matches: {e}")
+            import traceback
+            traceback.print_exc()
+
         return matches
     
     def get_upcoming_matches(self, game_type: str, hours_ahead: int = 24) -> List[Dict]:
