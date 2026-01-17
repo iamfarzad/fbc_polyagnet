@@ -16,7 +16,7 @@ primary_region = "ams"
   copy = "python3 -m agents.application.pyml_copy_trader --live"
   smart = "python3 -m agents.application.smart_trader --live"
   sports = "python3 -m agents.application.sports_trader --live"
-  esports = "PANDASCORE_API_KEY=$PANDASCORE_API_KEY python3 -m agents.application.esports_trader --live --growth"
+  esports = "python3 -m agents.application.esports_trader --live --growth"
 
 [http_service]
   internal_port = 8000
