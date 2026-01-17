@@ -104,14 +104,17 @@ def perplexity_search(query: str, api_key: str = None) -> str:
 # Position sizing
 MAX_POSITIONS = 10                   # Max concurrent positions (increased)
 BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggressive)
-MIN_BET_USD = 1.00                   # Polymarket minimum
-MAX_BET_USD = 1.00                   # Temporarily limit to $1 for testing
+MIN_BET_USD = 5.00                   # Unified $5 minimum across all agents
+MAX_BET_USD = 5.00                   # Unified $5 max for consistent sizing
 
-# Edge requirements - ZERO LOSS PROTOCOL
-MIN_EDGE_PERCENT = 15               # Need 15%+ edge (was 5%)
-MIN_CONFIDENCE = 0.90               # LLM must be 90%+ confident (was 55%)
-MAX_MARKET_ODDS = 0.90              # Don't buy above 90¢ (was 85¢)
-MIN_MARKET_ODDS = 0.10              # Don't buy below 10¢ (was 15¢)
+# --- OPTIMIZED FAVORITE GRINDING CONFIG ---
+# Edge requirements: Focus on HIGH-PROBABILITY favorites, not underdogs
+MIN_EDGE_PERCENT = 10               # Reduced from 15% (easier to find smaller, safer edges)
+MIN_CONFIDENCE = 0.92               # Increased from 0.90 (only bet on "sure" things)
+MAX_MARKET_ODDS = 0.98              # Allow buying up to 98¢ for near-certain wins
+MIN_MARKET_ODDS = 0.75              # STOP buying underdogs (prevents 13¢-30¢ lotto tickets)
+# Logic: Instead of 1 trade for 500%, we want 10 trades for 2% gain each.
+# This results in lower volatility and steady balance growth.
 
 # Timing
 CHECK_INTERVAL = 180                # Check every 3 minutes (more frequent)

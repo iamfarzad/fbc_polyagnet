@@ -39,11 +39,11 @@ except ImportError:
 load_dotenv()
 
 # --- CONFIGURATION ---
-MIN_BET_USD = 1.00
-MAX_BET_USD = 1.00  # Temporarily limit to $1 for testing
-BET_PERCENT = 0.15 # 15% of bankroll per bet
-MIN_CONFIDENCE = 0.50  # Temporarily lower for testing (was 0.65)
-SCAN_INTERVAL = 60     # 1 minute for faster testing (was 5 minutes)
+MIN_BET_USD = 5.00                 # Unified $5 minimum across all agents
+MAX_BET_USD = 5.00                 # Unified $5 max for consistent sizing
+BET_PERCENT = 0.15                 # 15% of bankroll per bet
+MIN_CONFIDENCE = 0.65              # Restored to normal confidence threshold
+SCAN_INTERVAL = 60                 # 1 minute for faster scanning
 
 # Polymarket Sports Series IDs (for direct Gamma API)
 SPORTS_SERIES = {
