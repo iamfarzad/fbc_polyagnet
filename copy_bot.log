@@ -1,0 +1,14 @@
+2026-01-17 15:32:12,468 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:32:12,536 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:32:12,611 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:32:12,680 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:32:12,843 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:32:12,921 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:32:13,028 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:32:13,139 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:32:13,663 - CopyBot - INFO - Initial Balance: $36.28
+2026-01-17 15:32:13,672 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:32:13,672 - CopyBot - INFO - Starting Copy Trader...
+2026-01-17 15:32:13,672 - SupabaseClient - INFO - ✅ Supabase REST API configured
+2026-01-17 15:32:16,923 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.copy&select=* "HTTP/1.1 200 OK"
+2026-01-17 15:32:32,825 - PyMLBot - INFO - Researching top Polymarket traders via LLM...

@@ -1,0 +1,30 @@
+{
+  "positions": [],
+  "recent_trades": [],
+  "blacklist": [],
+  "allocation": {
+    "safe": 0.2,
+    "scalper": 0.2,
+    "copy": 0.15,
+    "smart": 0.15,
+    "sports_trader": 0.15,
+    "esports_trader": 0.15
+  },
+  "total_balance": 36.277704,
+  "last_update": "2026-01-17T15:50:08.044788",
+  "agent_status": {
+    "safe": {
+      "active": true,
+      "last_action": null
+    },
+    "scalper": {
+      "active": true,
+      "last_action": null
+    },
+    "copy": {
+      "active": true,
+      "last_action": null
+    }
+  },
+  "session_start": "2026-01-17T15:22:09.850707"
+}

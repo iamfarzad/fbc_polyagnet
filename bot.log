@@ -48,3 +48,131 @@
 2026-01-14 13:07:47,729 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
 2026-01-14 13:07:47,827 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
 2026-01-14 13:08:04,454 - PyMLBot - INFO - Stopping Bot.
+2026-01-17 15:25:58,273 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:25:58,341 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:25:58,429 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:25:58,504 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:25:58,815 - PyMLBot - INFO - Starting Bot (Dry Run: True)
+2026-01-17 15:25:58,823 - PyMLBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:25:58,823 - SupabaseClient - INFO - ✅ Supabase REST API configured
+2026-01-17 15:25:59,059 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+2026-01-17 15:25:59,160 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-17 15:25:59,312 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+2026-01-17 15:25:59,346 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+2026-01-17 15:26:59,543 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+2026-01-17 15:26:59,644 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-17 15:30:47,542 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:30:47,628 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:30:47,700 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:30:47,803 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:30:48,151 - PyMLBot - INFO - Initial Balance: $36.28
+2026-01-17 15:30:48,152 - PyMLBot - INFO - Starting Bot (Dry Run: True)
+2026-01-17 15:30:48,171 - PyMLBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:30:48,172 - SupabaseClient - INFO - ✅ Supabase REST API configured
+2026-01-17 15:30:50,408 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+2026-01-17 15:30:50,570 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+2026-01-17 15:30:50,754 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+2026-01-17 15:30:50,996 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+2026-01-17 15:31:51,099 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+2026-01-17 15:35:15,404 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:15,490 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:15,550 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:15,626 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:16,132 - websocket - INFO - Websocket connected
+2026-01-17 15:35:16,214 - websocket - ERROR - Connection to remote host was lost. - goodbye
+2026-01-17 15:35:16,216 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:16,313 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:16,399 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:16,469 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:16,666 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:16,746 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:16,904 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:16,981 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:57,455 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:57,531 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:57,595 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:57,681 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:58,254 - websocket - INFO - Websocket connected
+2026-01-17 15:35:58,304 - websocket - ERROR - Connection to remote host was lost. - goodbye
+2026-01-17 15:35:58,329 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:58,410 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:58,478 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:58,543 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:58,630 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:58,688 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:58,852 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:58,922 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:59,062 - CopyBot - INFO - Initial Balance: $36.28
+2026-01-17 15:35:59,074 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:35:59,166 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:59,231 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:59,306 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:59,377 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:59,551 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:59,612 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:35:59,672 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:35:59,752 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:43,843 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:43,930 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:43,995 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:44,068 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:44,414 - PyMLBot - INFO - Initial Balance: $36.28
+2026-01-17 15:37:44,609 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:44,761 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:44,819 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:44,901 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:45,329 - websocket - INFO - Websocket connected
+2026-01-17 15:37:45,383 - websocket - ERROR - Connection to remote host was lost. - goodbye
+2026-01-17 15:37:45,592 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:45,660 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:45,814 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:45,883 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:45,982 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:46,116 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:46,174 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:46,237 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:46,502 - CopyBot - INFO - Initial Balance: $36.28
+2026-01-17 15:37:46,510 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:37:46,602 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:46,668 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:46,733 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:46,857 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:47,190 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:47,278 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:47,351 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:47,441 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:48,065 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:48,133 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:48,199 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:37:48,290 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:37:48,303 - SupabaseClient - INFO - ✅ Supabase REST API configured
+2026-01-17 15:45:17,984 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:18,043 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:18,139 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:18,209 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:18,412 - PyMLBot - INFO - Initial Balance: $36.28
+2026-01-17 15:45:18,543 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:18,620 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:18,691 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:18,801 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:18,921 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:18,989 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:19,054 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:45:19,119 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:45:19,226 - CopyBot - INFO - Initial Balance: $36.28
+2026-01-17 15:45:19,270 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.
+2026-01-17 15:50:06,621 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:06,683 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:06,745 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:06,827 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:07,060 - PyMLBot - INFO - Initial Balance: $36.28
+2026-01-17 15:50:07,283 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:07,348 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:07,451 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:07,511 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:07,596 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:07,663 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:07,780 - httpx - INFO - HTTP Request: POST https://clob.polymarket.com/auth/api-key "HTTP/2 400 Bad Request"
+2026-01-17 15:50:07,852 - httpx - INFO - HTTP Request: GET https://clob.polymarket.com/auth/derive-api-key "HTTP/2 200 OK"
+2026-01-17 15:50:08,045 - CopyBot - INFO - Initial Balance: $36.28
+2026-01-17 15:50:08,052 - CopyBot - INFO - ✅ Auto-Redeemer initialized for compounding.

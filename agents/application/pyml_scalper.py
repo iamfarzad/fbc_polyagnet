@@ -65,9 +65,9 @@ load_dotenv()
 
 # Portfolio & Size - 20% MAX ALLOCATION RULE
 MAX_POSITIONS = 5
-BET_PERCENT = 0.20  # 20% of total wallet balance maximum allocation
-MIN_BET_USD = 1.00  # Minimum $1.00 per trade
-MAX_BET_USD = 1000.0  # Large limit for 20% allocation
+BET_PERCENT = 0.20                  # 20% of total wallet balance maximum allocation
+MIN_BET_USD = 5.00                  # Unified $5 minimum across all agents
+MAX_BET_USD = 5.00                  # Unified $5 max for consistent sizing
 MAX_DAILY_DRAWDOWN_PCT = 0.50       # Relaxed daily stop loss for testing
 
 # Maker Execution (The Trap)
