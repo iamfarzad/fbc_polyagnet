@@ -441,6 +441,24 @@ class SportsTrader:
 
         print(f"   📡 Found {len(markets)} tradeable markets (accepting orders)")
 
+        # CRITICAL FIX: Fetch open orders to prevent duplicate betting
+        try:
+            open_orders = self.pm.get_open_orders()
+            # extract questions or token IDs from open orders
+            # open_orders is list of dicts. We need to match against 'market' (which has 'question' and tokens)
+            # Since we don't have easy question mapping in open_orders without enrichment, 
+            # we can check token_ids.
+            open_order_token_ids = set()
+            for o in open_orders:
+                # o['asset_id'] or o['token_id']
+                tid = o.get('asset_id') or o.get('token_id')
+                if tid: open_order_token_ids.add(str(tid))
+                
+            print(f"   🔒 {len(open_orders)} existing active orders detected (skipping these markets)")
+        except Exception as e:
+            print(f"   ⚠️ Failed to fetch open orders: {e}")
+            open_order_token_ids = set()
+
         trades_this_scan = 0
         max_trades_per_scan = 1  # Only allow 1 trade per scan cycle
 
@@ -448,6 +466,14 @@ class SportsTrader:
             if trades_this_scan >= max_trades_per_scan:
                 print(f"   ⏸️  Reached max trades per scan ({max_trades_per_scan}). Stopping.")
                 break
+                
+            # Check if we already have an open order for this market's tokens
+            yes_tok = str(market.get("yes_token", ""))
+            no_tok = str(market.get("no_token", ""))
+            
+            if yes_tok in open_order_token_ids or no_tok in open_order_token_ids:
+                print(f"   ⏭️  Skipping {market.get('question')[:20]}... (Active Order Exists)")
+                continue
             question = market.get("question", "")
             yes_price = market.get("yes_price", 0.5)
             no_price = market.get("no_price", 0.5)
@@ -519,7 +545,8 @@ class SportsTrader:
                             data_sources=["Gamma API", "Pattern Match"],
                             duration_ms=0
                         ))
-                    except: pass
+                    except Exception as e:
+                        print(f"      ⚠️ Failed to log PASS activity: {e}")
 
             # Log BET activity (Green Light)
             if is_valid and conf >= MIN_CONFIDENCE and self.context and self.LLMActivity:
@@ -538,7 +565,8 @@ class SportsTrader:
                         data_sources=["Gamma API", "Pattern Match"],
                         duration_ms=0
                     ))
-                except: pass
+                except Exception as e:
+                    print(f"      ⚠️ Failed to log BET activity: {e}")
 
 
     def save_state(self):
