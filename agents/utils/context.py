@@ -409,26 +409,15 @@ class SharedContext:
         """Log an LLM interaction for the activity feed (Supabase + Local)."""
         # 1. Try Supabase (Centralized)
         try:
-            from agents.utils.supabase_client import get_supabase_state
-            supa = get_supabase_state()
-            supa.log_llm_activity(
-                agent=activity.agent,
-                action_type=activity.action_type,
-                market_question=activity.market_question,
-                prompt_summary=activity.prompt_summary,
-                reasoning=activity.reasoning,
-                conclusion=activity.conclusion,
-                confidence=activity.confidence,
-                data_sources=activity.data_sources,
-                tokens_used=activity.tokens_used,
-                cost_usd=activity.cost_usd,
-                duration_ms=activity.duration_ms
-            )
-        except ImportError:
-            # Try relative import if main fails (e.g. running as agent)
+            # Dynamically import to avoid circular dependency
             try:
+                from agents.utils.supabase_client import get_supabase_state
+            except ImportError:
+                # Try relative path (fallback for different running contexts)
                 from agents.agents.utils.supabase_client import get_supabase_state
-                supa = get_supabase_state()
+            
+            supa = get_supabase_state()
+            if supa:
                 supa.log_llm_activity(
                     agent=activity.agent,
                     action_type=activity.action_type,
@@ -442,9 +431,9 @@ class SharedContext:
                     cost_usd=activity.cost_usd,
                     duration_ms=activity.duration_ms
                 )
-            except: pass
         except Exception as e:
-            logger.warning(f"Failed to log to Supabase: {e}")
+            # Don't crash, but log the error so we know why it failed
+            logger.error(f"Failed to log to Supabase: {e}")
 
         # 2. Local Fallback (for audit trail on this machine)
         ctx = self._read()
