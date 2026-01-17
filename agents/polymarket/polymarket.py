@@ -58,7 +58,7 @@ class Polymarket:
         self.private_key = pk
         # --- KEY FIX END ---
 
-        self.polygon_rpc = "https://polygon-rpc.com"
+        self.polygon_rpc = os.getenv("POLYGON_RPC", "https://polygon-rpc.com")
         self.w3 = Web3(Web3.HTTPProvider(self.polygon_rpc))
 
         self.exchange_address = Web3.to_checksum_address("0x4bfb41d5b3570defd03c39a9a4d8de6bd8b8982e")

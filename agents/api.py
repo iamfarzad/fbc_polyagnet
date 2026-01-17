@@ -376,7 +376,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
         # USDC.e contract on Polygon
         USDC_ADDRESS = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
         # Use public RPC to query balance
-        w3 = Web3(Web3.HTTPProvider("https://polygon-rpc.com"))
+        w3 = Web3(Web3.HTTPProvider(os.getenv("POLYGON_RPC", "https://polygon-rpc.com")))
         usdc_abi = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
         usdc_contract = w3.eth.contract(address=Web3.to_checksum_address(USDC_ADDRESS), abi=usdc_abi)
         raw_balance = usdc_contract.functions.balanceOf(Web3.to_checksum_address(DASHBOARD_WALLET)).call()
