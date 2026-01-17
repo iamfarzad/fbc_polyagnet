@@ -1109,6 +1109,7 @@ class EsportsTrader:
         # This is our competitive advantage. Without it, we don't trade.
         live_matches = []
         pandascore_available = bool(os.getenv("PANDASCORE_API_KEY"))
+        print(f"🔍 DEBUG: pandascore_available = {pandascore_available}, env var = {bool(os.getenv('PANDASCORE_API_KEY'))}")
 
         if not pandascore_available:
             print(f"   ❌ NO PANDASCORE API KEY: Esports trading disabled")
@@ -1118,6 +1119,7 @@ class EsportsTrader:
             print(f"      Without data, esports trading becomes unprofitable gambling")
             return POLL_INTERVAL_IDLE
 
+        print(f"🔍 DEBUG: About to call get_all_live_matches(), pandascore_available={pandascore_available}")
         try:
             live_matches = self.data_aggregator.get_all_live_matches()
             # Track API usage (each live matches call counts as ~2-3 requests)
