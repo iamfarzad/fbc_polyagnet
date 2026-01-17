@@ -148,6 +148,11 @@ def load_state() -> Dict[str, Any]:
                 master = json.load(f)
         except Exception as e:
             logger.error(f"Failed to load state: {e}")
+            
+    # Auto-detect Production Environment (Fly.io)
+    # If running in cloud, default to LIVE unless explicitly overridden in file
+    if os.getenv("FLY_APP_NAME") and "dry_run" not in master:
+        master["dry_run"] = False
     
     # Load individual agent states
     safe_state = load_agent_state(SAFE_STATE_FILE)

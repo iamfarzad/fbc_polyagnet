@@ -6,10 +6,8 @@
   "esports_trader_trades": 0,
   "esports_trader_pnl": 0.0,
   "esports_trader_last_scan": "12:33:45",
-  "esports_trader_mode": "LIVE",
+  "esports_trader_mode": "DRY RUN",
   "safe_last_activity": "Scanning Markets (12:33:18)",
   "safe_last_endpoint": "Gamma API",
-  "safe_heartbeat": "2026-01-16T12:33:18.799385",
-  "dry_run": false,
-  "smart_trader_running": false
+  "safe_heartbeat": "2026-01-16T12:33:18.799385"
 }
