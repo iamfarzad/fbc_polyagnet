@@ -126,6 +126,8 @@ EXCLUDE_KEYWORDS = [
     "ethereum price",
     "solana price",
     "xrp price",
+    # Exclude Esports (Handled by Esports Trader)
+    "esports", "lol:", "dota", "counter-strike", "valorant", "bo1", "bo3", "bo5"
 ]
 
 # Market categories to focus on (fee-free)

@@ -78,9 +78,9 @@ MAX_BET_USD = 5.00              # Fixed $5 trades
 BET_PERCENT = 0.40              # 40% of bankroll allocated to esports
 MAX_CONCURRENT_POSITIONS = 10   # Allow 10 concurrent positions
 
-# Timing - LIVE TRADING MODE (aggressive)
-POLL_INTERVAL_LIVE = 5          # Poll every 5s during live match
-POLL_INTERVAL_IDLE = 30         # Poll every 30s when no live match
+# Timing - LIVE TRADING MODE (Conservative for Free Tier)
+POLL_INTERVAL_LIVE = 30         # Poll every 30s (was 5s)
+POLL_INTERVAL_IDLE = 120        # Poll every 2m when idle (was 30s)
 EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
 
 # API Rate Limiting (Gamma API is generous - no strict limits for reads)
@@ -309,28 +309,39 @@ class RiotAPIProvider:
     def __init__(self):
         self.api_key = os.getenv("RIOT_API_KEY")
         self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
-        
+        self._rate_limit_until = 0
+
     def get_live_matches(self) -> List[Dict]:
         """Get currently live LoL matches."""
-        print(f"🔍 DEBUG: RiotAPIProvider.get_live_matches called, key exists: {bool(self.pandascore_key)}")
+        # Check Backoff
+        if time.time() < self._rate_limit_until:
+             sys.stderr.write(f"⏳ Pausing Pandascore (LoL) due to 429 until {self._rate_limit_until}\n"); sys.stderr.flush()
+             return []
+
+        sys.stderr.write(f"🔍 DEBUG: RiotAPIProvider.get_live_matches called, key exists: {bool(self.pandascore_key)}\n")
+        sys.stderr.flush()
         # Try PandaScore for pro matches (easier API)
         if self.pandascore_key:
             try:
                 url = "https://api.pandascore.co/lol/matches/running"
                 headers = {"Authorization": f"Bearer {self.pandascore_key}"}
-                print(f"🔍 DEBUG: Making API call to {url}")
+                sys.stderr.write(f"🔍 DEBUG: Making API call to {url}\n"); sys.stderr.flush()
                 resp = requests.get(url, headers=headers, timeout=10)
-                print(f"🔍 DEBUG: API response status: {resp.status_code}")
+                sys.stderr.write(f"🔍 DEBUG: API response status: {resp.status_code}\n"); sys.stderr.flush()
                 if resp.status_code == 200:
                     matches = resp.json()
-                    print(f"🔍 DEBUG: Found {len(matches)} live LoL matches")
+                    sys.stderr.write(f"🔍 DEBUG: Found {len(matches)} live LoL matches\n"); sys.stderr.flush()
                     return matches
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE 429 (Too Many Requests) - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+                    return []
                 else:
-                    print(f"🔍 DEBUG: API error: {resp.status_code} - {resp.text}")
+                    sys.stderr.write(f"🔍 DEBUG: API error: {resp.status_code} - {resp.text}\n"); sys.stderr.flush()
             except Exception as e:
-                print(f"🔍 DEBUG: PandaScore exception: {e}")
+                sys.stderr.write(f"🔍 DEBUG: PandaScore exception: {e}\n"); sys.stderr.flush()
 
-        print("🔍 DEBUG: No pandascore key or API failed, returning empty list")
+        sys.stderr.write("🔍 DEBUG: No pandascore key or API failed, returning empty list\n"); sys.stderr.flush()
         return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
@@ -419,9 +430,13 @@ class CS2DataProvider:
     
     def __init__(self):
         self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
     
     def get_live_matches(self) -> List[Dict]:
         """Get currently live CS2 matches."""
+        if time.time() < self._rate_limit_until:
+             return []
+
         if self.pandascore_key:
             try:
                 url = "https://api.pandascore.co/csgo/matches/running"
@@ -429,6 +444,10 @@ class CS2DataProvider:
                 resp = requests.get(url, headers=headers, timeout=10)
                 if resp.status_code == 200:
                     return resp.json()
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE CS2 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+
             except Exception as e:
                 print(f"PandaScore CS2 error: {e}")
         
@@ -558,31 +577,31 @@ class EsportsDataAggregator:
         
     def get_all_live_matches(self) -> List[Dict]:
         """Get all currently live matches across games."""
-        print("🔍 DEBUG: get_all_live_matches called")
+        sys.stderr.write("🔍 DEBUG: get_all_live_matches called\n"); sys.stderr.flush()
         matches = []
 
         try:
             # LoL matches
-            print("🔍 DEBUG: Getting LoL matches...")
+            sys.stderr.write("🔍 DEBUG: Getting LoL matches...\n"); sys.stderr.flush()
             lol_matches = self.lol_provider.get_live_matches()
-            print(f"🔍 DEBUG: LoL provider returned {len(lol_matches)} matches")
+            sys.stderr.write(f"🔍 DEBUG: LoL provider returned {len(lol_matches)} matches\n"); sys.stderr.flush()
             for match in lol_matches:
                 match["game_type"] = "lol"
                 matches.append(match)
 
             # CS2 matches
-            print("🔍 DEBUG: Getting CS2 matches...")
+            sys.stderr.write("🔍 DEBUG: Getting CS2 matches...\n"); sys.stderr.flush()
             cs2_matches = self.cs2_provider.get_live_matches()
-            print(f"🔍 DEBUG: CS2 provider returned {len(cs2_matches)} matches")
+            sys.stderr.write(f"🔍 DEBUG: CS2 provider returned {len(cs2_matches)} matches\n"); sys.stderr.flush()
             for match in cs2_matches:
                 match["game_type"] = "cs2"
                 matches.append(match)
 
-            print(f"🔍 DEBUG: Total live matches found: {len(matches)}")
+            sys.stderr.write(f"🔍 DEBUG: Total live matches found: {len(matches)}\n"); sys.stderr.flush()
         except Exception as e:
-            print(f"🔍 DEBUG: Exception in get_all_live_matches: {e}")
+            sys.stderr.write(f"🔍 DEBUG: Exception in get_all_live_matches: {e}\n"); sys.stderr.flush()
             import traceback
-            traceback.print_exc()
+            traceback.print_exc(file=sys.stderr)
 
         return matches
     
@@ -788,27 +807,9 @@ class PolymarketEsports:
             return 0.5, 0.5
     
     def place_order(self, token_id: str, side: str, price: float, size: float) -> Dict:
-        """Place an order on Polymarket."""
-        try:
-            from py_clob_client.clob_types import OrderArgs
-            from py_clob_client.order_builder.constants import BUY, SELL
-            
-            order_side = BUY if side == "BUY" else SELL
-            
-            order_args = OrderArgs(
-                token_id=str(token_id),
-                price=price,
-                size=size,
-                side=order_side
-            )
-            
-            signed = self.pm.client.create_order(order_args)
-            result = self.pm.client.post_order(signed)
-            
-            return result
-            
-        except Exception as e:
-            return {"error": str(e)}
+        """Place an order on Polymarket using the shared Gnosis-safe wrapper."""
+        # Use the shared wrapper which handles Proxy Wallet signatures correctly
+        return self.pm.place_limit_order(token_id, price, size, side)
 
 
 # =============================================================================
@@ -1080,7 +1081,7 @@ class EsportsTrader:
         2. Signal: PandaScore/Riot Data -> Provides "Teemu Advantage" (Latency Edge).
         3. Execution: Direct CLOB.
         """
-        print("🚨🚨🚨 DEBUG: scan_and_trade() method called! 🚨🚨🚨")
+        sys.stderr.write("🚨🚨🚨 DEBUG: scan_and_trade() method called! 🚨🚨🚨\n"); sys.stderr.flush()
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
 
         # 0. Check Rate Limits First
@@ -1126,19 +1127,22 @@ class EsportsTrader:
             print(f"      Without data, esports trading becomes unprofitable gambling")
             return POLL_INTERVAL_IDLE
 
-        print(f"🔍 DEBUG: About to call get_all_live_matches(), pandascore_available={pandascore_available}")
+        sys.stderr.write(f"🔍 DEBUG: About to call get_all_live_matches(), pandascore_available={pandascore_available}\n"); sys.stderr.flush()
         try:
             live_matches = self.data_aggregator.get_all_live_matches()
             # Track API usage (each live matches call counts as ~2-3 requests)
             self.increment_request_count()
             self.increment_request_count()  # For both LoL and CS2 calls
-            print(f"   found {len(live_matches)} active games in data feed")
+            sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
         except Exception as e:
-            print(f"   ⚠️ Data feed error: {e}")
+            sys.stderr.write(f"   ⚠️ Data feed error: {e}\n"); sys.stderr.flush()
             print(f"      Disabling trading until Pandascore is working")
             return POLL_INTERVAL_IDLE
 
         trades_made = 0
+        
+        trades_made = 0
+        match_state_cache = {} # Local cache for this scan cycle to batch requests
         
         for market in markets:
             question = market.question
@@ -1173,7 +1177,17 @@ class EsportsTrader:
                 # We have live stats (Gold, Kills) -> Huge Edge
                 game_type = live_match.get("game_type", "lol")
                 match_id = str(live_match.get("id"))
-                state = self.data_aggregator.get_match_state(match_id, game_type)
+                
+                # Check Cache First to save API calls
+                state = None
+                if match_id in match_state_cache:
+                    state = match_state_cache[match_id]
+                else:
+                    # Fetch and cache
+                    state = self.data_aggregator.get_match_state(match_id, game_type)
+                    if state:
+                        self.increment_request_count() # Count this detail fetch
+                        match_state_cache[match_id] = state
 
                 if state and state.is_live:
                     true_prob = self.model.calculate(state)
@@ -1182,13 +1196,14 @@ class EsportsTrader:
                     market_prob = yes_price
                     edge = true_prob - market_prob
 
-                    print(f"\n   ⚔️ TEEMU MODE: {question[:40]}...")
-                    print(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}")
-                    print(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%")
+                    sys.stderr.write(f"\n   ⚔️ TEEMU MODE: {question[:40]}...\n")
+                    sys.stderr.write(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}\n")
+                    sys.stderr.write(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%\n")
+                    sys.stderr.flush()
 
                     if abs(edge) > MIN_EDGE_PERCENT / 100:
                         side = "YES" if edge > 0 else "NO"
-                        print(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)")
+                        sys.stderr.write(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
                         if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
                             trades_made += 1
                         continue
