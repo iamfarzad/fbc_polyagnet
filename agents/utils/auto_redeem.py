@@ -67,16 +67,16 @@ class AutoRedeemer:
             ""
         )
 
-        # CRITICAL FIX: For Gnosis Safe operations, self.address MUST be the proxy
-        # The proxy holds the tokens, not the EOA signer
+        # Use DASHBOARD_WALLET for positions (same as API) - fallback to proxy for transactions
+        self.dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
         self.proxy_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
 
         self.address = None
         if self.private_key:
             self.account = Account.from_key(self.private_key)
-            # PRIORITIZE PROXY ADDRESS for Gnosis Safe operations
-            self.address = self.proxy_address if self.proxy_address else self.account.address
-            print(f"   🏦 AutoRedeemer using address: {self.address} (Proxy: {self.proxy_address is not None})")
+            # Use dashboard wallet for position queries, proxy for Gnosis Safe transactions
+            self.address = self.dashboard_wallet  # Always use dashboard wallet for positions
+            print(f"   🏦 AutoRedeemer using dashboard wallet: {self.address} (Proxy: {self.proxy_address})")
         else:
             # Fallback: try to import Polymarket and get address
             try:
@@ -232,8 +232,8 @@ class AutoRedeemer:
             condition_bytes = bytes.fromhex(condition_id[2:].zfill(64))
 
             is_proxy = False
-            proxy_address = os.getenv("POLYMARKET_PROXY_ADDRESS") or os.getenv("POLYMARKET_FUNDER")
-            if proxy_address and self.address.lower() == proxy_address.lower():
+            proxy_address = self.proxy_address
+            if proxy_address and proxy_address.lower() != self.dashboard_wallet.lower():
                 is_proxy = True
 
             parent_collection = bytes(32)
