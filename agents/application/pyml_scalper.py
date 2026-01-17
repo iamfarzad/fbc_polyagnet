@@ -90,8 +90,10 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.0       # 0.0% momentum - immediate trades for $5.00 compounding cycle
+BASE_MOMENTUM_THRESHOLD = 0.0005    # 0.05% momentum - filters noise, catches trends
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
+PRICE_CAP = 0.75                    # Don't buy if price > $0.75 (risk > reward)
+MAX_POSITIONS = 3                   # Reduce from 5 for $3.16 balance
 
 
 class CryptoScalper:
@@ -262,6 +264,24 @@ class CryptoScalper:
             self.price_cache[token_id] = (time.time(), price_data)
             return price_data
         except: return 0.5, 0.0, 0.0, 1.0
+
+    def calculate_momentum(self, symbol):
+        """Calculate momentum as % change over last 30 seconds."""
+        history = self.binance_history.get(symbol, [])
+        if len(history) < 2: return 0.0
+
+        # Get prices from last 30 seconds
+        now = time.time()
+        recent_prices = [(t, p) for t, p in history if now - t < 30]
+
+        if len(recent_prices) < 2: return 0.0
+
+        # Calculate momentum as (current - oldest) / oldest
+        oldest_price = recent_prices[0][1]
+        current_price = recent_prices[-1][1]
+
+        momentum = (current_price - oldest_price) / oldest_price
+        return momentum
 
     def calculate_volatility(self, symbol):
         """Calculate recent volatility (Standard Deviation) from Binance deque."""
@@ -459,11 +479,18 @@ class CryptoScalper:
         return min(MAX_BET_USD, max(MIN_BET_USD, size))
 
     def open_position_maker(self, market, direction):
+        market_id = market["id"]
+
         # Select target token based on momentum direction
         token_id = market["up_token"] if direction == "UP" else market["down_token"]
         opposing_token = market["down_token"] if direction == "UP" else market["up_token"]
 
-        # 1. LOCKOUT CHECK: Don't buy if we already hold either side of this asset
+        # 1. RAPID FIRE PREVENTION: Only one attempt per 15-minute window
+        if market_id in self.traded_markets:
+            print(f"   🚫 RAPID FIRE BLOCK: Already attempted {market['asset']} this window")
+            return False
+
+        # 2. LOCKOUT CHECK: Don't buy if we already hold either side of this asset
         # This prevents "doubling down" before redemption (20% rule)
         if token_id in self.active_positions or opposing_token in self.active_positions:
             print(f"   🔒 LOCKOUT: Already holding position in {market['asset']}")
@@ -486,6 +513,11 @@ class CryptoScalper:
             print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 0.1¢-95¢ range")
             return False
 
+        # PRICE CAP: Don't buy if entry price > $0.75 (risk > reward)
+        if entry_price > PRICE_CAP:
+            print(f"   ⚠️ PRICE TOO HIGH: ${entry_price:.3f} > ${PRICE_CAP:.2f} (Risk > Reward)")
+            return False
+
         # 3. 20% Allocation Rule: Size based on available balance
         balance = self.get_balance()
         if balance < 5.01:  # Need at least $5.01 for $5.00 trade + fees
@@ -506,6 +538,8 @@ class CryptoScalper:
                 "entry_price": entry_price, "size": size_shares, "entry_time": time.time(),
                 "market_id": market["id"]
             }
+            # Lock this market to prevent rapid-fire
+            self.traded_markets.add(market_id)
             print("   ✅ [DRY] Position Opened (20% Allocation)")
             return True
 
@@ -518,6 +552,8 @@ class CryptoScalper:
                     "side": direction, "price": entry_price, "time": time.time(),
                     "timeout": 5  # Fast 5s timeout to catch fills
                 }
+                # Lock this market to prevent rapid-fire
+                self.traded_markets.add(market_id)
                 print("   ✅ [LIVE] Order Placed (20% Allocation)")
                 return True
             else:
@@ -685,6 +721,11 @@ class CryptoScalper:
                 self.manage_positions()
 
                 # 4. Scan & Enter (Optimized)
+                # Clear traded markets every 15 minutes to allow re-entry in new windows
+                if int(time.time()) % 900 == 0:  # Every 15 minutes
+                    self.traded_markets.clear()
+                    print("   🔄 CLEARED: Market lockouts reset for new 15m windows")
+
                 print(f"   🔄 SCAN: active_positions={len(self.active_positions)}, MAX_POSITIONS={MAX_POSITIONS}")
                 if len(self.active_positions) < MAX_POSITIONS:
                     markets = self.get_available_markets()
@@ -697,18 +738,19 @@ class CryptoScalper:
                                 asset = m['asset']
 
                                 # "Best Option" Entry Logic - Choose direction with momentum
-                                # Since threshold is 0.0, this will trigger on any detectable momentum
-                                # TEMPORARY: For immediate testing, force direction based on asset
-                                if asset == "bitcoin":
-                                    direction = "UP"  # Force UP for Bitcoin
-                                elif asset == "ethereum":
-                                    direction = "DOWN"  # Force DOWN for Ethereum
-                                elif asset == "solana":
-                                    direction = "UP"   # Force UP for Solana
-                                else:  # xrp
-                                    direction = "DOWN" # Force DOWN for XRP
+                                # Calculate real momentum from Binance data
+                                binance_symbol = [k for k, v in BINANCE_SYMBOLS.items() if v == asset][0]
+                                momentum = self.calculate_momentum(binance_symbol)
 
-                                print(f"   🎯 BEST OPTION: {asset.upper()} {direction} (20% allocation, threshold=0.0)")
+                                # Only trade if momentum exceeds threshold
+                                if abs(momentum) < BASE_MOMENTUM_THRESHOLD:
+                                    print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {BASE_MOMENTUM_THRESHOLD:.4f})")
+                                    continue
+
+                                # Choose direction based on momentum
+                                direction = "UP" if momentum > 0 else "DOWN"
+
+                                print(f"   🎯 MOMENTUM SIGNAL: {asset.upper()} {direction} ({momentum:.4f}% > {BASE_MOMENTUM_THRESHOLD:.4f}%)")
                                 self.open_position_maker(m, direction)
                             except Exception as e:
                                 # Log but don't crash the main loop
