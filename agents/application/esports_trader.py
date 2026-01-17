@@ -287,6 +287,9 @@ class WinProbabilityModel:
             return cls.cs2_win_probability(state)
         elif state.game_type == "dota2":
             return cls.dota2_win_probability(state)
+        elif state.game_type == "valorant":
+            # Valorant logic is identical to CS2 (Round based, 13 to win)
+            return cls.cs2_win_probability(state)
         else:
             return 0.5
 
@@ -568,12 +571,96 @@ class CS2DataProvider:
             return None
 
 
+class ValorantDataProvider:
+    """Fetches live Valorant match data."""
+    
+    def __init__(self):
+        self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
+    
+    def get_live_matches(self) -> List[Dict]:
+        """Get currently live Valorant matches."""
+        if time.time() < self._rate_limit_until:
+             return []
+
+        if self.pandascore_key:
+            try:
+                url = "https://api.pandascore.co/valorant/matches/running"
+                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                resp = requests.get(url, headers=headers, timeout=10)
+                if resp.status_code == 200:
+                    return resp.json()
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE VAL 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+
+            except Exception as e:
+                print(f"PandaScore Valorant error: {e}")
+        
+        return []
+    
+    def get_match_state(self, match_id: str) -> Optional[GameState]:
+        """Get current state of a live Valorant match."""
+        if not self.pandascore_key:
+            return None
+            
+        try:
+            url = f"https://api.pandascore.co/valorant/matches/{match_id}"
+            headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+            resp = requests.get(url, headers=headers, timeout=10)
+            
+            if resp.status_code != 200:
+                return None
+                
+            data = resp.json()
+            opponents = data.get("opponents", [])
+            if len(opponents) < 2:
+                return None
+                
+            team1 = opponents[0].get("opponent", {}).get("name", "Team1")
+            team2 = opponents[1].get("opponent", {}).get("name", "Team2")
+            
+            # Get current game
+            games = data.get("games", [])
+            current_game = None
+            for game in games:
+                if game.get("status") == "running":
+                    current_game = game
+                    break
+            
+            team1_score = 0
+            team2_score = 0
+            
+            if current_game:
+                # Round scores from current map
+                for result in data.get("results", []):
+                    if result.get("team_id") == opponents[0].get("opponent", {}).get("id"):
+                        team1_score = result.get("score", 0)
+                    else:
+                        team2_score = result.get("score", 0)
+            
+            return GameState(
+                game_type="valorant",
+                match_id=match_id,
+                team1=team1,
+                team2=team2,
+                team1_score=team1_score,
+                team2_score=team2_score,
+                is_live=data.get("status") == "running",
+                raw_data=data
+            )
+            
+        except Exception as e:
+            print(f"Error fetching Valorant match: {e}")
+            return None
+
 class EsportsDataAggregator:
     """Aggregates data from multiple esports APIs."""
     
     def __init__(self):
         self.lol_provider = RiotAPIProvider()
         self.cs2_provider = CS2DataProvider()
+        self.val_provider = ValorantDataProvider()
         
     def get_all_live_matches(self) -> List[Dict]:
         """Get all currently live matches across games."""
@@ -597,6 +684,14 @@ class EsportsDataAggregator:
                 match["game_type"] = "cs2"
                 matches.append(match)
 
+            # Valorant matches
+            sys.stderr.write("🔍 DEBUG: Getting Valorant matches...\n"); sys.stderr.flush()
+            val_matches = self.val_provider.get_live_matches()
+            sys.stderr.write(f"🔍 DEBUG: Valorant provider returned {len(val_matches)} matches\n"); sys.stderr.flush()
+            for match in val_matches:
+                match["game_type"] = "valorant"
+                matches.append(match)
+
             sys.stderr.write(f"🔍 DEBUG: Total live matches found: {len(matches)}\n"); sys.stderr.flush()
         except Exception as e:
             sys.stderr.write(f"🔍 DEBUG: Exception in get_all_live_matches: {e}\n"); sys.stderr.flush()
@@ -608,6 +703,7 @@ class EsportsDataAggregator:
     def get_upcoming_matches(self, game_type: str, hours_ahead: int = 24) -> List[Dict]:
         """
         Get upcoming matches to know when to expect trading opportunities.
+
 
         This helps the bot know when esports tournaments are scheduled.
         """
@@ -656,6 +752,8 @@ class EsportsDataAggregator:
             return self.lol_provider.get_match_state(match_id)
         elif game_type == "cs2":
             return self.cs2_provider.get_match_state(match_id)
+        elif game_type == "valorant":
+            return self.val_provider.get_match_state(match_id)
         return None
 
 
