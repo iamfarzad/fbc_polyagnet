@@ -1238,6 +1238,7 @@ class EsportsTrader:
 
     def run(self):
         """Main run loop with hybrid strategy."""
+        print("🔍 DEBUG: run() method called!")
         print("\n🎮 ESPORTS TRADER ACTIVE - DATA-DRIVEN MODE")
         print("   ⚠️  REQUIRES PANDASCORE API KEY for profitable trading")
         print("   📊 Strategy: Live game stats vs market odds (latency arbitrage)")
