@@ -1080,6 +1080,7 @@ class EsportsTrader:
         2. Signal: PandaScore/Riot Data -> Provides "Teemu Advantage" (Latency Edge).
         3. Execution: Direct CLOB.
         """
+        print("🚨🚨🚨 DEBUG: scan_and_trade() method called! 🚨🚨🚨")
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
 
         # 0. Check Rate Limits First
