@@ -14,15 +14,15 @@ from dotenv import load_dotenv
 # Add parent paths
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from agents.agents.polymarket.polymarket import Polymarket
-from agents.agents.utils.validator import Validator, SharedConfig
+from agents.polymarket.polymarket import Polymarket
+from agents.utils.validator import Validator, SharedConfig
 from py_clob_client.clob_types import OrderArgs
 from py_clob_client.order_builder.constants import BUY
-from agents.agents.utils.context import get_context, Position, Trade
+from agents.utils.context import get_context, Position, Trade
 
 # Try to import auto-redeemer
 try:
-    from agents.agents.utils.auto_redeem import AutoRedeemer
+    from agents.utils.auto_redeem import AutoRedeemer
     HAS_REDEEMER = True
 except ImportError:
     HAS_REDEEMER = False
@@ -30,7 +30,7 @@ except ImportError:
 
 # Import Supabase state manager
 try:
-    from agents.agents.utils.supabase_client import get_supabase_state
+    from agents.utils.supabase_client import get_supabase_state
     HAS_SUPABASE = True
 except ImportError:
     HAS_SUPABASE = False
@@ -95,7 +95,7 @@ class SportsTrader:
 
         # Check global dry run state from Supabase and override local setting
         try:
-            from agents.agents.utils.supabase_client import get_supabase_state
+            from agents.utils.supabase_client import get_supabase_state
             supabase = get_supabase_state()
             if supabase:
                 global_dry_run = supabase.get_global_dry_run()
@@ -106,12 +106,12 @@ class SportsTrader:
         
         # Initialize Shared Context with robust import check
         try:
-            from agents.agents.utils.context import get_context, LLMActivity
+            from agents.utils.context import get_context, LLMActivity
             self.context = get_context()
             self.LLMActivity = LLMActivity
         except ImportError:
             try: 
-                from agents.agents.agents.utils.context import get_context, LLMActivity
+                from agents.utils.context import get_context, LLMActivity
                 self.context = get_context()
                 self.LLMActivity = LLMActivity
             except:
