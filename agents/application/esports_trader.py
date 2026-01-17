@@ -312,17 +312,25 @@ class RiotAPIProvider:
         
     def get_live_matches(self) -> List[Dict]:
         """Get currently live LoL matches."""
+        print(f"🔍 DEBUG: RiotAPIProvider.get_live_matches called, key exists: {bool(self.pandascore_key)}")
         # Try PandaScore for pro matches (easier API)
         if self.pandascore_key:
             try:
                 url = "https://api.pandascore.co/lol/matches/running"
                 headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                print(f"🔍 DEBUG: Making API call to {url}")
                 resp = requests.get(url, headers=headers, timeout=10)
+                print(f"🔍 DEBUG: API response status: {resp.status_code}")
                 if resp.status_code == 200:
-                    return resp.json()
+                    matches = resp.json()
+                    print(f"🔍 DEBUG: Found {len(matches)} live LoL matches")
+                    return matches
+                else:
+                    print(f"🔍 DEBUG: API error: {resp.status_code} - {resp.text}")
             except Exception as e:
-                print(f"PandaScore error: {e}")
-        
+                print(f"🔍 DEBUG: PandaScore exception: {e}")
+
+        print("🔍 DEBUG: No pandascore key or API failed, returning empty list")
         return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
@@ -550,18 +558,26 @@ class EsportsDataAggregator:
         
     def get_all_live_matches(self) -> List[Dict]:
         """Get all currently live matches across games."""
+        print("🔍 DEBUG: get_all_live_matches called")
         matches = []
-        
+
         # LoL matches
-        for match in self.lol_provider.get_live_matches():
+        print("🔍 DEBUG: Getting LoL matches...")
+        lol_matches = self.lol_provider.get_live_matches()
+        print(f"🔍 DEBUG: LoL provider returned {len(lol_matches)} matches")
+        for match in lol_matches:
             match["game_type"] = "lol"
             matches.append(match)
-        
+
         # CS2 matches
-        for match in self.cs2_provider.get_live_matches():
+        print("🔍 DEBUG: Getting CS2 matches...")
+        cs2_matches = self.cs2_provider.get_live_matches()
+        print(f"🔍 DEBUG: CS2 provider returned {len(cs2_matches)} matches")
+        for match in cs2_matches:
             match["game_type"] = "cs2"
             matches.append(match)
-        
+
+        print(f"🔍 DEBUG: Total live matches found: {len(matches)}")
         return matches
     
     def get_upcoming_matches(self, game_type: str, hours_ahead: int = 24) -> List[Dict]:
