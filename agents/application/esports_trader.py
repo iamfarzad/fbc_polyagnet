@@ -1462,12 +1462,14 @@ class EsportsTrader:
              poll_interval = 45
              
         time_since_last = current_time - self.last_live_poll
-        should_poll = time_since_last >= poll_interval
+        # Force poll on first scan (last_live_poll = 0) or if enough time has passed
+        should_poll = (self.last_live_poll == 0) or (time_since_last >= poll_interval)
         
         if not should_poll:
             print(f"   ⏳ Smart Polling: Skipping Data API ({time_since_last:.1f}s / {poll_interval}s)")
             live_matches = [] # Skip call
         else:
+            print(f"   📡 Fetching live match data from PandaScore (poll_interval: {poll_interval}s)...")
             try:
                 live_matches = self.data_aggregator.get_all_live_matches()
                 self.last_live_poll = current_time
@@ -1476,16 +1478,20 @@ class EsportsTrader:
                 # Track API usage (aggregated matches call counts as ~2-3 requests)
                 self.increment_request_count()
                 self.increment_request_count()  
+                print(f"   ✅ Found {len(live_matches)} live matches in data feed")
                 sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
             except Exception as e:
+                print(f"   ⚠️ Data feed error: {e}")
                 sys.stderr.write(f"   ⚠️ Data feed error: {e}\n"); sys.stderr.flush()
                 # Don't disable entire trading, just skip this turn
                 live_matches = []
 
         trades_made = 0
-        
-        trades_made = 0
         match_state_cache = {} # Local cache for this scan cycle to batch requests
+        matched_count = 0
+        analyzed_count = 0
+        
+        print(f"   🔍 Processing {len(markets)} markets with {len(live_matches)} live matches...")
         
         for market in markets:
             question = market.question
@@ -1514,8 +1520,15 @@ class EsportsTrader:
 
             # Match Market -> Live Data (when available)
             live_match = self.match_market_to_live_game(market, live_matches)
+            
+            if live_match:
+                matched_count += 1
+                # Log first few matches for visibility
+                if matched_count <= 3:
+                    print(f"   ✅ Matched: {market.team1} vs {market.team2} -> Live match found")
 
             if live_match and live_matches:  # PandaScore data available
+                analyzed_count += 1
                 # === PATH A: TEEMU MODE (DATA DRIVEN) ===
                 # We have live stats (Gold, Kills) -> Huge Edge
                 game_type = live_match.get("game_type", "lol")
@@ -1544,8 +1557,13 @@ class EsportsTrader:
                     sys.stderr.write(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%\n")
                     sys.stderr.flush()
 
+                    # Log edge calculation for visibility
+                    print(f"   📊 Edge Analysis: {question[:50]}...")
+                    print(f"      True Prob: {true_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: {edge*100:+.1f}% | Threshold: {MIN_EDGE_PERCENT}%")
+                    
                     if abs(edge) > MIN_EDGE_PERCENT / 100:
                         side = "YES" if edge > 0 else "NO"
+                        print(f"      🔥 DATA EDGE DETECTED: {side} (Edge: {abs(edge)*100:.1f}% > {MIN_EDGE_PERCENT}%)")
                         sys.stderr.write(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
                         if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
                             trades_made += 1
@@ -1572,7 +1590,13 @@ class EsportsTrader:
             # WARNING: Without Pandascore data, this is essentially gambling
             # The market-based heuristics are often wrong and lead to losses
 
-            print(f"   ⚠️ NO PANDASCORE DATA: Skipping market-based trading for {question[:30]}...")
+            # Only log occasionally to avoid spam (every 10th market or if no live_matches)
+            if not live_matches or (markets.index(market) % 10 == 0):
+                print(f"   ⚠️ NO PANDASCORE DATA: Skipping market-based trading for {question[:30]}...")
+                if not live_matches:
+                    print(f"      Reason: No live matches found (empty live_matches array)")
+                else:
+                    print(f"      Reason: Market '{question[:30]}' doesn't match any of {len(live_matches)} live matches")
             
             # Log "WAIT" status to dashboard (Throttled to 1/min)
             if time.time() - self.last_activity_log > 60:
@@ -1594,6 +1618,17 @@ class EsportsTrader:
 
             # DISABLED: Don't make trades without data advantage
             # The following code would gamble based on simplistic assumptions:
+            
+            # Still check for arbitrage (free money)
+            spread_sum = yes_price + no_price
+            if spread_sum < 0.985:  # True arbitrage opportunity
+                print(f"\n   💰 ARBITRAGE DETECTED: {question[:40]}...")
+                print(f"      Yes({yes_price:.3f}) + No({no_price:.3f}) = {spread_sum:.3f} (< 0.985)")
+                target_side = "YES" if yes_price < no_price else "NO"
+                print(f"      ⚡ Executing ARB on {target_side}")
+                if self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price):
+                    trades_made += 1
+                continue
 
             # Look for arbitrage opportunities (rare and usually already arbitraged)
             # if spread_sum < 0.985:  # Only true arbitrage
@@ -1608,9 +1643,23 @@ class EsportsTrader:
 
             continue
 
+        # Summary log
+        print(f"\n   📊 Scan Summary:")
+        print(f"      Markets scanned: {len(markets)}")
+        print(f"      Live matches available: {len(live_matches)}")
+        print(f"      Markets matched: {matched_count}")
+        print(f"      Markets analyzed: {analyzed_count}")
+        print(f"      Trades executed: {trades_made}")
+        if trades_made == 0 and len(live_matches) == 0:
+            print(f"      ⚠️ No live matches found - check PandaScore API")
+        elif trades_made == 0 and matched_count == 0:
+            print(f"      ⚠️ No markets matched to live games - check team name matching")
+        elif trades_made == 0 and analyzed_count > 0:
+            print(f"      ⚠️ Markets analyzed but no edge > {MIN_EDGE_PERCENT}% found")
+
         # Save state & Return
         self.save_state()
-        return POLL_INTERVAL_LIVE
+        return POLL_INTERVAL_LIVE if trades_made > 0 else POLL_INTERVAL_IDLE
 
     def _check_upcoming_matches(self):
         """Check for upcoming matches to inform about potential trading windows."""
