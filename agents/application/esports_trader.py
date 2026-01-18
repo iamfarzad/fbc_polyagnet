@@ -380,6 +380,7 @@ class RiotAPIProvider:
     def get_match_state(self, match_id: str) -> Optional[GameState]:
         """Get current state of a live LoL match with enhanced game data."""
         if not self.pandascore_key:
+            sys.stderr.write(f"🔍 DEBUG: LoL match state skipped - no API key\n"); sys.stderr.flush()
             return None
 
         try:
@@ -389,6 +390,7 @@ class RiotAPIProvider:
             resp = requests.get(match_url, headers=headers, timeout=10)
 
             if resp.status_code != 200:
+                sys.stderr.write(f"🔍 DEBUG: LoL match state fetch failed: {resp.status_code} - {resp.text[:200]}\n"); sys.stderr.flush()
                 return None
 
             data = resp.json()
@@ -515,11 +517,13 @@ class CS2DataProvider:
             return None
             
         try:
+            # Try csgo endpoint first (PandaScore uses csgo for CS2)
             url = f"https://api.pandascore.co/csgo/matches/{match_id}"
             headers = {"Authorization": f"Bearer {self.pandascore_key}"}
             resp = requests.get(url, headers=headers, timeout=10)
             
             if resp.status_code != 200:
+                sys.stderr.write(f"🔍 DEBUG: CS2 match state fetch failed: {resp.status_code} - {resp.text[:200]}\n"); sys.stderr.flush()
                 return None
                 
             data = resp.json()
@@ -651,6 +655,62 @@ class ValorantDataProvider:
                 print(f"PandaScore Valorant error: {e}")
         
         return []
+    
+    def get_match_state(self, match_id: str) -> Optional[GameState]:
+        """Get current state of a live Valorant match."""
+        if not self.pandascore_key:
+            return None
+            
+        try:
+            url = f"https://api.pandascore.co/valorant/matches/{match_id}"
+            headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+            resp = requests.get(url, headers=headers, timeout=10)
+            
+            if resp.status_code != 200:
+                sys.stderr.write(f"🔍 DEBUG: Valorant match state fetch failed: {resp.status_code} - {resp.text[:200]}\n"); sys.stderr.flush()
+                return None
+                
+            data = resp.json()
+            opponents = data.get("opponents", [])
+            if len(opponents) < 2:
+                return None
+                
+            team1 = opponents[0].get("opponent", {}).get("name", "Team1")
+            team2 = opponents[1].get("opponent", {}).get("name", "Team2")
+            
+            # Get current game
+            games = data.get("games", [])
+            current_game = None
+            for game in games:
+                if game.get("status") == "running":
+                    current_game = game
+                    break
+            
+            team1_score = 0
+            team2_score = 0
+            
+            if current_game:
+                # Round scores from current map
+                for result in data.get("results", []):
+                    if result.get("team_id") == opponents[0].get("opponent", {}).get("id"):
+                        team1_score = result.get("score", 0)
+                    else:
+                        team2_score = result.get("score", 0)
+            
+            return GameState(
+                game_type="valorant",
+                match_id=match_id,
+                team1=team1,
+                team2=team2,
+                team1_score=team1_score,
+                team2_score=team2_score,
+                is_live=data.get("status") == "running",
+                raw_data=data
+            )
+            
+        except Exception as e:
+            sys.stderr.write(f"🔍 DEBUG: Valorant match state error: {e}\n"); sys.stderr.flush()
+            return None
 
 
 class Dota2DataProvider:
@@ -769,7 +829,7 @@ class RocketLeagueDataProvider:
 
         if self.pandascore_key:
             try:
-                url = "https://api.pandascore.co/rocketleague/matches/running"
+                url = "https://api.pandascore.co/rl/matches/running"
                 headers = {"Authorization": f"Bearer {self.pandascore_key}"}
                 resp = requests.get(url, headers=headers, timeout=10)
                 if resp.status_code == 200:
@@ -781,61 +841,6 @@ class RocketLeagueDataProvider:
                 sys.stderr.write(f"🔍 DEBUG: PandaScore RL exception: {e}\n"); sys.stderr.flush()
         
         return []
-    
-    def get_match_state(self, match_id: str) -> Optional[GameState]:
-        """Get current state of a live Valorant match."""
-        if not self.pandascore_key:
-            return None
-            
-        try:
-            url = f"https://api.pandascore.co/valorant/matches/{match_id}"
-            headers = {"Authorization": f"Bearer {self.pandascore_key}"}
-            resp = requests.get(url, headers=headers, timeout=10)
-            
-            if resp.status_code != 200:
-                return None
-                
-            data = resp.json()
-            opponents = data.get("opponents", [])
-            if len(opponents) < 2:
-                return None
-                
-            team1 = opponents[0].get("opponent", {}).get("name", "Team1")
-            team2 = opponents[1].get("opponent", {}).get("name", "Team2")
-            
-            # Get current game
-            games = data.get("games", [])
-            current_game = None
-            for game in games:
-                if game.get("status") == "running":
-                    current_game = game
-                    break
-            
-            team1_score = 0
-            team2_score = 0
-            
-            if current_game:
-                # Round scores from current map
-                for result in data.get("results", []):
-                    if result.get("team_id") == opponents[0].get("opponent", {}).get("id"):
-                        team1_score = result.get("score", 0)
-                    else:
-                        team2_score = result.get("score", 0)
-            
-            return GameState(
-                game_type="valorant",
-                match_id=match_id,
-                team1=team1,
-                team2=team2,
-                team1_score=team1_score,
-                team2_score=team2_score,
-                is_live=data.get("status") == "running",
-                raw_data=data
-            )
-            
-        except Exception as e:
-            print(f"Error fetching Valorant match: {e}")
-            return None
 
 class EsportsDataAggregator:
     """Aggregates data from multiple esports APIs."""
@@ -965,20 +970,94 @@ class EsportsDataAggregator:
             print(f"Error fetching upcoming matches: {e}")
             return []
 
-    def get_match_state(self, match_id: str, game_type: str) -> Optional[GameState]:
-        """Get state for a specific match."""
+    def get_match_state(self, match_id: str, game_type: str, raw_match: Dict = None) -> Optional[GameState]:
+        """Get state for a specific match. Falls back to basic state from raw_match if detailed fetch fails."""
+        state = None
+        
         if game_type == "lol":
-            return self.lol_provider.get_match_state(match_id)
+            state = self.lol_provider.get_match_state(match_id)
         elif game_type == "cs2":
-            return self.cs2_provider.get_match_state(match_id)
+            state = self.cs2_provider.get_match_state(match_id)
         elif game_type == "valorant":
-            return self.val_provider.get_match_state(match_id)
+            state = self.val_provider.get_match_state(match_id)
         elif game_type == "dota2":
-            return self._get_dota2_match_state(match_id)
+            state = self._get_dota2_match_state(match_id)
         elif game_type in ["r6siege", "cod", "rocket-league"]:
-            # For R6, CoD, RL: Use basic match state (score-based probability)
-            return self._get_basic_match_state(match_id, game_type)
-        return None
+            state = self._get_basic_match_state(match_id, game_type)
+        
+        # Fallback: create basic state from raw running match data
+        if state is None and raw_match:
+            state = self._create_basic_state_from_raw(raw_match, game_type, match_id)
+            if state:
+                sys.stderr.write(f"🔍 DEBUG: Using fallback basic state for {match_id}\n"); sys.stderr.flush()
+        
+        return state
+    
+    def _create_basic_state_from_raw(self, raw_match: Dict, game_type: str, match_id: str) -> Optional[GameState]:
+        """Create a basic GameState from raw running match data when detailed fetch fails."""
+        try:
+            opponents = raw_match.get("opponents", [])
+            if len(opponents) < 2:
+                return None
+            
+            team1 = opponents[0].get("opponent", {}).get("name", "Team1")
+            team2 = opponents[1].get("opponent", {}).get("name", "Team2")
+            team1_id = opponents[0].get("opponent", {}).get("id")
+            team2_id = opponents[1].get("opponent", {}).get("id")
+            
+            # Get series scores from results (maps/games won)
+            results = raw_match.get("results", [])
+            team1_score = 0
+            team2_score = 0
+            
+            for result in results:
+                team_id = result.get("team_id")
+                score = result.get("score", 0)
+                if team_id == team1_id:
+                    team1_score = score
+                elif team_id == team2_id:
+                    team2_score = score
+            
+            # Check for current game stats (gold, kills) from games array
+            team1_gold = 0
+            team2_gold = 0
+            team1_kills = 0
+            team2_kills = 0
+            game_time = 0
+            
+            games = raw_match.get("games", [])
+            for game in games:
+                if game.get("status") == "running":
+                    # Found the running game - extract stats
+                    teams = game.get("teams", [])
+                    if len(teams) >= 2:
+                        team1_kills = teams[0].get("kills", 0)
+                        team2_kills = teams[1].get("kills", 0)
+                        team1_gold = teams[0].get("gold", 0) or teams[0].get("gold_earned", 0)
+                        team2_gold = teams[1].get("gold", 0) or teams[1].get("gold_earned", 0)
+                    game_time = game.get("length", 0)
+                    break
+            
+            sys.stderr.write(f"🔍 DEBUG: Fallback state for {match_id}: {team1}({team1_score}) vs {team2}({team2_score}), Gold: {team1_gold}-{team2_gold}, Kills: {team1_kills}-{team2_kills}\n"); sys.stderr.flush()
+            
+            return GameState(
+                game_type=game_type,
+                match_id=match_id,
+                team1=team1,
+                team2=team2,
+                team1_score=team1_score if team1_kills == 0 else team1_kills,  # Use kills if available, else series score
+                team2_score=team2_score if team2_kills == 0 else team2_kills,
+                team1_gold=team1_gold,
+                team2_gold=team2_gold,
+                game_time=game_time,
+                is_live=raw_match.get("status") == "running",
+                raw_data=raw_match
+            )
+        except Exception as e:
+            sys.stderr.write(f"🔍 DEBUG: Failed to create basic state: {e}\n"); sys.stderr.flush()
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            return None
     
     def _get_dota2_match_state(self, match_id: str) -> Optional[GameState]:
         """Get Dota2 match state (similar to LoL)."""
@@ -991,6 +1070,7 @@ class EsportsDataAggregator:
             resp = requests.get(url, headers=headers, timeout=10)
             
             if resp.status_code != 200:
+                sys.stderr.write(f"🔍 DEBUG: Dota2 match state fetch failed: {resp.status_code} - {resp.text[:200]}\n"); sys.stderr.flush()
                 return None
             
             data = resp.json()
@@ -1049,11 +1129,11 @@ class EsportsDataAggregator:
             return None
         
         try:
-            # Map game types to PandaScore endpoints
+            # Map game types to PandaScore API endpoints
             endpoint_map = {
                 "r6siege": "r6siege",
                 "cod": "codmw",
-                "rocket-league": "rocket-league"
+                "rocket-league": "rl"  # PandaScore uses 'rl' not 'rocket-league'
             }
             endpoint = endpoint_map.get(game_type, game_type)
             
@@ -1062,6 +1142,7 @@ class EsportsDataAggregator:
             resp = requests.get(url, headers=headers, timeout=10)
             
             if resp.status_code != 200:
+                sys.stderr.write(f"🔍 DEBUG: {game_type} match state fetch failed: {resp.status_code} - {resp.text[:200]}\n"); sys.stderr.flush()
                 return None
             
             data = resp.json()
@@ -1975,19 +2056,21 @@ class EsportsTrader:
                     state = match_state_cache[match_id]
                     print(f"      💾 Using cached match state for {match_id}")
                 else:
-                    # Fetch and cache (this makes 1-2 API calls per match depending on game type)
-                    # LoL: 2 calls (match + game details), CS2/Valorant: 1 call
-                    state = self.data_aggregator.get_match_state(match_id, game_type)
+                    # Fetch and cache (pass raw match for fallback state from running match data)
+                    state = self.data_aggregator.get_match_state(match_id, game_type, raw_match=live_match)
                     if state:
                         self.increment_request_count() # Count base match fetch
                         if game_type == "lol":
-                            # LoL makes an additional call to /games/{id} for detailed stats
                             self.increment_request_count()
                         match_state_cache[match_id] = state
                         api_calls = 2 if game_type == "lol" else 1
-                        print(f"      📡 Fetched match state for {match_id} ({game_type.upper()}, {api_calls} API calls)")
+                        has_data = state.gold_diff() != 0 or state.team1_score != 0 or state.team2_score != 0
+                        data_note = "" if has_data else " (NO LIVE STATS - waiting for game data)"
+                        print(f"      📡 Fetched match state for {match_id} ({game_type.upper()}{data_note})")
+                        if has_data:
+                            print(f"      📊 Live Data: {state.team1} ({state.team1_score}) vs {state.team2} ({state.team2_score}) | Gold: {state.gold_diff():+d}")
                     else:
-                        print(f"      ⚠️ Failed to fetch match state for {match_id} ({game_type.upper()})")
+                        print(f"      ⚠️ Failed to fetch match state for {match_id} ({game_type.upper()}) - SKIPPING (no data edge)")
 
                 if state and state.is_live:
                     true_prob = self.model.calculate(state)
