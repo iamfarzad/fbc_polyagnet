@@ -27,3 +27,22 @@ archive.zip
 .cache
 .DS_Store
 local_db*
+
+# Runtime State Files (generated, not source)
+bot_state.json
+bot_state.json.bak
+safe_state.json
+scalper_state.json
+copy_state.json
+shared_context.json
+snapshots.json
+temp_state.json
+dry_run_test_results.json
+
+# Logs
+*.log
+bot.log
+copy_bot.log
+
+# Environment
+.env
