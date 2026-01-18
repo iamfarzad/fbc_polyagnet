@@ -2300,7 +2300,18 @@ class EsportsTrader:
         analyzed_count = 0
         
         print(f"   🔍 Processing {len(markets)} markets with {len(live_matches)} live matches...")
-        
+
+        # DEBUG: Log first few live matches to see what we're working with
+        if live_matches and len(live_matches) > 0:
+            print(f"   📋 Sample live matches:")
+            for i, match in enumerate(live_matches[:3]):
+                opponents = match.get("opponents", [])
+                if len(opponents) >= 2:
+                    t1 = opponents[0].get("opponent", {}).get("name", "?")
+                    t2 = opponents[1].get("opponent", {}).get("name", "?")
+                    game = match.get("game_type", "unknown")
+                    print(f"      {i+1}. {t1} vs {t2} ({game})")
+
         for market in markets:
             question = market.question
             yes_price = market.yes_price
@@ -2337,14 +2348,44 @@ class EsportsTrader:
                 ps_team2 = opponents[1].get("opponent", {}).get("name", "Unknown") if len(opponents) > 1 else "Unknown"
                 print(f"   ✅ Matched #{matched_count}: PM '{market.team1}' vs '{market.team2}' -> PS '{ps_team1}' vs '{ps_team2}'")
 
+                # DEBUG: Show series scores if available
+                results = live_match.get("results", [])
+                if results:
+                    print(f"      📊 Series: {ps_team1} {results[0].get('score', 0)} - {results[1].get('score', 0)} {ps_team2}")
+            else:
+                # DEBUG: Show why first market didn't match (helps diagnose)
+                if markets.index(market) == 0 and live_matches:
+                    print(f"   🔍 DEBUG: Market '{market.team1}' vs '{market.team2}' not found in:")
+                    for i, lm in enumerate(live_matches[:3]):
+                        opps = lm.get("opponents", [])
+                        if len(opps) >= 2:
+                            lt1 = opps[0].get("opponent", {}).get("name", "?")
+                            lt2 = opps[1].get("opponent", {}).get("name", "?")
+                            print(f"      {i+1}. '{lt1}' vs '{lt2}'")
+
             if live_match and live_matches:  # PandaScore data available
                 analyzed_count += 1
 
                 # Extract basic series data (Available on Free Tier)
-                res = live_match.get("results", [])
-                s1 = res[0].get("score", 0) if len(res) > 0 else 0
-                s2 = res[1].get("score", 0) if len(res) > 1 else 0
+                # CRITICAL: Match results by team_id, not array order!
+                opponents = live_match.get("opponents", [])
+                results = live_match.get("results", [])
                 num_games = live_match.get("number_of_games", 3)
+
+                # Get team IDs from opponents
+                team1_id = opponents[0].get("opponent", {}).get("id") if len(opponents) > 0 else None
+                team2_id = opponents[1].get("opponent", {}).get("id") if len(opponents) > 1 else None
+
+                # Match results to correct teams by team_id
+                s1 = 0  # series_score1 (maps won by team1)
+                s2 = 0  # series_score2 (maps won by team2)
+                for result in results:
+                    team_id = result.get("team_id")
+                    score = result.get("score", 0)
+                    if team_id == team1_id:
+                        s1 = score
+                    elif team_id == team2_id:
+                        s2 = score
 
                 # Create basic state from summary data
                 state = GameState(
