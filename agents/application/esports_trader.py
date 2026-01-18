@@ -1290,6 +1290,15 @@ class EsportsTrader:
             print(f"⚠️ Validator init failed: {e}")
             self.validator = None
         
+        # Initialize Shared Context
+        try:
+            self.context = get_context()
+            self.LLMActivity = LLMActivity
+        except Exception as e:
+            print(f"⚠️ Context init failed: {e}")
+            self.context = None
+            self.LLMActivity = None
+        
         # State
         self.positions = {}  # market_id -> position data
         self.session_trades = 0
@@ -1645,7 +1654,7 @@ class EsportsTrader:
             }
             
             # Log successful trade to LLM Terminal
-            if self.context and self.LLMActivity:
+            if self.context and self.LLMActivity and hasattr(self, 'context'):
                 try:
                     import uuid
                     reasoning_log = f"Edge: {edge_pct:.1f}% | EV: {ev:.3f} | Size: ${bet_size:.2f}"
@@ -2012,7 +2021,7 @@ class EsportsTrader:
                          # Log "Near Miss" (Edge > 0.5% but < 1.5%) to populate dashboard
                          # Limit log frequency to avoid spamming same match every cycle if nothing changes
                          log_key = f"{match_id}_{round(edge, 3)}"
-                         if time.time() - self.last_activity_log > 60: # Throttle logs
+                         if time.time() - self.last_activity_log > 60 and self.context: # Throttle logs
                              self.context.log_llm_activity(LLMActivity(
                                 agent="esports_trader",
                                 action_type="SCAN",
@@ -2049,7 +2058,7 @@ class EsportsTrader:
                             print(f"      📋 Sample live matches: {', '.join(sample_teams)}")
             
             # Log "WAIT" status to dashboard (Throttled to 1/min)
-            if time.time() - self.last_activity_log > 60:
+            if time.time() - self.last_activity_log > 60 and self.context:
                  self.context.log_llm_activity(LLMActivity(
                     agent="esports_trader",
                     action_type="SCAN",
