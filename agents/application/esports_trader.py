@@ -1573,6 +1573,22 @@ class EsportsTrader:
             # The market-based heuristics are often wrong and lead to losses
 
             print(f"   ⚠️ NO PANDASCORE DATA: Skipping market-based trading for {question[:30]}...")
+            
+            # Log "WAIT" status to dashboard (Throttled to 1/min)
+            if time.time() - self.last_activity_log > 60:
+                 self.context.log_llm_activity(LLMActivity(
+                    agent="esports_trader",
+                    action_type="SCAN",
+                    market_question=question,
+                    prompt_summary=f"Skipping {question[:30]}...",
+                    reasoning="No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+                    conclusion="WAIT (No Data)",
+                    confidence=0.0,
+                    data_sources=["Polymarket"],
+                    duration_ms=0
+                 ))
+                 self.last_activity_log = time.time()
+
             print(f"      Get Pandascore API key at pandascore.co to enable data-driven trading")
             print(f"      Market odds: Yes={yes_price:.3f}, No={no_price:.3f}")
 

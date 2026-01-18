@@ -165,7 +165,7 @@ class CryptoScalper:
         self.price_cache = {}  # token_id -> (timestamp, price_data)
         self._init_polymarket_websocket()
 
-    def _log(self, action, question, reasoning, confidence=1.0):
+    def _log(self, action, question, reasoning, confidence=1.0, conclusion="EXECUTED"):
         """Log to Dashboard Terminal."""
         try:
             if HAS_SUPABASE:
@@ -176,7 +176,7 @@ class CryptoScalper:
                     market_question=question,
                     prompt_summary=f"{action}: {question[:40]}...",
                     reasoning=reasoning,
-                    conclusion="EXECUTED",
+                    conclusion=conclusion,
                     confidence=confidence,
                     data_sources=["Binance OrderBook", "Polymarket CLOB"],
                     tokens_used=0,
@@ -818,6 +818,7 @@ class CryptoScalper:
                                 # Only trade if momentum exceeds threshold AND sentiment is clear
                                 if abs(momentum) < BASE_MOMENTUM_THRESHOLD:
                                     print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {BASE_MOMENTUM_THRESHOLD:.4f})")
+                                    self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {BASE_MOMENTUM_THRESHOLD:.4f}", confidence=0.0, conclusion="WAIT")
                                     continue
 
                                 # Use BOTH momentum AND sentiment for direction
