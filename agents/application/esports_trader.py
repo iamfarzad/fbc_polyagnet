@@ -1652,15 +1652,11 @@ class EsportsTrader:
     """
     
     def __init__(self, dry_run=True):
-        print("🔗 ESPORTS TRADER: __init__ method starting...")
         self.dry_run = dry_run
-        print("🔗 ESPORTS TRADER: PolymarketEsports initializing...")
         self.pm_esports = PolymarketEsports()
-        print("🔗 ESPORTS TRADER: EsportsDataAggregator initializing...")
         self.data_aggregator = EsportsDataAggregator()
-        print("🔗 ESPORTS TRADER: WinProbabilityModel initializing...")
         self.model = WinProbabilityModel()
-        
+
         # Initialize Validator
         try:
             self.validator = Validator(SharedConfig(), "esports")
@@ -1668,7 +1664,7 @@ class EsportsTrader:
         except Exception as e:
             print(f"⚠️ Validator init failed: {e}")
             self.validator = None
-        
+
         # Initialize Shared Context
         try:
             self.context = get_context()
@@ -1677,36 +1673,29 @@ class EsportsTrader:
             print(f"⚠️ Context init failed: {e}")
             self.context = None
             self.LLMActivity = None
-        
+
         # State
-        self.positions = {}  # market_id -> position data
+        self.positions = {}  # market_id -> position data, token_id -> position data
         self.session_trades = 0
         self.session_pnl = 0.0
 
         # WALLET SYNC: Load existing positions to prevent duplicates
-        print("🔗 WALLET SYNC: Starting wallet sync...")
         try:
             import requests
             # Use Polymarket Data API directly (same as dashboard)
             dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
-            print(f"🔗 WALLET SYNC: Checking positions for wallet {dashboard_wallet[:10]}...")
             url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
-            print(f"🔗 WALLET SYNC: Calling {url}")
             resp = requests.get(url, timeout=10)
-            print(f"🔗 WALLET SYNC: API response status {resp.status_code}")
 
             if resp.status_code == 200:
                 current_positions = resp.json()
-                print(f"🔗 WALLET SYNC: API returned {len(current_positions)} position records")
                 synced_count = 0
                 for pos in current_positions:
                     # Track by asset_id (token contract) to prevent duplicate positions
                     asset_id = pos.get('asset', '')  # This is the token contract address
-                    size = float(pos.get('size', 0))
-                    print(f"🔗 WALLET SYNC: Position {asset_id[:10]}... size {size}")
-                    if asset_id and size > 0:  # Only track positions with size > 0
+                    if asset_id and float(pos.get('size', 0)) > 0:  # Only track positions with size > 0
                         self.positions[asset_id] = {
-                            'size': size,
+                            'size': float(pos.get('size', 0)),
                             'value': float(pos.get('currentValue', 0)),
                             'cost': float(pos.get('cost', 0)),
                             'outcome': pos.get('outcome', ''),
@@ -1716,12 +1705,9 @@ class EsportsTrader:
                         synced_count += 1
                 print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
             else:
-                print(f"⚠️ WALLET SYNC: API error {resp.status_code} - could not sync positions")
-                print(f"⚠️ WALLET SYNC: Response: {resp.text[:200]}")
+                print(f"⚠️ WALLET SYNC: API error {resp.status_code} - continuing without sync")
         except Exception as e:
-            import traceback
             print(f"⚠️ WALLET SYNC: Could not sync existing positions: {e}")
-            print(f"⚠️ WALLET SYNC: Traceback: {traceback.format_exc()}")
             # Continue anyway - better to trade with potential duplicates than not trade at all
 
         # API Rate Limiting
