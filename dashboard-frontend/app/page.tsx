@@ -8,7 +8,8 @@ import {
   Activity, Zap, Wallet, ExternalLink, Brain, Shield,
   BarChart3, Settings, PieChart,
   X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
-  ChevronRight, AlertTriangle, Monitor, Trophy, Lock, MessageSquare, Minimize2, Maximize2
+  ChevronRight, AlertTriangle, Monitor, Trophy, Lock, MessageSquare, Minimize2, Maximize2,
+  Info, ChevronDown
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -90,6 +91,15 @@ const AGENT_THEMES = {
   sportsTrader: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400", icon: Trophy, label: "Sports Trader" },
 }
 
+const AGENT_DESCRIPTIONS: Record<string, string> = {
+  safe: "Growth Protocol check. Validates markets with Perplexity/LLM. Confirms Edge > 15%, Confidence > 75%. Uses Kelly Criterion for sizing.",
+  scalper: "HFT + Binance Arb. High-frequency trading on 15m crypto markets. Exploits price dislocations between Polymarket and Binance.",
+  copyTrader: "Whale Follower. Tracks elite traders (e.g., monkeyfish69). Copies trades with 15% wallet cap.",
+  smartTrader: "Market Maker. Provides liquidity on spread. (Currently Idle).",
+  esportsTrader: "Teemu v2. Hybrid Strategy. Uses PandaScore live data for latency arbitrage (30s edge). Includes Dynamic Whale Search and Smart Polling.",
+  sportsTrader: "Direct Gamma. Fast execution on sports events using Gamma API odds."
+}
+
 export default function ProDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [maxBet, setMaxBet] = useState(0.50)
@@ -98,6 +108,7 @@ export default function ProDashboard() {
 
   // Mobile panel state: 'chat', 'terminal', or null (closed)
   const [mobilePanel, setMobilePanel] = useState<'chat' | 'terminal' | null>(null)
+  const [expandedAgent, setExpandedAgent] = useState<string | null>(null)
 
   const fetchDashboardData = async () => {
     let id: NodeJS.Timeout | undefined
@@ -269,15 +280,35 @@ export default function ProDashboard() {
                 {Object.entries(data.agents).map(([key, agent]: [string, any]) => {
                   const theme = AGENT_THEMES[key as keyof typeof AGENT_THEMES] || AGENT_THEMES.safe
                   const Icon = theme.icon
+                  const isExpanded = expandedAgent === key
+
                   return (
-                    <div key={key} className="p-2 flex items-center justify-between hover:bg-white/5 transition-colors group">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-6 w-6 rounded-sm ${theme.bg} flex items-center justify-center opacity-80 group-hover:opacity-100`}>
-                          <Icon className={`h-3 w-3 ${theme.text}`} />
+                    <div key={key} className="flex flex-col border-b border-border/10 last:border-0 hover:bg-white/5 transition-colors group">
+                      <div className="p-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-6 w-6 rounded-sm ${theme.bg} flex items-center justify-center opacity-80 group-hover:opacity-100`}>
+                            <Icon className={`h-3 w-3 ${theme.text}`} />
+                          </div>
+                          <p className="font-bold text-[10px] capitalize leading-tight">{theme.label}</p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-4 w-4 ml-1 opacity-50 hover:opacity-100"
+                            onClick={() => setExpandedAgent(isExpanded ? null : key)}
+                          >
+                            {isExpanded ? <ChevronDown className="h-3 w-3" /> : <Info className="h-3 w-3" />}
+                          </Button>
                         </div>
-                        <p className="font-bold text-[10px] capitalize leading-tight">{theme.label}</p>
+                        <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75 origin-right" />
                       </div>
-                      <Switch checked={agent.running} onCheckedChange={() => toggleAgent(key)} className="scale-75 origin-right" />
+
+                      {isExpanded && (
+                        <div className="px-3 pb-2 text-[9px] text-muted-foreground animate-in slide-in-from-top-1 fade-in duration-200">
+                          <div className="bg-background/50 p-2 rounded border border-border/20 shadow-inner">
+                            {AGENT_DESCRIPTIONS[key] || "No description available."}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}
