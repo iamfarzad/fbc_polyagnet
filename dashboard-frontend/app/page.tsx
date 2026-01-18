@@ -503,7 +503,7 @@ export default function ProDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(!data.positions || data.positions.length === 0) ? (
+                      {(!(data.positions || []).length) ? (
                         <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active positions</TableCell></TableRow>
                       ) : (
                         (data.positions || []).map((pos, i) => (
@@ -538,10 +538,10 @@ export default function ProDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {(!data.openOrders || data.openOrders.length === 0) ? (
+                      {(!(data.openOrders || []).length) ? (
                         <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No open orders</TableCell></TableRow>
                       ) : (
-                        data.openOrders.map((ord, i) => (
+                        (data.openOrders || []).map((ord, i) => (
                           <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
                             <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{ord.market}</TableCell>
                             <TableCell className="py-1">
