@@ -72,7 +72,8 @@ load_dotenv()
 # =============================================================================
 
 # Trading parameters - LIVE CONFIG
-MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades
+MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades (can be lowered to 0.5% for testing)
+MIN_EDGE_PERCENT_TEST = 0.5     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
 MIN_BET_USD = 5.00              # Fixed $5 trades
 MAX_BET_USD = 5.00              # Fixed $5 trades
 BET_PERCENT = 0.40              # 40% of bankroll allocated to esports
@@ -996,27 +997,86 @@ class EsportsTrader:
                 print(f"⚠️ Auto-redeemer not available: {e}")
     
     def match_market_to_live_game(self, market: PolymarketMatch, live_matches: List[Dict]) -> Optional[Dict]:
-        """Try to match a Polymarket market to a live game."""
-        market_team1 = market.team1.lower()
-        market_team2 = market.team2.lower()
+        """
+        Try to match a Polymarket market to a live game.
+        Uses improved fuzzy matching with team name normalization.
+        """
+        def normalize_team_name(name: str) -> str:
+            """Normalize team names for better matching."""
+            name = name.lower().strip()
+            # Remove common suffixes/prefixes
+            name = name.replace(" esports", "").replace(" gaming", "").replace(" gaming esports", "")
+            name = name.replace(" esport", "").replace(" e-sports", "")
+            # Remove special characters
+            name = name.replace(".", "").replace("-", " ").replace("_", " ")
+            # Remove extra spaces
+            name = " ".join(name.split())
+            return name
+        
+        def fuzzy_match(team1: str, team2: str) -> bool:
+            """Check if two team names match using fuzzy logic."""
+            t1_norm = normalize_team_name(team1)
+            t2_norm = normalize_team_name(team2)
+            
+            # Exact match after normalization
+            if t1_norm == t2_norm:
+                return True
+            
+            # Substring match (either direction)
+            if t1_norm in t2_norm or t2_norm in t1_norm:
+                return True
+            
+            # Word-based matching (check if key words match)
+            t1_words = set(t1_norm.split())
+            t2_words = set(t2_norm.split())
+            # Remove common words
+            common_words = {"team", "the", "and", "of", "vs", "v"}
+            t1_words -= common_words
+            t2_words -= common_words
+            
+            # If significant overlap in key words, consider it a match
+            if len(t1_words) > 0 and len(t2_words) > 0:
+                overlap = len(t1_words & t2_words)
+                min_words = min(len(t1_words), len(t2_words))
+                if overlap >= min_words * 0.6:  # 60% word overlap
+                    return True
+            
+            return False
+        
+        market_team1 = market.team1
+        market_team2 = market.team2
         
         for match in live_matches:
             opponents = match.get("opponents", [])
             if len(opponents) < 2:
                 continue
             
-            live_team1 = opponents[0].get("opponent", {}).get("name", "").lower()
-            live_team2 = opponents[1].get("opponent", {}).get("name", "").lower()
+            live_team1 = opponents[0].get("opponent", {}).get("name", "")
+            live_team2 = opponents[1].get("opponent", {}).get("name", "")
             
-            # Check if teams match (fuzzy)
-            team1_match = market_team1 in live_team1 or live_team1 in market_team1
-            team2_match = market_team2 in live_team2 or live_team2 in market_team2
+            # Check if teams match (improved fuzzy)
+            team1_match = fuzzy_match(market_team1, live_team1)
+            team2_match = fuzzy_match(market_team2, live_team2)
             
             # Also check reversed order
-            team1_match_rev = market_team1 in live_team2 or live_team2 in market_team1
-            team2_match_rev = market_team2 in live_team1 or live_team1 in market_team2
+            team1_match_rev = fuzzy_match(market_team1, live_team2)
+            team2_match_rev = fuzzy_match(market_team2, live_team1)
+            
+            # Log matching attempts for first few markets (diagnostic)
+            if hasattr(self, '_match_diagnostic_count'):
+                self._match_diagnostic_count += 1
+            else:
+                self._match_diagnostic_count = 1
+            
+            if self._match_diagnostic_count <= 5:
+                print(f"      🔍 Match Diagnostic: PM '{market_team1}' vs '{market_team2}' | PS '{live_team1}' vs '{live_team2}'")
+                print(f"         Normalized: PM '{normalize_team_name(market_team1)}' vs '{normalize_team_name(market_team2)}'")
+                print(f"         Normalized: PS '{normalize_team_name(live_team1)}' vs '{normalize_team_name(live_team2)}'")
+                print(f"         Match: T1={team1_match}, T2={team2_match}, Rev={team1_match_rev and team2_match_rev}")
             
             if (team1_match and team2_match) or (team1_match_rev and team2_match_rev):
+                if self._match_diagnostic_count <= 5:
+                    print(f"         ✅ MATCH FOUND!")
                 return match
         
         return None
@@ -1535,9 +1595,11 @@ class EsportsTrader:
             
             if live_match:
                 matched_count += 1
-                # Log first few matches for visibility
-                if matched_count <= 3:
-                    print(f"   ✅ Matched: {market.team1} vs {market.team2} -> Live match found")
+                # Log all matches for visibility (helps diagnose matching issues)
+                opponents = live_match.get("opponents", [])
+                ps_team1 = opponents[0].get("opponent", {}).get("name", "Unknown") if len(opponents) > 0 else "Unknown"
+                ps_team2 = opponents[1].get("opponent", {}).get("name", "Unknown") if len(opponents) > 1 else "Unknown"
+                print(f"   ✅ Matched #{matched_count}: PM '{market.team1}' vs '{market.team2}' -> PS '{ps_team1}' vs '{ps_team2}'")
 
             if live_match and live_matches:  # PandaScore data available
                 analyzed_count += 1
@@ -1580,7 +1642,12 @@ class EsportsTrader:
                     print(f"   📊 Edge Analysis: {question[:50]}...")
                     print(f"      True Prob: {true_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: {edge*100:+.1f}% | Threshold: {MIN_EDGE_PERCENT}%")
                     
-                    if abs(edge) > MIN_EDGE_PERCENT / 100:
+                    # Use test threshold if edge is close but below main threshold
+                    effective_threshold = MIN_EDGE_PERCENT / 100
+                    if abs(edge) > MIN_EDGE_PERCENT_TEST / 100 and abs(edge) < MIN_EDGE_PERCENT / 100:
+                        print(f"      ⚠️ Edge {abs(edge)*100:.1f}% is close to threshold ({MIN_EDGE_PERCENT}%) but below. Consider lowering MIN_EDGE_PERCENT for more trades.")
+                    
+                    if abs(edge) > effective_threshold:
                         side = "YES" if edge > 0 else "NO"
                         print(f"      🔥 DATA EDGE DETECTED: {side} (Edge: {abs(edge)*100:.1f}% > {MIN_EDGE_PERCENT}%)")
                         sys.stderr.write(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
@@ -1611,11 +1678,21 @@ class EsportsTrader:
 
             # Only log occasionally to avoid spam (every 10th market or if no live_matches)
             if not live_matches or (markets.index(market) % 10 == 0):
-                print(f"   ⚠️ NO PANDASCORE DATA: Skipping market-based trading for {question[:30]}...")
                 if not live_matches:
-                    print(f"      Reason: No live matches found (empty live_matches array)")
+                    print(f"   ⚠️ NO PANDASCORE DATA: Skipping '{question[:40]}...' - No live matches found")
                 else:
-                    print(f"      Reason: Market '{question[:30]}' doesn't match any of {len(live_matches)} live matches")
+                    # This is the key diagnostic: market exists but no match found
+                    print(f"   ⚠️ NO MATCH: Skipping '{question[:40]}...' - Doesn't match any of {len(live_matches)} live matches")
+                    if markets.index(market) == 0:  # Show sample on first market
+                        sample_teams = []
+                        for m in live_matches[:3]:
+                            opps = m.get("opponents", [])
+                            if len(opps) >= 2:
+                                t1 = opps[0].get("opponent", {}).get("name", "?")
+                                t2 = opps[1].get("opponent", {}).get("name", "?")
+                                sample_teams.append(f"{t1} vs {t2}")
+                        if sample_teams:
+                            print(f"      📋 Sample live matches: {', '.join(sample_teams)}")
             
             # Log "WAIT" status to dashboard (Throttled to 1/min)
             if time.time() - self.last_activity_log > 60:
@@ -1669,12 +1746,20 @@ class EsportsTrader:
         print(f"      Markets matched: {matched_count}")
         print(f"      Markets analyzed: {analyzed_count}")
         print(f"      Trades executed: {trades_made}")
+        
+        # Diagnostic messages
         if trades_made == 0 and len(live_matches) == 0:
             print(f"      ⚠️ No live matches found - check PandaScore API")
         elif trades_made == 0 and matched_count == 0:
-            print(f"      ⚠️ No markets matched to live games - check team name matching")
+            print(f"      ⚠️ No markets matched to live games - team name mismatch likely")
+            print(f"      💡 Tip: Check match diagnostic logs above to see team name differences")
+            if len(live_matches) > 0:
+                print(f"      📋 Sample PS teams: {[m.get('opponents', [{}])[0].get('opponent', {}).get('name', '?') for m in live_matches[:3]]}")
         elif trades_made == 0 and analyzed_count > 0:
             print(f"      ⚠️ Markets analyzed but no edge > {MIN_EDGE_PERCENT}% found")
+            print(f"      💡 Tip: Consider lowering MIN_EDGE_PERCENT to {MIN_EDGE_PERCENT_TEST}% for more trades")
+        elif trades_made == 0 and matched_count > 0 and analyzed_count == 0:
+            print(f"      ⚠️ Markets matched but not analyzed - check match state fetching")
 
         # Save state & Return
         self.save_state()
