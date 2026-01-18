@@ -172,6 +172,28 @@ class AutoRedeemer:
         if added > 0:
             print(f"   📡 Watchlist Updated: Monitoring {len(self.market_watchlist)} active resolutions.")
 
+    def get_token_balance(self, token_id: str, account_address: str) -> int:
+        """Check on-chain token balance before attempting redemption."""
+        try:
+            # Convert token_id to int (handles hex strings and decimal strings)
+            if isinstance(token_id, str):
+                if token_id.startswith("0x"):
+                    token_id_int = int(token_id, 16)
+                else:
+                    token_id_int = int(token_id)
+            else:
+                token_id_int = int(token_id)
+            
+            # Check balance on-chain
+            balance = self.ctf.functions.balanceOf(
+                Web3.to_checksum_address(account_address),
+                token_id_int
+            ).call()
+            return balance
+        except Exception as e:
+            print(f"   ⚠️ Balance check failed for token {token_id[:20]}...: {e}")
+            return 0
+
     def redeem_settled_positions(self) -> int:
         """Check all positions and redeem any that are already settled."""
         positions = self.get_positions_from_api()
@@ -195,7 +217,20 @@ class AutoRedeemer:
             is_resolved = self.check_if_resolved(cond_id)
             print(f"   🔍 Resolution check result: {is_resolved}")
             if is_resolved:
-                print(f"   🎯 SETTLED POSITION FOUND: {market_title} (Size: {size})")
+                # CRITICAL FIX: Check on-chain balance before attempting redemption
+                # This prevents "execution reverted" when positions were manually redeemed
+                # Use proxy_address if available (for Gnosis Safe), otherwise dashboard_wallet
+                account_to_check = self.proxy_address if self.proxy_address else self.dashboard_wallet
+                if not account_to_check:
+                    print(f"   ⚠️ Skipping {market_title[:30]}...: No account address")
+                    continue
+                
+                on_chain_balance = self.get_token_balance(token_id, account_to_check)
+                if on_chain_balance <= 0:
+                    print(f"   ⚠️ Skipping {market_title[:30]}...: On-chain balance is 0 (already redeemed)")
+                    continue
+                
+                print(f"   🎯 SETTLED POSITION FOUND: {market_title} (Size: {size}, On-chain: {on_chain_balance})")
                 tx = self.redeem_position(cond_id, token_id)
                 if tx:
                     redeemed += 1
@@ -320,8 +355,9 @@ class AutoRedeemer:
         """High-frequency check for markets that just reached their end_time."""
         now = time.time()
         to_redeem = []
+        to_remove = []  # Track positions already redeemed to remove from watchlist
 
-        for cond_id, data in self.market_watchlist.items():
+        for cond_id, data in list(self.market_watchlist.items()):  # Use list() to avoid modification during iteration
             # If the market duration has passed, check on-chain status IMMEDIATELY
             if now >= data["end_time"]:
                 # Only log verbose check once per minute to avoid spamming
@@ -329,14 +365,33 @@ class AutoRedeemer:
                     print(f"   🎯 TARGET REACHED: {data['title']} (Checking oracle...)")
                     
                 if self.check_if_resolved(cond_id):
+                    # CRITICAL FIX: Check on-chain balance before attempting redemption
+                    # Use proxy_address if available (for Gnosis Safe), otherwise dashboard_wallet
+                    account_to_check = self.proxy_address if self.proxy_address else self.dashboard_wallet
+                    if account_to_check:
+                        token_id = data["token_id"]
+                        on_chain_balance = self.get_token_balance(token_id, account_to_check)
+                        if on_chain_balance <= 0:
+                            print(f"   ⚠️ Skipping {data['title'][:30]}...: On-chain balance is 0 (already redeemed)")
+                            # Mark for removal from watchlist since it's already redeemed
+                            to_remove.append(cond_id)
+                            continue
+                    
                     print(f"   🚀 ORACLE CONFIRMED: {data['title']} - SNIPING NOW!")
                     to_redeem.append((cond_id, data["token_id"]))
 
+        # Remove already-redeemed positions from watchlist
+        for cond_id in to_remove:
+            if cond_id in self.market_watchlist:
+                del self.market_watchlist[cond_id]
+
+        # Attempt redemption for positions that need it
         for cond_id, token_id in to_redeem:
             tx = self.redeem_position(cond_id, token_id)
             if tx:
                 # Remove from watchlist once successful
-                del self.market_watchlist[cond_id]
+                if cond_id in self.market_watchlist:
+                    del self.market_watchlist[cond_id]
                 self._force_agent_reinvest()
 
     def _force_agent_reinvest(self):

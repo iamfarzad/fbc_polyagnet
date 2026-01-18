@@ -651,6 +651,136 @@ class ValorantDataProvider:
                 print(f"PandaScore Valorant error: {e}")
         
         return []
+
+
+class Dota2DataProvider:
+    """Fetches live Dota 2 match data."""
+    
+    def __init__(self):
+        self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
+    
+    def get_live_matches(self) -> List[Dict]:
+        """Get currently live Dota 2 matches."""
+        if time.time() < self._rate_limit_until:
+            sys.stderr.write(f"⏳ Pausing Pandascore (Dota2) due to 429 until {self._rate_limit_until}\n"); sys.stderr.flush()
+            return []
+
+        if self.pandascore_key:
+            try:
+                url = "https://api.pandascore.co/dota2/matches/running"
+                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                sys.stderr.write(f"🔍 DEBUG: Dota2 API call to {url}\n"); sys.stderr.flush()
+                resp = requests.get(url, headers=headers, timeout=10)
+                sys.stderr.write(f"🔍 DEBUG: Dota2 API response status: {resp.status_code}\n"); sys.stderr.flush()
+                if resp.status_code == 200:
+                    matches = resp.json()
+                    sys.stderr.write(f"🔍 DEBUG: Found {len(matches)} live Dota2 matches\n"); sys.stderr.flush()
+                    if matches:
+                        sample = matches[0] if matches else {}
+                        opps = sample.get("opponents", [])
+                        if len(opps) >= 2:
+                            t1 = opps[0].get("opponent", {}).get("name", "?")
+                            t2 = opps[1].get("opponent", {}).get("name", "?")
+                            sys.stderr.write(f"🔍 DEBUG: Sample Dota2 match: {t1} vs {t2}\n"); sys.stderr.flush()
+                    return matches
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE Dota2 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+                    return []
+                else:
+                    sys.stderr.write(f"🔍 DEBUG: Dota2 API error {resp.status_code}: {resp.text[:200]}\n"); sys.stderr.flush()
+            except Exception as e:
+                sys.stderr.write(f"🔍 DEBUG: PandaScore Dota2 exception: {e}\n"); sys.stderr.flush()
+                import traceback
+                traceback.print_exc(file=sys.stderr)
+        
+        sys.stderr.write("🔍 DEBUG: Dota2 provider returning empty list\n"); sys.stderr.flush()
+        return []
+
+
+class RainbowSixDataProvider:
+    """Fetches live Rainbow Six Siege match data."""
+    
+    def __init__(self):
+        self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
+    
+    def get_live_matches(self) -> List[Dict]:
+        """Get currently live Rainbow Six Siege matches."""
+        if time.time() < self._rate_limit_until:
+            return []
+
+        if self.pandascore_key:
+            try:
+                url = "https://api.pandascore.co/r6siege/matches/running"
+                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                resp = requests.get(url, headers=headers, timeout=10)
+                if resp.status_code == 200:
+                    return resp.json()
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE R6 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+            except Exception as e:
+                sys.stderr.write(f"🔍 DEBUG: PandaScore R6 exception: {e}\n"); sys.stderr.flush()
+        
+        return []
+
+
+class CallOfDutyDataProvider:
+    """Fetches live Call of Duty match data."""
+    
+    def __init__(self):
+        self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
+    
+    def get_live_matches(self) -> List[Dict]:
+        """Get currently live Call of Duty matches."""
+        if time.time() < self._rate_limit_until:
+            return []
+
+        if self.pandascore_key:
+            try:
+                url = "https://api.pandascore.co/codmw/matches/running"
+                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                resp = requests.get(url, headers=headers, timeout=10)
+                if resp.status_code == 200:
+                    return resp.json()
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE CoD 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+            except Exception as e:
+                sys.stderr.write(f"🔍 DEBUG: PandaScore CoD exception: {e}\n"); sys.stderr.flush()
+        
+        return []
+
+
+class RocketLeagueDataProvider:
+    """Fetches live Rocket League match data."""
+    
+    def __init__(self):
+        self.pandascore_key = os.getenv("PANDASCORE_API_KEY")
+        self._rate_limit_until = 0
+    
+    def get_live_matches(self) -> List[Dict]:
+        """Get currently live Rocket League matches."""
+        if time.time() < self._rate_limit_until:
+            return []
+
+        if self.pandascore_key:
+            try:
+                url = "https://api.pandascore.co/rocketleague/matches/running"
+                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                resp = requests.get(url, headers=headers, timeout=10)
+                if resp.status_code == 200:
+                    return resp.json()
+                elif resp.status_code == 429:
+                    sys.stderr.write(f"⚠️ PANDASCORE RL 429 - Sleeping 60s\n"); sys.stderr.flush()
+                    self._rate_limit_until = time.time() + 60
+            except Exception as e:
+                sys.stderr.write(f"🔍 DEBUG: PandaScore RL exception: {e}\n"); sys.stderr.flush()
+        
+        return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
         """Get current state of a live Valorant match."""
