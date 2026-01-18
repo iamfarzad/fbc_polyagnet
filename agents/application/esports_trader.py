@@ -308,9 +308,9 @@ class WinProbabilityModel:
         Calculates win probability based purely on series map score (e.g., 1-0 in BO3).
         This is the "Map Momentum" edge that works on PandaScore free tier.
         """
-        # If BO1, map score is the same as winning the game
+        # If BO1, NEVER trade without data - can have extreme odds (0.10 vs 0.90)
         if state.number_of_games == 1:
-            return 0.50
+            return 0.0  # No edge assumption for BO1 without live stats
 
         # Best of 3 Logic
         if state.number_of_games == 3:
