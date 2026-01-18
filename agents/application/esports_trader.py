@@ -1182,6 +1182,28 @@ class EsportsTrader:
         sys.stderr.write("🚨🚨🚨 DEBUG: scan_and_trade() method called! 🚨🚨🚨\n"); sys.stderr.flush()
         print(f"\n[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 Scanning esports markets...")
 
+        # HEARTBEAT LOG - proves agent is alive and Supabase works
+        try:
+            from agents.utils.supabase_client import get_supabase_state
+            supa = get_supabase_state()
+            if supa:
+                supa.log_llm_activity(
+                    agent="esports_trader",
+                    action_type="heartbeat",
+                    market_question="Scanning esports markets...",
+                    prompt_summary="Heartbeat - Agent Active",
+                    reasoning=f"Mode: {'LIVE' if not self.dry_run else 'DRY RUN'}, Session trades: {self.session_trades}",
+                    conclusion="SCANNING",
+                    confidence=1.0,
+                    data_sources=["PandaScore", "Polymarket"],
+                    tokens_used=0,
+                    cost_usd=0,
+                    duration_ms=0
+                )
+                print(f"   🟢 Heartbeat logged to Supabase")
+        except Exception as e:
+            print(f"   ⚠️ Heartbeat failed: {e}")
+
         # 0. Check Rate Limits First
         rate_limit_sleep = self.check_rate_limits()
         if rate_limit_sleep > 0:

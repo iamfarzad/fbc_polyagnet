@@ -642,6 +642,27 @@ class SportsTrader:
                 self.balance = self.pm.get_usdc_balance()
             except: pass
             
+            # 2.5 HEARTBEAT LOG - proves agent is alive and Supabase works
+            if self.context and self.LLMActivity:
+                try:
+                    import uuid
+                    self.context.log_llm_activity(self.LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent=self.AGENT_NAME,
+                        timestamp=datetime.datetime.now().isoformat(),
+                        action_type="heartbeat",
+                        market_question=f"Scanning sports markets...",
+                        prompt_summary="Heartbeat - Agent Active",
+                        reasoning=f"Balance: ${self.balance:.2f}, Mode: {'LIVE' if not self.dry_run else 'DRY RUN'}",
+                        conclusion="SCANNING",
+                        confidence=1.0,
+                        data_sources=["Gamma API", "Polymarket"],
+                        duration_ms=0
+                    ))
+                    print(f"  🟢 Heartbeat logged to Supabase")
+                except Exception as e:
+                    print(f"  ⚠️ Heartbeat failed: {e}")
+            
             # 3. Scan live markets directly from Polymarket
             try:
                 self.scan_live_markets()
