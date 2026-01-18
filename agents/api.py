@@ -314,8 +314,11 @@ def fetch_open_orders_helper() -> List[Dict]:
                     try:
                         import ast
                         # 'clob_token_ids' is usually a string repr of list "['idx1', 'idx2']"
-                        tokens = ast.literal_eval(m.clob_token_ids)
-                        outcomes = ast.literal_eval(m.outcomes)
+                        # Handle both object and dict access
+                        clob_ids = getattr(m, 'clob_token_ids', None) or (m.get('clob_token_ids') if isinstance(m, dict) else '[]')
+                        outcomes_str = getattr(m, 'outcomes', None) or (m.get('outcomes') if isinstance(m, dict) else '[]')
+                        tokens = ast.literal_eval(clob_ids) if isinstance(clob_ids, str) else clob_ids
+                        outcomes = ast.literal_eval(outcomes_str) if isinstance(outcomes_str, str) else outcomes_str
                         
                         if item["token_id"] in tokens:
                             idx = tokens.index(item["token_id"])
