@@ -1015,7 +1015,7 @@ class EsportsTrader:
         
         return None
     
-    def calculate_bet_size(self, ev: float = 0.10, price: float = 0.50) -> float:
+    def calculate_bet_size(self, ev: float = 0.10, price: float = 0.50, cap_override: float = None) -> float:
         """
         Calculate bet size using Half-Kelly Criterion.
         
@@ -1023,6 +1023,7 @@ class EsportsTrader:
         - Current ($77): $10 max with limit orders
         - Growth ($150+): $15 via Half-Kelly  
         - Stealth ($300+): $15-50 capped at 15% order book depth
+        - 🐋 Whale Detected: Dynamic cap up to $500
         """
         try:
             self.balance = self.pm_esports.pm.get_usdc_balance()
@@ -1040,16 +1041,16 @@ class EsportsTrader:
             return 0
         
         # Calculate Kelly size with invisibility cap
-        # Scale cap based on balance:
-        # - Under $150: $10 max
-        # - $150-300: $15 max
-        # - Over $300: $50 max
-        if self.balance < 150:
-            invisibility_cap = 10.0
-        elif self.balance < 300:
-            invisibility_cap = 15.0
+        if cap_override:
+             invisibility_cap = cap_override
         else:
-            invisibility_cap = 50.0
+            # Scale cap based on balance tiers
+            if self.balance < 150:
+                invisibility_cap = 10.0
+            elif self.balance < 300:
+                invisibility_cap = 15.0
+            else:
+                invisibility_cap = 50.0
         
         size = kelly_size(esports_allocation, ev, price, 
                          max_risk_pct=0.10, invisibility_cap=invisibility_cap)
@@ -1057,6 +1058,53 @@ class EsportsTrader:
         print(f"   📊 Kelly Size: ${size:.2f} (balance: ${self.balance:.2f}, cap: ${invisibility_cap})")
         return size
     
+    KNOWN_PROS = [
+        "0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee", # kch123
+        "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881", # SeriouslySirius
+        "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e", # DrPufferfish
+        "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991", # SemyonMarmeladov
+        "0x507e52ef684ca2dd91f90a9d26d149dd3288beae", # GamblingIsAllYouNeed
+        "0x204f72f35326db932158cba6adff0b9a1da95e14", # swisstony
+        "0xe90bec87d9ef430f27f9dcfe72c34b76967d5da2", # gmanas
+    ]
+    
+    def get_market_whales(self, token_id: str) -> bool:
+        """
+        Dynamically finds if any 'Smart Money' is in this specific market.
+        Returns True if a known pro OR organic whale (>10% supply) is found.
+        """
+        try:
+            # Endpoint: https://data-api.polymarket.com/token-holders?token_id=...
+            # Note: Using raw requests to match existing codebase style for Data API
+            url = f"https://data-api.polymarket.com/token-holders?token_id={token_id}"
+            resp = requests.get(url, timeout=5)
+            
+            if resp.status_code != 200:
+                return False
+                
+            holders = resp.json()
+            if not holders:
+                return False
+                
+            for holder in holders[:10]: # Check top 10 holders
+                address = holder.get('address', '').lower()
+                percent = float(holder.get('percentage', 0))
+                
+                # Logic A: Known Pro
+                if address in self.KNOWN_PROS:
+                    print(f"   🐋 WHALE DETECTED (Known Pro): {address[:8]}...")
+                    return True
+                
+                # Logic B: Organic Whale (>10% supply)
+                if percent > 0.10:
+                    print(f"   🐋 WHALE DETECTED (Organic): {address[:8]}... owns {percent*100:.1f}%")
+                    return True
+                    
+        except Exception as e:
+            print(f"   ⚠️ Whale check failed: {e}")
+            
+        return False
+
     def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
         """Execute a trade with safety checks and Kelly sizing."""
         
@@ -1084,8 +1132,18 @@ class EsportsTrader:
         potential_profit = 1.0 - entry_price
         ev = (our_prob * potential_profit) - ((1.0 - our_prob) * entry_price)
 
+        # 1.5. Dynamic Whale Search
+        # If we have a Teemu signal (Edge > 0), check for Smart Money to scale up
+        cap_override = None
+        whale_found = False
+        try:
+            if self.get_market_whales(token_id):
+                whale_found = True
+                cap_override = 500.0 # Boost to $500 if trusting a whale
+        except: pass
+
         # 2. Get Sizing
-        bet_size = self.calculate_bet_size(ev=ev, price=entry_price)
+        bet_size = self.calculate_bet_size(ev=ev, price=entry_price, cap_override=cap_override)
         
         if bet_size == 0:
             print(f"   ⚠️ Bet size calculated as 0 (EV: {ev:.3f}, Price: {entry_price:.3f})")
@@ -1097,6 +1155,8 @@ class EsportsTrader:
         print(f"\n🎯 TRADE: {side} on {market.team1} vs {market.team2}")
         print(f"   Our Prob: {our_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: +{edge_pct:.1f}%")
         print(f"   Entry: ${entry_price:.3f} | Size: ${bet_size:.2f} | Shares: {shares:.1f}")
+        if whale_found:
+             print(f"   🐋 SIZE BOOSTED due to Whale Presence")
         
         if self.dry_run:
             print(f"   [DRY RUN] Would execute trade")
@@ -1120,16 +1180,20 @@ class EsportsTrader:
             if self.context and self.LLMActivity:
                 try:
                     import uuid
+                    reasoning_log = f"Edge: {edge_pct:.1f}% | EV: {ev:.3f} | Size: ${bet_size:.2f}"
+                    if whale_found:
+                        reasoning_log += " | 🐋 Whale Follow (Cap $500)"
+                        
                     self.context.log_llm_activity(self.LLMActivity(
                         id=str(uuid.uuid4())[:8],
                         agent="esports_trader",
                         action_type="trade",
                         market_question=f"{market.team1} vs {market.team2}",
                         prompt_summary=f"Placing {side} bet",
-                        reasoning=f"Edge: {edge_pct:.1f}% | EV: {ev:.3f} | Size: ${bet_size:.2f}",
+                        reasoning=reasoning_log,
                         conclusion="BET",
                         confidence=our_prob,
-                        data_sources=["PandaScore", "Polymarket"],
+                        data_sources=["PandaScore", "Polymarket", "WhaleRadar"],
                         duration_ms=0
                     ))
                 except: pass
