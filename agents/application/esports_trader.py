@@ -1680,13 +1680,16 @@ class EsportsTrader:
         self.session_pnl = 0.0
 
         # WALLET SYNC: Load existing positions to prevent duplicates
+        print("🔗 WALLET SYNC: Starting wallet sync...")
         try:
             import requests
             # Use Polymarket Data API directly (same as dashboard)
             dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
             print(f"🔗 WALLET SYNC: Checking positions for wallet {dashboard_wallet[:10]}...")
             url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
+            print(f"🔗 WALLET SYNC: Calling {url}")
             resp = requests.get(url, timeout=10)
+            print(f"🔗 WALLET SYNC: API response status {resp.status_code}")
 
             if resp.status_code == 200:
                 current_positions = resp.json()
