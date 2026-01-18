@@ -666,6 +666,8 @@ def emergency_stop():
     state["scalper_running"] = False
     state["copy_trader_running"] = False
     state["smart_trader_running"] = False
+    state["esports_trader_running"] = False
+    state["sports_trader_running"] = False
     save_state(state)
     return {"status": "stopped"}
 

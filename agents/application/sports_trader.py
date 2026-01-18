@@ -141,6 +141,29 @@ class SportsTrader:
         print(f"Scan Interval: {SCAN_INTERVAL}s ({SCAN_INTERVAL//60} mins)")
         print(f"Balance: ${self.balance:.2f}")
 
+    def _state_file_paths(self) -> List[str]:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        return [
+            os.path.join(base_dir, "bot_state.json"),
+            os.path.join(os.path.dirname(base_dir), "bot_state.json")
+        ]
+
+    def _load_local_state(self) -> Dict:
+        for path in self._state_file_paths():
+            if os.path.exists(path):
+                try:
+                    with open(path, "r") as f:
+                        return json.load(f)
+                except Exception:
+                    continue
+        return {}
+
+    def _is_locally_running(self) -> bool:
+        state = self._load_local_state()
+        if not state:
+            return True
+        return state.get("sports_trader_running", True)
+
     def get_live_polymarket_sports(self, series_id: int = None) -> List[Dict]:
         """
         Fetch LIVE sports markets directly from Polymarket Gamma API.
@@ -577,8 +600,12 @@ class SportsTrader:
                 "timestamp": datetime.datetime.now().isoformat()
             }
             # Don't write mode to state file - let dashboard determine from global dry_run
-            with open("bot_state.json", "w") as f:
-                json.dump(state, f)
+            for path in self._state_file_paths():
+                try:
+                    with open(path, "w") as f:
+                        json.dump(state, f)
+                except Exception:
+                    continue
         except: pass
 
     def run(self):
@@ -588,11 +615,18 @@ class SportsTrader:
             if HAS_SUPABASE:
                 try: 
                     supa = get_supabase_state()
-                    if supa and not supa.is_agent_running("sport"):
-                        print("Paused via Supabase.")
-                        time.sleep(60)
-                        continue
-                except: pass
+                    if supa and not getattr(supa, "use_local_fallback", False):
+                        if not supa.is_agent_running("sport"):
+                            print("Paused via Supabase.")
+                            time.sleep(60)
+                            continue
+                except Exception as e:
+                    print(f"⚠️ Supabase check failed: {e}. Falling back to local state.")
+
+            if not self._is_locally_running():
+                print("Paused via local state file.")
+                time.sleep(60)
+                continue
 
             # 1. Auto-Redeem winning positions
             if self.redeemer:
