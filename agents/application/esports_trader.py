@@ -1681,21 +1681,31 @@ class EsportsTrader:
 
         # WALLET SYNC: Load existing positions to prevent duplicates
         try:
-            current_positions = self.pm_esports.pm.get_positions()
-            synced_count = 0
-            for pos in current_positions:
-                # Track by asset_id (token contract) to prevent duplicate positions
-                asset_id = pos.get('asset_id') or pos.get('token_id') or str(pos.get('id', ''))
-                if asset_id:
-                    self.positions[asset_id] = {
-                        'size': float(pos.get('size', 0)),
-                        'value': float(pos.get('currentValue', 0)),
-                        'cost': float(pos.get('cost', 0)),
-                        'outcome': pos.get('outcome', ''),
-                        'synced': True  # Mark as synced from wallet
-                    }
-                    synced_count += 1
-            print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
+            import requests
+            # Use Polymarket Data API directly (same as dashboard)
+            dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
+            url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
+            resp = requests.get(url, timeout=10)
+
+            if resp.status_code == 200:
+                current_positions = resp.json()
+                synced_count = 0
+                for pos in current_positions:
+                    # Track by asset_id (token contract) to prevent duplicate positions
+                    asset_id = pos.get('asset', '')  # This is the token contract address
+                    if asset_id and float(pos.get('size', 0)) > 0:  # Only track positions with size > 0
+                        self.positions[asset_id] = {
+                            'size': float(pos.get('size', 0)),
+                            'value': float(pos.get('currentValue', 0)),
+                            'cost': float(pos.get('cost', 0)),
+                            'outcome': pos.get('outcome', ''),
+                            'market': pos.get('title', pos.get('question', 'Unknown')),
+                            'synced': True  # Mark as synced from wallet
+                        }
+                        synced_count += 1
+                print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
+            else:
+                print(f"⚠️ WALLET SYNC: API error {resp.status_code} - could not sync positions")
         except Exception as e:
             print(f"⚠️ WALLET SYNC: Could not sync existing positions: {e}")
             # Continue anyway - better to trade with potential duplicates than not trade at all
