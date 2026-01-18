@@ -73,12 +73,12 @@ load_dotenv()
 
 # Trading parameters - LIVE CONFIG
 # Can be overridden via environment variable MIN_EDGE_PERCENT
-MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "1.5"))  # Lower threshold for small trades (can be lowered to 0.5% for testing)
+MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "0.7"))  # Allows the bot to capture small edges in efficient markets
 MIN_EDGE_PERCENT_TEST = 0.5     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
 MIN_BET_USD = 5.00              # Fixed $5 trades
 MAX_BET_USD = 5.00              # Fixed $5 trades
-BET_PERCENT = 0.40              # 40% of bankroll allocated to esports
-MAX_CONCURRENT_POSITIONS = 10   # Allow 10 concurrent positions
+BET_PERCENT = 0.85              # Allocates up to 85% of your $130 to esports trades
+MAX_CONCURRENT_POSITIONS = 20   # Expands capacity to hold more high-probability winners
 
 # Timing - LIVE TRADING MODE (Conservative for Free Tier)
 POLL_INTERVAL_LIVE = 30         # Poll every 30s (was 5s)
@@ -324,21 +324,21 @@ class WinProbabilityModel:
         team1_is_giant = any(giant in team1_name for giant in GIANTS)
         team2_is_giant = any(giant in team2_name for giant in GIANTS)
 
-        # If BO1, NEVER trade without data - can have extreme odds (0.10 vs 0.90)
+        # BO1 LOGIC: Trust the LLM to handle the context
         if state.number_of_games == 1:
-            return 0.0  # No edge assumption for BO1 without live stats
+            return 0.50  # Treat as coinflip and let the LLM/Panda data find the edge
 
-        # GIANT OVERRIDE: If a giant has any lead, they have near-certain win probability
+        # GIANT OVERRIDE: Move to 85/15 for Growth Sniper Mode
         if state.series_score1 > state.series_score2:
             if team1_is_giant:
-                return 0.95  # Giant with lead = 95% win probability
+                return 0.85  # Giant Lead (allows entries up to ~84¢)
             elif team2_is_giant:
-                return 0.05  # Never bet against giant with lead
+                return 0.15  # Underdog vs Giant (allows entries at ~10¢-14¢)
         elif state.series_score2 > state.series_score1:
             if team2_is_giant:
-                return 0.95  # Giant with lead = 95% win probability
+                return 0.85  # Giant Lead
             elif team1_is_giant:
-                return 0.05  # Never bet against giant with lead
+                return 0.15  # Underdog vs Giant
 
         # Standard series momentum logic (only used when no giants involved)
         # Best of 3 Logic
