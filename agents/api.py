@@ -91,6 +91,7 @@ async def ws_dashboard(ws: WebSocket):
         while True:
             payload = None
             try:
+                # get_dashboard is synchronous, do not await it
                 payload = get_dashboard(background_tasks=BackgroundTasks())
             except Exception as e:
                 payload = {"error": str(e)}

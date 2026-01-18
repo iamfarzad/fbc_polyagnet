@@ -105,7 +105,7 @@ def perplexity_search(query: str, api_key: str = None) -> str:
 MAX_POSITIONS = 10                   # Max concurrent positions (increased)
 BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggressive)
 MIN_BET_USD = 5.00                   # Unified $5 minimum across all agents
-MAX_BET_USD = 5.00                   # Unified $5 max for consistent sizing
+MAX_BET_USD = 10.00                  # Increased to $10 for more impact
 
 # --- OPTIMIZED FAVORITE GRINDING CONFIG ---
 # Edge requirements: Focus on HIGH-PROBABILITY favorites, not underdogs

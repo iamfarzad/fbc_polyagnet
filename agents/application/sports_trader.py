@@ -40,9 +40,9 @@ load_dotenv()
 
 # --- CONFIGURATION ---
 MIN_BET_USD = 5.00                 # Unified $5 minimum across all agents
-MAX_BET_USD = 5.00                 # Unified $5 max for consistent sizing
+MAX_BET_USD = 10.00                # Increased to $10 for more impact on $130 balance
 BET_PERCENT = 0.15                 # 15% of bankroll per bet
-MIN_CONFIDENCE = 0.65              # Restored to normal confidence threshold
+MIN_CONFIDENCE = 0.55              # Lowered to 55% to be more aggressive
 SCAN_INTERVAL = 60                 # 1 minute for faster scanning
 
 # Polymarket Sports Series IDs (for direct Gamma API)
@@ -519,8 +519,8 @@ class SportsTrader:
                 favorite_price = no_price
                 token_id = market.get("no_token")
             
-            # FILTER 2: Skip very high prices (>90c, low upside)
-            if favorite_price > 0.90:
+            # FILTER 2: Skip very high prices (>95c, low upside)
+            if favorite_price > 0.95:
                 continue
             
             print(f"\n   🔎 Analyzing: {question[:60]}...")

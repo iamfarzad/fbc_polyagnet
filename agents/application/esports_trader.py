@@ -76,7 +76,7 @@ load_dotenv()
 MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "0.7"))  # Allows the bot to capture small edges in efficient markets
 MIN_EDGE_PERCENT_TEST = 0.5     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
 MIN_BET_USD = 5.00              # Fixed $5 trades
-MAX_BET_USD = 5.00              # Fixed $5 trades
+MAX_BET_USD = 10.00             # Increased to $10 for more impact
 BET_PERCENT = 0.85              # Allocates up to 85% of your $130 to esports trades
 MAX_CONCURRENT_POSITIONS = 20   # Expands capacity to hold more high-probability winners
 
@@ -2423,7 +2423,7 @@ class EsportsTrader:
                 continue
 
             # --- CHECK 2: FILTER GARBAGE ---
-            if yes_price > 0.92 or no_price > 0.92: continue # Too expensive
+            if yes_price > 0.95 or no_price > 0.95: continue # Too expensive
             if yes_price < 0.08 or no_price < 0.08: continue # Too cheap/lotto
 
             # --- CHECK 3: HYBRID TRADING LOGIC ---

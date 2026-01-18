@@ -24,7 +24,7 @@ INSERT INTO agent_state (agent_name, is_running, is_dry_run) VALUES
     ('copy', true, false),
     ('smart', true, false),
     ('esports', true, false),
-    ('sports', true, false)
+    ('sport', true, false)
 ON CONFLICT (agent_name) DO NOTHING;
 
 -- Trade History Table (persistent trade log)

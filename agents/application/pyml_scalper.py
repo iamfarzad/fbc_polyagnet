@@ -90,11 +90,11 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.001     # 0.1% momentum - more conservative
+BASE_MOMENTUM_THRESHOLD = 0.0002    # 0.02% momentum - catch smaller moves
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
 PRICE_CAP = 0.75                    # Don't buy if price > $0.75 (risk > reward)
-MAX_POSITIONS = 2                   # Conservative: max 2 positions at once
-MIN_SENTIMENT_CONFIDENCE = 0.6      # Only trade if sentiment >60% confident
+MAX_POSITIONS = 5                   # Increased to 5 positions for $130 account
+MIN_SENTIMENT_CONFIDENCE = 0.51     # Lowered to 51% to be more aggressive
 
 
 class CryptoScalper:
