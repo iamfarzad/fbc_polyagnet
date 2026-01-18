@@ -211,25 +211,45 @@ class SupabaseState:
                          confidence: float, data_sources: List[str] = None,
                          tokens_used: int = 0, cost_usd: float = 0,
                          duration_ms: int = 0) -> bool:
-        """Log LLM activity for transparency."""
+        """Log LLM activity for transparency. Uses SDK first, REST fallback."""
+        payload = {
+            "agent": agent,
+            "action_type": action_type,
+            "market_question": market_question,
+            "prompt_summary": prompt_summary,
+            "reasoning": reasoning,
+            "conclusion": conclusion,
+            "confidence": confidence,
+            "data_sources": data_sources or [],
+            "tokens_used": tokens_used,
+            "cost_usd": cost_usd,
+            "duration_ms": duration_ms
+        }
+        
+        # 1. Try SDK first
         if self.client:
             try:
-                self.client.table("llm_activity").insert({
-                    "agent": agent,
-                    "action_type": action_type,
-                    "market_question": market_question,
-                    "prompt_summary": prompt_summary,
-                    "reasoning": reasoning,
-                    "conclusion": conclusion,
-                    "confidence": confidence,
-                    "data_sources": data_sources or [],
-                    "tokens_used": tokens_used,
-                    "cost_usd": cost_usd,
-                    "duration_ms": duration_ms
-                }).execute()
+                self.client.table("llm_activity").insert(payload).execute()
+                logger.info(f"📝 LLM activity logged via SDK: {agent}/{action_type}")
                 return True
             except Exception as e:
-                logger.error(f"Failed to log LLM activity: {e}")
+                logger.warning(f"SDK insert failed, trying REST: {e}")
+        
+        # 2. REST Fallback (if SDK fails or client is None)
+        if not self.use_local_fallback:
+            try:
+                url = self._rest_url("llm_activity")
+                with httpx.Client(timeout=10) as client:
+                    resp = client.post(url, headers=self.headers, json=payload)
+                    if resp.status_code in [200, 201]:
+                        logger.info(f"📝 LLM activity logged via REST: {agent}/{action_type}")
+                        return True
+                    else:
+                        logger.error(f"REST insert failed: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                logger.error(f"REST insert exception: {e}")
+        
+        logger.error(f"FAILED to log LLM activity for {agent} (no SDK, no REST)")
         return False
 
     def get_llm_activity(self, limit: int = 50, agent: str = None) -> List[Dict]:

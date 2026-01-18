@@ -307,7 +307,8 @@ def fetch_open_orders_helper() -> List[Dict]:
                 # Fetch market details
                 m = pm.get_market(item["token_id"])
                 if m:
-                    item["market"] = m.question
+                    # Handle both object and dict access
+                    item["market"] = getattr(m, 'question', None) or m.get('question', 'Unknown') if isinstance(m, dict) else getattr(m, 'question', 'Unknown')
                     
                     # Try to map token ID to outcome
                     try:
