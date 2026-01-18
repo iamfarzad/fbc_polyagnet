@@ -130,6 +130,10 @@ class GameState:
     team2_objectives: int = 0
     is_live: bool = False
     raw_data: dict = None
+    # Series info (for BO3/BO5 momentum trading)
+    series_team1_wins: int = 0   # Maps/games won by team1
+    series_team2_wins: int = 0   # Maps/games won by team2
+    best_of: int = 1             # 1=single game, 3=BO3, 5=BO5
     
     def gold_diff(self) -> int:
         """Gold difference (positive = team1 ahead)."""
@@ -138,6 +142,20 @@ class GameState:
     def score_diff(self) -> int:
         """Score difference (positive = team1 ahead)."""
         return self.team1_score - self.team2_score
+    
+    def has_series_edge(self) -> bool:
+        """Check if there's a series score advantage (someone is ahead in BO3/BO5)."""
+        if self.best_of <= 1:
+            return False
+        return self.series_team1_wins != self.series_team2_wins
+    
+    def series_leader(self) -> Optional[str]:
+        """Return which team is leading the series, or None if tied."""
+        if self.series_team1_wins > self.series_team2_wins:
+            return self.team1
+        elif self.series_team2_wins > self.series_team1_wins:
+            return self.team2
+        return None
 
 
 @dataclass 
@@ -283,6 +301,57 @@ class WinProbabilityModel:
         prob += gold_factor + kill_factor + obj_factor
         
         return max(0.05, min(0.95, prob))
+    
+    @staticmethod
+    def series_win_probability(series_score_1: int, series_score_2: int, best_of: int = 3) -> float:
+        """
+        Calculate win probability based on series score (BO3/BO5).
+        
+        This is the "Map Momentum" edge - statistically, winning Map 1 
+        in a BO3 gives ~65-70% win probability that markets often underprice.
+        
+        Based on historical esports data:
+        - BO3 @ 1-0: Team leading has ~67% win rate
+        - BO3 @ 2-0: Already won (100%)
+        - BO5 @ 1-0: ~60% for leader
+        - BO5 @ 2-0: ~75% for leader
+        - BO5 @ 2-1: ~60% for leader
+        """
+        maps_to_win = (best_of // 2) + 1  # BO3 = 2, BO5 = 3
+        
+        # Check if series is already won
+        if series_score_1 >= maps_to_win:
+            return 1.0
+        if series_score_2 >= maps_to_win:
+            return 0.0
+        
+        # Calculate remaining maps needed
+        team1_needs = maps_to_win - series_score_1
+        team2_needs = maps_to_win - series_score_2
+        
+        # Historical probabilities based on esports data
+        # Key: (team1_needs, team2_needs) -> team1 win probability
+        bo3_probs = {
+            (2, 2): 0.50,   # 0-0 start
+            (1, 2): 0.67,   # 1-0 lead (THIS IS THE EDGE)
+            (2, 1): 0.33,   # 0-1 down
+            (1, 1): 0.50,   # 1-1 tied
+        }
+        
+        bo5_probs = {
+            (3, 3): 0.50,   # 0-0 start
+            (2, 3): 0.60,   # 1-0 lead
+            (3, 2): 0.40,   # 0-1 down
+            (1, 3): 0.75,   # 2-0 lead (BIG EDGE)
+            (3, 1): 0.25,   # 0-2 down
+            (2, 2): 0.50,   # 1-1 tied
+            (1, 2): 0.60,   # 2-1 lead
+            (2, 1): 0.40,   # 1-2 down
+            (1, 1): 0.50,   # 2-2 tied (final map)
+        }
+        
+        probs = bo5_probs if best_of == 5 else bo3_probs
+        return probs.get((team1_needs, team2_needs), 0.50)
     
     @classmethod
     def calculate(cls, state: GameState) -> float:
@@ -1005,18 +1074,22 @@ class EsportsDataAggregator:
             team1_id = opponents[0].get("opponent", {}).get("id")
             team2_id = opponents[1].get("opponent", {}).get("id")
             
-            # Get series scores from results (maps/games won)
+            # Get SERIES scores from results (maps/games WON in BO3/BO5)
+            # This is the key data for Series Momentum trading!
             results = raw_match.get("results", [])
-            team1_score = 0
-            team2_score = 0
+            series_team1_wins = 0
+            series_team2_wins = 0
             
             for result in results:
                 team_id = result.get("team_id")
                 score = result.get("score", 0)
                 if team_id == team1_id:
-                    team1_score = score
+                    series_team1_wins = score
                 elif team_id == team2_id:
-                    team2_score = score
+                    series_team2_wins = score
+            
+            # Get series format (BO1, BO3, BO5)
+            best_of = raw_match.get("number_of_games", 1)
             
             # Check for current game stats (gold, kills) from games array
             team1_gold = 0
@@ -1038,20 +1111,25 @@ class EsportsDataAggregator:
                     game_time = game.get("length", 0)
                     break
             
-            sys.stderr.write(f"🔍 DEBUG: Fallback state for {match_id}: {team1}({team1_score}) vs {team2}({team2_score}), Gold: {team1_gold}-{team2_gold}, Kills: {team1_kills}-{team2_kills}\n"); sys.stderr.flush()
+            series_info = f"BO{best_of} @ {series_team1_wins}-{series_team2_wins}" if best_of > 1 else "BO1"
+            sys.stderr.write(f"🔍 DEBUG: Fallback state for {match_id}: {team1} vs {team2} | {series_info} | Gold: {team1_gold}-{team2_gold}, Kills: {team1_kills}-{team2_kills}\n"); sys.stderr.flush()
             
             return GameState(
                 game_type=game_type,
                 match_id=match_id,
                 team1=team1,
                 team2=team2,
-                team1_score=team1_score if team1_kills == 0 else team1_kills,  # Use kills if available, else series score
-                team2_score=team2_score if team2_kills == 0 else team2_kills,
+                team1_score=team1_kills,  # In-game kills/rounds (may be 0)
+                team2_score=team2_kills,
                 team1_gold=team1_gold,
                 team2_gold=team2_gold,
                 game_time=game_time,
                 is_live=raw_match.get("status") == "running",
-                raw_data=raw_match
+                raw_data=raw_match,
+                # Series info for momentum trading
+                series_team1_wins=series_team1_wins,
+                series_team2_wins=series_team2_wins,
+                best_of=best_of
             )
         except Exception as e:
             sys.stderr.write(f"🔍 DEBUG: Failed to create basic state: {e}\n"); sys.stderr.flush()
@@ -2073,60 +2151,92 @@ class EsportsTrader:
                         print(f"      ⚠️ Failed to fetch match state for {match_id} ({game_type.upper()}) - SKIPPING (no data edge)")
 
                 if state and state.is_live:
-                    # CRITICAL: Check if we have REAL game data before trading
-                    has_real_data = (state.gold_diff() != 0 or 
-                                    state.team1_score != 0 or 
-                                    state.team2_score != 0 or
-                                    state.game_time > 0)
+                    # Check what kind of data we have
+                    has_ingame_data = (state.gold_diff() != 0 or 
+                                       state.team1_score != 0 or 
+                                       state.team2_score != 0 or
+                                       state.game_time > 0)
                     
-                    if not has_real_data:
-                        print(f"      ⚠️ NO REAL DATA: Skipping {match_id} - Game may not have started or API returned empty stats")
-                        continue  # Skip to next market - don't trade without actual data
+                    has_series_data = state.has_series_edge()  # Team is ahead in BO3/BO5
                     
-                    true_prob = self.model.calculate(state)
+                    # =========================================================
+                    # PATH A: In-Game Data Edge (Gold/Kills/Rounds)
+                    # =========================================================
+                    if has_ingame_data:
+                        true_prob = self.model.calculate(state)
 
-                    # Calculate Edge
-                    market_prob = yes_price
-                    edge = true_prob - market_prob
+                        # Calculate Edge
+                        market_prob = yes_price
+                        edge = true_prob - market_prob
 
-                    sys.stderr.write(f"\n   ⚔️ TEEMU MODE: {question[:40]}...\n")
-                    sys.stderr.write(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}\n")
-                    sys.stderr.write(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%\n")
-                    sys.stderr.flush()
+                        sys.stderr.write(f"\n   ⚔️ TEEMU MODE: {question[:40]}...\n")
+                        sys.stderr.write(f"      Stats: {state.team1} vs {state.team2} | Gold Diff: {state.gold_diff():+d}\n")
+                        sys.stderr.write(f"      True Prob: {true_prob*100:.1f}% vs Market: {market_prob*100:.1f}%\n")
+                        sys.stderr.flush()
 
-                    # Log edge calculation for visibility
-                    print(f"   📊 Edge Analysis: {question[:50]}...")
-                    print(f"      True Prob: {true_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: {edge*100:+.1f}% | Threshold: {MIN_EDGE_PERCENT}%")
+                        # Log edge calculation for visibility
+                        print(f"   📊 Edge Analysis: {question[:50]}...")
+                        print(f"      True Prob: {true_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: {edge*100:+.1f}% | Threshold: {MIN_EDGE_PERCENT}%")
+                        
+                        # Use test threshold if edge is close but below main threshold
+                        effective_threshold = MIN_EDGE_PERCENT / 100
+                        if abs(edge) > MIN_EDGE_PERCENT_TEST / 100 and abs(edge) < MIN_EDGE_PERCENT / 100:
+                            print(f"      ⚠️ Edge {abs(edge)*100:.1f}% is close to threshold ({MIN_EDGE_PERCENT}%) but below. Consider lowering MIN_EDGE_PERCENT for more trades.")
+                        
+                        if abs(edge) > effective_threshold:
+                            side = "YES" if edge > 0 else "NO"
+                            print(f"      🔥 DATA EDGE DETECTED: {side} (Edge: {abs(edge)*100:.1f}% > {MIN_EDGE_PERCENT}%)")
+                            sys.stderr.write(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
+                            if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
+                                trades_made += 1
+                            continue
                     
-                    # Use test threshold if edge is close but below main threshold
-                    effective_threshold = MIN_EDGE_PERCENT / 100
-                    if abs(edge) > MIN_EDGE_PERCENT_TEST / 100 and abs(edge) < MIN_EDGE_PERCENT / 100:
-                        print(f"      ⚠️ Edge {abs(edge)*100:.1f}% is close to threshold ({MIN_EDGE_PERCENT}%) but below. Consider lowering MIN_EDGE_PERCENT for more trades.")
+                    # =========================================================
+                    # PATH B: Series Momentum Edge (BO3/BO5 Map Advantage)
+                    # =========================================================
+                    elif has_series_data:
+                        # Calculate win probability based on series score
+                        series_prob = WinProbabilityModel.series_win_probability(
+                            state.series_team1_wins, 
+                            state.series_team2_wins, 
+                            state.best_of
+                        )
+                        
+                        # Calculate edge vs market
+                        market_prob = yes_price  # YES = team1 wins
+                        edge = series_prob - market_prob
+                        
+                        series_str = f"BO{state.best_of} @ {state.series_team1_wins}-{state.series_team2_wins}"
+                        leader = state.series_leader()
+                        
+                        sys.stderr.write(f"\n   🏆 SERIES MOMENTUM: {question[:40]}...\n")
+                        sys.stderr.write(f"      {state.team1} vs {state.team2} | {series_str}\n")
+                        sys.stderr.write(f"      Leader: {leader} | Series Prob: {series_prob*100:.1f}% vs Market: {market_prob*100:.1f}%\n")
+                        sys.stderr.flush()
+                        
+                        print(f"   🏆 Series Momentum: {question[:50]}...")
+                        print(f"      {series_str} | Leader: {leader}")
+                        print(f"      Series Prob: {series_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: {edge*100:+.1f}%")
+                        
+                        # Series edges need to be bigger (we're less certain)
+                        series_threshold = max(MIN_EDGE_PERCENT / 100, 0.05)  # At least 5% edge required
+                        
+                        if abs(edge) > series_threshold:
+                            side = "YES" if edge > 0 else "NO"
+                            print(f"      🔥 SERIES EDGE DETECTED: {side} (Edge: {abs(edge)*100:.1f}% > {series_threshold*100:.1f}%)")
+                            sys.stderr.write(f"      🔥 SERIES EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
+                            if self.execute_trade(market, side, series_prob, market.yes_price if side=="YES" else market.no_price):
+                                trades_made += 1
+                            continue
+                        else:
+                            print(f"      ⏸️ Series edge too small ({abs(edge)*100:.1f}% < {series_threshold*100:.1f}%)")
                     
-                    if abs(edge) > effective_threshold:
-                        side = "YES" if edge > 0 else "NO"
-                        print(f"      🔥 DATA EDGE DETECTED: {side} (Edge: {abs(edge)*100:.1f}% > {MIN_EDGE_PERCENT}%)")
-                        sys.stderr.write(f"      🔥 DATA EDGE: {side} (Edge: {abs(edge)*100:.1f}%)\n"); sys.stderr.flush()
-                        if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
-                            trades_made += 1
+                    # =========================================================
+                    # NO TRADEABLE EDGE
+                    # =========================================================
+                    else:
+                        print(f"      ⚠️ NO DATA: {match_id} - No in-game stats or series advantage")
                         continue
-                    elif abs(edge) > 0.005: 
-                         # Log "Near Miss" (Edge > 0.5% but < 1.5%) to populate dashboard
-                         # Limit log frequency to avoid spamming same match every cycle if nothing changes
-                         log_key = f"{match_id}_{round(edge, 3)}"
-                         if time.time() - self.last_activity_log > 60 and self.context: # Throttle logs
-                             self.context.log_llm_activity(LLMActivity(
-                                agent="esports_trader",
-                                action_type="SCAN",
-                                market_question=question,
-                                prompt_summary=f"Analyzing {state.team1} vs {state.team2}",
-                                reasoning=f"Live Stats: Gold {state.gold_diff():+d}. True Prob {true_prob:.2f} vs Market {market_prob:.2f}. Edge {edge*100:.1f}% < Target 1.5%.",
-                                conclusion="WAIT (Edge too small)",
-                                confidence=abs(edge),
-                                data_sources=["PandaScore", "Polymarket"],
-                                duration_ms=int((time.time() - current_time)*1000)
-                             ))
-                             self.last_activity_log = time.time()
 
             # === PATH B: MARKET-BASED TRADING (DISABLED - TOO RISKY WITHOUT DATA) ===
             # WARNING: Without Pandascore data, this is essentially gambling
