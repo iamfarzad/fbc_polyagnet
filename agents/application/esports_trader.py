@@ -1693,13 +1693,16 @@ class EsportsTrader:
 
             if resp.status_code == 200:
                 current_positions = resp.json()
+                print(f"🔗 WALLET SYNC: API returned {len(current_positions)} position records")
                 synced_count = 0
                 for pos in current_positions:
                     # Track by asset_id (token contract) to prevent duplicate positions
                     asset_id = pos.get('asset', '')  # This is the token contract address
-                    if asset_id and float(pos.get('size', 0)) > 0:  # Only track positions with size > 0
+                    size = float(pos.get('size', 0))
+                    print(f"🔗 WALLET SYNC: Position {asset_id[:10]}... size {size}")
+                    if asset_id and size > 0:  # Only track positions with size > 0
                         self.positions[asset_id] = {
-                            'size': float(pos.get('size', 0)),
+                            'size': size,
                             'value': float(pos.get('currentValue', 0)),
                             'cost': float(pos.get('cost', 0)),
                             'outcome': pos.get('outcome', ''),
@@ -1710,8 +1713,11 @@ class EsportsTrader:
                 print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
             else:
                 print(f"⚠️ WALLET SYNC: API error {resp.status_code} - could not sync positions")
+                print(f"⚠️ WALLET SYNC: Response: {resp.text[:200]}")
         except Exception as e:
+            import traceback
             print(f"⚠️ WALLET SYNC: Could not sync existing positions: {e}")
+            print(f"⚠️ WALLET SYNC: Traceback: {traceback.format_exc()}")
             # Continue anyway - better to trade with potential duplicates than not trade at all
 
         # API Rate Limiting
