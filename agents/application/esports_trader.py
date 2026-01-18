@@ -1679,6 +1679,27 @@ class EsportsTrader:
         self.session_trades = 0
         self.session_pnl = 0.0
 
+        # WALLET SYNC: Load existing positions to prevent duplicates
+        try:
+            current_positions = self.pm_esports.pm.get_positions()
+            synced_count = 0
+            for pos in current_positions:
+                # Track by asset_id (token contract) to prevent duplicate positions
+                asset_id = pos.get('asset_id') or pos.get('token_id') or str(pos.get('id', ''))
+                if asset_id:
+                    self.positions[asset_id] = {
+                        'size': float(pos.get('size', 0)),
+                        'value': float(pos.get('currentValue', 0)),
+                        'cost': float(pos.get('cost', 0)),
+                        'outcome': pos.get('outcome', ''),
+                        'synced': True  # Mark as synced from wallet
+                    }
+                    synced_count += 1
+            print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
+        except Exception as e:
+            print(f"⚠️ WALLET SYNC: Could not sync existing positions: {e}")
+            # Continue anyway - better to trade with potential duplicates than not trade at all
+
         # API Rate Limiting
         self.last_request_time = 0
         self.api_requests_this_hour = 0
@@ -2021,11 +2042,22 @@ class EsportsTrader:
         if result.get("success") or result.get("status") == "matched":
             print(f"   ✅ FILLED!")
             self.session_trades += 1
+            # Store position by market_id (for dashboard)
             self.positions[market.market_id] = {
                 "side": side,
                 "entry_price": entry_price,
                 "shares": shares,
                 "entry_time": datetime.datetime.now().isoformat()
+            }
+
+            # Also store by token_id (for wallet sync duplicate prevention)
+            self.positions[token_id] = {
+                "market_id": market.market_id,
+                "side": side,
+                "entry_price": entry_price,
+                "shares": shares,
+                "entry_time": datetime.datetime.now().isoformat(),
+                "synced": False  # Mark as newly created position
             }
             
             # Log successful trade to LLM Terminal
@@ -2443,7 +2475,18 @@ class EsportsTrader:
                         else:
                             print(f"      🧠 VALIDATOR APPROVED: {validation.get('confidence', 0):.1f} confidence")
 
-                    # MATCH TRACKER: Prevent buying same team multiple times in same match
+                    # MATCH TRACKER: Prevent duplicate positions (wallet sync + same match)
+                    # Check if we already have this specific token (from wallet sync)
+                    target_token = market.yes_token if side == "YES" else market.no_token
+                    if target_token in self.positions:
+                        existing_pos = self.positions[target_token]
+                        if existing_pos.get('synced', False):
+                            print(f"      🎯 WALLET SYNC BLOCKED: Already own {existing_pos.get('size', 0):.2f} shares of {side} token")
+                        else:
+                            print(f"      🎯 MATCH TRACKER BLOCKED: Already have position on {side} for this match")
+                        continue
+
+                    # Also prevent same match + side combination
                     match_key = f"{state.match_id}_{side}"
                     if match_key in self.positions:
                         print(f"      🎯 MATCH TRACKER BLOCKED: Already have position on {side} for this match")
@@ -2451,13 +2494,14 @@ class EsportsTrader:
 
                     if self.execute_trade(market, side, true_prob, yes_price if side=="YES" else no_price):
                         trades_made += 1
-                        # Track match position to prevent duplicates
+                        # Track match position to prevent same match + side duplicates
                         self.positions[match_key] = {
                             "market_id": market.market_id,
                             "side": side,
                             "entry_price": yes_price if side=="YES" else no_price,
                             "entry_time": datetime.datetime.now().isoformat(),
-                            "strategy": strategy_name
+                            "strategy": strategy_name,
+                            "synced": False
                         }
                     continue
 
