@@ -1684,6 +1684,7 @@ class EsportsTrader:
             import requests
             # Use Polymarket Data API directly (same as dashboard)
             dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
+            print(f"🔗 WALLET SYNC: Checking positions for wallet {dashboard_wallet[:10]}...")
             url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
             resp = requests.get(url, timeout=10)
 
