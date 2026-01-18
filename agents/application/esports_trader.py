@@ -1055,6 +1055,12 @@ class EsportsTrader:
         size = kelly_size(esports_allocation, ev, price, 
                          max_risk_pct=0.10, invisibility_cap=invisibility_cap)
         
+        # Gap D: Balance Safety Cap (Never bet more than 20% of TOTAL balance)
+        SAFETY_CAP_USD = self.balance * 0.20
+        if size > SAFETY_CAP_USD:
+            print(f"   ⚠️ Capping size to 20% of balance: ${SAFETY_CAP_USD:.2f} (was ${size:.2f})")
+            size = SAFETY_CAP_USD
+
         print(f"   📊 Kelly Size: ${size:.2f} (balance: ${self.balance:.2f}, cap: ${invisibility_cap})")
         return size
     
@@ -1076,8 +1082,9 @@ class EsportsTrader:
         try:
             # Endpoint: https://data-api.polymarket.com/token-holders?token_id=...
             # Note: Using raw requests to match existing codebase style for Data API
+            # Gap C: Reduce timeout to 2s to catch Teemu latency window
             url = f"https://data-api.polymarket.com/token-holders?token_id={token_id}"
-            resp = requests.get(url, timeout=5)
+            resp = requests.get(url, timeout=2)
             
             if resp.status_code != 200:
                 return False
@@ -1104,6 +1111,41 @@ class EsportsTrader:
             print(f"   ⚠️ Whale check failed: {e}")
             
         return False
+        
+    def check_liquidity_depth(self, token_id: str, desired_size_usd: float) -> float:
+        """
+        Check order book depth to ensure we don't wipe out liquidity.
+        Returns the capped size (max 15% of available ask liquidity).
+        """
+        try:
+            book = self.pm_esports.pm.client.get_order_book(token_id)
+            if not book or not book.asks:
+                return 0.0 # No liquidity
+            
+            # Sum up total available liquidity in the order book (ASKS)
+            # Since we are buying, we consume asks.
+            total_liquidity = 0.0
+            for ask in book.asks:
+                try:
+                    price = float(ask.price)
+                    size = float(ask.size)
+                    total_liquidity += price * size
+                except: pass
+                
+            # Cap at 15% of total liquidity
+            max_safe_size = total_liquidity * 0.15
+            
+            # Log if constrained
+            if desired_size_usd > max_safe_size:
+                # print(f"   💧 Liquidity Check: Desired ${desired_size_usd:.2f} > 15% of ${total_liquidity:.2f} (${max_safe_size:.2f})")
+                pass
+                
+            return min(desired_size_usd, max_safe_size)
+            
+        except Exception as e:
+            print(f"   ⚠️ Liquidity check failed: {e}")
+            # Fail safe: assume low liquidity if check fails
+            return min(desired_size_usd, 10.0) 
 
     def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
         """Execute a trade with safety checks and Kelly sizing."""
@@ -1141,14 +1183,26 @@ class EsportsTrader:
                 whale_found = True
                 cap_override = 500.0 # Boost to $500 if trusting a whale
         except: pass
-
+        
         # 2. Get Sizing
         bet_size = self.calculate_bet_size(ev=ev, price=entry_price, cap_override=cap_override)
         
+        # Check if size is 0
         if bet_size == 0:
             print(f"   ⚠️ Bet size calculated as 0 (EV: {ev:.3f}, Price: {entry_price:.3f})")
             return False
             
+        # Gap A: Liquidity Depth Check (Prevent wiping the book)
+        liquidity_cap = self.check_liquidity_depth(token_id, bet_size)
+        if liquidity_cap < bet_size:
+            print(f"   ⚠️ Liquidity constrained: Capping size to ${liquidity_cap:.2f} (15% of depth)")
+            bet_size = liquidity_cap
+            
+        # Re-check 0 after liquidity cap
+        if bet_size < 1.0: # Minimum viable bet
+            print(f"   ⚠️ Bet size too small after liquidity cap: ${bet_size:.2f}")
+            return False
+
         shares = bet_size / entry_price
         edge_pct = abs(edge) * 100
         
