@@ -2399,8 +2399,16 @@ class EsportsTrader:
                     is_live=True
                 )
 
-                # Try to get detailed stats (might 403)
-                detailed_state = self.data_aggregator.get_match_state(state.match_id, state.game_type)
+                # Try to get detailed stats (might 403) - USE CACHE TO SAVE API CALLS!
+                if state.match_id in match_state_cache:
+                    detailed_state = match_state_cache[state.match_id]
+                    print(f"      💾 Using cached match state for {state.match_id}")
+                else:
+                    detailed_state = self.data_aggregator.get_match_state(state.match_id, state.game_type)
+                    if detailed_state:
+                        self.increment_request_count()  # Count API call
+                        match_state_cache[state.match_id] = detailed_state  # Cache it
+                        print(f"      📡 Fetched match state for {state.match_id} ({state.game_type.upper()})")
 
                 if detailed_state and detailed_state.game_time > 0:
                     # PATH A: Full Teemu Edge (Gold/Kills)
