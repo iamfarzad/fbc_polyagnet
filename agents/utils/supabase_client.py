@@ -247,6 +247,8 @@ class SupabaseState:
             "duration_ms": duration_ms
         }
         
+        logger.debug(f"Attempting to log LLM activity: {agent}/{action_type}")
+        
         # 1. Try SDK first
         if self.client:
             try:
@@ -255,35 +257,63 @@ class SupabaseState:
                 return True
             except Exception as e:
                 logger.warning(f"SDK insert failed, trying REST: {e}")
+        else:
+            logger.debug("SDK client not available, using REST fallback")
         
         # 2. REST Fallback (if SDK fails or client is None)
         if not self.use_local_fallback:
             try:
                 url = self._rest_url("llm_activity")
+                logger.debug(f"POSTing to REST URL: {url}")
                 with httpx.Client(timeout=10) as client:
                     resp = client.post(url, headers=self.headers, json=payload)
                     if resp.status_code in [200, 201]:
                         logger.info(f"📝 LLM activity logged via REST: {agent}/{action_type}")
                         return True
                     else:
-                        logger.error(f"REST insert failed: {resp.status_code} - {resp.text}")
+                        logger.error(f"REST insert failed: {resp.status_code} - {resp.text[:200]}")
             except Exception as e:
                 logger.error(f"REST insert exception: {e}")
+        else:
+            logger.warning(f"Using local fallback - Supabase not configured (use_local_fallback=True)")
         
         logger.error(f"FAILED to log LLM activity for {agent} (no SDK, no REST)")
         return False
 
     def get_llm_activity(self, limit: int = 50, agent: str = None) -> List[Dict]:
-        """Get recent LLM activity from Supabase."""
+        """Get recent LLM activity from Supabase. Uses SDK first, REST fallback."""
+        # 1. Try SDK first
         if self.client:
             try:
                 query = self.client.table("llm_activity").select("*").order("created_at", desc=True).limit(limit)
                 if agent:
                     query = query.eq("agent", agent)
                 result = query.execute()
-                return result.data or []
+                if result.data:
+                    logger.debug(f"Retrieved {len(result.data)} LLM activities via SDK")
+                    return result.data
             except Exception as e:
-                logger.error(f"Failed to get LLM activity: {e}")
+                logger.warning(f"SDK query failed, trying REST: {e}")
+        
+        # 2. REST Fallback (if SDK fails or client is None)
+        if not self.use_local_fallback:
+            try:
+                url = f"{self._rest_url('llm_activity')}?limit={limit}&order=created_at.desc"
+                if agent:
+                    url += f"&agent=eq.{agent}"
+                
+                with httpx.Client(timeout=10) as client:
+                    resp = client.get(url, headers=self.headers)
+                    if resp.status_code == 200:
+                        data = resp.json() or []
+                        logger.debug(f"Retrieved {len(data)} LLM activities via REST")
+                        return data
+                    else:
+                        logger.error(f"REST query failed: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                logger.error(f"REST query exception: {e}")
+        
+        logger.warning("Failed to get LLM activity (no SDK, no REST)")
         return []
 
 
