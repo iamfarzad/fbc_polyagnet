@@ -8,7 +8,7 @@ import {
   Activity, Zap, Wallet, ExternalLink, Brain, Shield,
   BarChart3, Settings, PieChart,
   X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
-  ChevronRight, AlertTriangle, Monitor, Trophy, Lock, MessageSquare
+  ChevronRight, AlertTriangle, Monitor, Trophy, Lock, MessageSquare, Minimize2, Maximize2
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
 import { FBPChat } from "@/components/fbp-chat"
@@ -94,8 +94,10 @@ export default function ProDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
-
   const [connectionError, setConnectionError] = useState<string | null>(null)
+
+  // Mobile panel state: 'chat', 'terminal', or null (closed)
+  const [mobilePanel, setMobilePanel] = useState<'chat' | 'terminal' | null>(null)
 
   const fetchDashboardData = async () => {
     let id: NodeJS.Timeout | undefined
@@ -458,6 +460,59 @@ export default function ProDashboard() {
         </div>
 
       </main>
+
+      {/* Mobile Floating Action Buttons - Only visible on small screens */}
+      <div className="fixed bottom-4 right-4 flex flex-col gap-2 lg:hidden z-40">
+        <Button
+          onClick={() => setMobilePanel('terminal')}
+          size="lg"
+          className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary/90"
+        >
+          <Terminal className="h-6 w-6" />
+        </Button>
+        <Button
+          onClick={() => setMobilePanel('chat')}
+          size="lg"
+          className="rounded-full w-14 h-14 shadow-lg bg-violet-500 hover:bg-violet-600"
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+      </div>
+
+      {/* Mobile Full-Screen Overlay Panel */}
+      {mobilePanel && (
+        <div className="fixed inset-0 z-50 bg-background lg:hidden flex flex-col animate-in slide-in-from-bottom duration-300">
+          {/* Header */}
+          <header className="h-12 border-b border-border/40 bg-card/50 backdrop-blur flex items-center justify-between px-4">
+            <div className="flex items-center gap-2">
+              {mobilePanel === 'terminal' ? (
+                <>
+                  <Terminal className="h-4 w-4 text-primary" />
+                  <span className="font-bold text-sm">LLM Terminal</span>
+                </>
+              ) : (
+                <>
+                  <MessageSquare className="h-4 w-4 text-violet-400" />
+                  <span className="font-bold text-sm">FBP Chat</span>
+                </>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobilePanel(null)}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </header>
+
+          {/* Content */}
+          <div className="flex-1 overflow-hidden">
+            {mobilePanel === 'terminal' ? <LLMTerminal /> : <FBPChat />}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
