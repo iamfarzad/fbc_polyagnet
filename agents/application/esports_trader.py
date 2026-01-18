@@ -331,23 +331,33 @@ class RiotAPIProvider:
             try:
                 url = "https://api.pandascore.co/lol/matches/running"
                 headers = {"Authorization": f"Bearer {self.pandascore_key}"}
-                sys.stderr.write(f"🔍 DEBUG: Making API call to {url}\n"); sys.stderr.flush()
+                sys.stderr.write(f"🔍 DEBUG: LoL API call to {url}\n"); sys.stderr.flush()
                 resp = requests.get(url, headers=headers, timeout=10)
-                sys.stderr.write(f"🔍 DEBUG: API response status: {resp.status_code}\n"); sys.stderr.flush()
+                sys.stderr.write(f"🔍 DEBUG: LoL API response status: {resp.status_code}\n"); sys.stderr.flush()
                 if resp.status_code == 200:
                     matches = resp.json()
                     sys.stderr.write(f"🔍 DEBUG: Found {len(matches)} live LoL matches\n"); sys.stderr.flush()
+                    if matches:
+                        # Log sample match for debugging
+                        sample = matches[0] if matches else {}
+                        opps = sample.get("opponents", [])
+                        if len(opps) >= 2:
+                            t1 = opps[0].get("opponent", {}).get("name", "?")
+                            t2 = opps[1].get("opponent", {}).get("name", "?")
+                            sys.stderr.write(f"🔍 DEBUG: Sample LoL match: {t1} vs {t2}\n"); sys.stderr.flush()
                     return matches
                 elif resp.status_code == 429:
                     sys.stderr.write(f"⚠️ PANDASCORE 429 (Too Many Requests) - Sleeping 60s\n"); sys.stderr.flush()
                     self._rate_limit_until = time.time() + 60
                     return []
                 else:
-                    sys.stderr.write(f"🔍 DEBUG: API error: {resp.status_code} - {resp.text}\n"); sys.stderr.flush()
+                    sys.stderr.write(f"🔍 DEBUG: LoL API error {resp.status_code}: {resp.text[:200]}\n"); sys.stderr.flush()
             except Exception as e:
-                sys.stderr.write(f"🔍 DEBUG: PandaScore exception: {e}\n"); sys.stderr.flush()
+                sys.stderr.write(f"🔍 DEBUG: PandaScore LoL exception: {e}\n"); sys.stderr.flush()
+                import traceback
+                traceback.print_exc(file=sys.stderr)
 
-        sys.stderr.write("🔍 DEBUG: No pandascore key or API failed, returning empty list\n"); sys.stderr.flush()
+        sys.stderr.write("🔍 DEBUG: LoL provider returning empty list\n"); sys.stderr.flush()
         return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
@@ -441,22 +451,45 @@ class CS2DataProvider:
     def get_live_matches(self) -> List[Dict]:
         """Get currently live CS2 matches."""
         if time.time() < self._rate_limit_until:
+             sys.stderr.write(f"⏳ Pausing Pandascore (CS2) due to 429 until {self._rate_limit_until}\n"); sys.stderr.flush()
              return []
 
         if self.pandascore_key:
             try:
-                url = "https://api.pandascore.co/csgo/matches/running"
-                headers = {"Authorization": f"Bearer {self.pandascore_key}"}
-                resp = requests.get(url, headers=headers, timeout=10)
-                if resp.status_code == 200:
-                    return resp.json()
-                elif resp.status_code == 429:
-                    sys.stderr.write(f"⚠️ PANDASCORE CS2 429 - Sleeping 60s\n"); sys.stderr.flush()
-                    self._rate_limit_until = time.time() + 60
+                # Try both CS2 and CSGO endpoints (PandaScore may use different naming)
+                urls = [
+                    "https://api.pandascore.co/csgo/matches/running",
+                    "https://api.pandascore.co/cs2/matches/running"
+                ]
+                
+                for url in urls:
+                    sys.stderr.write(f"🔍 DEBUG: CS2 API call to {url}\n"); sys.stderr.flush()
+                    headers = {"Authorization": f"Bearer {self.pandascore_key}"}
+                    resp = requests.get(url, headers=headers, timeout=10)
+                    sys.stderr.write(f"🔍 DEBUG: CS2 API response status: {resp.status_code}\n"); sys.stderr.flush()
+                    
+                    if resp.status_code == 200:
+                        matches = resp.json()
+                        sys.stderr.write(f"🔍 DEBUG: Found {len(matches)} live CS2 matches from {url}\n"); sys.stderr.flush()
+                        if matches:
+                            return matches
+                    elif resp.status_code == 429:
+                        sys.stderr.write(f"⚠️ PANDASCORE CS2 429 - Sleeping 60s\n"); sys.stderr.flush()
+                        self._rate_limit_until = time.time() + 60
+                        return []
+                    elif resp.status_code == 404:
+                        # Endpoint doesn't exist, try next URL
+                        sys.stderr.write(f"🔍 DEBUG: {url} returned 404, trying next endpoint\n"); sys.stderr.flush()
+                        continue
+                    else:
+                        sys.stderr.write(f"🔍 DEBUG: CS2 API error {resp.status_code}: {resp.text[:200]}\n"); sys.stderr.flush()
 
             except Exception as e:
-                print(f"PandaScore CS2 error: {e}")
+                sys.stderr.write(f"🔍 DEBUG: PandaScore CS2 exception: {e}\n"); sys.stderr.flush()
+                import traceback
+                traceback.print_exc(file=sys.stderr)
         
+        sys.stderr.write("🔍 DEBUG: CS2 provider returning empty list\n"); sys.stderr.flush()
         return []
     
     def get_match_state(self, match_id: str) -> Optional[GameState]:
