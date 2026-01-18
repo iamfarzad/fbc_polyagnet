@@ -2073,6 +2073,16 @@ class EsportsTrader:
                         print(f"      ⚠️ Failed to fetch match state for {match_id} ({game_type.upper()}) - SKIPPING (no data edge)")
 
                 if state and state.is_live:
+                    # CRITICAL: Check if we have REAL game data before trading
+                    has_real_data = (state.gold_diff() != 0 or 
+                                    state.team1_score != 0 or 
+                                    state.team2_score != 0 or
+                                    state.game_time > 0)
+                    
+                    if not has_real_data:
+                        print(f"      ⚠️ NO REAL DATA: Skipping {match_id} - Game may not have started or API returned empty stats")
+                        continue  # Skip to next market - don't trade without actual data
+                    
                     true_prob = self.model.calculate(state)
 
                     # Calculate Edge
