@@ -1015,42 +1015,87 @@ class EsportsTrader:
         
         return None
     
-    def calculate_bet_size(self) -> float:
-        """Calculate bet size - fixed $5 trades with 40% wallet allocation."""
+    def calculate_bet_size(self, ev: float = 0.10, price: float = 0.50) -> float:
+        """
+        Calculate bet size using Half-Kelly Criterion.
+        
+        Scaling Rules:
+        - Current ($77): $10 max with limit orders
+        - Growth ($150+): $15 via Half-Kelly  
+        - Stealth ($300+): $15-50 capped at 15% order book depth
+        """
         try:
             self.balance = self.pm_esports.pm.get_usdc_balance()
         except:
             pass
 
+        # Use risk engine for Kelly-based sizing
+        from agents.utils.risk_engine import kelly_size
+        
         # 40% of wallet allocated to esports
         esports_allocation = self.balance * BET_PERCENT
         
-        # Fixed $5 trades, but cap at allocated amount
-        if esports_allocation >= MIN_BET_USD:
-            return min(MAX_BET_USD, esports_allocation / MAX_CONCURRENT_POSITIONS)
-        else:
+        if esports_allocation < MIN_BET_USD:
             print(f"   ⚠️ Insufficient esports allocation: ${esports_allocation:.2f} (need ${MIN_BET_USD})")
-            return 0  # Not enough balance
+            return 0
+        
+        # Calculate Kelly size with invisibility cap
+        # Scale cap based on balance:
+        # - Under $150: $10 max
+        # - $150-300: $15 max
+        # - Over $300: $50 max
+        if self.balance < 150:
+            invisibility_cap = 10.0
+        elif self.balance < 300:
+            invisibility_cap = 15.0
+        else:
+            invisibility_cap = 50.0
+        
+        size = kelly_size(esports_allocation, ev, price, 
+                         max_risk_pct=0.10, invisibility_cap=invisibility_cap)
+        
+        print(f"   📊 Kelly Size: ${size:.2f} (balance: ${self.balance:.2f}, cap: ${invisibility_cap})")
+        return size
     
     def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
-        """Execute a trade."""
-        bet_size = self.calculate_bet_size()
-        if bet_size == 0:
+        """Execute a trade with safety checks and Kelly sizing."""
+        
+        # 0. SAFETY: Check for existing open orders on this token (Prevent Charlton Loop)
+        token_id = market.yes_token if side == "YES" else market.no_token
+        try:
+            open_orders = self.pm_esports.pm.get_open_orders()
+            if any(o.get('asset_id') == token_id for o in open_orders):
+                print(f"   ⚠️ Open order already exists for {market.team1} vs {market.team2}. Skipping.")
+                return False
+        except Exception as e:
+            print(f"   ⚠️ Failed to check open orders: {e}")
+            # Fail safe: don't trade if we can't verify open orders
             return False
+
+        # 1. Calc Edge & EV
+        edge = our_prob - market_prob
+        # Simple EV approx: (Win Prob * Profit) - (Loss Prob * Risk)
+        # Profit = (1 - price), Risk = price
+        # EV = (our_prob * (1 - market_prob)) - ((1 - our_prob) * market_prob)
+        # Simplified for sizing: just pass the raw edge as EV proxy or use proper calc
+        entry_price = min(0.95, market.yes_price + 0.01) if side == "YES" else min(0.95, market.no_price + 0.01)
         
-        # Determine token and price
-        if side == "YES":
-            token_id = market.yes_token
-            entry_price = min(0.95, market.yes_price + 0.01)
-        else:
-            token_id = market.no_token
-            entry_price = min(0.95, market.no_price + 0.01)
+        # Calculate EV for Kelly
+        potential_profit = 1.0 - entry_price
+        ev = (our_prob * potential_profit) - ((1.0 - our_prob) * entry_price)
+
+        # 2. Get Sizing
+        bet_size = self.calculate_bet_size(ev=ev, price=entry_price)
         
+        if bet_size == 0:
+            print(f"   ⚠️ Bet size calculated as 0 (EV: {ev:.3f}, Price: {entry_price:.3f})")
+            return False
+            
         shares = bet_size / entry_price
-        edge = abs(our_prob - market_prob) * 100
+        edge_pct = abs(edge) * 100
         
         print(f"\n🎯 TRADE: {side} on {market.team1} vs {market.team2}")
-        print(f"   Our Prob: {our_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: +{edge:.1f}%")
+        print(f"   Our Prob: {our_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: +{edge_pct:.1f}%")
         print(f"   Entry: ${entry_price:.3f} | Size: ${bet_size:.2f} | Shares: {shares:.1f}")
         
         if self.dry_run:
@@ -1058,6 +1103,7 @@ class EsportsTrader:
             self.session_trades += 1
             return True
         
+        # 3. Execute
         result = self.pm_esports.place_order(token_id, "BUY", entry_price, shares)
         
         if result.get("success") or result.get("status") == "matched":
@@ -1069,6 +1115,25 @@ class EsportsTrader:
                 "shares": shares,
                 "entry_time": datetime.datetime.now().isoformat()
             }
+            
+            # Log successful trade to LLM Terminal
+            if self.context and self.LLMActivity:
+                try:
+                    import uuid
+                    self.context.log_llm_activity(self.LLMActivity(
+                        id=str(uuid.uuid4())[:8],
+                        agent="esports_trader",
+                        action_type="trade",
+                        market_question=f"{market.team1} vs {market.team2}",
+                        prompt_summary=f"Placing {side} bet",
+                        reasoning=f"Edge: {edge_pct:.1f}% | EV: {ev:.3f} | Size: ${bet_size:.2f}",
+                        conclusion="BET",
+                        confidence=our_prob,
+                        data_sources=["PandaScore", "Polymarket"],
+                        duration_ms=0
+                    ))
+                except: pass
+                
             return True
         else:
             print(f"   ⚠️ Order issue: {result}")

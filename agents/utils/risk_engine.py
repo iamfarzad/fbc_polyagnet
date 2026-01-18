@@ -11,26 +11,34 @@ def calculate_ev(price: float, win_prob: float, potential_profit: float, fees: f
     ev = (win_prob * potential_profit) - ((1.0 - win_prob) * price) - fees
     return max(ev, 0.0)
 
-def kelly_size(balance: float, ev: float, price: float, max_risk_pct: float = 0.02) -> float:
+def kelly_size(balance: float, ev: float, price: float, max_risk_pct: float = 0.10, 
+               invisibility_cap: float = 50.0) -> float:
     """
     Calculates trade size using Half-Kelly Criterion.
+    
+    Args:
+        balance: Current USDC balance
+        ev: Expected Value of the trade
+        price: Entry price (probability)
+        max_risk_pct: Max % of balance to risk (default 10%)
+        invisibility_cap: Absolute max bet to stay invisible (default $50)
     """
     if ev <= 0 or price <= 0 or price >= 1 or balance <= 0:
         return 0.0
         
     kelly_f = ev / (1.0 - price)
-    size_pct = kelly_f * 0.5 
+    size_pct = kelly_f * 0.5  # Half-Kelly for safety
     
-    # PATCH: Ensure we never bet more than 10% of balance regardless of Kelly
-    SAFE_CAP = 0.10 
+    # Cap at max_risk_pct of balance
+    SAFE_CAP = 0.15  # Never more than 15% of balance
     final_pct = min(size_pct, max_risk_pct, SAFE_CAP)
     
     size_usd = balance * final_pct
     
-    # Safety: Absolute ceiling for the account size provided ($200)
-    # Don't let a single bet exceed $20 until balance grows.
-    size_usd = min(size_usd, 20.0)
+    # Invisibility: Never exceed the cap to avoid moving market
+    size_usd = min(size_usd, invisibility_cap)
     
+    # Minimum viable bet check
     return max(size_usd, 0.50) if size_usd > 0.10 else 0.0
 
 def check_drawdown(initial_balance: float, current_balance: float, drawdown_limit: float = 0.05) -> bool:
