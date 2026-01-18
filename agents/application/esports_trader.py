@@ -1393,9 +1393,10 @@ class EsportsTrader:
         except Exception as e:
             print(f"   ⚠️ Heartbeat failed: {e}")
 
-        # 0. Check Rate Limits First
+        # 0. Check Rate Limits First (this also resets hourly counters)
         rate_limit_sleep = self.check_rate_limits()
         if rate_limit_sleep > 0:
+            print(f"   ⏸️ Rate limit check: Sleeping {rate_limit_sleep}s")
             return rate_limit_sleep
 
         # 1. Check Pause State (only for pausing, NOT for dry_run - respect --live flag)
@@ -1440,6 +1441,13 @@ class EsportsTrader:
         
         # Smart Polling Logic (Tiered Prioritization)
         current_time = time.time()
+        
+        # Reset counters if hour has passed (CRITICAL: Must check BEFORE calculating ratio)
+        if current_time - self.hour_start_time >= REQUEST_COUNT_RESET_HOUR:
+            self.api_requests_this_hour = 0
+            self.hour_start_time = current_time
+            print(f"   🔄 Hourly API counter reset")
+        
         usage_ratio = self.api_requests_this_hour / MAX_REQUESTS_PER_HOUR
         
         # Determine Poll Interval based on Tiers
@@ -1453,13 +1461,15 @@ class EsportsTrader:
         elif usage_ratio > 0.80:
              # Tier 3: BACK-OFF -> 2m
              poll_interval = 120
-             print(f"   ⚠️ High API Usage ({self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}) - Backing off to 120s polling")
+             print(f"   ⚠️ High API Usage ({self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}, {usage_ratio*100:.1f}%) - Backing off to 120s polling")
         elif has_active_positions:
              # Tier 1: Active Positions -> 15s (Check for exits)
              poll_interval = 15
+             print(f"   🎯 Active positions detected - Polling every 15s for exits")
         else:
              # Tier 2: Standard Live Scan -> 45s
              poll_interval = 45
+             print(f"   🔍 Standard discovery mode - Polling every 45s (Usage: {self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}, {usage_ratio*100:.1f}%)")
              
         time_since_last = current_time - self.last_live_poll
         # Force poll on first scan (last_live_poll = 0) or if enough time has passed
@@ -1475,10 +1485,12 @@ class EsportsTrader:
                 self.last_live_poll = current_time
                 self.whale_watch_only = False
                 
-                # Track API usage (aggregated matches call counts as ~2-3 requests)
-                self.increment_request_count()
-                self.increment_request_count()  
+                # Track API usage: get_all_live_matches() makes 3 API calls (LoL, CS2, Valorant)
+                self.increment_request_count()  # LoL
+                self.increment_request_count()  # CS2
+                self.increment_request_count()  # Valorant
                 print(f"   ✅ Found {len(live_matches)} live matches in data feed")
+                print(f"   📊 API Usage: {self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR} ({self.api_requests_this_hour/MAX_REQUESTS_PER_HOUR*100:.1f}%)")
                 sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
             except Exception as e:
                 print(f"   ⚠️ Data feed error: {e}")
@@ -1538,12 +1550,19 @@ class EsportsTrader:
                 state = None
                 if match_id in match_state_cache:
                     state = match_state_cache[match_id]
+                    print(f"      💾 Using cached match state for {match_id}")
                 else:
-                    # Fetch and cache
+                    # Fetch and cache (this makes 1-2 API calls per match depending on game type)
+                    # LoL: 2 calls (match + game details), CS2/Valorant: 1 call
                     state = self.data_aggregator.get_match_state(match_id, game_type)
                     if state:
-                        self.increment_request_count() # Count this detail fetch
+                        self.increment_request_count() # Count base match fetch
+                        if game_type == "lol":
+                            # LoL makes an additional call to /games/{id} for detailed stats
+                            self.increment_request_count()
                         match_state_cache[match_id] = state
+                        api_calls = 2 if game_type == "lol" else 1
+                        print(f"      📡 Fetched match state for {match_id} ({game_type.upper()}, {api_calls} API calls)")
 
                 if state and state.is_live:
                     true_prob = self.model.calculate(state)
