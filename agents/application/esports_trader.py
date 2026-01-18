@@ -31,7 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
-from agents.utils.context import get_context, Position, Trade
+from agents.utils.context import get_context, Position, Trade, LLMActivity
 
 # --- ESPORTS CONTRARIAN SYSTEM PROMPT ---
 ESPORTS_RISK_MANAGER_PROMPT = """You are a contrarian esports bettor and risk manager.
@@ -956,6 +956,7 @@ class EsportsTrader:
         # Tiered Polling State
         self.last_live_poll = 0
         self.whale_watch_only = False
+        self.last_activity_log = 0
         
         # Get balance with error logging
         try:
@@ -1549,6 +1550,23 @@ class EsportsTrader:
                         if self.execute_trade(market, side, true_prob, market.yes_price if side=="YES" else market.no_price):
                             trades_made += 1
                         continue
+                    elif abs(edge) > 0.005: 
+                         # Log "Near Miss" (Edge > 0.5% but < 1.5%) to populate dashboard
+                         # Limit log frequency to avoid spamming same match every cycle if nothing changes
+                         log_key = f"{match_id}_{round(edge, 3)}"
+                         if time.time() - self.last_activity_log > 60: # Throttle logs
+                             self.context.log_llm_activity(LLMActivity(
+                                agent="esports_trader",
+                                action_type="SCAN",
+                                market_question=question,
+                                prompt_summary=f"Analyzing {state.team1} vs {state.team2}",
+                                reasoning=f"Live Stats: Gold {state.gold_diff():+d}. True Prob {true_prob:.2f} vs Market {market_prob:.2f}. Edge {edge*100:.1f}% < Target 1.5%.",
+                                conclusion="WAIT (Edge too small)",
+                                confidence=abs(edge),
+                                data_sources=["PandaScore", "Polymarket"],
+                                duration_ms=int((time.time() - current_time)*1000)
+                             ))
+                             self.last_activity_log = time.time()
 
             # === PATH B: MARKET-BASED TRADING (DISABLED - TOO RISKY WITHOUT DATA) ===
             # WARNING: Without Pandascore data, this is essentially gambling
