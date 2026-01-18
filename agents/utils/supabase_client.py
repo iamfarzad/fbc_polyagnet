@@ -108,8 +108,29 @@ class SupabaseState:
         return False
     
     def set_agent_running(self, agent_name: str, is_running: bool) -> bool:
-        """Toggle agent running state (from dashboard)."""
-        return self.update_agent_state(agent_name, {"is_running": is_running})
+        """Toggle agent running state (from dashboard). Uses upsert to create row if missing."""
+        if not self.use_local_fallback:
+            try:
+                url = self._rest_url('agent_state')
+                payload = {
+                    "agent_name": agent_name,
+                    "is_running": is_running,
+                    "updated_at": datetime.utcnow().isoformat(),
+                    "heartbeat": datetime.utcnow().isoformat()
+                }
+                # Use upsert headers - will INSERT if not exists, UPDATE if exists
+                upsert_headers = {**self.headers, "Prefer": "resolution=merge-duplicates"}
+                
+                with httpx.Client(timeout=10) as client:
+                    resp = client.post(url, headers=upsert_headers, json=payload)
+                    if resp.status_code in [200, 201, 204]:
+                        logger.info(f"✅ Set {agent_name} running={is_running} via upsert")
+                        return True
+                    else:
+                        logger.error(f"Upsert failed: {resp.status_code} - {resp.text}")
+            except Exception as e:
+                logger.error(f"Failed to set agent running: {e}")
+        return False
     
     # =========================================================================
     # CONFIG
