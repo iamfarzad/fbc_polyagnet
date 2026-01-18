@@ -6,6 +6,8 @@ import multiprocessing
 import os
 import signal
 import sys
+print("   🚀 AGENT STARTING... PYTHONPATH=" + str(sys.path))
+
 import time
 import subprocess
 from datetime import datetime
