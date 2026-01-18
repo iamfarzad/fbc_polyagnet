@@ -101,6 +101,9 @@ ESPORTS_SERIES = {
     "lcs": 10288,       # League Championship Series
     "wildrift": 10429,  # Wild Rift
     "hok": 10434,       # Honor of Kings
+    "r6siege": 10503,   # Rainbow Six Siege
+    "cod": 10502,       # Call of Duty
+    "rocket-league": 10504,  # Rocket League
 }
 
 # API Keys (loaded dynamically)
@@ -697,6 +700,10 @@ class EsportsDataAggregator:
         self.lol_provider = RiotAPIProvider()
         self.cs2_provider = CS2DataProvider()
         self.val_provider = ValorantDataProvider()
+        self.dota2_provider = Dota2DataProvider()
+        self.r6_provider = RainbowSixDataProvider()
+        self.cod_provider = CallOfDutyDataProvider()
+        self.rl_provider = RocketLeagueDataProvider()
         
     def get_all_live_matches(self) -> List[Dict]:
         """Get all currently live matches across games."""
@@ -726,6 +733,38 @@ class EsportsDataAggregator:
             sys.stderr.write(f"🔍 DEBUG: Valorant provider returned {len(val_matches)} matches\n"); sys.stderr.flush()
             for match in val_matches:
                 match["game_type"] = "valorant"
+                matches.append(match)
+
+            # Dota 2 matches
+            sys.stderr.write("🔍 DEBUG: Getting Dota2 matches...\n"); sys.stderr.flush()
+            dota2_matches = self.dota2_provider.get_live_matches()
+            sys.stderr.write(f"🔍 DEBUG: Dota2 provider returned {len(dota2_matches)} matches\n"); sys.stderr.flush()
+            for match in dota2_matches:
+                match["game_type"] = "dota2"
+                matches.append(match)
+
+            # Rainbow Six matches
+            sys.stderr.write("🔍 DEBUG: Getting R6 matches...\n"); sys.stderr.flush()
+            r6_matches = self.r6_provider.get_live_matches()
+            sys.stderr.write(f"🔍 DEBUG: R6 provider returned {len(r6_matches)} matches\n"); sys.stderr.flush()
+            for match in r6_matches:
+                match["game_type"] = "r6siege"
+                matches.append(match)
+
+            # Call of Duty matches
+            sys.stderr.write("🔍 DEBUG: Getting CoD matches...\n"); sys.stderr.flush()
+            cod_matches = self.cod_provider.get_live_matches()
+            sys.stderr.write(f"🔍 DEBUG: CoD provider returned {len(cod_matches)} matches\n"); sys.stderr.flush()
+            for match in cod_matches:
+                match["game_type"] = "cod"
+                matches.append(match)
+
+            # Rocket League matches
+            sys.stderr.write("🔍 DEBUG: Getting RL matches...\n"); sys.stderr.flush()
+            rl_matches = self.rl_provider.get_live_matches()
+            sys.stderr.write(f"🔍 DEBUG: RL provider returned {len(rl_matches)} matches\n"); sys.stderr.flush()
+            for match in rl_matches:
+                match["game_type"] = "rocket-league"
                 matches.append(match)
 
             sys.stderr.write(f"🔍 DEBUG: Total live matches found: {len(matches)}\n"); sys.stderr.flush()
@@ -1579,10 +1618,14 @@ class EsportsTrader:
                 self.last_live_poll = current_time
                 self.whale_watch_only = False
                 
-                # Track API usage: get_all_live_matches() makes 3 API calls (LoL, CS2, Valorant)
+                # Track API usage: get_all_live_matches() makes 7 API calls (LoL, CS2, Valorant, Dota2, R6, CoD, RL)
                 self.increment_request_count()  # LoL
                 self.increment_request_count()  # CS2
                 self.increment_request_count()  # Valorant
+                self.increment_request_count()  # Dota2
+                self.increment_request_count()  # R6
+                self.increment_request_count()  # CoD
+                self.increment_request_count()  # RL
                 print(f"   ✅ Found {len(live_matches)} live matches in data feed")
                 print(f"   📊 API Usage: {self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR} ({self.api_requests_this_hour/MAX_REQUESTS_PER_HOUR*100:.1f}%)")
                 sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
