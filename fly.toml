@@ -17,6 +17,7 @@ primary_region = "ams"
   smart = "python3 -m agents.application.smart_trader --live"
   sports = "python3 -m agents.application.sports_trader --live"
   esports = "python3 -m agents.application.esports_trader --live --growth"
+  esports_monitor = "python3 -m agents.application.esports_monitor"
 
 [http_service]
   internal_port = 8000

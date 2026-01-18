@@ -679,6 +679,76 @@ def emergency_stop():
     save_state(state)
     return {"status": "stopped"}
 
+@app.get("/api/live-matches")
+def get_live_matches():
+    """Get live esports matches for monitoring and notifications."""
+    try:
+        # Try to import the esports monitor
+        try:
+            from agents.application.esports_monitor import EsportsMonitor
+            monitor = EsportsMonitor()
+            matches = monitor.get_all_live_matches()
+        except ImportError:
+            # Fallback: basic PandaScore check
+            import requests
+            pandascore_key = os.getenv("PANDASCORE_API_KEY")
+            matches = {"pandascore": [], "riot": []}
+
+            if pandascore_key:
+                game_types = ['lol', 'cs2', 'valorant', 'dota2', 'r6siege', 'cod', 'rl']
+                for game_type in game_types:
+                    try:
+                        url = f"https://api.pandascore.co/{game_type}/matches/running"
+                        headers = {"Authorization": f"Bearer {pandascore_key}"}
+                        resp = requests.get(url, headers=headers, timeout=5)
+                        if resp.status_code == 200:
+                            game_matches = resp.json()
+                            if game_matches:
+                                matches["pandascore"].extend([
+                                    {**match, 'game_type': game_type}
+                                    for match in game_matches
+                                ])
+                    except:
+                        continue
+
+        # Format for frontend
+        esports_matches = []
+        for source, match_list in matches.items():
+            for match in match_list:
+                if source == "pandascore":
+                    opponents = match.get("opponents", [])
+                    if len(opponents) >= 2:
+                        team1 = opponents[0].get("opponent", {}).get("name", "Team1")
+                        team2 = opponents[1].get("opponent", {}).get("name", "Team2")
+                        game_type = match.get("game_type", "unknown")
+                        esports_matches.append({
+                            "teams": f"{team1} vs {team2}",
+                            "game": game_type.upper(),
+                            "source": "PandaScore",
+                            "match_id": str(match.get("id", ""))
+                        })
+                elif source == "riot":
+                    teams = match.get("match", {}).get("teams", [])
+                    if len(teams) >= 2:
+                        team1 = teams[0].get("name", "Team1")
+                        team2 = teams[1].get("name", "Team2")
+                        esports_matches.append({
+                            "teams": f"{team1} vs {team2}",
+                            "game": "LOL",
+                            "source": "Riot Esports",
+                            "match_id": str(match.get("id", ""))
+                        })
+
+        return {
+            "esports": esports_matches,
+            "count": len(esports_matches),
+            "last_check": datetime.now(timezone.utc).isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching live matches: {e}")
+        return {"esports": [], "count": 0, "error": str(e)}
+
 
 # --- Position Management Endpoints ---
 

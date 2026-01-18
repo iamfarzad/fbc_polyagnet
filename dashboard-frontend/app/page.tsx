@@ -100,11 +100,22 @@ const AGENT_DESCRIPTIONS: Record<string, string> = {
   sportsTrader: "Direct Gamma. Fast execution on sports events using Gamma API odds."
 }
 
+interface Notification {
+  id: string
+  type: 'info' | 'success' | 'warning' | 'error'
+  title: string
+  message: string
+  timestamp: number
+  actionUrl?: string
+}
+
 export default function ProDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [showNotifications, setShowNotifications] = useState(false)
 
   // Mobile panel state: 'chat', 'terminal', or null (closed)
   const [mobilePanel, setMobilePanel] = useState<'chat' | 'terminal' | null>(null)
@@ -163,6 +174,38 @@ export default function ProDashboard() {
     fetchDashboardData()
   }
 
+  const checkLiveMatches = async () => {
+    try {
+      const response = await fetch(`${getApiUrl()}/api/live-matches`)
+      if (response.ok) {
+        const matchData = await response.json()
+
+        // Check for esports matches
+        const esportsMatches = matchData.esports || []
+        if (esportsMatches.length > 0 && esportsMatches.length !== notifications.filter(n => n.type === 'success').length) {
+          const newNotification: Notification = {
+            id: `esports-${Date.now()}`,
+            type: 'success',
+            title: '🎮 Live Esports Matches Detected!',
+            message: `Found ${esportsMatches.length} active esports matches. Trading opportunities available!`,
+            timestamp: Date.now(),
+            actionUrl: 'https://polymarket.com/search?_q=esports'
+          }
+
+          setNotifications(prev => [newNotification, ...prev.slice(0, 4)]) // Keep last 5
+          setShowNotifications(true)
+
+          // Auto-hide after 30 seconds
+          setTimeout(() => {
+            setNotifications(prev => prev.filter(n => n.id !== newNotification.id))
+          }, 30000)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to check live matches:", error)
+    }
+  }
+
   useEffect(() => {
     let pollInterval: ReturnType<typeof setInterval> | null = null
     let ws: WebSocket | null = null
@@ -171,6 +214,9 @@ export default function ProDashboard() {
       fetchDashboardData()
       pollInterval = setInterval(fetchDashboardData, 3000)
     }
+
+    // Check for live matches every 30 seconds
+    const matchInterval = setInterval(checkLiveMatches, 30000)
 
     try {
       ws = new WebSocket(`${getWsUrl()}/ws/dashboard`)
@@ -216,6 +262,56 @@ export default function ProDashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground font-mono text-xs flex flex-col">
 
+      {/* Notifications Panel */}
+      {showNotifications && notifications.length > 0 && (
+        <div className="fixed top-14 right-4 z-50 w-96 max-w-sm bg-card border border-border rounded-lg shadow-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-sm flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-orange-500" />
+              Live Match Alerts
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowNotifications(false)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          <div className="space-y-3">
+            {notifications.map((notification) => (
+              <div key={notification.id} className="border border-border/50 rounded p-3 bg-background/50">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm text-foreground">{notification.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
+                    <p className="text-[10px] text-muted-foreground/70 mt-2">
+                      {new Date(notification.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  {notification.actionUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-xs ml-2"
+                      onClick={() => window.open(notification.actionUrl, '_blank')}
+                    >
+                      View
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <p className="text-[10px] text-muted-foreground text-center">
+              Esports monitor checks every 30 seconds
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 1. Header: Status & Global Controls */}
       <header className="border-b border-border/40 bg-card/20 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 h-12 flex items-center justify-between">
@@ -228,6 +324,20 @@ export default function ProDashboard() {
           </div>
 
           <div className="flex items-center gap-6">
+            {/* Notifications */}
+            {notifications.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative h-8 px-3 text-xs border-orange-500/50 hover:border-orange-500"
+              >
+                <AlertTriangle className="h-3 w-3 mr-1 text-orange-500" />
+                {notifications.length} Alert{notifications.length !== 1 ? 's' : ''}
+                {showNotifications ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
+              </Button>
+            )}
+
             <div className="hidden md:flex gap-6 text-[11px]">
               <div>
                 <span className="text-muted-foreground mr-2">CASH</span>
