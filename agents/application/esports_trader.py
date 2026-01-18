@@ -305,13 +305,42 @@ class WinProbabilityModel:
     @staticmethod
     def calculate_series_edge(state: GameState) -> float:
         """
-        Calculates win probability based purely on series map score (e.g., 1-0 in BO3).
+        Calculates win probability based on series map score with CONTEXT-AWARE adjustments.
+        Uses "Giant" team awareness to recognize elite teams that dominate with leads.
         This is the "Map Momentum" edge that works on PandaScore free tier.
         """
+        # LAYER A: GIANT AWARENESS - Elite teams with leads are near-certain winners
+        GIANTS = [
+            "falcons", "spirit", "liquid", "gaimin", "furia", "g2", "vitality",
+            "navi", "natus vincere", "virtus pro", "mouz", "heroic", "cloud9",
+            "astralis", "nip", "fnatic", "sk gaming", "mibr", "pain", "imperial",
+            "team liquid", "evil geniuses", "psg.lgd", "tundra", "secret", "og"
+        ]
+
+        team1_name = state.team1.lower().strip() if state.team1 else ""
+        team2_name = state.team2.lower().strip() if state.team2 else ""
+
+        # Check if either team is a recognized giant
+        team1_is_giant = any(giant in team1_name for giant in GIANTS)
+        team2_is_giant = any(giant in team2_name for giant in GIANTS)
+
         # If BO1, NEVER trade without data - can have extreme odds (0.10 vs 0.90)
         if state.number_of_games == 1:
             return 0.0  # No edge assumption for BO1 without live stats
 
+        # GIANT OVERRIDE: If a giant has any lead, they have near-certain win probability
+        if state.series_score1 > state.series_score2:
+            if team1_is_giant:
+                return 0.95  # Giant with lead = 95% win probability
+            elif team2_is_giant:
+                return 0.05  # Never bet against giant with lead
+        elif state.series_score2 > state.series_score1:
+            if team2_is_giant:
+                return 0.95  # Giant with lead = 95% win probability
+            elif team1_is_giant:
+                return 0.05  # Never bet against giant with lead
+
+        # Standard series momentum logic (only used when no giants involved)
         # Best of 3 Logic
         if state.number_of_games == 3:
             if state.series_score1 == 1 and state.series_score2 == 0:
@@ -2069,6 +2098,17 @@ class EsportsTrader:
                 "entry_time": datetime.datetime.now().isoformat(),
                 "synced": False  # Mark as newly created position
             }
+
+            # Store conflict key to prevent betting on other outcomes of same match
+            match_conflict_key = f"{state.match_id}_active"
+            self.positions[match_conflict_key] = {
+                "market_id": market.market_id,
+                "outcome": side,
+                "entry_price": entry_price,
+                "shares": shares,
+                "entry_time": datetime.datetime.now().isoformat(),
+                "strategy": strategy_name
+            }
             
             # Log successful trade to LLM Terminal
             if self.context and self.LLMActivity and hasattr(self, 'context'):
@@ -2484,6 +2524,14 @@ class EsportsTrader:
                             continue
                         else:
                             print(f"      🧠 VALIDATOR APPROVED: {validation.get('confidence', 0):.1f} confidence")
+
+                    # LAYER C: CONFLICT AWARENESS - Prevent betting against yourself
+                    # Never bet on multiple outcomes of the same match
+                    match_conflict_key = f"{state.match_id}_active"
+                    if match_conflict_key in self.positions:
+                        existing_match_pos = self.positions[match_conflict_key]
+                        print(f"      🎯 CONFLICT BLOCKED: Already have position on {existing_match_pos.get('outcome', 'unknown')} side of this match")
+                        continue
 
                     # MATCH TRACKER: Prevent duplicate positions (wallet sync + same match)
                     # Check if we already have this specific token (from wallet sync)
