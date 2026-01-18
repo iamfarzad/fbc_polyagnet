@@ -2351,7 +2351,7 @@ class EsportsTrader:
         
         if not should_poll:
             print(f"   ⏳ Smart Polling: Skipping Data API ({time_since_last:.1f}s / {poll_interval}s)")
-            live_matches = [] # Skip call
+            return POLL_INTERVAL_LIVE # Return early instead of processing with empty data
         else:
             print(f"   📡 Fetching live match data from PandaScore (poll_interval: {poll_interval}s)...")
             try:
