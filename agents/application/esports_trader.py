@@ -387,6 +387,136 @@ class WinProbabilityModel:
 # DATA PROVIDERS
 # =============================================================================
 
+class RiotEsportsAPI:
+    """
+    Official Riot eSports API for League of Legends live game data.
+    FREE and provides real-time gold/kills for pro matches!
+    
+    This bypasses the PandaScore paywall by using Riot's own eSports feed.
+    """
+    
+    def __init__(self):
+        self.base_url = "https://esports-api.lolesports.com/persisted/gw"
+        self.live_url = "https://feed.lolesports.com/livestats/v1"
+        self.api_key = "0TvQnueqKa5mxJntVWt0w4LpLfEkrV1Ta8rQBb9Z"  # Public LoL Esports API key
+        
+    def get_live_events(self) -> List[Dict]:
+        """Get currently live LoL esports events."""
+        try:
+            url = f"{self.base_url}/getLive"
+            headers = {"x-api-key": self.api_key}
+            params = {"hl": "en-US"}
+            resp = requests.get(url, headers=headers, params=params, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                events = data.get("data", {}).get("schedule", {}).get("events", [])
+                live_events = [e for e in events if e.get("state") == "inProgress"]
+                sys.stderr.write(f"🎮 RIOT ESPORTS: Found {len(live_events)} live LoL events\n"); sys.stderr.flush()
+                return live_events
+            return []
+        except Exception as e:
+            sys.stderr.write(f"🎮 RIOT ESPORTS error: {e}\n"); sys.stderr.flush()
+            return []
+    
+    def get_live_game_stats(self, game_id: str) -> Optional[Dict]:
+        """
+        Get real-time game statistics (gold, kills, etc.) for a live game.
+        This is the KEY data that PandaScore blocks on free tier!
+        """
+        try:
+            # Try the live stats feed
+            url = f"{self.live_url}/window/{game_id}"
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                return resp.json()
+            
+            # Fallback: try details endpoint
+            url = f"{self.live_url}/details/{game_id}"
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                return resp.json()
+                
+            return None
+        except Exception as e:
+            sys.stderr.write(f"🎮 RIOT LIVE STATS error for {game_id}: {e}\n"); sys.stderr.flush()
+            return None
+    
+    def get_lol_game_state(self, match_info: Dict) -> Optional[GameState]:
+        """
+        Convert Riot eSports live data into a GameState for edge calculation.
+        This gives us the GOLD LEAD data that PandaScore free tier blocks!
+        """
+        try:
+            # Extract game ID from match info
+            games = match_info.get("match", {}).get("games", [])
+            current_game = None
+            for game in games:
+                if game.get("state") == "inProgress":
+                    current_game = game
+                    break
+            
+            if not current_game:
+                return None
+            
+            game_id = current_game.get("id")
+            if not game_id:
+                return None
+            
+            # Fetch live stats
+            stats = self.get_live_game_stats(game_id)
+            if not stats:
+                return None
+            
+            # Parse the frame data
+            frames = stats.get("frames", [])
+            if not frames:
+                return None
+            
+            latest_frame = frames[-1]  # Most recent game state
+            
+            # Extract team data
+            blue_team = latest_frame.get("blueTeam", {})
+            red_team = latest_frame.get("redTeam", {})
+            
+            team1_gold = blue_team.get("totalGold", 0)
+            team2_gold = red_team.get("totalGold", 0)
+            team1_kills = blue_team.get("totalKills", 0)
+            team2_kills = red_team.get("totalKills", 0)
+            team1_towers = blue_team.get("towers", 0)
+            team2_towers = red_team.get("towers", 0)
+            game_time = latest_frame.get("gameTime", 0) // 1000  # Convert ms to seconds
+            
+            # Get team names from match info
+            teams = match_info.get("match", {}).get("teams", [])
+            team1_name = teams[0].get("name", "Blue") if len(teams) > 0 else "Blue"
+            team2_name = teams[1].get("name", "Red") if len(teams) > 1 else "Red"
+            
+            sys.stderr.write(f"🎮 RIOT LIVE: {team1_name} ({team1_gold}g, {team1_kills}k) vs {team2_name} ({team2_gold}g, {team2_kills}k) @ {game_time//60}m\n")
+            sys.stderr.flush()
+            
+            return GameState(
+                game_type="lol",
+                match_id=str(game_id),
+                team1=team1_name,
+                team2=team2_name,
+                team1_score=team1_kills,
+                team2_score=team2_kills,
+                team1_gold=team1_gold,
+                team2_gold=team2_gold,
+                team1_objectives=team1_towers,
+                team2_objectives=team2_towers,
+                game_time=game_time,
+                is_live=True,
+                raw_data=stats
+            )
+            
+        except Exception as e:
+            sys.stderr.write(f"🎮 RIOT GameState error: {e}\n"); sys.stderr.flush()
+            import traceback
+            traceback.print_exc(file=sys.stderr)
+            return None
+
+
 class RiotAPIProvider:
     """
     Fetches live League of Legends match data from Riot API.
@@ -922,6 +1052,9 @@ class EsportsDataAggregator:
         self.r6_provider = RainbowSixDataProvider()
         self.cod_provider = CallOfDutyDataProvider()
         self.rl_provider = RocketLeagueDataProvider()
+        # Official Riot eSports API for free live LoL stats!
+        self.riot_esports = RiotEsportsAPI()
+        self._riot_events_cache = {}  # Cache Riot live events for matching
         
     def get_all_live_matches(self) -> List[Dict]:
         """Get all currently live matches across games."""
@@ -1044,7 +1177,13 @@ class EsportsDataAggregator:
         state = None
         
         if game_type == "lol":
-            state = self.lol_provider.get_match_state(match_id)
+            # TRY 1: Official Riot eSports API (FREE, has gold/kills data!)
+            state = self._try_riot_esports_for_lol(raw_match)
+            if state:
+                sys.stderr.write(f"🎮 RIOT ESPORTS: Got live LoL stats for {match_id}!\n"); sys.stderr.flush()
+            else:
+                # TRY 2: PandaScore (blocked on free tier, but try anyway)
+                state = self.lol_provider.get_match_state(match_id)
         elif game_type == "cs2":
             state = self.cs2_provider.get_match_state(match_id)
         elif game_type == "valorant":
@@ -1061,6 +1200,57 @@ class EsportsDataAggregator:
                 sys.stderr.write(f"🔍 DEBUG: Using fallback basic state for {match_id}\n"); sys.stderr.flush()
         
         return state
+    
+    def _try_riot_esports_for_lol(self, raw_match: Dict) -> Optional[GameState]:
+        """Try to get LoL live stats from official Riot eSports API."""
+        if not raw_match:
+            return None
+        
+        try:
+            # Get team names from PandaScore match
+            opponents = raw_match.get("opponents", [])
+            if len(opponents) < 2:
+                return None
+            
+            team1_name = opponents[0].get("opponent", {}).get("name", "")
+            team2_name = opponents[1].get("opponent", {}).get("name", "")
+            
+            # Fetch live events from Riot eSports API
+            live_events = self.riot_esports.get_live_events()
+            
+            # Try to find a matching event
+            for event in live_events:
+                match_info = event.get("match", {})
+                teams = match_info.get("teams", [])
+                if len(teams) < 2:
+                    continue
+                
+                riot_team1 = teams[0].get("name", "")
+                riot_team2 = teams[1].get("name", "")
+                
+                # Fuzzy match team names
+                if self._teams_match(team1_name, team2_name, riot_team1, riot_team2):
+                    sys.stderr.write(f"🎮 RIOT: Matched {team1_name} vs {team2_name} to Riot event!\n")
+                    sys.stderr.flush()
+                    return self.riot_esports.get_lol_game_state(event)
+            
+            return None
+            
+        except Exception as e:
+            sys.stderr.write(f"🎮 RIOT match error: {e}\n"); sys.stderr.flush()
+            return None
+    
+    def _teams_match(self, ps_team1: str, ps_team2: str, riot_team1: str, riot_team2: str) -> bool:
+        """Check if PandaScore teams match Riot teams (order-independent, fuzzy)."""
+        def normalize(name: str) -> str:
+            return name.lower().replace(" ", "").replace("esports", "").replace("gaming", "")
+        
+        ps1, ps2 = normalize(ps_team1), normalize(ps_team2)
+        r1, r2 = normalize(riot_team1), normalize(riot_team2)
+        
+        # Check both orderings
+        return (ps1 in r1 or r1 in ps1) and (ps2 in r2 or r2 in ps2) or \
+               (ps1 in r2 or r2 in ps1) and (ps2 in r1 or r1 in ps2)
     
     def _create_basic_state_from_raw(self, raw_match: Dict, game_type: str, match_id: str) -> Optional[GameState]:
         """Create a basic GameState from raw running match data when detailed fetch fails."""
