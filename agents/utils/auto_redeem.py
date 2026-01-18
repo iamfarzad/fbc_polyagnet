@@ -340,12 +340,29 @@ class AutoRedeemer:
                 self._force_agent_reinvest()
 
     def _force_agent_reinvest(self):
-        """Forces all agents to update their balance for continuous compounding."""
+        """Forces all agents to update their balance via Supabase (Global Signal)."""
         try:
+            # 1. Update Global State in Supabase
+            try:
+                import sys
+                sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+                from agents.utils.supabase_client import get_supabase_state
+                supa = get_supabase_state()
+                if supa:
+                    # Update a global 'last_win' timestamp or similar to trigger refresh
+                    # For now, we update 'sports_trader' status as a carrier signal, or just log activity
+                    supa.update_agent_state("sports_trader", {
+                        "last_win_time": datetime.datetime.now().isoformat(),
+                         "force_refresh": True
+                    })
+                    print("   💰 Compounding: GLOBAL SIGNAL SENT via Supabase.")
+            except Exception as se:
+                print(f"   ⚠️ Supabase signaling failed: {se}")
+
+            # 2. Local Fallback
             from agents.utils.context import get_context
-            # Trigger context refresh
             ctx = get_context()
-            print("   💰 Compounding: Notifying agents to scale bet sizes.")
+            print("   💰 Compounding: Local signal sent.")
         except: pass
 
     def run_turbo_loop(self):

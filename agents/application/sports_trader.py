@@ -468,18 +468,22 @@ class SportsTrader:
         try:
             open_orders = self.pm.get_open_orders()
             # extract questions or token IDs from open orders
-            # open_orders is list of dicts. We need to match against 'market' (which has 'question' and tokens)
-            # Since we don't have easy question mapping in open_orders without enrichment, 
-            # we can check token_ids.
             open_order_token_ids = set()
             for o in open_orders:
-                # o['asset_id'] or o['token_id']
                 tid = o.get('asset_id') or o.get('token_id')
                 if tid: open_order_token_ids.add(str(tid))
-                
-            print(f"   🔒 {len(open_orders)} existing active orders detected (skipping these markets)")
+            
+            # ALSO fetch positions to prevent re-betting on filled orders
+            positions = self.pm.get_positions() # Returns list of positions
+            for p in positions:
+                tid = p.get('asset_id') or p.get('tokenId')
+                # only block if size > 0
+                if float(p.get('size', 0)) > 0:
+                    if tid: open_order_token_ids.add(str(tid))
+
+            print(f"   🔒 {len(open_orders)} open orders + {len(positions)} held positions detected (skipping these markets)")
         except Exception as e:
-            print(f"   ⚠️ Failed to fetch open orders: {e}")
+            print(f"   ⚠️ Failed to fetch open orders/positions: {e}")
             open_order_token_ids = set()
 
         trades_this_scan = 0
@@ -529,7 +533,7 @@ class SportsTrader:
                     outcome=favorite_side,
                     price=favorite_price,
                     additional_context=RISK_MANAGER_PROMPT,
-                    fast_mode=True # 🚀 Enable Fast Mode for live discovery
+                    fast_mode=False # 🧠 RESTORE THE BRAIN (Full Analysis)
                 )
             except Exception as e:
                 print(f"      ⚠️ Validator Error: {e}")

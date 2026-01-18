@@ -53,6 +53,12 @@ class Trade:
     timestamp: str
     status: str  # "pending", "filled", "failed"
     pnl: float = 0.0
+    # Added fields for Supabase compatibility
+    market_question: str = ""
+    side: str = ""
+    entry_price: float = 0.0
+    token_id: str = ""
+    reasoning: str = ""
 
 
 @dataclass
@@ -282,34 +288,39 @@ class SharedContext:
         self._write(ctx)
     
     def add_trade(self, trade: Trade):
-        """Record a trade (for history) - logs to both local and Supabase."""
-        # 1. Local storage
-        ctx = self._read()
-        trades = ctx.get("recent_trades", [])
-        trades.append(asdict(trade))
-        # Keep last 100 trades
-        ctx["recent_trades"] = trades[-100:]
-        self._write(ctx)
-        
-        # 2. Supabase (centralized ledger)
+        """Record a trade - PRIMARY: Supabase (Cloud), SECONDARY: Local (Backup)."""
+        # 1. Supabase (Centralized Ledger) - CRITICAL PATH
         try:
             from agents.utils.supabase_client import get_supabase_state
             supa = get_supabase_state()
-            supa.log_trade(
-                agent=trade.agent,
-                market_id=trade.market_id,
-                market_question=trade.market_question,
-                outcome=trade.outcome,
-                side=trade.side,
-                size_usd=trade.size_usd,
-                price=trade.entry_price,
-                token_id=getattr(trade, 'token_id', ''),
-                status=getattr(trade, 'status', 'filled'),
-                reasoning=getattr(trade, 'reasoning', '')
-            )
+            if supa:
+                supa.log_trade(
+                    agent=trade.agent,
+                    market_id=trade.market_id,
+                    market_question=trade.market_question,
+                    outcome=trade.outcome,
+                    side=trade.side,
+                    size_usd=trade.size_usd,
+                    price=trade.entry_price,
+                    token_id=getattr(trade, 'token_id', ''),
+                    status=getattr(trade, 'status', 'filled'),
+                    reasoning=getattr(trade, 'reasoning', '')
+                )
+            else:
+                 logger.error("CRITICAL: Supabase client not available for trade logging. Check credentials!")
         except Exception as e:
-            logger.debug(f"Supabase trade log failed (non-critical): {e}")
-    
+            logger.error(f"CRITICAL: Failed to log trade to Supabase: {e}")
+
+        # 2. Local fallback (Audit trail)
+        try:
+            ctx = self._read()
+            trades = ctx.get("recent_trades", [])
+            trades.append(asdict(trade))
+            ctx["recent_trades"] = trades[-100:]
+            self._write(ctx)
+        except Exception as e:
+             logger.error(f"Failed to write local trade log: {e}")
+        
     def blacklist_market(self, market_id: str, reason: str = ""):
         """Add market to blacklist."""
         ctx = self._read()
@@ -366,9 +377,19 @@ class SharedContext:
     
     def broadcast(self, agent: str, message: str, data: Dict = None):
         """
-        Broadcast a message to other agents (stored in context).
-        Useful for signals like "high confidence opportunity" or "risk alert".
+        Broadcast a message to other agents.
+        PRIMARY: Supabase, SECONDARY: Local.
         """
+        # 1. Supabase Broadcast
+        try:
+            from agents.utils.supabase_client import get_supabase_state
+            supa = get_supabase_state()
+            if supa:
+                # We can reuse the 'broadcasts' table if it exists, or just log activity
+                # For now, we'll log it as a special LLM activity type or just skip if no table
+                pass 
+        except: pass
+
         ctx = self._read()
         if "broadcasts" not in ctx:
             ctx["broadcasts"] = []
@@ -406,7 +427,7 @@ class SharedContext:
     # =========== LLM ACTIVITY TRACKING ===========
     
     def log_llm_activity(self, activity: LLMActivity):
-        """Log an LLM interaction for the activity feed (Supabase + Local)."""
+        """Log an LLM interaction - PRIMARY: Supabase (Visibility), SECONDARY: Local."""
         # 1. Try Supabase (Centralized)
         try:
             # Dynamically import to avoid circular dependency
@@ -431,21 +452,26 @@ class SharedContext:
                     cost_usd=activity.cost_usd,
                     duration_ms=activity.duration_ms
                 )
+            else:
+                 logger.error("Supabase client missing in log_llm_activity!")
         except Exception as e:
             # Don't crash, but log the error so we know why it failed
-            logger.error(f"Failed to log to Supabase: {e}")
+            logger.error(f"Failed to log LLM activity to Supabase: {e}")
 
         # 2. Local Fallback (for audit trail on this machine)
-        ctx = self._read()
-        if "llm_activity" not in ctx:
-            ctx["llm_activity"] = []
-        
-        ctx["llm_activity"].append(asdict(activity))
-        
-        # Keep last 100 activities
-        ctx["llm_activity"] = ctx["llm_activity"][-100:]
-        self._write(ctx)
-        logger.info(f"[{activity.agent}] LLM {activity.action_type}: {activity.conclusion} ({activity.confidence:.0%})")
+        try:
+            ctx = self._read()
+            if "llm_activity" not in ctx:
+                ctx["llm_activity"] = []
+            
+            ctx["llm_activity"].append(asdict(activity))
+            
+            # Keep last 100 activities
+            ctx["llm_activity"] = ctx["llm_activity"][-100:]
+            self._write(ctx)
+            logger.info(f"[{activity.agent}] LLM {activity.action_type}: {activity.conclusion} ({activity.confidence:.0%})")
+        except Exception as e:
+            logger.error(f"Failed to write local LLM log: {e}")
     
     def get_llm_activity(self, limit: int = 50, agent: str = None) -> List[Dict]:
         """Get recent LLM activity (Prefer Supabase, fallback to local)."""

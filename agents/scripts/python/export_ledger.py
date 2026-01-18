@@ -24,7 +24,14 @@ def main():
     load_dotenv()
     
     poly = Polymarket()
-    address = poly.get_address_for_private_key()
+    # Check for Proxy Address first
+    proxy_address = os.getenv("POLYMARKET_PROXY_ADDRESS")
+    if proxy_address:
+        address = proxy_address
+        print(f"Using Proxy Address: {address}")
+    else:
+        address = poly.get_address_for_private_key()
+        print(f"Using EOA Address: {address}")
     
     print(f"Fetching complete activity for {address}...")
     
@@ -56,7 +63,7 @@ def main():
     all_activities.sort(key=lambda x: x.get('timestamp', 0), reverse=True)
     
     # Define Report Path
-    report_path = os.path.join(project_root, "../.gemini/antigravity/brain/4a17e3d7-8f25-4353-a6ea-9e0fd2ea1181/full_ledger.md")
+    report_path = os.path.join(project_root, "agents/full_ledger.md")
     
     # Generate Markdown Table
     with open(report_path, "w", encoding="utf-8") as f:

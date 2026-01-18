@@ -108,9 +108,13 @@ async def ws_llm_activity(ws: WebSocket):
     await ws.accept()
     try:
         while True:
-            payload = None
+            payload = {"activities": [], "stats": {}}
             try:
-                payload = get_llm_activity(limit=50, agent=None)
+                ctx = get_context()
+                if ctx:
+                    activities = ctx.get_llm_activity(limit=50, agent=None)
+                    stats = ctx.get_llm_stats() if hasattr(ctx, 'get_llm_stats') else {}
+                    payload = {"activities": activities, "stats": stats}
             except Exception as e:
                 payload = {"activities": [], "stats": {}, "error": str(e)}
             await ws.send_json(_safe_json(payload))

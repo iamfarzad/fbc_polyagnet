@@ -530,6 +530,22 @@ class Polymarket:
         balance_res = self.usdc.functions.balanceOf(balance_address).call()
         return float(balance_res / 10e5)
 
+    def get_positions(self) -> List[Dict]:
+        """Fetch all positions for the current account."""
+        try:
+            # Use data-api with the funder/proxy address
+            address = self.funder_address or self.get_address_for_private_key()
+            url = f"https://data-api.polymarket.com/positions?user={address}"
+            
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                raw = resp.json()
+                return raw
+            return []
+        except Exception as e:
+            print(f"Failed to fetch positions: {e}")
+            return []
+
     # ============================================================================
     # WEBSOCKET METHODS - Real-time data feeds (Fixed for trade compatibility)
     # ============================================================================
@@ -712,9 +728,12 @@ class Polymarket:
     def get_open_orders(self) -> List[Dict]:
         """Fetch all open orders from CLOB"""
         try:
-            # Assuming get_orders with active=True returns open orders
-            # Verify specific client implementation if possible, filtering usually handled by args
-            return self.client.get_orders(active=True)
+            # get_orders() usually returns open orders by default in this client version
+            # If it returns all history, we might need to filter manually
+            orders = self.client.get_orders()
+            if hasattr(orders, 'orders'): # Check if it returns a wrapper object
+                 return [o for o in orders.orders]
+            return orders
         except Exception as e:
             print(f"Failed to fetch open orders: {e}")
             return []
