@@ -84,8 +84,9 @@ POLL_INTERVAL_IDLE = 120        # Poll every 2m when idle (was 30s)
 EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
 
 # API Rate Limiting (Gamma API is generous - no strict limits for reads)
-MAX_REQUESTS_PER_HOUR = 10000   # Gamma API is very permissive
-MAX_REQUESTS_PER_MINUTE = 100   # Allow 100 requests per minute (safe for Gamma)
+# API Rate Limiting (PandaScore Free Tier = 1000/hour)
+MAX_REQUESTS_PER_HOUR = 1000    # Hard limit for PandaScore
+MAX_REQUESTS_PER_MINUTE = 60    # Safe burst limit
 REQUEST_COUNT_RESET_HOUR = 60 * 60  # 1 hour in seconds
 
 # ESPORTS SERIES IDs (from Gamma /sports API - DO NOT CHANGE)
@@ -946,11 +947,15 @@ class EsportsTrader:
         self.session_pnl = 0.0
 
         # API Rate Limiting
+        self.last_request_time = 0
         self.api_requests_this_hour = 0
         self.api_requests_this_minute = 0
-        self.last_request_time = 0
         self.hour_start_time = time.time()
         self.minute_start_time = time.time()
+        
+        # Tiered Polling State
+        self.last_live_poll = 0
+        self.whale_watch_only = False
         
         # Get balance with error logging
         try:
@@ -1431,16 +1436,50 @@ class EsportsTrader:
             return POLL_INTERVAL_IDLE
 
         sys.stderr.write(f"🔍 DEBUG: About to call get_all_live_matches(), pandascore_available={pandascore_available}\n"); sys.stderr.flush()
-        try:
-            live_matches = self.data_aggregator.get_all_live_matches()
-            # Track API usage (each live matches call counts as ~2-3 requests)
-            self.increment_request_count()
-            self.increment_request_count()  # For both LoL and CS2 calls
-            sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
-        except Exception as e:
-            sys.stderr.write(f"   ⚠️ Data feed error: {e}\n"); sys.stderr.flush()
-            print(f"      Disabling trading until Pandascore is working")
-            return POLL_INTERVAL_IDLE
+        
+        # Smart Polling Logic (Tiered Prioritization)
+        current_time = time.time()
+        usage_ratio = self.api_requests_this_hour / MAX_REQUESTS_PER_HOUR
+        
+        # Determine Poll Interval based on Tiers
+        has_active_positions = len(self.positions) > 0
+        
+        if usage_ratio > 0.95:
+             # Tier 4: EXHAUSTED -> Whale Watch Only
+             self.whale_watch_only = True
+             poll_interval = 300 # 5m
+             print(f"   ⛔ API LIMIT HIT ({self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}) - Entering Whale-Watch Only Mode")
+        elif usage_ratio > 0.80:
+             # Tier 3: BACK-OFF -> 2m
+             poll_interval = 120
+             print(f"   ⚠️ High API Usage ({self.api_requests_this_hour}/{MAX_REQUESTS_PER_HOUR}) - Backing off to 120s polling")
+        elif has_active_positions:
+             # Tier 1: Active Positions -> 15s (Check for exits)
+             poll_interval = 15
+        else:
+             # Tier 2: Standard Live Scan -> 45s
+             poll_interval = 45
+             
+        time_since_last = current_time - self.last_live_poll
+        should_poll = time_since_last >= poll_interval
+        
+        if not should_poll:
+            print(f"   ⏳ Smart Polling: Skipping Data API ({time_since_last:.1f}s / {poll_interval}s)")
+            live_matches = [] # Skip call
+        else:
+            try:
+                live_matches = self.data_aggregator.get_all_live_matches()
+                self.last_live_poll = current_time
+                self.whale_watch_only = False
+                
+                # Track API usage (aggregated matches call counts as ~2-3 requests)
+                self.increment_request_count()
+                self.increment_request_count()  
+                sys.stderr.write(f"   found {len(live_matches)} active games in data feed\n"); sys.stderr.flush()
+            except Exception as e:
+                sys.stderr.write(f"   ⚠️ Data feed error: {e}\n"); sys.stderr.flush()
+                # Don't disable entire trading, just skip this turn
+                live_matches = []
 
         trades_made = 0
         
