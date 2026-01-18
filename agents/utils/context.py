@@ -16,7 +16,8 @@ import fcntl
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
+import uuid
 
 logger = logging.getLogger("Context")
 
@@ -64,9 +65,7 @@ class Trade:
 @dataclass
 class LLMActivity:
     """Tracks a single LLM interaction for transparency."""
-    id: str
     agent: str  # "safe", "scalper", "copy"
-    timestamp: str
     action_type: str  # "research", "validate", "discover", "analyze"
     market_question: str
     prompt_summary: str  # First 200 chars of prompt
@@ -77,6 +76,8 @@ class LLMActivity:
     duration_ms: int
     tokens_used: int = 0
     cost_usd: float = 0.0
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
 class SharedContext:
