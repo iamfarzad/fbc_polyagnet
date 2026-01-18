@@ -27,7 +27,7 @@ class SupabaseState:
     
     def __init__(self):
         self.url = os.getenv("SUPABASE_URL")
-        self.key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
+        self.key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
         self.use_local_fallback = True
         
         if self.url and self.key:
