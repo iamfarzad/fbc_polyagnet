@@ -144,12 +144,16 @@ export default function ProDashboard() {
 
   const toggleAgent = async (agent: string) => {
     try {
-      await fetch(`${getApiUrl()}/api/toggle-agent`, {
+      const response = await fetch(`${getApiUrl()}/api/toggle-agent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agent }),
       })
-      fetchDashboardData()
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      // Small delay to ensure Supabase update propagates
+      setTimeout(() => fetchDashboardData(), 1000)
     } catch (error) {
       console.error("Failed to toggle agent:", error)
     }
@@ -223,9 +227,13 @@ export default function ProDashboard() {
       ws.onmessage = (event) => {
         try {
           const json = JSON.parse(event.data) as DashboardData
-          setData(json)
-          if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
-        } catch { }
+          if (json && typeof json === 'object' && !json.error) {
+            setData(json)
+            if (json.maxBetAmount !== undefined && !updatingConfig) setMaxBet(json.maxBetAmount)
+          }
+        } catch (error) {
+          console.error("Failed to parse WebSocket message:", error)
+        }
       }
       ws.onerror = () => {
         try {
@@ -247,11 +255,16 @@ export default function ProDashboard() {
     }
   }, [])
 
-  if (!data) {
+  if (!data || !data.agents || !data.positions || !data.trades) {
     return (
       <div className="flex h-screen flex-col items-center justify-center bg-background gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-muted-foreground text-xs animate-pulse">Connecting to Neural Core...</p>
+        {connectionError && (
+          <p className="text-[10px] text-red-400 max-w-md text-center px-4">
+            {connectionError}
+          </p>
+        )}
         <p className="text-[10px] text-muted-foreground/50 max-w-md text-center px-4">
           If this persists, the API might be sleeping. It should wake up in ~10s.
         </p>
@@ -469,12 +482,12 @@ export default function ProDashboard() {
                   </CardTitle>
                   <TabsList className="h-6 bg-secondary/50 p-0 ml-2">
                     <TabsTrigger value="positions" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
-                      Positions ({data.positions.length})
+                      Positions ({data.positions?.length || 0})
                     </TabsTrigger>
                   </TabsList>
                 </div>
                 <span className="text-[10px] text-muted-foreground">
-                  Open Value: ${data.positions.reduce((acc, p) => acc + p.value, 0).toFixed(2)}
+                  Open Value: ${(data.positions || []).reduce((acc, p) => acc + (p.value || 0), 0).toFixed(2)}
                 </span>
               </CardHeader>
               <CardContent className="p-0 flex-1">
@@ -490,10 +503,10 @@ export default function ProDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {data.positions.length === 0 ? (
+                      {(!data.positions || data.positions.length === 0) ? (
                         <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No active positions</TableCell></TableRow>
                       ) : (
-                        data.positions.map((pos, i) => (
+                        (data.positions || []).map((pos, i) => (
                           <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-xs h-9">
                             <TableCell className="font-medium truncate max-w-[300px] py-1 text-[11px]">{pos.market}</TableCell>
                             <TableCell className="py-1">
@@ -555,7 +568,7 @@ export default function ProDashboard() {
             <CardContent className="flex-1 overflow-auto p-0">
               <Table>
                 <TableBody>
-                  {data.trades.map((t, i) => (
+                  {(data.trades || []).map((t, i) => (
                     <TableRow key={i} className="hover:bg-muted/5 border-border/20 text-[10px] h-8">
                       <TableCell className="text-muted-foreground w-[80px] py-1">{t.time.split(' ')[1] || t.time}</TableCell>
                       <TableCell className="truncate max-w-[400px] py-1">{t.market}</TableCell>
