@@ -13,7 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   Terminal,
-  Circle
+  Circle,
+  Trophy,
+  Gamepad2
 } from "lucide-react"
 
 interface LLMActivity {
@@ -68,6 +70,30 @@ const AGENT_STYLES: Record<string, { color: string; icon: React.ReactNode }> = {
   copy: { 
     color: "text-violet-400", 
     icon: <Copy className="h-3 w-3" /> 
+  },
+  smart: {
+    color: "text-blue-400",
+    icon: <Brain className="h-3 w-3" />
+  },
+  smart_trader: {
+    color: "text-blue-400",
+    icon: <Brain className="h-3 w-3" />
+  },
+  sports_trader: {
+    color: "text-orange-400",
+    icon: <Trophy className="h-3 w-3" />
+  },
+  esports_trader: {
+    color: "text-pink-400",
+    icon: <Gamepad2 className="h-3 w-3" />
+  },
+  sports: {
+    color: "text-orange-400",
+    icon: <Trophy className="h-3 w-3" />
+  },
+  esports: {
+    color: "text-pink-400",
+    icon: <Gamepad2 className="h-3 w-3" />
   },
 }
 

@@ -94,8 +94,10 @@ export default function ProDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [maxBet, setMaxBet] = useState(0.50)
   const [updatingConfig, setUpdatingConfig] = useState(false)
+  const [isSavingMaxBet, setIsSavingMaxBet] = useState(false)
 
   const [connectionError, setConnectionError] = useState<string | null>(null)
+  const isMaxBetDirty = data?.maxBetAmount !== undefined && Math.abs(maxBet - data.maxBetAmount) > 0.0001
 
   const fetchDashboardData = async () => {
     let id: NodeJS.Timeout | undefined
@@ -142,6 +144,21 @@ export default function ProDashboard() {
       fetchDashboardData()
     } finally {
       setUpdatingConfig(false)
+    }
+  }
+
+  const saveMaxBet = async () => {
+    if (Number.isNaN(maxBet) || maxBet < 0) return
+    setIsSavingMaxBet(true)
+    try {
+      await fetch(`${getApiUrl()}/api/update-config`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "max_bet", value: maxBet }),
+      })
+      fetchDashboardData()
+    } finally {
+      setIsSavingMaxBet(false)
     }
   }
 
@@ -255,6 +272,19 @@ export default function ProDashboard() {
         </div>
       </header>
 
+      {connectionError && (
+        <div className="border-b border-amber-500/30 bg-amber-500/10 text-amber-500 text-[10px] px-4 py-2 flex items-center justify-between">
+          <span>{connectionError}</span>
+          <button
+            onClick={() => setConnectionError(null)}
+            className="text-amber-500/70 hover:text-amber-400 transition-colors"
+            type="button"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* 2. Main Content Grid - 3 Columns */}
       <main className="flex-1 container mx-auto px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
 
@@ -288,12 +318,23 @@ export default function ProDashboard() {
             <CardContent className="p-3 space-y-3">
               <div>
                 <label className="text-[9px] text-muted-foreground mb-1 block">MAX BET</label>
-                <Input
-                  type="number"
-                  value={maxBet}
-                  onChange={(e) => setMaxBet(parseFloat(e.target.value))}
-                  className="h-7 text-xs font-mono"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={Number.isNaN(maxBet) ? "" : maxBet}
+                    onChange={(e) => setMaxBet(Number(e.target.value))}
+                    className="h-7 text-xs font-mono"
+                  />
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={saveMaxBet}
+                    disabled={!isMaxBetDirty || isSavingMaxBet || Number.isNaN(maxBet) || maxBet < 0}
+                    className="h-7 px-2 text-[10px]"
+                  >
+                    {isSavingMaxBet ? "Saving" : "Save"}
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-2 border-t border-border/20">
                 <span>STATUS</span>
@@ -327,6 +368,9 @@ export default function ProDashboard() {
                   <TabsList className="h-6 bg-secondary/50 p-0 ml-2">
                     <TabsTrigger value="positions" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
                       Positions ({data.positions.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="orders" className="h-full text-[10px] px-3 data-[state=active]:bg-background/80 transition-all rounded-sm">
+                      Orders ({data.openOrders?.length || 0})
                     </TabsTrigger>
                   </TabsList>
                 </div>
