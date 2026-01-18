@@ -2326,9 +2326,18 @@ class EsportsTrader:
                 # Buy both sides? Or just the cheaper one?
                 # Usually one side is mispriced. Let's buy the favorite side if clear, or both.
                 # Simple logic: Buy the side with higher liquidity/volume to close gap
-                target_side = "YES" if yes_price < no_price else "NO" 
+                target_side = "YES" if yes_price < no_price else "NO"
                 print(f"      ⚡ Executing ARB on {target_side}")
-                self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price)
+
+                # ACTIVATE BRAIN: Even arbitrage needs validation
+                if self.validator:
+                    validation = self.validator.validate(market, target_side)
+                    if not validation.get("should_trade", True):
+                        print(f"      🧠 ARBITRAGE BLOCKED: {validation.get('reason', 'Unknown')}")
+                        continue
+
+                if self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price):
+                    trades_made += 1
                 continue
 
             # --- CHECK 2: FILTER GARBAGE ---
@@ -2424,8 +2433,32 @@ class EsportsTrader:
                 if abs(edge) > (MIN_EDGE_PERCENT / 100):
                     side = "YES" if edge > 0 else "NO"
                     print(f"      🔥 {strategy_name} EDGE: {side} ({abs(edge)*100:.1f}%)")
+
+                    # ACTIVATE BRAIN: Validate with news/rosters before trading
+                    if self.validator:
+                        validation = self.validator.validate(market, side)
+                        if not validation.get("should_trade", True):
+                            print(f"      🧠 VALIDATOR BLOCKED: {validation.get('reason', 'Unknown')}")
+                            continue
+                        else:
+                            print(f"      🧠 VALIDATOR APPROVED: {validation.get('confidence', 0):.1f} confidence")
+
+                    # MATCH TRACKER: Prevent buying same team multiple times in same match
+                    match_key = f"{state.match_id}_{side}"
+                    if match_key in self.positions:
+                        print(f"      🎯 MATCH TRACKER BLOCKED: Already have position on {side} for this match")
+                        continue
+
                     if self.execute_trade(market, side, true_prob, yes_price if side=="YES" else no_price):
                         trades_made += 1
+                        # Track match position to prevent duplicates
+                        self.positions[match_key] = {
+                            "market_id": market.market_id,
+                            "side": side,
+                            "entry_price": yes_price if side=="YES" else no_price,
+                            "entry_time": datetime.datetime.now().isoformat(),
+                            "strategy": strategy_name
+                        }
                     continue
 
             # === PATH B: MARKET-BASED TRADING (DISABLED - TOO RISKY WITHOUT DATA) ===
@@ -2478,6 +2511,14 @@ class EsportsTrader:
                 print(f"      Yes({yes_price:.3f}) + No({no_price:.3f}) = {spread_sum:.3f} (< 0.985)")
                 target_side = "YES" if yes_price < no_price else "NO"
                 print(f"      ⚡ Executing ARB on {target_side}")
+
+                # ACTIVATE BRAIN: Even arbitrage needs validation
+                if self.validator:
+                    validation = self.validator.validate(market, target_side)
+                    if not validation.get("should_trade", True):
+                        print(f"      🧠 ARBITRAGE BLOCKED: {validation.get('reason', 'Unknown')}")
+                        continue
+
                 if self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price):
                     trades_made += 1
                 continue
