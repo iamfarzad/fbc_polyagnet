@@ -1652,9 +1652,13 @@ class EsportsTrader:
     """
     
     def __init__(self, dry_run=True):
+        print("🔗 ESPORTS TRADER: __init__ method starting...")
         self.dry_run = dry_run
+        print("🔗 ESPORTS TRADER: PolymarketEsports initializing...")
         self.pm_esports = PolymarketEsports()
+        print("🔗 ESPORTS TRADER: EsportsDataAggregator initializing...")
         self.data_aggregator = EsportsDataAggregator()
+        print("🔗 ESPORTS TRADER: WinProbabilityModel initializing...")
         self.model = WinProbabilityModel()
         
         # Initialize Validator
