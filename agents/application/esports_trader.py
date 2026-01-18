@@ -72,7 +72,8 @@ load_dotenv()
 # =============================================================================
 
 # Trading parameters - LIVE CONFIG
-MIN_EDGE_PERCENT = 1.5          # Lower threshold for small trades (can be lowered to 0.5% for testing)
+# Can be overridden via environment variable MIN_EDGE_PERCENT
+MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "1.5"))  # Lower threshold for small trades (can be lowered to 0.5% for testing)
 MIN_EDGE_PERCENT_TEST = 0.5     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
 MIN_BET_USD = 5.00              # Fixed $5 trades
 MAX_BET_USD = 5.00              # Fixed $5 trades
@@ -972,7 +973,7 @@ class EsportsTrader:
         print("=" * 60)
         print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE TRADING'}")
         print(f"Balance: ${self.balance:.2f}")
-        print(f"Min Edge: {MIN_EDGE_PERCENT}%")
+        print(f"Min Edge: {MIN_EDGE_PERCENT}% (from {'env var' if os.getenv('MIN_EDGE_PERCENT') else 'default'})")
         print(f"Bet Size: ${MIN_BET_USD}-${MAX_BET_USD} (fixed small amounts)")
         print(f"Strategy: Hybrid - Market edges + Live data when available")
         print(f"Markets: 900+ live esports markets discovered")
