@@ -1788,10 +1788,15 @@ class EsportsTrader:
             except Exception as e:
                 print(f"⚠️ Auto-redeemer not available: {e}")
     
-    def match_market_to_live_game(self, market: PolymarketMatch, live_matches: List[Dict]) -> Optional[Dict]:
+    def match_market_to_live_game(self, market: PolymarketMatch, live_matches: List[Dict]) -> Tuple[Optional[Dict], bool]:
         """
         Try to match a Polymarket market to a live game.
         Uses improved fuzzy matching with team name normalization.
+        
+        Returns:
+            Tuple of (match, is_reversed) where:
+            - match: The PandaScore match dict, or None if no match found
+            - is_reversed: True if teams matched in reverse order (PM Team1 = PS Team2)
         """
         def normalize_team_name(name: str) -> str:
             """Normalize team names for better matching."""
@@ -1860,18 +1865,22 @@ class EsportsTrader:
             else:
                 self._match_diagnostic_count = 1
             
+            # CRITICAL FIX: Track if teams matched in reverse order
+            is_reversed = (team1_match_rev and team2_match_rev)
+            
             if self._match_diagnostic_count <= 5:
                 print(f"      🔍 Match Diagnostic: PM '{market_team1}' vs '{market_team2}' | PS '{live_team1}' vs '{live_team2}'")
                 print(f"         Normalized: PM '{normalize_team_name(market_team1)}' vs '{normalize_team_name(market_team2)}'")
                 print(f"         Normalized: PS '{normalize_team_name(live_team1)}' vs '{normalize_team_name(live_team2)}'")
-                print(f"         Match: T1={team1_match}, T2={team2_match}, Rev={team1_match_rev and team2_match_rev}")
+                print(f"         Match: T1={team1_match}, T2={team2_match}, Rev={is_reversed}")
             
-            if (team1_match and team2_match) or (team1_match_rev and team2_match_rev):
+            if (team1_match and team2_match) or is_reversed:
                 if self._match_diagnostic_count <= 5:
-                    print(f"         ✅ MATCH FOUND!")
-                return match
+                    reversed_str = " (REVERSED)" if is_reversed else ""
+                    print(f"         ✅ MATCH FOUND!{reversed_str}")
+                return match, is_reversed
         
-        return None
+        return None, False
     
     def calculate_bet_size(self, ev: float = 0.10, price: float = 0.50, cap_override: float = None) -> float:
         """
@@ -2431,7 +2440,8 @@ class EsportsTrader:
             # --- CHECK 3: HYBRID TRADING LOGIC ---
 
             # Match Market -> Live Data (when available)
-            live_match = self.match_market_to_live_game(market, live_matches)
+            # CRITICAL FIX: Now returns (match, is_reversed) tuple
+            live_match, is_reversed = self.match_market_to_live_game(market, live_matches)
             
             if live_match:
                 matched_count += 1
@@ -2439,7 +2449,8 @@ class EsportsTrader:
                 opponents = live_match.get("opponents", [])
                 ps_team1 = opponents[0].get("opponent", {}).get("name", "Unknown") if len(opponents) > 0 else "Unknown"
                 ps_team2 = opponents[1].get("opponent", {}).get("name", "Unknown") if len(opponents) > 1 else "Unknown"
-                print(f"   ✅ Matched #{matched_count}: PM '{market.team1}' vs '{market.team2}' -> PS '{ps_team1}' vs '{ps_team2}'")
+                reversed_str = " (REVERSED)" if is_reversed else ""
+                print(f"   ✅ Matched #{matched_count}: PM '{market.team1}' vs '{market.team2}' -> PS '{ps_team1}' vs '{ps_team2}'{reversed_str}")
 
                 # DEBUG: Show series scores if available
                 results = live_match.get("results", [])
@@ -2470,15 +2481,26 @@ class EsportsTrader:
                 team2_id = opponents[1].get("opponent", {}).get("id") if len(opponents) > 1 else None
 
                 # Match results to correct teams by team_id
-                s1 = 0  # series_score1 (maps won by team1)
-                s2 = 0  # series_score2 (maps won by team2)
+                ps_s1 = 0  # PandaScore team1 score (maps won)
+                ps_s2 = 0  # PandaScore team2 score (maps won)
                 for result in results:
                     team_id = result.get("team_id")
                     score = result.get("score", 0)
                     if team_id == team1_id:
-                        s1 = score
+                        ps_s1 = score
                     elif team_id == team2_id:
-                        s2 = score
+                        ps_s2 = score
+
+                # CRITICAL FIX: If teams matched in reverse order, swap the scores!
+                # PandaScore: Team A vs Team B (s1=2, s2=0 means A is winning)
+                # Polymarket: Team B vs Team A (market.team1 = B, YES = B wins)
+                # Without swap: GameState thinks B is winning 2-0 -> bets YES on B -> WRONG!
+                # With swap: GameState correctly knows A is winning 2-0 -> bets NO -> CORRECT!
+                if is_reversed:
+                    s1, s2 = ps_s2, ps_s1  # Swap: Polymarket team1 gets PandaScore team2's score
+                    print(f"      🔄 SCORE SWAP: Reversed order, swapping {ps_s1}-{ps_s2} -> {s1}-{s2}")
+                else:
+                    s1, s2 = ps_s1, ps_s2
 
                 # Create basic state from summary data
                 state = GameState(
