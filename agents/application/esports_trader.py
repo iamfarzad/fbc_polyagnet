@@ -2095,6 +2095,85 @@ Then a confidence score 0-1 on a new line."""
         except Exception as e:
             print(f"   ⚠️ Comment sentiment check failed: {e}")
             return "NEUTRAL", 0.5
+
+    def learn_from_past_losses(self, team1: str, team2: str, game_type: str) -> Tuple[bool, str]:
+        """
+        Analyze past losing trades to prevent repeating mistakes.
+        Returns: (should_block, reason)
+        
+        Learning patterns:
+        1. Team-specific losses: If we've lost betting on/against a team multiple times
+        2. Matchup losses: If this specific matchup has burned us before
+        3. Game type patterns: If we consistently lose on certain games (e.g., BO1s)
+        """
+        try:
+            # Query recent losing trades from Supabase
+            if hasattr(self, 'context') and self.context:
+                # Get recent trades from context
+                recent_trades = self.context.get_recent_trades(50)
+            else:
+                # Fallback: query Supabase directly
+                try:
+                    from agents.utils.supabase_client import get_supabase_state
+                    supa = get_supabase_state()
+                    recent_trades = supa.get_recent_trades(agent="esports", limit=50)
+                except:
+                    return False, "No trade history available"
+            
+            if not recent_trades:
+                return False, "No trade history"
+            
+            # Analyze losing patterns
+            team1_lower = team1.lower().strip()
+            team2_lower = team2.lower().strip()
+            
+            team1_losses = 0
+            team2_losses = 0
+            matchup_losses = 0
+            total_losses = 0
+            total_trades = 0
+            
+            for trade in recent_trades:
+                pnl = float(trade.get("pnl", 0)) if trade.get("pnl") else 0
+                question = (trade.get("market_question", "") or "").lower()
+                outcome = (trade.get("outcome", "") or "").lower()
+                
+                if pnl < -1:  # Lost more than $1
+                    total_losses += 1
+                    
+                    # Check if this team was involved in a loss
+                    if team1_lower in question or team1_lower in outcome:
+                        team1_losses += 1
+                    if team2_lower in question or team2_lower in outcome:
+                        team2_losses += 1
+                    
+                    # Check if this matchup specifically lost
+                    if team1_lower in question and team2_lower in question:
+                        matchup_losses += 1
+                
+                if pnl != 0:
+                    total_trades += 1
+            
+            # Decision rules
+            if matchup_losses >= 2:
+                return True, f"MATCHUP BLACKLIST: Lost {matchup_losses}x on {team1} vs {team2}"
+            
+            if team1_losses >= 3:
+                return True, f"TEAM BLACKLIST: Lost {team1_losses}x betting on/against {team1}"
+            
+            if team2_losses >= 3:
+                return True, f"TEAM BLACKLIST: Lost {team2_losses}x betting on/against {team2}"
+            
+            # Log learning stats
+            if total_losses > 0:
+                loss_rate = total_losses / max(total_trades, 1) * 100
+                print(f"      📚 LEARNING: {total_losses}/{total_trades} losses ({loss_rate:.0f}%), {team1}: {team1_losses}L, {team2}: {team2_losses}L")
+            
+            return False, f"No blocking pattern (T1: {team1_losses}L, T2: {team2_losses}L)"
+            
+        except Exception as e:
+            print(f"   ⚠️ Learning check failed: {e}")
+            return False, f"Error: {e}"
         
     def check_liquidity_depth(self, token_id: str, desired_size_usd: float) -> float:
         """
@@ -2689,6 +2768,14 @@ Then a confidence score 0-1 on a new line."""
                         continue
                     elif sentiment == "BULLISH" and side == "NO" and sent_conf > 0.7:
                         print(f"      💬 SENTIMENT CONFLICT: Comments are strongly BULLISH, skipping NO bet")
+                        continue
+
+                    # LEARNING FROM PAST LOSSES: Don't repeat mistakes
+                    should_block, block_reason = self.learn_from_past_losses(
+                        market.team1, market.team2, state.game_type
+                    )
+                    if should_block:
+                        print(f"      📚 LEARNING BLOCKED: {block_reason}")
                         continue
 
                     # LAYER C: CONFLICT AWARENESS - Prevent betting against yourself
