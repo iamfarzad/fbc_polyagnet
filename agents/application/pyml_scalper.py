@@ -714,11 +714,17 @@ class CryptoScalper:
     def on_binance_message(self, ws, message):
         try:
             data = json.loads(message)
-            if "data" in data and "s" in data["data"] and "c" in data["data"]:
+            # Handle single stream format (symbol@ticker) - this is what we receive
+            if "s" in data and "c" in data:
+                s = data["s"].lower()
+                p = float(data["c"])
+                if s in self.binance_history:
+                    self.binance_history[s].append((time.time(), p))
+            # Handle combined stream format (legacy fallback)
+            elif "data" in data and "s" in data["data"] and "c" in data["data"]:
                 s = data["data"]["s"].lower()
                 p = float(data["data"]["c"])
-                # Store TUPLE (time, price) for correct volatility calc
-                if s in self.binance_history:  # Defensive check
+                if s in self.binance_history:
                     self.binance_history[s].append((time.time(), p))
         except (json.JSONDecodeError, KeyError, ValueError, TypeError):
             # Silently ignore malformed messages

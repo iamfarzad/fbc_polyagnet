@@ -2413,9 +2413,11 @@ class EsportsTrader:
 
                 # ACTIVATE BRAIN: Even arbitrage needs validation
                 if self.validator:
-                    validation = self.validator.validate(market, target_side)
-                    if not validation.get("should_trade", True):
-                        print(f"      🧠 ARBITRAGE BLOCKED: {validation.get('reason', 'Unknown')}")
+                    target_price = yes_price if target_side == "YES" else no_price
+                    should_trade, reason, confidence = self.validator.validate(
+                        market.question, target_side, target_price, fast_mode=True)
+                    if not should_trade:
+                        print(f"      🧠 ARBITRAGE BLOCKED: {reason}")
                         continue
 
                 if self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price):
@@ -2518,12 +2520,14 @@ class EsportsTrader:
 
                     # ACTIVATE BRAIN: Validate with news/rosters before trading
                     if self.validator:
-                        validation = self.validator.validate(market, side)
-                        if not validation.get("should_trade", True):
-                            print(f"      🧠 VALIDATOR BLOCKED: {validation.get('reason', 'Unknown')}")
+                        target_price = yes_price if side == "YES" else no_price
+                        should_trade, reason, confidence = self.validator.validate(
+                            market.question, side, target_price, fast_mode=True)
+                        if not should_trade:
+                            print(f"      🧠 VALIDATOR BLOCKED: {reason}")
                             continue
                         else:
-                            print(f"      🧠 VALIDATOR APPROVED: {validation.get('confidence', 0):.1f} confidence")
+                            print(f"      🧠 VALIDATOR APPROVED: {confidence:.1f} confidence")
 
                     # LAYER C: CONFLICT AWARENESS - Prevent betting against yourself
                     # Never bet on multiple outcomes of the same match
@@ -2616,9 +2620,11 @@ class EsportsTrader:
 
                 # ACTIVATE BRAIN: Even arbitrage needs validation
                 if self.validator:
-                    validation = self.validator.validate(market, target_side)
-                    if not validation.get("should_trade", True):
-                        print(f"      🧠 ARBITRAGE BLOCKED: {validation.get('reason', 'Unknown')}")
+                    target_price = yes_price if target_side == "YES" else no_price
+                    should_trade, reason, confidence = self.validator.validate(
+                        market.question, target_side, target_price, fast_mode=True)
+                    if not should_trade:
+                        print(f"      🧠 ARBITRAGE BLOCKED: {reason}")
                         continue
 
                 if self.execute_trade(market, target_side, 0.99, yes_price if target_side=="YES" else no_price):
