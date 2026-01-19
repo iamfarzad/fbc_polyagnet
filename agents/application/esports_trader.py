@@ -73,8 +73,8 @@ load_dotenv()
 
 # Trading parameters - LIVE CONFIG
 # Can be overridden via environment variable MIN_EDGE_PERCENT
-MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "0.35"))  # Lowered from 0.7% to capture more opportunities
-MIN_EDGE_PERCENT_TEST = 0.25     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
+MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "5.0"))  # RAISED to 5% - only take high-confidence edges
+MIN_EDGE_PERCENT_TEST = 3.0     # Test mode threshold
 MIN_BET_USD = 5.00              # Fixed $5 trades
 MAX_BET_USD = 10.00             # Increased to $10 for more impact
 BET_PERCENT = 0.85              # Allocates up to 85% of your $130 to esports trades
@@ -324,9 +324,10 @@ class WinProbabilityModel:
         team1_is_giant = any(giant in team1_name for giant in GIANTS)
         team2_is_giant = any(giant in team2_name for giant in GIANTS)
 
-        # BO1 LOGIC: Trust the LLM to handle the context
+        # BO1 LOGIC: SKIP - No edge without in-game data, too risky
+        # Markets price underdogs correctly; assuming 50/50 leads to gambling on losers
         if state.number_of_games == 1:
-            return 0.50  # Treat as coinflip and let the LLM/Panda data find the edge
+            return None  # Signal to skip this market entirely
 
         # GIANT OVERRIDE: Move to 85/15 for Growth Sniper Mode
         if state.series_score1 > state.series_score2:
@@ -2533,6 +2534,11 @@ class EsportsTrader:
                     # PATH C: Series Fallback (Map Score)
                     true_prob = self.model.calculate_series_edge(state)
                     strategy_name = "SERIES_MOMENTUM"
+
+                # SKIP BO1s: If calculate_series_edge returned None, skip this market
+                if true_prob is None:
+                    print(f"      ⏭️ SKIPPING BO1: No edge without in-game data")
+                    continue
 
                 # Check for edge
                 edge = true_prob - yes_price
