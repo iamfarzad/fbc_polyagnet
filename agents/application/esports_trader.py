@@ -73,16 +73,16 @@ load_dotenv()
 
 # Trading parameters - LIVE CONFIG
 # Can be overridden via environment variable MIN_EDGE_PERCENT
-MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "0.7"))  # Allows the bot to capture small edges in efficient markets
-MIN_EDGE_PERCENT_TEST = 0.5     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
+MIN_EDGE_PERCENT = float(os.getenv("MIN_EDGE_PERCENT", "0.35"))  # Lowered from 0.7% to capture more opportunities
+MIN_EDGE_PERCENT_TEST = 0.25     # Test mode threshold (use if MIN_EDGE_PERCENT too strict)
 MIN_BET_USD = 5.00              # Fixed $5 trades
 MAX_BET_USD = 10.00             # Increased to $10 for more impact
 BET_PERCENT = 0.85              # Allocates up to 85% of your $130 to esports trades
 MAX_CONCURRENT_POSITIONS = 20   # Expands capacity to hold more high-probability winners
 
-# Timing - LIVE TRADING MODE (Conservative for Free Tier)
-POLL_INTERVAL_LIVE = 30         # Poll every 30s (was 5s)
-POLL_INTERVAL_IDLE = 120        # Poll every 2m when idle (was 30s)
+# Timing - LIVE TRADING MODE (More aggressive for increased activity)
+POLL_INTERVAL_LIVE = 15         # Poll every 15s (was 30s) for faster response
+POLL_INTERVAL_IDLE = 60         # Poll every 1m when idle (was 2m)
 EXIT_EDGE_THRESHOLD = 0.01      # Exit when edge drops below 1%
 
 # API Rate Limiting (Gamma API is generous - no strict limits for reads)
