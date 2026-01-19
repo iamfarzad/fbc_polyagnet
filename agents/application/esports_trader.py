@@ -1979,6 +1979,122 @@ class EsportsTrader:
             print(f"   ⚠️ Whale check failed: {e}")
             
         return False
+
+    def get_whale_side(self, yes_token_id: str, no_token_id: str) -> Optional[str]:
+        """
+        Check which side whales are positioned on.
+        Returns "YES", "NO", or None if no clear signal.
+        """
+        try:
+            yes_url = f"https://data-api.polymarket.com/token-holders?token_id={yes_token_id}"
+            no_url = f"https://data-api.polymarket.com/token-holders?token_id={no_token_id}"
+            
+            yes_resp = requests.get(yes_url, timeout=3)
+            no_resp = requests.get(no_url, timeout=3)
+            
+            yes_holders = yes_resp.json() if yes_resp.status_code == 200 else []
+            no_holders = no_resp.json() if no_resp.status_code == 200 else []
+            
+            # Calculate whale value on each side
+            yes_whale_value = 0.0
+            no_whale_value = 0.0
+            
+            for holder in yes_holders[:15]:
+                address = holder.get('address', '').lower()
+                value = float(holder.get('value', 0))
+                if address in [p.lower() for p in self.KNOWN_PROS]:
+                    yes_whale_value += value
+                    print(f"      🐋 Whale on YES: {address[:8]}... (${value:.0f})")
+            
+            for holder in no_holders[:15]:
+                address = holder.get('address', '').lower()
+                value = float(holder.get('value', 0))
+                if address in [p.lower() for p in self.KNOWN_PROS]:
+                    no_whale_value += value
+                    print(f"      🐋 Whale on NO: {address[:8]}... (${value:.0f})")
+            
+            # Need significant difference to signal
+            if yes_whale_value > no_whale_value * 1.5 and yes_whale_value > 100:
+                print(f"      🐋 WHALE CONSENSUS: YES (${yes_whale_value:.0f} vs ${no_whale_value:.0f})")
+                return "YES"
+            elif no_whale_value > yes_whale_value * 1.5 and no_whale_value > 100:
+                print(f"      🐋 WHALE CONSENSUS: NO (${no_whale_value:.0f} vs ${yes_whale_value:.0f})")
+                return "NO"
+            
+            return None  # No clear whale signal
+            
+        except Exception as e:
+            print(f"   ⚠️ Whale side check failed: {e}")
+            return None
+
+    def get_market_sentiment_from_comments(self, market_id: str) -> Tuple[str, float]:
+        """
+        Fetch market comments and use LLM to analyze sentiment.
+        Returns: (sentiment: "BULLISH"|"BEARISH"|"NEUTRAL", confidence: 0-1)
+        """
+        try:
+            # Fetch recent comments
+            url = f"https://gamma-api.polymarket.com/comments?market_id={market_id}&limit=20"
+            resp = requests.get(url, timeout=5)
+            
+            if resp.status_code != 200:
+                return "NEUTRAL", 0.5
+                
+            comments = resp.json()
+            if not comments or len(comments) < 3:
+                return "NEUTRAL", 0.5
+            
+            # Extract comment text
+            comment_texts = []
+            for c in comments[:15]:
+                text = c.get("text", "") or c.get("content", "")
+                if text and len(text) > 10:
+                    comment_texts.append(text[:200])  # Limit length
+            
+            if not comment_texts:
+                return "NEUTRAL", 0.5
+            
+            combined_text = "\n---\n".join(comment_texts)
+            
+            # Use OpenAI to analyze sentiment
+            if hasattr(self, 'validator') and self.validator and hasattr(self.validator, 'config'):
+                openai_key = getattr(self.validator.config, 'OPENAI_API_KEY', None)
+                if openai_key:
+                    import openai
+                    client = openai.OpenAI(api_key=openai_key)
+                    
+                    response = client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[{
+                            "role": "user",
+                            "content": f"""Analyze these Polymarket comments for market sentiment.
+
+COMMENTS:
+{combined_text}
+
+Reply with ONLY one word: BULLISH, BEARISH, or NEUTRAL
+Then a confidence score 0-1 on a new line."""
+                        }],
+                        max_tokens=20,
+                        temperature=0
+                    )
+                    
+                    result = response.choices[0].message.content.strip().upper()
+                    lines = result.split('\n')
+                    sentiment = lines[0] if lines[0] in ["BULLISH", "BEARISH", "NEUTRAL"] else "NEUTRAL"
+                    try:
+                        confidence = float(lines[1]) if len(lines) > 1 else 0.6
+                    except:
+                        confidence = 0.6
+                    
+                    print(f"      💬 COMMENT SENTIMENT: {sentiment} ({confidence:.1%} confidence)")
+                    return sentiment, confidence
+            
+            return "NEUTRAL", 0.5
+            
+        except Exception as e:
+            print(f"   ⚠️ Comment sentiment check failed: {e}")
+            return "NEUTRAL", 0.5
         
     def check_liquidity_depth(self, token_id: str, desired_size_usd: float) -> float:
         """
@@ -2556,6 +2672,24 @@ class EsportsTrader:
                             continue
                         else:
                             print(f"      🧠 VALIDATOR APPROVED: {confidence:.1f} confidence")
+
+                    # SOCIAL SIGNALS: Check whale positions and comment sentiment
+                    # Only trade WITH whales, not against them
+                    whale_side = self.get_whale_side(market.yes_token, market.no_token)
+                    if whale_side and whale_side != side:
+                        print(f"      🐋 WHALE CONFLICT: Whales are on {whale_side}, but edge says {side}. SKIPPING.")
+                        continue
+                    elif whale_side == side:
+                        print(f"      🐋 WHALE ALIGNED: Smart money agrees with {side}!")
+                    
+                    # Check comment sentiment - skip if strongly bearish on YES or bullish on NO
+                    sentiment, sent_conf = self.get_market_sentiment_from_comments(market.market_id)
+                    if sentiment == "BEARISH" and side == "YES" and sent_conf > 0.7:
+                        print(f"      💬 SENTIMENT CONFLICT: Comments are strongly BEARISH, skipping YES bet")
+                        continue
+                    elif sentiment == "BULLISH" and side == "NO" and sent_conf > 0.7:
+                        print(f"      💬 SENTIMENT CONFLICT: Comments are strongly BULLISH, skipping NO bet")
+                        continue
 
                     # LAYER C: CONFLICT AWARENESS - Prevent betting against yourself
                     # Never bet on multiple outcomes of the same match
