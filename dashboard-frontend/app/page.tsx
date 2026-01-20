@@ -8,7 +8,7 @@ import {
   Activity, Zap, Wallet, ExternalLink, Brain, Shield,
   BarChart3, Settings, PieChart,
   X, XCircle, Loader2, Gamepad2, Users, LayoutDashboard, Terminal,
-  ChevronRight, AlertTriangle, Monitor, Trophy, Lock, MessageSquare, Minimize2, Maximize2,
+  ChevronRight, ChevronUp, AlertTriangle, Monitor, Trophy, Lock, MessageSquare, Minimize2, Maximize2,
   Info, ChevronDown
 } from "lucide-react"
 import { LLMTerminal } from "@/components/llm-terminal"
