@@ -423,11 +423,11 @@ class SportsTrader:
 
         try:
             # SECURITY: Hard Cap Enforcement
-                if size > 5.0:
-                    print(f"      ⚠️ Capping bet size to $5.00 (was ${size:.2f})")
-                    size = 5.0
+            if size > 5.0:
+                print(f"      ⚠️ Capping bet size to $5.00 (was ${size:.2f})")
+                size = 5.0
 
-                order_args = OrderArgs(
+            order_args = OrderArgs(
                 token_id=str(token_id),
                 price=round(price + 0.01, 2), # Add 1c buffer for sports fills
                 size=size / price,
