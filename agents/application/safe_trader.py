@@ -466,11 +466,34 @@ class Bot:
             logger.error(f"Failed to save state: {e}")
 
     def execute_trade(self, opportunity, amount_usd=None):
-        """Execute a trade based on the validated opportunity"""
+        """Execute a trade based on === validated opportunity"""
         try:
             market = opportunity['market']
             outcome = opportunity['outcome']  # "Yes" or "No"
             price = opportunity['price']
+            
+            # Record trade using TradeRecorder
+            record_trade(
+                agent_name=self.AGENT_NAME,
+                market=market.question,
+                side=outcome,
+                amount=bet_amount if amount_usd else self.calculate_bet_size(),
+                price=price,
+                token_id=token_id,
+                reasoning=f"High Prob Threshold: {self.high_prob_threshold}"
+            )
+            
+            # Update agent activity
+            update_agent_activity(
+                agent_name=self.AGENT_NAME,
+                activity="trade_executed",
+                extra_data={
+                    "market": market.question,
+                    "side": outcome,
+                    "size": bet_amount if amount_usd else self.calculate_bet_size(),
+                    "price": price
+                }
+            )
             
             # Get token ID for the outcome
             token_ids = ast.literal_eval(market.clob_token_ids)

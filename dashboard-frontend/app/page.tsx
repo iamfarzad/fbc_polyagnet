@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Brain, AlertTriangle, Loader2, Sun, Moon, ChevronUp, ChevronDown, MessageSquare, X, Settings } from "lucide-react"
+import { Brain, AlertTriangle, Loader2, Sun, Moon, ChevronUp, ChevronDown, MessageSquare, X, Settings, Terminal, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
@@ -13,6 +13,10 @@ import { AgentNetwork } from "@/components/agent-network"
 import { AISuggestions } from "@/components/ai-suggestions"
 import { ActivityFeed } from "@/components/activity-feed"
 import { FBPChat } from "@/components/fbp-chat"
+import { PerformanceGraph } from "@/components/performance-graph"
+import { FinancialsCard } from "@/components/financials-card"
+import { LLMTerminal } from "@/components/llm-terminal"
+import { AllocationPieChart } from "@/components/allocation-chart"
 import { getApiUrl, getWsUrl } from "@/lib/api-url"
 
 // ============================================================================

@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # Import existing agent logic
+import time
 import sys
 # Ensure agents package is resolvable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -98,6 +99,25 @@ def _safe_json(obj: Any) -> Any:
     return str(obj)
 
 
+# --- Caching and Cleanup ---
+DASHBOARD_CACHE = {
+    "data": None,
+    "timestamp": 0,
+    "ttl": 5  # Cache for 5 seconds
+}
+
+def cleanup_chat_sessions():
+    """Remove old chat sessions to free memory."""
+    MAX_SESSIONS = 20
+    if len(CHAT_SESSIONS) > MAX_SESSIONS:
+        # Remove oldest sessions
+        sorted_sessions = sorted(CHAT_SESSIONS.items(), key=lambda item: getattr(item[1], 'last_active', 0))
+        to_remove = len(CHAT_SESSIONS) - MAX_SESSIONS
+        for i in range(to_remove):
+            key = sorted_sessions[i][0]
+            del CHAT_SESSIONS[key]
+            logger.info(f"Cleaned up old chat session: {key}")
+
 @app.websocket("/ws/dashboard")
 async def ws_dashboard(ws: WebSocket):
     """
@@ -109,10 +129,19 @@ async def ws_dashboard(ws: WebSocket):
         while True:
             payload = None
             try:
-                # get_dashboard is synchronous, do not await it
-                payload = get_dashboard(background_tasks=BackgroundTasks())
+                # Check cache first
+                now = time.time()
+                if DASHBOARD_CACHE["data"] and (now - DASHBOARD_CACHE["timestamp"] < DASHBOARD_CACHE["ttl"]):
+                    payload = DASHBOARD_CACHE["data"]
+                else:
+                    # get_dashboard is synchronous
+                    cleanup_chat_sessions()
+                    payload = get_dashboard(background_tasks=BackgroundTasks())
+                    DASHBOARD_CACHE["data"] = payload
+                    DASHBOARD_CACHE["timestamp"] = now
             except Exception as e:
                 payload = {"error": str(e)}
+            
             await ws.send_json(_safe_json(payload))
             await asyncio.sleep(2)
     except WebSocketDisconnect:
@@ -469,6 +498,8 @@ async def chat_endpoint(session_id: str, req: ChatRequest):
         CHAT_SESSIONS[session_id] = FBPAgent(session_id=session_id)
     
     agent = CHAT_SESSIONS[session_id]
+    # Track activity for cleanup
+    agent.last_active = time.time()
     
     # Process last user message
     if not req.messages:
@@ -548,6 +579,13 @@ def get_manual_queue(agent_name: str):
 
 @app.get("/api/dashboard", response_model=DashboardData)
 def get_dashboard(background_tasks: BackgroundTasks):
+    # Check cache first
+    now = time.time()
+    if DASHBOARD_CACHE["data"] and (now - DASHBOARD_CACHE["timestamp"] < DASHBOARD_CACHE["ttl"]):
+        return DASHBOARD_CACHE["data"]
+
+    cleanup_chat_sessions()
+    
     state = load_state()
     
     # Overlay Supabase state if available
@@ -698,7 +736,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # 8. Open Orders
     open_orders = fetch_open_orders_helper()
 
-    return {
+    result = {
         "balance": balance,
         "equity": equity,
         "unrealizedPnl": unrealized_pnl,
@@ -722,6 +760,12 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "walletAddress": wallet_address,
         "maxBetAmount": state.get("dynamic_max_bet", 0.50) # Default 0.50 per manual override
     }
+    
+    # Update cache
+    DASHBOARD_CACHE["data"] = result
+    DASHBOARD_CACHE["timestamp"] = time.time()
+    
+    return result
 
 @app.post("/api/toggle-agent")
 def toggle_agent(req: AgentToggleRequest):

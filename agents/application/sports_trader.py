@@ -48,6 +48,7 @@ DEFAULT_SCAN_INTERVAL = 60
 # --- NEW INTELLIGENCE IMPORTS ---
 from agents.utils.config import load_config
 from agents.application.smart_context import SmartContext
+from agents.utils.TradeRecorder import record_trade, update_agent_activity
 
 # Polymarket Sports Series IDs (for direct Gamma API)
 SPORTS_SERIES = {
@@ -442,13 +443,34 @@ class SportsTrader:
                 self.trades_made += 1
                 self.total_invested += size
 
+                # Record trade using TradeRecorder
+                record_trade(
+                    agent_name=self.AGENT_NAME,
+                    market=question,
+                    side=side,
+                    amount=size,
+                    price=price,
+                    token_id=token_id,
+                    reasoning=f"Fair Price Analysis - Confidence: {conf*100:.0f}%"
+                )
+
+                # Update agent activity
+                update_agent_activity(
+                    agent_name=self.AGENT_NAME,
+                    activity="trade_executed",
+                    extra_data={
+                        "market": question,
+                        "side": side,
+                        "size": size,
+                        "price": price
+                    }
+                )
+
                 # Refresh balance after successful trade
                 try:
                     self.balance = self.pm.get_usdc_balance()
                 except:
                     pass
-
-                # Record in Shared Context
                 self.context.add_position(Position(
                     market_id=market_id,
                     market_question=question,

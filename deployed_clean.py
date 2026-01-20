@@ -39,7 +39,6 @@ from agents.application.llm_analyst import LLMAnalyst
 from agents.application.hedge_fund_analyst import HedgeFundAnalyst
 from agents.utils.config import load_config
 from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
-from agents.utils.TradeRecorder import record_trade, update_agent_activity
 
 # --- ESPORTS CONTRARIAN SYSTEM PROMPT ---
 ESPORTS_RISK_MANAGER_PROMPT = """You are a contrarian esports bettor and risk manager.
@@ -2357,31 +2356,6 @@ Then a confidence score 0-1 on a new line."""
         if result.get("success") or result.get("status") == "matched":
             print(f"   ✅ FILLED!")
             self.session_trades += 1
-            
-            # Record trade using TradeRecorder
-            record_trade(
-                agent_name="esports_trader",
-                market=f"{market.team1} vs {market.team2}",
-                side=side,
-                amount=bet_size,
-                price=entry_price,
-                token_id=token_id,
-                reasoning=f"Edge: {edge*100:.1f}% | Strategy: {strategy_name if 'strategy_name' in locals() else 'unknown'}"
-            )
-            
-            # Update agent activity
-            update_agent_activity(
-                agent_name="esports_trader",
-                activity="trade_executed",
-                extra_data={
-                    "market": f"{market.team1} vs {market.team2}",
-                    "side": side,
-                    "size": bet_size,
-                    "price": entry_price,
-                    "edge": edge
-                }
-            )
-            
             # Store position by market_id (for dashboard)
             self.positions[market.market_id] = {
                 "side": side,

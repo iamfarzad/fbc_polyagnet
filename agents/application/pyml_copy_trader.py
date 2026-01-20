@@ -15,6 +15,7 @@ from agents.utils.validator import Validator, SharedConfig
 from agents.utils.context import get_context, Position, Trade
 from agents.utils.config import load_config
 from agents.application.smart_context import SmartContext
+from agents.utils.TradeRecorder import record_trade, update_agent_activity
 
 # Import Supabase state manager
 try:
@@ -253,15 +254,28 @@ class CopyTrader:
                 timestamp=datetime.datetime.now().isoformat(),
                 token_id=token_id
             ))
-            self.context.add_trade(Trade(
-                market_id=market_id or token_id,
-                agent=self.AGENT_NAME,
-                outcome=outcome,
-                size_usd=amount_usd,
-                price=agg_price,
-                timestamp=datetime.datetime.now().isoformat(),
-                status="filled"
-            ))
+            # Record trade using TradeRecorder
+            record_trade(
+                agent_name=self.AGENT_NAME,
+                market=question,
+                side=outcome,
+                amount=amount,
+                price=price,
+                token_id=market_id or token_id,
+                reasoning=f"Copied Trade from Top Gainer"
+            )
+
+            # Update agent activity
+            update_agent_activity(
+                agent_name=self.AGENT_NAME,
+                activity="trade_executed",
+                extra_data={
+                    "market": question,
+                    "side": outcome,
+                    "size": amount,
+                    "price": price
+                }
+            )
             
             self.save_state({
                 "last_trade": f"{outcome} @ ${amount_usd} ({datetime.datetime.now().strftime('%H:%M:%S')})",
@@ -271,15 +285,28 @@ class CopyTrader:
             
         except Exception as e:
             logger.error(f"Trade Execution Failed: {e}")
-            self.context.add_trade(Trade(
-                market_id=market_id or token_id,
-                agent=self.AGENT_NAME,
-                outcome=outcome,
-                size_usd=amount_usd,
-                price=0,
-                timestamp=datetime.datetime.now().isoformat(),
-                status="failed"
-            ))
+            # Record trade using TradeRecorder
+            record_trade(
+                agent_name=self.AGENT_NAME,
+                market=question,
+                side=outcome,
+                amount=amount,
+                price=price,
+                token_id=market_id or token_id,
+                reasoning=f"Copied Trade from Top Gainer"
+            )
+
+            # Update agent activity
+            update_agent_activity(
+                agent_name=self.AGENT_NAME,
+                activity="trade_executed",
+                extra_data={
+                    "market": question,
+                    "side": outcome,
+                    "size": amount,
+                    "price": price
+                }
+            )
             self.save_state({"last_trade_error": str(e)})
             return None
 

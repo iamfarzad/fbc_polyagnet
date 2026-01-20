@@ -16,5 +16,6 @@
     "esports_trader_mode": "DRY RUN",
     "safe_last_activity": "",
     "safe_last_endpoint": "Gamma API",
-    "safe_heartbeat": ""
+    "safe_heartbeat": "",
+    "recent_trades": []
 }

@@ -9,6 +9,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from typing import Tuple, List, Dict
 from openai import OpenAI  # Tier 3 Auditor
+import google.generativeai as genai  # NEW: Gemini Support
 
 logger = logging.getLogger("PyMLBot")
 
@@ -34,18 +35,20 @@ class SharedConfig:
         self.MAX_EXPOSURE = float(os.getenv("MAX_EXPOSURE", "0.25"))
         self.PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
         self.OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # Tier 3 Key
+        self.GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") # NEW: Gemini Key
         self.POLYGON_WALLET_PRIVATE_KEY = os.getenv("POLYGON_WALLET_PRIVATE_KEY")
         
         if not self.PERPLEXITY_API_KEY:
             logger.warning("No PERPLEXITY_API_KEY found. Research phase will fail.")
-        if not self.OPENAI_API_KEY:
-            logger.warning("No OPENAI_API_KEY found. Final Logic Audit will be skipped.")
+        if not self.OPENAI_API_KEY and not self.GEMINI_API_KEY:
+            logger.warning("No OPENAI_API_KEY or GEMINI_API_KEY found. Final Logic Audit will be skipped.")
 
 class Validator:
     """
     Three-Tier Validation System:
     Tier 1 & 2: Perplexity Sonar-Pro (Web Research & Data Gathering - Uses Credits)
     Tier 3: OpenAI GPT-4o mini (Logic Audit & Hallucination Check - Low Cost)
+    Tier 4: Google Gemini Pro (Alternative Logic Audit - Cost Effective)
     """
     
     def __init__(self, config: SharedConfig, agent_name: str = "safe"):
@@ -60,40 +63,92 @@ class Validator:
         else:
             self.analyzer = None
         
-        # Initialize OpenAI Client for Tier 3
+        # Initialize LLM Clients
+        self.openai_client = None
         if self.config.OPENAI_API_KEY:
-            self.openai_client = OpenAI(api_key=self.config.OPENAI_API_KEY)
-        else:
-            self.openai_client = None
+            try:
+                self.openai_client = OpenAI(api_key=self.config.OPENAI_API_KEY)
+            except Exception as e:
+                logger.error(f"OpenAI client init failed: {e}")
+        
+        # NEW: Initialize Gemini Client
+        self.gemini_client = None
+        if self.config.GEMINI_API_KEY:
+            try:
+                genai.configure(api_key=self.config.GEMINI_API_KEY)
+                self.gemini_client = genai.GenerativeModel("gemini-pro")
+            except Exception as e:
+                logger.error(f"Gemini client init failed: {e}")
 
     def validate(self, market_question: str, outcome: str, price: float, additional_context: str = "", 
                  fast_mode: bool = False, # NEW FLAG
+                 use_gemini: bool = False, # NEW FLAG: Force use Gemini
                  min_confidence: float = 0.70, min_edge_pct: float = 0.05) -> Tuple[bool, str, float]:
         
-        # --- FAST MODE BYPASS ---
-        # If fast_mode is True (Live Sports/HFT), we skip the 30s LLM research entirely.
+        # --- FAST MODE (Basic Validation Only) ---
+        # Even in fast mode, perform basic validation (no LLM research)
+        # Fixed: Previously fast_mode bypassed ALL validation, now it only skips LLM research
         if fast_mode:
-            logger.info(f"⚡ FAST MODE: Bypassing LLM Audit for Live Market: {market_question[:30]}")
-            return True, "Fast-tracked live trade (No LLM delay)", 1.0
+            # Fast Mode: Quick basic validation without LLM research
+            # 1. Price range validation (0.05 - 0.95)
+            if price < 0.05 or price > 0.95:
+                logger.info(f"   ❌ Fast Mode: Price {price:.3f} outside valid range (0.05-0.95)")
+                return False, "Price outside valid range (0.05-0.95)", 0.1
+            
+            # 2. Don't bet on obviously losing propositions (implied < 10% or > 90%)
+            # This prevents extreme gambling
+            implied_prob = price if outcome.lower() == "yes" else (1 - price)
+            if (outcome.lower() == "yes" and price < 0.10) or \
+               (outcome.lower() == "no" and price > 0.90):
+                logger.info(f"   ❌ Fast Mode: Price {price:.3f} looks extreme (implied prob <10% or >90%)")
+                return False, "Price looks extreme (implied prob <10% or >90%)", 0.1
+            
+            # 3. Confidence based on price strength (more confident = higher edge)
+            # Prices closer to 0.5 are more uncertain = lower confidence
+            confidence = 0.7 - abs(price - 0.5)  # Base 0.7, adjust by distance from 0.5
+            
+            logger.info(f"   ✅ Fast Mode: Basic validation passed (Conf: {confidence:.2f})")
+            return True, "Fast mode validation passed", confidence
 
-        # --- PHASE 1: PERPLEXITY RESEARCH (Tier 1 & 2) ---
-        # Purpose: Use your $4,000 credits for heavy web-searching and news gathering.
-        research_result = self._research_phase(market_question, outcome, price, additional_context)
-        
-        if not research_result or research_result.get("recommendation") == "PASS":
-            reason = research_result.get("reason", "Research phase did not find sufficient edge.") if research_result else "Research API Error"
-            return False, reason, 0.0
+        # --- TIER 1: PERPLEXITY RESEARCH (Market Discovery) ---
+        # Only run Perplexity if not in fast mode and not forcing Gemini
+        if self.config.PERPLEXITY_API_KEY and not fast_mode and not use_gemini:
+            # Purpose: Use your $4,000 credits for heavy web-searching and news gathering.
+            research_result = self._research_phase(market_question, outcome, price, additional_context)
+            
+            if not research_result or research_result.get("recommendation") == "PASS":
+                reason = research_result.get("reason", "Research phase did not find sufficient edge.") if research_result else "Research API Error"
+                return False, reason, 0.0
 
-        # --- PHASE 2: OPENAI LOGIC AUDIT (Tier 3) ---
-        # Purpose: Use GPT-4o mini's reasoning to audit the Perplexity research for "hallucinated edge."
-        # Cost: Minimal (~$0.15 / 1M tokens).
-        if self.openai_client:
-            return self._audit_phase(market_question, outcome, price, research_result, min_confidence, min_edge_pct)
+            # --- TIER 2: LOGIC AUDIT (OpenAI or Gemini) ---
+            # Choose LLM provider based on configuration
+            if use_gemini and self.gemini_client:
+                logger.info("   🟢 Using Gemini for Logic Audit")
+                return self._audit_phase_gemini(market_question, outcome, price, research_result, min_confidence, min_edge_pct)
+            elif self.openai_client:
+                logger.info("   🟢 Using OpenAI GPT-4o-mini for Logic Audit")
+                return self._audit_phase_openai(market_question, outcome, price, research_result, min_confidence, min_edge_pct)
+            else:
+                # Fallback if neither is configured
+                logger.warning("OpenAI and Gemini both unavailable. Relying solely on Perplexity Research.")
+                is_valid = research_result.get("recommendation") == "BET"
+                return is_valid, research_result.get("reason", ""), research_result.get("confidence", 0.0)
         
-        # Fallback if OpenAI isn't configured
-        logger.warning("OpenAI Auditor not configured. Relying solely on Perplexity Research.")
-        is_valid = research_result.get("recommendation") == "BET"
-        return is_valid, research_result.get("reason", ""), research_result.get("confidence", 0.0)
+        # Fallback for when Perplexity is not available but we still want to validate
+        if not self.config.PERPLEXITY_API_KEY:
+            logger.info("   ⚠️ No Perplexity API available. Performing basic price validation only.")
+            # Basic validation
+            if price < 0.05 or price > 0.95:
+                return False, "Price outside valid range (0.05-0.95)", 0.1
+            
+            # Don't bet on obviously losing propositions
+            if (outcome.lower() == "yes" and price < 0.10) or \
+               (outcome.lower() == "no" and price > 0.90):
+                return False, "Price looks extreme (implied prob <10% or >90%)", 0.1
+            
+            # Moderate validation - allow trades with reasonable confidence
+            confidence = 0.6
+            return True, "Basic validation (no research data)", confidence
 
     def _research_phase(self, question: str, outcome: str, price: float, context: str) -> Dict:
         """Deep research using Perplexity credits."""
@@ -129,8 +184,8 @@ class Validator:
             logger.error(f"Perplexity Research Phase Error: {e}")
             return None
 
-    def _audit_phase(self, question: str, outcome: str, price: float, research: Dict, min_conf: float, min_edge: float) -> Tuple[bool, str, float]:
-        """Final Logic Check using GPT-4o mini with historical lessons."""
+    def _audit_phase_openai(self, question: str, outcome: str, price: float, research: Dict, min_conf: float, min_edge: float) -> Tuple[bool, str, float]:
+        """Final Logic Check using OpenAI GPT-4o mini with historical lessons."""
         
         # Fetch relevant lessons from past mistakes
         lessons_context = ""
@@ -139,7 +194,7 @@ class Validator:
                 lessons = self.analyzer.get_relevant_lessons(question, limit=3)
                 if lessons:
                     lessons_context = self.analyzer.format_lessons_for_prompt(lessons)
-                    logger.info(f"📚 Injecting {len(lessons)} historical lessons into audit")
+                    logger.info(f"📚 Injecting {len(lessons)} historical lessons into OpenAI audit")
             except Exception as e:
                 logger.debug(f"Could not fetch lessons: {e}")
         
@@ -210,6 +265,87 @@ class Validator:
             logger.error(f"OpenAI Audit Phase Error: {e}")
             return False, "Audit failed during processing", 0.0
 
+    def _audit_phase_gemini(self, question: str, outcome: str, price: float, research: Dict, min_conf: float, min_edge: float) -> Tuple[bool, str, float]:
+        """Final Logic Check using Google Gemini Pro with historical lessons."""
+        
+        # Fetch relevant lessons from past mistakes
+        lessons_context = ""
+        if self.analyzer:
+            try:
+                lessons = self.analyzer.get_relevant_lessons(question, limit=3)
+                if lessons:
+                    lessons_context = self.analyzer.format_lessons_for_prompt(lessons)
+                    logger.info(f"📚 Injecting {len(lessons)} historical lessons into Gemini audit")
+            except Exception as e:
+                logger.debug(f"Could not fetch lessons: {e}")
+        
+        audit_prompt = f"""
+        AUDIT REQUEST: A research bot recommends a BET on this market.
+        Market: "{question}"
+        Target Outcome: {outcome} @ ${price:.2f}
+        
+        RESEARCHER'S FINDINGS:
+        - News: {research['news_summary']}
+        - Estimated Prob: {research['estimated_true_prob']}
+        - Reason: {research['reason']}
+        
+        {lessons_context}
+        
+        CRITICAL TASK:
+        Find any logical flaws or 'traps' in the researcher's thinking. 
+        Does the news actually support this outcome? Is the researcher being over-optimistic?
+        If there are historical lessons above, ensure you don't repeat those same mistakes.
+        
+        RESPOND ONLY IN JSON:
+        {{
+          "audit_confidence": 0.XX,
+          "is_logic_sound": true/false,
+          "revised_prob": 0.XX,
+          "critique": "One sentence critique",
+          "final_recommendation": "BET" or "PASS"
+        }}"""
+
+        try:
+            start_time = time.time()
+            response = self.gemini_client.generate_content(
+                model="gemini-pro",
+                contents=[audit_prompt],
+                generation_config={"temperature": 0, "response_mime_type": "application/json"}
+            )
+            
+            # Parse JSON from Gemini response (it returns text, need to extract JSON)
+            audit = json.loads(response.text)
+            
+            # Final Decision Logic
+            is_valid = (
+                audit["is_logic_sound"] and 
+                audit["final_recommendation"] == "BET" and
+                audit["revised_prob"] > (price + min_edge) and
+                audit["audit_confidence"] >= min_conf
+            )
+            
+            # Log to Activity Feed
+            if self.context:
+                self.context.log_llm_activity(LLMActivity(
+                    id=str(uuid.uuid4())[:8],
+                    agent=self.agent_name,
+                    timestamp=datetime.now().isoformat(),
+                    action_type="logic_audit",
+                    market_question=question[:50],
+                    prompt_summary=f"Audit {outcome} @ {price}",
+                    reasoning=audit["critique"],
+                    conclusion="BET" if is_valid else "PASS",
+                    confidence=audit["audit_confidence"],
+                    data_sources=["Perplexity News", "Gemini Pro Logic Audit"],
+                    duration_ms=int((time.time() - start_time) * 1000)
+                ))
+
+            return is_valid, audit["critique"], audit["audit_confidence"]
+
+        except Exception as e:
+            logger.error(f"Gemini Audit Phase Error: {e}")
+            return False, "Audit failed during processing", 0.0
+
     def discover_top_traders(self, cache_file: str = "whale_addresses.json") -> list[dict]:
         """
         Use Perplexity to research top Polymarket traders + known address mappings.
@@ -223,13 +359,12 @@ class Validator:
             List of {"address": "0x...", "name": "...", "reason": "..."}
         """
         # Known top trader name -> address mapping (from polymarket.com/leaderboard profile URLs)
-        # Updated: These can be refreshed by visiting the leaderboard page
+        # Updated: These can be refreshed by visiting to leaderboard page
         KNOWN_TRADERS = {
             "kch123": "0x6a72f61820b26b1fe4d956e17b6dc2a1ea3033ee",
             "SeriouslySirius": "0x16b29c50f2439faf627209b2ac0c7bbddaa8a881",
             "DrPufferfish": "0xdb27bf2ac5d428a9c63dbc914611036855a6c56e",
             "SemyonMarmeladov": "0x37e4728b3c4607fb2b3b205386bb1d1fb1a8c991",
-            "212121212121212121212": "0x1bc0d88ca86b9049cf05d642e634836d5ddf4429",
             "GamblingIsAllYouNeed": "0x507e52ef684ca2dd91f90a9d26d149dd3288beae",
             "swisstony": "0x204f72f35326db932158cba6adff0b9a1da95e14",
             "Ems123": "0xb889590a2fab0c810584a660518c4c020325a430",
@@ -349,6 +484,7 @@ Return JSON with trader names and any addresses you find:
         for name, addr in KNOWN_TRADERS.items():
             if addr.lower() not in found_addrs:
                 traders.append({"name": name, "address": addr, "reason": "Known top trader"})
+                logger.info(f"  Mapped: {name} -> {addr[:12]}...")
         
         # Cache results
         cache_data = {"timestamp": time.time(), "traders": traders}

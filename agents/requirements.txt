@@ -13,4 +13,5 @@ py-order-utils==0.3.2
 fastapi
 uvicorn
 openai>=1.0.0
+google-generativeai>=0.3.0
 supabase

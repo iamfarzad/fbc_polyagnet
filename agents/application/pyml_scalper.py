@@ -61,6 +61,7 @@ except ImportError:
 from agents.application.smart_context import SmartContext
 from agents.application.universal_analyst import UniversalAnalyst
 from agents.utils.config import load_config
+from agents.utils.TradeRecorder import record_trade, update_agent_activity
 
 load_dotenv()
 
@@ -675,6 +676,29 @@ class CryptoScalper:
             # Send the order to the sanitized Polymarket class
             resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps)
             if resp.get("orderID"):
+                # Record trade using TradeRecorder
+                record_trade(
+                    agent_name=self.AGENT_NAME,
+                    market=market["asset"],
+                    side=direction,
+                    amount=size_usd,
+                    price=entry_price,
+                    token_id=token_id,
+                    reasoning=f"Momentum: {momentum:.2%}, Sentiment: {sentiment_score:.2f}"
+                )
+
+                # Update agent activity
+                update_agent_activity(
+                    agent_name=self.AGENT_NAME,
+                    activity="trade_executed",
+                    extra_data={
+                        "market": market["asset"],
+                        "side": direction,
+                        "size": size_usd,
+                        "price": entry_price
+                    }
+                )
+
                 self.pending_orders[resp.get("orderID")] = {
                     "type": "entry", "token_id": token_id, "asset": market["asset"],
                     "side": direction, "price": entry_price, "time": time.time(),
@@ -744,8 +768,25 @@ class CryptoScalper:
     # UTILS
     # -------------------------------------------------------------------------
 
+    def prune_price_cache(self):
+        """Remove old price data to prevent memory leaks."""
+        if not hasattr(self, 'price_cache'): return
+        
+        now = time.time()
+        # Remove entries older than 60 seconds
+        stale_keys = [k for k, v in self.price_cache.items() if now - v[0] > 60]
+        for k in stale_keys:
+            del self.price_cache[k]
+        
+        if len(stale_keys) > 0:
+            # Only log occasionally to avoid noise
+            if len(stale_keys) > 100:
+                print(f"   🧹 Pruned {len(stale_keys)} stale cache entries")
+
     def reap_stale_orders(self):
         """Cancel orders older than their dynamic timeout."""
+        self.prune_price_cache()
+
         now = time.time()
         for oid, meta in list(self.pending_orders.items()):
             age = now - meta["time"]
