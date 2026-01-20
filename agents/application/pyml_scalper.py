@@ -57,6 +57,11 @@ except ImportError:
         HAS_SUPABASE = False
         get_supabase_state = None
 
+# --- NEW INTELLIGENCE LAYER IMPORTS ---
+from agents.application.smart_context import SmartContext
+from agents.application.universal_analyst import UniversalAnalyst
+from agents.utils.config import load_config
+
 load_dotenv()
 
 # =============================================================================
@@ -143,6 +148,14 @@ class CryptoScalper:
         self.last_market_scan = 0
         self.market_scan_interval = 30  # Scan every 30s to detect new markets
 
+        # --- INTELLIGENCE LAYER INIT ---
+        self.config = load_config("scalper")
+        self.active = self.config.get("active", True)
+        self.smart_context = SmartContext()
+        self.analyst = UniversalAnalyst()
+        self.use_llm = self.config.get("use_llm_sentiment", False)
+        print(f"🧠 Intelligence Layer Active: LLM={self.use_llm}")
+
         # Init Components
         self.redeemer = None
         try:
@@ -164,6 +177,32 @@ class CryptoScalper:
         # Price caching for performance
         self.price_cache = {}  # token_id -> (timestamp, price_data)
         self._init_polymarket_websocket()
+
+        # Self-Learning State
+        self.last_learning_time = 0
+        self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+
+    def run_learning_cycle(self):
+        """Run post-trade analysis to learn from mistakes."""
+        # Late import to avoid circular dependencies if any
+        try:
+            from agents.utils.mistake_analyzer import MistakeAnalyzer
+            analyzer = MistakeAnalyzer(agent_name=self.AGENT_NAME)
+        except ImportError:
+            return
+
+        now = time.time()
+        if now - self.last_learning_time > self.LEARNING_INTERVAL:
+            try:
+                print("   🧠 Starting Self-Learning Cycle...")
+                lessons = analyzer.analyze_completed_trades(limit=5)
+                if lessons:
+                    print(f"   🎓 Learned {len(lessons)} new lessons from recent trades.")
+                else:
+                    print(f"   🧠 No new lessons to learn this cycle.")
+                self.last_learning_time = now
+            except Exception as e:
+                print(f"   ⚠️ Self-learning cycle failed: {e}")
 
     def _log(self, action, question, reasoning, confidence=1.0, conclusion="EXECUTED"):
         """Log to Dashboard Terminal."""
@@ -589,19 +628,37 @@ class CryptoScalper:
             print(f"   ⚠️ PRICE TOO HIGH: ${entry_price:.3f} > ${PRICE_CAP:.2f} (Risk > Reward)")
             return False
 
-        # 3. 20% Allocation Rule: Size based on available balance
-        balance = self.get_balance()
-        if balance < 5.01:  # Need at least $5.01 for $5.00 trade + fees
-            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $5.01+ for trade)")
+        # 0. CONFIG CHECK
+        current_config = load_config("scalper")
+        if not current_config.get("active", True):
+            print(f"   ⏸️ SKIPPING: Scalper paused via Config")
             return False
 
-        size_usd = min(5.00, balance * 0.20)  # 20% of balance, max $5.00
+        # 3. Size Calculation (Config-aware)
+        balance = self.get_balance()
+        if balance < 5.01:
+            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $5.01+)")
+            return False
+
+        max_size_cfg = current_config.get("max_size", 5.0)
+        # 20% rule but capped by config
+        size_usd = min(max_size_cfg, balance * 0.20) 
+        
+        # 3.5 LLM CHECK (Optional)
+        if self.use_llm:
+             # Quick context check
+             mkt_data = {"ticker": market['asset'], "direction": direction}
+             advice = self.analyst.ask_strategy("scalper_sentiment", mkt_data)
+             if advice["decision"] != "APPROVED":
+                 print(f"   🧠 ANALYST VETO: {advice['reason']}")
+                 return False
+
         size_shares = size_usd / entry_price
 
         # 4. Fetch the 1000 bps (1%) mandatory fee
         fee_rate_bps = self.get_fee_bps(token_id) or 1000
 
-        print(f"   🎯 EXECUTING 20% ALLOCATION: {market['asset'].upper()} {direction} @ ${entry_price:.3f} (Size: ${size_usd:.2f}) | Fee: {fee_rate_bps}bps")
+        print(f"   🎯 EXECUTING: {market['asset'].upper()} {direction} @ ${entry_price:.3f} (Size: ${size_usd:.2f}) | Fee: {fee_rate_bps}bps")
 
         if self.dry_run:
             self.active_positions[token_id] = {
@@ -766,6 +823,86 @@ class CryptoScalper:
                 print(f"   🔌 WS Setup Failed: {e}")
                 time.sleep(5)
 
+    # -------------------------------------------------------------------------
+    # COMMAND HANDLING (New)
+    # -------------------------------------------------------------------------
+
+    def process_commands(self):
+        """Check for and execute user commands from the context."""
+        if not self.context: return
+
+        try:
+            commands = self.context.get_user_commands("scalper")
+            for cmd in commands:
+                text = cmd.get("command", "").lower()
+                print(f"   📣 COMMAND RECEIVED: {text}")
+                
+                # 1. SCAN NOW
+                if "scan" in text:
+                    print("   🚀 EXECUTING: Force Scan")
+                    self.last_market_scan = 0 # Force scan next loop
+                    self._log("COMMAND", "User Command", "Forcing market scan", 1.0, "EXECUTED")
+                
+                # 2. PAUSE/RESUME
+                elif "pause" in text or "stop" in text:
+                    # Update local override (if we had one, but strict state comes from bot_state)
+                    # For now just log, real pause needs to update state file via API which user tool does
+                    print("   ⏸️ PAUSE: Pausing agent execution (via API)")
+                    
+                # 3. CONFIG UPDATES (Simple overrides for this session)
+                elif "bet" in text and "max" in text:
+                     # e.g. "max bet 10"
+                     try:
+                        val = float(text.split("bet")[-1].strip())
+                        self.max_bet = val
+                        print(f"   ⚖️  Updated MAX_BET to ${val}")
+                        self._log("CONFIG", "User Update", f"Max bet set to {val}", 0, "UPDATED")
+                     except: pass
+
+        except Exception as e:
+            print(f"   ⚠️ Command Error: {e}")
+
+        # -----------------------------------------------------------
+        # NEW: Poll API for Manual Overrides (Integrates with FBP Agent)
+        # -----------------------------------------------------------
+        try:
+             # Fast poll to local API (only if running)
+             import requests
+             resp = requests.get("http://127.0.0.1:8000/api/manual/queue?agent_name=scalper", timeout=1)
+             if resp.status_code == 200:
+                 data = resp.json()
+                 cmd = data.get("command")
+                 if cmd:
+                     print(f"   🚨 MANUAL OVERRIDE RECEIVED: {cmd['action']}")
+                     self.handle_manual_override(cmd)
+        except Exception as e:
+            pass # API might be down or busy
+
+    def handle_manual_override(self, cmd):
+        """Execute a manual override command from the API."""
+        action = cmd.get("action")
+        market_id = cmd.get("market_id")
+        amount = float(cmd.get("amount", self.max_bet))
+        
+        if action == "HALT":
+            print("   🛑 EMERGENCY HALT TRIGGERED")
+            self.running = False
+            
+        elif action in ["FORCE_BUY_YES", "FORCE_BUY_NO"]:
+            # Logic to execute a generic trade on a specific market ID
+            # This requires 'market_id' to be a token_id or condition_id
+            side = "BUY" # logic handling needed for YES/NO maps if standardizing
+            # For simplicity, assume market_id IS the token_id we want to buy
+            print(f"   🔫 FORCING TRADE: {action} on {market_id} for ${amount}")
+            try:
+                # Bypass normal checks
+                self.pm.place_limit_order(token_id=market_id, price=0.99, size=amount, side="BUY") 
+                # Note: 0.99 price for 'market buy' effect (taker)
+                self._log("MANUAL", "Override", f"Forced buy on {market_id}", amount, "EXECUTED")
+            except Exception as e:
+                print(f"   ❌ Manual trade failed: {e}")
+
+
     def run(self):
         # 1. Start Feed
         threading.Thread(target=self.run_binance_ws, daemon=True).start()
@@ -779,10 +916,14 @@ class CryptoScalper:
                     continue
 
                 # 2. Housekeeping
+                self.process_commands() # <--- NEW: Check commands
                 self.reap_stale_orders()
                 self.sync_positions() # The "Check Fills" Logic
                 if self.check_circuit_breaker(): continue
-
+                
+                # Reload Config Dynamic
+                # (Optional: Check bot_state.json for updates)
+                
                 if self.redeemer:
                     try:
                         print("   🔄 RUNNING AUTO-REDEEMER...")
@@ -865,6 +1006,9 @@ class CryptoScalper:
                 if active_by_asset:
                     asset_summary = ", ".join([f"{k}:{v}" for k, v in active_by_asset.items()])
                     print(f"   🪙 Positions: {asset_summary}")
+
+                # Self-Learning Cycle
+                self.run_learning_cycle()
 
                 time.sleep(1)
 

@@ -19,6 +19,14 @@ try:
 except ImportError:
     HAS_CONTEXT = False
 
+# Import MistakeAnalyzer for historical lessons
+try:
+    from agents.utils.mistake_analyzer import MistakeAnalyzer
+    HAS_ANALYZER = True
+except ImportError:
+    HAS_ANALYZER = False
+    MistakeAnalyzer = None
+
 class SharedConfig:
     def __init__(self):
         load_dotenv()
@@ -45,6 +53,12 @@ class Validator:
         self.agent_name = agent_name
         self.perplexity_url = "https://api.perplexity.ai/chat/completions"
         self.context = get_context() if HAS_CONTEXT else None
+        
+        # Initialize MistakeAnalyzer for historical lessons
+        if HAS_ANALYZER:
+            self.analyzer = MistakeAnalyzer(agent_name=agent_name)
+        else:
+            self.analyzer = None
         
         # Initialize OpenAI Client for Tier 3
         if self.config.OPENAI_API_KEY:
@@ -116,7 +130,19 @@ class Validator:
             return None
 
     def _audit_phase(self, question: str, outcome: str, price: float, research: Dict, min_conf: float, min_edge: float) -> Tuple[bool, str, float]:
-        """Final Logic Check using GPT-4o mini."""
+        """Final Logic Check using GPT-4o mini with historical lessons."""
+        
+        # Fetch relevant lessons from past mistakes
+        lessons_context = ""
+        if self.analyzer:
+            try:
+                lessons = self.analyzer.get_relevant_lessons(question, limit=3)
+                if lessons:
+                    lessons_context = self.analyzer.format_lessons_for_prompt(lessons)
+                    logger.info(f"📚 Injecting {len(lessons)} historical lessons into audit")
+            except Exception as e:
+                logger.debug(f"Could not fetch lessons: {e}")
+        
         audit_prompt = f"""
         AUDIT REQUEST: A research bot recommends a BET on this market.
         Market: "{question}"
@@ -127,9 +153,12 @@ class Validator:
         - Estimated Prob: {research['estimated_true_prob']}
         - Reason: {research['reason']}
         
+        {lessons_context}
+        
         CRITICAL TASK:
         Find any logical flaws or 'traps' in the researcher's thinking. 
         Does the news actually support this outcome? Is the researcher being over-optimistic?
+        If there are historical lessons above, ensure you don't repeat those same mistakes.
         
         RESPOND ONLY IN JSON:
         {{

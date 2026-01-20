@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS trades (
     exit_time TIMESTAMPTZ,
     exit_price DECIMAL(6,4),
     reasoning TEXT,
+    lesson_analyzed BOOLEAN DEFAULT NULL,  -- NULL = not analyzed, TRUE = lesson extracted
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -102,6 +103,25 @@ CREATE TABLE IF NOT EXISTS llm_activity (
 
 CREATE INDEX IF NOT EXISTS idx_llm_agent ON llm_activity(agent);
 CREATE INDEX IF NOT EXISTS idx_llm_created ON llm_activity(created_at DESC);
+
+-- Lessons Learned Table (agent self-learning system)
+CREATE TABLE IF NOT EXISTS lessons_learned (
+    id TEXT PRIMARY KEY,
+    agent TEXT NOT NULL,
+    market_question TEXT,
+    original_reasoning TEXT,
+    predicted_outcome TEXT,
+    actual_outcome TEXT,
+    pnl DECIMAL(10,4),
+    mistake_type TEXT,  -- false_positive, false_negative, sizing, timing, none
+    lesson_learned TEXT,
+    trade_id INTEGER REFERENCES trades(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_lessons_agent ON lessons_learned(agent);
+CREATE INDEX IF NOT EXISTS idx_lessons_type ON lessons_learned(mistake_type);
+CREATE INDEX IF NOT EXISTS idx_lessons_created ON lessons_learned(created_at DESC);
 
 -- Global Config Table
 CREATE TABLE IF NOT EXISTS config (
@@ -167,3 +187,67 @@ CREATE INDEX IF NOT EXISTS idx_snapshots_time ON portfolio_snapshots(timestamp D
 -- RLS for snapshots
 ALTER TABLE portfolio_snapshots ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow all operations on portfolio_snapshots" ON portfolio_snapshots FOR ALL USING (true);
+
+-- =============================================================================
+-- NEW AGENT STATE SYSTEM (v2)
+-- Added by user interaction on 2026-01-20
+-- =============================================================================
+
+-- Create base table public.agent_states
+CREATE TABLE IF NOT EXISTS public.agent_states (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  agent_name text NOT NULL,
+  state text NOT NULL,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  last_updated timestamptz NOT NULL DEFAULT now()
+);
+
+-- Create view
+CREATE OR REPLACE VIEW public.agent_state_view AS
+SELECT
+  id,
+  agent_name,
+  state,
+  metadata,
+  last_updated
+FROM public.agent_states;
+
+-- Create materialized view
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.agent_state_mv AS
+SELECT
+  id,
+  agent_name,
+  state,
+  metadata,
+  last_updated
+FROM public.agent_states;
+
+-- Index on materialized view
+CREATE INDEX IF NOT EXISTS idx_agent_state_mv_agent_name ON public.agent_state_mv(agent_name);
+
+-- Refresh function (security definer)
+CREATE OR REPLACE FUNCTION public.refresh_agent_state_mv()
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS 45872
+BEGIN
+  REFRESH MATERIALIZED VIEW CONCURRENTLY public.agent_state_mv;
+END;
+45872;
+
+-- Permissions for refresh function
+REVOKE EXECUTE ON FUNCTION public.refresh_agent_state_mv() FROM PUBLIC;
+Grant EXECUTE ON FUNCTION public.refresh_agent_state_mv() TO postgres;
+
+-- Attempt to create pg_cron job
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'refresh_agent_state_mv_every_15s') THEN
+      -- Note: pg_cron cron format doesn't support seconds; schedule every minute as fallback
+      INSERT INTO cron.job(jobname, schedule, command)
+      VALUES('refresh_agent_state_mv_every_15s', '*/1 * * * *', 'SELECT public.refresh_agent_state_mv();');
+    END IF;
+  ELSE
+    RAISE NOTICE 'pg_cron extension not found; skipped cron job creation.';
+  END IF;
+END;
+$$;

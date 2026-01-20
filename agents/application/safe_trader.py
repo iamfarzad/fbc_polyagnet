@@ -39,6 +39,12 @@ class SafePolymarket(Polymarket):
         return super().execute_market_order(market, amount)
 
 from agents.utils.validator import Validator, SharedConfig
+# Import MistakeAnalyzer for self-learning
+try:
+    from agents.utils.mistake_analyzer import MistakeAnalyzer, run_daily_analysis
+    HAS_ANALYZER = True
+except ImportError:
+    HAS_ANALYZER = False
 from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
 
 class Scanner:
@@ -155,6 +161,31 @@ class Bot:
              self.context.update_balance(self.initial_balance)
              logger.info(f"Initial Balance: ${self.initial_balance:.2f}")
         except: pass
+        
+        # Self-Learning State
+        self.last_learning_time = 0
+        self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+
+    def run_learning_cycle(self):
+        """Run post-trade analysis to learn from mistakes."""
+        if not HAS_ANALYZER:
+            return
+            
+        now = time.time()
+        if now - self.last_learning_time > self.LEARNING_INTERVAL:
+            try:
+                logger.info("🧠 Starting Self-Learning Cycle...")
+                analyzer = MistakeAnalyzer(agent_name=self.AGENT_NAME)
+                lessons = analyzer.analyze_completed_trades(limit=5)
+                
+                if lessons:
+                    logger.info(f"🎓 Learned {len(lessons)} new lessons from recent trades.")
+                else:
+                    logger.info("🧠 No new lessons to learn this cycle.")
+                    
+                self.last_learning_time = now
+            except Exception as e:
+                logger.error(f"Self-learning cycle failed: {e}")
 
     def check_for_exits(self):
         """Scan open positions and exit if confidence drops significantly."""
@@ -303,6 +334,9 @@ class Bot:
                 
                 # 2. Check Exits (Global Stop Loss)
                 self.check_for_exits()
+                
+                # 3. Self-Learning Cycle (Analyze past mistakes)
+                self.run_learning_cycle()
 
                 high_prob, arb = self.scanner.get_candidates()
                 record_activity("Scanning Markets", "Gamma API")

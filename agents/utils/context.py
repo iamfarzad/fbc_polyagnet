@@ -407,6 +407,7 @@ class SharedContext:
         ctx["broadcasts"] = ctx["broadcasts"][-50:]
         self._write(ctx)
     
+
     def get_broadcasts(self, agent: str, unread_only: bool = True) -> List[Dict]:
         """Get broadcasts, optionally only unread ones for this agent."""
         ctx = self._read()
@@ -424,6 +425,28 @@ class SharedContext:
         self._write(ctx)
         
         return broadcasts
+
+    def get_user_commands(self, agent: str) -> List[Dict]:
+        """
+        Get commands sent by the user (via Chat API) specifically for this agent.
+        Checks for broadcasts with data.type='command' and data.target=agent.
+        """
+        # Fetch all unread broadcasts for this agent
+        # We use the existing mechanism but filter for command type
+        broadcasts = self.get_broadcasts(agent, unread_only=True)
+        
+        commands = []
+        for b in broadcasts:
+            data = b.get("data", {})
+            if data.get("type") == "command":
+                target = data.get("target", "all").lower()
+                if target == "all" or target == agent.lower() or agent.lower() in target:
+                    commands.append({
+                        "command": b.get("message"),
+                        "timestamp": b.get("timestamp"),
+                        "from": b.get("from")
+                    })
+        return commands
 
     # =========== LLM ACTIVITY TRACKING ===========
     

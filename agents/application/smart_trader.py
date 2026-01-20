@@ -60,6 +60,9 @@ except ImportError:
         HAS_CONTEXT = False
         get_context = None
 
+# --- NEW INTELLIGENCE IMPORTS ---
+from agents.utils.config import load_config
+from agents.application.smart_context import SmartContext
 
 load_dotenv()
 
@@ -101,24 +104,10 @@ def perplexity_search(query: str, api_key: str = None) -> str:
 # SMART TRADER CONFIG
 # =============================================================================
 
-# Position sizing
-MAX_POSITIONS = 10                   # Max concurrent positions (increased)
-BET_PERCENT = 0.15                   # 15% of bankroll per position (more aggressive)
-MIN_BET_USD = 5.00                   # Unified $5 minimum across all agents
-MAX_BET_USD = 10.00                  # Increased to $10 for more impact
-
-# --- OPTIMIZED FAVORITE GRINDING CONFIG ---
-# Edge requirements: Focus on HIGH-PROBABILITY favorites, not underdogs
-MIN_EDGE_PERCENT = 10               # Reduced from 15% (easier to find smaller, safer edges)
-MIN_CONFIDENCE = 0.92               # Increased from 0.90 (only bet on "sure" things)
-MAX_MARKET_ODDS = 0.98              # Allow buying up to 98¢ for near-certain wins
-MIN_MARKET_ODDS = 0.75              # STOP buying underdogs (prevents 13¢-30¢ lotto tickets)
-# Logic: Instead of 1 trade for 500%, we want 10 trades for 2% gain each.
-# This results in lower volatility and steady balance growth.
-
-# Timing
-CHECK_INTERVAL = 180                # Check every 3 minutes (more frequent)
-MIN_TIME_TO_RESOLUTION = 1800       # Need 30+ min to resolution (was 1 hour)
+# DEFAULTS (Overridden by dynamic_config.json)
+DEFAULT_MAX_POSITIONS = 10
+DEFAULT_BET_PERCENT = 0.15
+DEFAULT_MIN_EDGE = 10
 
 # Market filters - EXCLUDE fee markets
 EXCLUDE_KEYWORDS = [
@@ -163,7 +152,13 @@ class SmartTrader:
     
     def __init__(self, dry_run=True):
         self.pm = Polymarket()
-        self.dry_run = dry_run
+        
+        # Load Config
+        self.config = load_config("smart_politics")
+        self.dry_run = dry_run or self.config.get("global_dry_run", False)
+        
+        # Intelligence Layer
+        self.smart_context = SmartContext()
         
         # Track positions
         self.positions = {}  # market_id -> position data
@@ -194,14 +189,18 @@ class SmartTrader:
         # Initialize Shared Context
         self.context = get_context() if HAS_CONTEXT else None
 
-        
+        # Config Values with defaults
+        self.max_positions = self.config.get("max_positions", DEFAULT_MAX_POSITIONS)
+        self.bet_pct = self.config.get("bet_size_percent", DEFAULT_BET_PERCENT)
+        self.min_edge = self.config.get("min_edge_percent", DEFAULT_MIN_EDGE)
+
         print(f"=" * 60)
         print(f"🧠 SMART TRADER - Fee-Free Markets")
         print(f"=" * 60)
         print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE TRADING'}")
-        print(f"Max Positions: {MAX_POSITIONS}")
-        print(f"Bet Size: {BET_PERCENT*100:.0f}% (${MIN_BET_USD}-${MAX_BET_USD})")
-        print(f"Min Edge Required: {MIN_EDGE_PERCENT}%")
+        print(f"Max Positions: {self.max_positions}")
+        print(f"Bet Size: {self.bet_pct*100:.0f}%")
+        print(f"Min Edge Required: {self.min_edge}%")
         print(f"Strategy: LLM Analysis → Bet if Edge → Hold to Resolution")
         print(f"Balance: ${self.initial_balance:.2f}")
         print(f"=" * 60)
@@ -464,10 +463,10 @@ Only output the JSON, nothing else."""
             recommended_side = None
             edge = 0
             
-            if yes_edge > MIN_EDGE_PERCENT / 100 and llm_prob >= MIN_CONFIDENCE:
+            if yes_edge > self.min_edge / 100 and llm_prob >= MIN_CONFIDENCE:
                 recommended_side = "YES"
                 edge = yes_edge
-            elif no_edge > MIN_EDGE_PERCENT / 100 and (1 - llm_prob) >= MIN_CONFIDENCE:
+            elif no_edge > self.min_edge / 100 and (1 - llm_prob) >= MIN_CONFIDENCE:
                 recommended_side = "NO"
                 edge = no_edge
             
@@ -508,7 +507,7 @@ Only output the JSON, nothing else."""
         except:
             balance = self.initial_balance
         
-        bet_size = balance * BET_PERCENT
+        bet_size = balance * self.bet_pct
         bet_size = max(MIN_BET_USD, min(bet_size, MAX_BET_USD))
         
         # Don't bet if we don't have enough
@@ -626,14 +625,17 @@ Only output the JSON, nothing else."""
             except Exception as e:
                 print(f"Supabase check failed: {e}")
 
+        # 0. Check Config State
+        current_config = load_config("smart_politics")
+        if not current_config.get("active", True):
+            print("   ⏸️ Smart Trader paused via Config. Sleeping...")
+            return
+
         # 2. Local Fallback
         try:
             with open("bot_state.json", "r") as f:
                 state = json.load(f)
-            if not state.get("smart_trader_running", True):
-                print("Smart Trader paused via dashboard. Sleeping...")
-                return
-            self.dry_run = state.get("dry_run", True)
+            self.dry_run = state.get("dry_run", True) or current_config.get("global_dry_run", False)
         except:
             pass
         
@@ -656,9 +658,9 @@ Only output the JSON, nothing else."""
         except:
             num_positions = len(self.positions)
         
-        print(f"   Balance: ${balance:.2f} | Active Positions: {num_positions}/{MAX_POSITIONS}")
+        print(f"   Balance: ${balance:.2f} | Active Positions: {num_positions}/{self.max_positions}")
         
-        if num_positions >= MAX_POSITIONS:
+        if num_positions >= self.max_positions:
             print(f"   ✓ At max positions ({num_positions}), waiting for resolutions...")
             self.save_state()
             return
@@ -680,7 +682,7 @@ Only output the JSON, nothing else."""
         # Analyze each market with LLM
         bets_placed = 0
         for market in markets:
-            if num_positions + bets_placed >= MAX_POSITIONS:
+            if num_positions + bets_placed >= self.max_positions:
                 break
             
             question = market.get("question", "")[:60]
@@ -712,7 +714,7 @@ Only output the JSON, nothing else."""
         """Save state for dashboard."""
         try:
             state = {
-                "smart_trader_last_activity": f"Positions: {len(self.positions)}/{MAX_POSITIONS} | Trades: {self.trades_made}",
+                "smart_trader_last_activity": f"Positions: {len(self.positions)}/{self.max_positions} | Trades: {self.trades_made}",
                 "smart_trader_positions": len(self.positions),
                 "smart_trader_trades": self.trades_made,
                 "smart_trader_invested": self.total_invested,

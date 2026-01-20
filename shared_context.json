@@ -11,7 +11,7 @@
     "esports_trader": 0.15
   },
   "total_balance": 36.277704,
-  "last_update": "2026-01-17T15:50:08.044788",
+  "last_update": "2026-01-20T10:14:09.106274",
   "agent_status": {
     "safe": {
       "active": true,
@@ -26,5 +26,31 @@
       "last_action": null
     }
   },
-  "session_start": "2026-01-17T15:22:09.850707"
+  "session_start": "2026-01-17T15:22:09.850707",
+  "broadcasts": [
+    {
+      "from": "USER",
+      "message": "scan now",
+      "data": {
+        "type": "command",
+        "target": "scalper"
+      },
+      "timestamp": "2026-01-20T10:13:08.444651",
+      "read_by": [
+        "scalper"
+      ]
+    },
+    {
+      "from": "USER",
+      "message": "scan now",
+      "data": {
+        "type": "command",
+        "target": "scalper"
+      },
+      "timestamp": "2026-01-20T10:13:54.573985",
+      "read_by": [
+        "scalper"
+      ]
+    }
+  ]
 }

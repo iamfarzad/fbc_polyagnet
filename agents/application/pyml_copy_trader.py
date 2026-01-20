@@ -13,6 +13,8 @@ from py_clob_client.order_builder.constants import BUY
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
 from agents.utils.context import get_context, Position, Trade
+from agents.utils.config import load_config
+from agents.application.smart_context import SmartContext
 
 # Import Supabase state manager
 try:
@@ -42,10 +44,13 @@ class CopyConfig(SharedConfig):
 class CopyTrader:
     AGENT_NAME = "copy"
     
+    AGENT_NAME = "copy"
+    
     def __init__(self):
-        self.config = CopyConfig()
+        self.config = load_config("copy_trader")
         self.pm = Polymarket()
-        self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
+        self.validator = Validator(SharedConfig(), "copy_trader")
+        self.smart_context = SmartContext()
         self.pm = Polymarket()
         self.validator = Validator(self.config, agent_name=self.AGENT_NAME)
         
@@ -82,6 +87,32 @@ class CopyTrader:
             logger.info("✅ Auto-Redeemer initialized for compounding.")
         except Exception as e:
             logger.warning(f"AutoRedeemer init failed: {e}")
+
+        # Self-Learning State
+        self.last_learning_time = 0
+        self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+
+    def run_learning_cycle(self):
+        """Run post-trade analysis to learn from mistakes."""
+        # Late import to avoid circular dependencies if any
+        try:
+            from agents.utils.mistake_analyzer import MistakeAnalyzer
+            analyzer = MistakeAnalyzer(agent_name=self.AGENT_NAME) 
+        except ImportError:
+            return
+
+        now = time.time()
+        if now - self.last_learning_time > self.LEARNING_INTERVAL:
+            try:
+                logger.info("🧠 Starting Self-Learning Cycle...")
+                lessons = analyzer.analyze_completed_trades(limit=5)
+                if lessons:
+                    logger.info(f"🎓 Learned {len(lessons)} new lessons from recent trades.")
+                else:
+                    logger.info("🧠 No new lessons to learn this cycle.")
+                self.last_learning_time = now
+            except Exception as e:
+                logger.warning(f"Self-learning cycle failed: {e}")
         
     def fetch_top_gainers(self, limit=10, period="24h"):
         """
@@ -164,13 +195,7 @@ class CopyTrader:
 
     def get_dynamic_max_bet(self) -> float:
         """Read dynamic max bet from bot_state.json"""
-        try:
-            if os.path.exists("bot_state.json"):
-                with open("bot_state.json", "r") as f:
-                    state = json.load(f)
-                return float(state.get("dynamic_max_bet", 5.0))
-        except:
-            pass
+        # SECURITY OVERRIDE: Hard cap at $5.00
         return 5.0
 
     def execute_trade(self, token_id: str, amount_usd: float, outcome: str, market_id: str = "", question: str = ""):
@@ -357,29 +382,52 @@ class CopyTrader:
                         is_valid, reason, conf = self.validator.validate(question, outcome, price, additional_context=ctx_info)
                         
                         if is_valid:
-                            logger.info(f"COPY SIGNAL: {question} ({outcome}) @ {price}")
-                            self.save_state({"last_signal": f"COPY {outcome}: {question[:30]}..."})
+                            # FADE LOGIC: Check if we want to bet against the whale
+                            fade_mode = self.config.get("fade_mode", False)
+                            final_outcome = outcome
+                            final_reasoning = f"Copied trade from {address[:6]}."
+
+                            if fade_mode:
+                                final_outcome = "No" if outcome == "Yes" else "Yes"
+                                final_reasoning = f"FADING trade from {address[:6]} (Whale is wrong)."
+                                logger.info(f"🔄 FADE MODE: Switching {outcome} -> {final_outcome}")
+
+                            logger.info(f"SIGNAL: {question} ({final_outcome}) @ {price}")
+                            self.save_state({"last_signal": f"{'FADE' if fade_mode else 'COPY'} {final_outcome}: {question[:30]}..."})
                              
                             if not is_dry_run:
                                 if token_id:
-                                    result = self.execute_trade(token_id, max_bet, outcome, market_id, question)
+                                    # If fading, we need the token ID for the OPPOSITE outcome
+                                    # This requires a lookup, for now we assume 'token_id' passed is correct for the logic
+                                    # TODO: Fix token ID for fading (requires market lookup)
+                                    # For MVP: Only support direct copy or simplified fade if IDs available
+                                    
+                                    # Simple Hack: We can't easily swap token_id without full market data
+                                    # So if fading, we skip for now OR we accept we need to fetch the other token
+                                    if fade_mode:
+                                        logger.warning("Fade mode requires market lookup for opposite token. Skipping execution for safety.")
+                                        continue
+                                    
+                                    result = self.execute_trade(token_id, max_bet, final_outcome, market_id, question)
                                     if result:
-                                        # Broadcast to other agents
                                         self.context.broadcast(
                                             self.AGENT_NAME,
-                                            f"Copy trade: {outcome} on {question[:30]}",
+                                            f"{'Faded' if fade_mode else 'Copied'} trade: {final_outcome} on {question[:30]}",
                                             {"market_id": market_id, "whale": address[:10], "price": price}
                                         )
                                 else:
-                                    logger.warning("No Token ID found in position data.")
+                                    logger.warning("No Token ID found.")
                             else:
-                                logger.info("[DRY RUN] Would Copy Trade.")
+                                logger.info(f"[DRY RUN] Would {'Fade' if fade_mode else 'Copy'} Trade: {final_outcome}")
                         
                 self.save_state({
                     "last_scan": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "status": "Scanning Complete"
                 })
                 
+                # Self-Learning Cycle
+                self.run_learning_cycle()
+
                 logger.info("Sleeping 60s before next scan...")
                 time.sleep(60)
                 

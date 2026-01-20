@@ -33,6 +33,13 @@ from agents.polymarket.polymarket import Polymarket
 from agents.utils.validator import Validator, SharedConfig
 from agents.utils.context import get_context, Position, Trade, LLMActivity
 
+# --- NEW INTELLIGENCE LAYER IMPORTS ---
+from agents.application.smart_context import SmartContext
+from agents.application.llm_analyst import LLMAnalyst
+from agents.application.hedge_fund_analyst import HedgeFundAnalyst
+from agents.utils.config import load_config
+from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
+
 # --- ESPORTS CONTRARIAN SYSTEM PROMPT ---
 ESPORTS_RISK_MANAGER_PROMPT = """You are a contrarian esports bettor and risk manager.
 Your GOAL is to find reasons NOT to bet on the favorite.
@@ -64,6 +71,13 @@ try:
 except ImportError:
     HAS_SUPABASE = False
     get_supabase_state = None
+
+# --- NEW INTELLIGENCE LAYER IMPORTS ---
+from agents.application.smart_context import SmartContext
+from agents.application.llm_analyst import LLMAnalyst
+from agents.application.hedge_fund_analyst import HedgeFundAnalyst
+from agents.utils.config import load_config
+from agents.utils.risk_engine import calculate_ev, kelly_size, check_drawdown
 
 load_dotenv()
 
@@ -1686,6 +1700,20 @@ class EsportsTrader:
         self.pm_esports = PolymarketEsports()
         self.data_aggregator = EsportsDataAggregator()
         self.model = WinProbabilityModel()
+        
+        # Load Config
+        self.config = load_config("esports")
+        self.dry_run = dry_run or self.config.get("global_dry_run", False)
+        
+        # Initialize Intelligence Layer ("The Brain")
+        self.context_system = SmartContext()
+        self.vibes_analyst = LLMAnalyst()
+        self.risk_manager = HedgeFundAnalyst()
+        
+        # Risk Settings from Config
+        self.min_edge = self.config.get("min_edge", 0.05)
+        self.max_bet = self.config.get("max_size", 10.0)
+        self.active = self.config.get("active", True)
 
         # Initialize Validator
         try:
@@ -1708,6 +1736,32 @@ class EsportsTrader:
         self.positions = {}  # market_id -> position data, token_id -> position data
         self.session_trades = 0
         self.session_pnl = 0.0
+
+        # Self-Learning State
+        self.last_learning_time = 0
+        self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+
+    def run_learning_cycle(self):
+        """Run post-trade analysis to learn from mistakes."""
+        # Late import to avoid circular dependencies if any
+        try:
+            from agents.utils.mistake_analyzer import MistakeAnalyzer
+            analyzer = MistakeAnalyzer(agent_name="EsportsTrader")
+        except ImportError:
+            return
+
+        now = time.time()
+        if now - self.last_learning_time > self.LEARNING_INTERVAL:
+            try:
+                print("   🧠 Starting Self-Learning Cycle...")
+                lessons = analyzer.analyze_completed_trades(limit=5)
+                if lessons:
+                    print(f"   🎓 Learned {len(lessons)} new lessons from recent trades.")
+                else:
+                    print(f"   🧠 No new lessons to learn this cycle.")
+                self.last_learning_time = now
+            except Exception as e:
+                print(f"   ⚠️ Self-learning cycle failed: {e}")
 
         # WALLET SYNC: Load existing positions to prevent duplicates
         try:
@@ -1918,7 +1972,7 @@ class EsportsTrader:
             elif self.balance < 300:
                 invisibility_cap = 15.0
             else:
-                invisibility_cap = 50.0
+                invisibility_cap = 5.0 # HARD CAP: $5.00 (Was $50.0)
         
         size = kelly_size(esports_allocation, ev, price, 
                          max_risk_pct=0.10, invisibility_cap=invisibility_cap)
@@ -2210,10 +2264,17 @@ Then a confidence score 0-1 on a new line."""
             # Fail safe: assume low liquidity if check fails
             return min(desired_size_usd, 10.0) 
 
-    def execute_trade(self, market: PolymarketMatch, side: str, our_prob: float, market_prob: float) -> bool:
-        """Execute a trade with safety checks and Kelly sizing."""
-        
-        # 0. SAFETY: Check for existing open orders on this token (Prevent Charlton Loop)
+    async def execute_trade(self, market: PolymarketMatch, win_prob: float, side: str, game_state: GameState = None):
+        """
+        Executes a trade if EV is positive and Risk Manager approves.
+        """
+        # Reload config to check for manual pause
+        current_config = load_config("esports")
+        if not current_config.get("active", True):
+            print(f"   ⏸️ Skipped: Agent paused via Config")
+            return False
+
+        # 0. SAFETY: Check for existing open orders
         token_id = market.yes_token if side == "YES" else market.no_token
         try:
             open_orders = self.pm_esports.pm.get_open_orders()
@@ -2222,58 +2283,66 @@ Then a confidence score 0-1 on a new line."""
                 return False
         except Exception as e:
             print(f"   ⚠️ Failed to check open orders: {e}")
-            # Fail safe: don't trade if we can't verify open orders
             return False
 
-        # 1. Calc Edge & EV
-        edge = our_prob - market_prob
-        # Simple EV approx: (Win Prob * Profit) - (Loss Prob * Risk)
-        # Profit = (1 - price), Risk = price
-        # EV = (our_prob * (1 - market_prob)) - ((1 - our_prob) * market_prob)
-        # Simplified for sizing: just pass the raw edge as EV proxy or use proper calc
-        entry_price = min(0.95, market.yes_price + 0.01) if side == "YES" else min(0.95, market.no_price + 0.01)
+        price = market.yes_price if side == "YES" else market.no_price
         
-        # Calculate EV for Kelly
-        potential_profit = 1.0 - entry_price
-        ev = (our_prob * potential_profit) - ((1.0 - our_prob) * entry_price)
-
-        # 1.5. Dynamic Whale Search
-        # If we have a Teemu signal (Edge > 0), check for Smart Money to scale up
-        cap_override = None
-        whale_found = False
-        try:
-            if self.get_market_whales(token_id):
-                whale_found = True
-                cap_override = 500.0 # Boost to $500 if trusting a whale
-        except: pass
-        
-        # 2. Get Sizing
-        bet_size = self.calculate_bet_size(ev=ev, price=entry_price, cap_override=cap_override)
-        
-        # Check if size is 0
-        if bet_size == 0:
-            print(f"   ⚠️ Bet size calculated as 0 (EV: {ev:.3f}, Price: {entry_price:.3f})")
-            return False
-            
-        # Gap A: Liquidity Depth Check (Prevent wiping the book)
-        liquidity_cap = self.check_liquidity_depth(token_id, bet_size)
-        if liquidity_cap < bet_size:
-            print(f"   ⚠️ Liquidity constrained: Capping size to ${liquidity_cap:.2f} (15% of depth)")
-            bet_size = liquidity_cap
-            
-        # Re-check 0 after liquidity cap
-        if bet_size < 1.0: # Minimum viable bet
-            print(f"   ⚠️ Bet size too small after liquidity cap: ${bet_size:.2f}")
+        # Calculate Base Edge
+        edge = win_prob - price
+        if edge < self.min_edge:
             return False
 
-        shares = bet_size / entry_price
-        edge_pct = abs(edge) * 100
+        # 1. GET FULL CONTEXT
+        market_depth_mock = {'bids': [], 'asks': []} 
+        full_ctx = self.context_system.get_full_context(market_depth_mock)
         
+        # 2. ASK RISK MANAGER (Analyst)
+        proposal = {
+            "ticker": f"{market.team1} vs {market.team2}",
+            "side": side,
+            "odds": price,
+            "edge": edge
+        }
+        
+        risk_analysis = self.risk_manager.analyze_trade_opportunity(full_ctx, proposal)
+        
+        if risk_analysis["decision"] == "REJECTED":
+            print(f"   🛡️ Risk Manager REJECTED: {risk_analysis['reasoning']}")
+            return False
+
+        risk_multiplier = risk_analysis.get("risk_adjustment_factor", 1.0)
+        
+        # 3. ASK LLM VIBES (Optional)
+        if current_config.get("use_llm", False) and game_state:
+            vibes = self.vibes_analyst.analyze_match(game_state.raw_data or {})
+            print(f"   🧠 LLM Vibe Check: {vibes['reasoning']} (Prob: {vibes['win_probability']})")
+        
+        # 4. CALCULATE SIZE & EXECUTE
+        balance = self.pm_esports.pm.get_balance()
+        ev = (win_prob * 1.0) - price
+        
+        # Using imported kelly_size from risk_engine
+        bet_size = kelly_size(
+            balance, 
+            ev, 
+            price, 
+            max_risk_pct=0.10, 
+            risk_multiplier=risk_multiplier
+        )
+        
+        # Hard cap from config
+        max_limit = 5.0 # HARD CAP: $5.00 (Was configurable)
+        bet_size = min(bet_size, max_limit)
+        
+        if bet_size < 1.0: # Minimum usable bet
+            print(f"   ⚠️ Bet size too small: ${bet_size:.2f}")
+            return False
+
+        entry_price = price + 0.01 # Crossing the spread slightly
+
         print(f"\n🎯 TRADE: {side} on {market.team1} vs {market.team2}")
-        print(f"   Our Prob: {our_prob*100:.1f}% | Market: {market_prob*100:.1f}% | Edge: +{edge_pct:.1f}%")
-        print(f"   Entry: ${entry_price:.3f} | Size: ${bet_size:.2f} | Shares: {shares:.1f}")
-        if whale_found:
-             print(f"   🐋 SIZE BOOSTED due to Whale Presence")
+        print(f"   Our Prob: {win_prob*100:.1f}% | Market: {price*100:.1f}% | Edge: +{edge*100:.1f}%")
+        print(f"   Entry: ${entry_price:.3f} | Size: ${bet_size:.2f} | Multiplier: {risk_multiplier}x")
         
         if self.dry_run:
             print(f"   [DRY RUN] Would execute trade")
@@ -2281,6 +2350,7 @@ Then a confidence score 0-1 on a new line."""
             return True
         
         # 3. Execute
+        shares = bet_size / entry_price
         result = self.pm_esports.place_order(token_id, "BUY", entry_price, shares)
         
         if result.get("success") or result.get("status") == "matched":
@@ -2994,6 +3064,10 @@ Then a confidence score 0-1 on a new line."""
             try:
                 poll_interval = self.scan_and_trade()
                 print(f"\n   ⏳ Next scan in {poll_interval}s...")
+                
+                # Self-Learning Cycle
+                self.run_learning_cycle()
+                
                 time.sleep(poll_interval)
                 
             except KeyboardInterrupt:

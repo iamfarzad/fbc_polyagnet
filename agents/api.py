@@ -44,6 +44,24 @@ except ImportError:
         HAS_SUPABASE = False
         get_supabase_state = None 
 
+# Import Master Config
+try:
+    from agents.utils.config import load_config, save_config, update_section
+except ImportError:
+    # Local dev fallback
+    from agents.agents.utils.config import load_config, save_config, update_section
+
+# Import FBP Agent
+try:
+    from agents.fbp_agent import FBPAgent
+except ImportError:
+    try:
+        from agents.agents.fbp_agent import FBPAgent
+    except ImportError:
+        FBPAgent = None
+
+
+
 # Setup Logging
 print("VERSION DEBUG: MAX BET ENABLED")
 logging.basicConfig(level=logging.INFO)
@@ -415,7 +433,96 @@ def fetch_trades_helper(limit=50):
         logger.error(f"Error fetching trades: {e}")
     return []
 
+# --- New Config & Manual Override Models ---
+class ConfigUpdatePayload(BaseModel):
+    agent: str
+    settings: Dict[str, Any]
+
+class ManualTradePayload(BaseModel):
+    action: str  # FORCE_BUY_YES, FORCE_BUY_NO, HALT
+    market_id: str
+    amount: float
+    reason: str = "Manual Override"
+
+# Global Queue for Manual Commands
+MANUAL_COMMAND_QUEUE = []
+
+# Global Chat Sessions
+CHAT_SESSIONS: Dict[str, Any] = {}
+
 # --- Endpoints ---
+
+class ChatRequest(BaseModel):
+    messages: List[Dict[str, str]]
+
+@app.post("/api/chat/{session_id}")
+async def chat_endpoint(session_id: str, req: ChatRequest):
+    """Chat with the FBP Agent."""
+    if not FBPAgent:
+        raise HTTPException(status_code=503, detail="FBP Agent logic not loaded")
+    
+    # Get or create session
+    if session_id not in CHAT_SESSIONS:
+        CHAT_SESSIONS[session_id] = FBPAgent(session_id=session_id)
+    
+    agent = CHAT_SESSIONS[session_id]
+    
+    # Process last user message
+    if not req.messages:
+        return {"response": "...", "tool_calls": []}
+        
+    last_msg = req.messages[-1]
+    if last_msg.get("role") != "user":
+         return {"response": "Waiting for user input...", "tool_calls": []}
+         
+    user_input = last_msg.get("content", "")
+    response_data = agent.process_message(user_input)
+    
+    return response_data
+
+@app.delete("/api/chat/{session_id}")
+def clear_chat_session(session_id: str):
+    """Reset a chat session."""
+    if session_id in CHAT_SESSIONS:
+        del CHAT_SESSIONS[session_id]
+    return {"status": "cleared"}
+
+
+@app.get("/api/config")
+def get_config():
+    """Get the full live configuration."""
+    return load_config()
+
+@app.post("/api/config")
+def update_full_config(payload: Dict[str, Any]):
+    """Update the entire configuration object."""
+    # Validate/Sanitize if needed
+    return save_config(payload)
+
+@app.post("/api/config/update")
+def update_agent_config(payload: ConfigUpdatePayload):
+    """Update a specific agent's section."""
+    return update_section(payload.agent, payload.settings)
+
+@app.post("/api/manual/trade")
+def manual_trade(cmd: ManualTradePayload):
+    """Queue a manual override command."""
+    logger.warning(f"🚨 MANUAL OVERRIDE: {cmd.action} on {cmd.market_id} (${cmd.amount})")
+    MANUAL_COMMAND_QUEUE.append(cmd.dict())
+    return {"status": "queued", "queue_length": len(MANUAL_COMMAND_QUEUE)}
+
+@app.get("/api/manual/queue")
+def get_manual_queue(agent_name: Optional[str] = None):
+    """
+    Agents poll this endpoint to see if there are manual commands.
+    Returns the next command in queue (FIFO).
+    """
+    if MANUAL_COMMAND_QUEUE:
+        # For now, simplistic FIFO. 
+        # In a real system, we might filter by market_id or agent_target.
+        cmd = MANUAL_COMMAND_QUEUE.pop(0) 
+        return {"command": cmd, "remaining": len(MANUAL_COMMAND_QUEUE)}
+    return {"command": None}
 
 @app.get("/api/dashboard", response_model=DashboardData)
 def get_dashboard(background_tasks: BackgroundTasks):
@@ -657,6 +764,13 @@ def update_config(req: ConfigUpdateRequest):
             try:
                 get_supabase_state().update_agent_state("global", {"is_dry_run": new_val})
             except: pass
+    # New: Granular Agent Configs
+    elif req.key.endswith("_confidence"):
+        # e.g. "scalper_confidence"
+        state[req.key] = req.value
+    elif req.key.endswith("_max_bet"):
+         # e.g. "scalper_max_bet" override
+         state[req.key] = req.value
     
     save_state(state)
     return {"status": "success", "state": state}
@@ -1612,3 +1726,72 @@ def get_llm_activity_endpoint(limit: int = 50, agent: str = None):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# --- Chat Endpoints ---
+
+# In-memory session store for chat history
+# Format: {session_id: [{"role": "...", "content": "..."}]}
+CHAT_SESSIONS: Dict[str, List[Dict[str, str]]] = {}
+
+class ChatRequest(BaseModel):
+    messages: List[Dict[str, str]] # Expects [{"role": "user", "content": "..."}] usually just the new one
+
+@app.post("/api/chat/{session_id}")
+async def chat_endpoint(session_id: str, req: ChatRequest):
+    """
+    Chat with the FBP Agent.
+    Maintains session history in memory.
+    """
+    # Lazy import to ensure it doesn't block startup if there are issues
+    try:
+        from agents import fbp_agent
+    except ImportError:
+        try:
+           import agents.agents.fbp_agent as fbp_agent
+        except:
+            raise HTTPException(status_code=500, detail="FBP Agent module not found")
+
+    # Initialize session if new
+    if session_id not in CHAT_SESSIONS:
+        CHAT_SESSIONS[session_id] = []
+    
+    # Append new user messages
+    user_msg = req.messages[-1] # We only really care about the last one for now
+    CHAT_SESSIONS[session_id].append(user_msg)
+    
+    # Run Agent Chat
+    # We pass the full history to the agent
+    try:
+        # Run in threadpool since it's blocking (requests)
+        import asyncio
+        loop = asyncio.get_event_loop()
+        
+        # Max 5 tool calls per turn
+        response_data = await loop.run_in_executor(
+            None, 
+            lambda: fbp_agent.chat(CHAT_SESSIONS[session_id], max_iterations=5)
+        )
+        
+        # Parse response
+        ai_msg = response_data["response"]
+        tool_calls = response_data["tool_calls"]
+        
+        # Update history with AI response
+        CHAT_SESSIONS[session_id].append({"role": "assistant", "content": ai_msg})
+        
+        return {
+            "response": ai_msg,
+            "tool_calls": tool_calls,
+            "history_len": len(CHAT_SESSIONS[session_id])
+        }
+        
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/chat/{session_id}")
+def clear_chat_session(session_id: str):
+    """Clear chat history for a session."""
+    if session_id in CHAT_SESSIONS:
+        del CHAT_SESSIONS[session_id]
+    return {"status": "cleared", "session_id": session_id}

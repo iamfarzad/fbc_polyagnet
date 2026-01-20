@@ -4,10 +4,10 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { getApiUrl, getWsUrl } from "@/lib/api-url"
-import { 
-  Brain, 
-  RefreshCw, 
-  Zap, 
+import {
+  Brain,
+  RefreshCw,
+  Zap,
   TrendingUp,
   Copy,
   ChevronDown,
@@ -57,17 +57,17 @@ interface LLMActivityData {
 }
 
 const AGENT_STYLES: Record<string, { color: string; icon: React.ReactNode }> = {
-  safe: { 
-    color: "text-emerald-400", 
-    icon: <TrendingUp className="h-3 w-3" /> 
+  safe: {
+    color: "text-emerald-400",
+    icon: <TrendingUp className="h-3 w-3" />
   },
-  scalper: { 
-    color: "text-amber-400", 
-    icon: <Zap className="h-3 w-3" /> 
+  scalper: {
+    color: "text-amber-400",
+    icon: <Zap className="h-3 w-3" />
   },
-  copy: { 
-    color: "text-violet-400", 
-    icon: <Copy className="h-3 w-3" /> 
+  copy: {
+    color: "text-violet-400",
+    icon: <Copy className="h-3 w-3" />
   },
 }
 
@@ -80,28 +80,28 @@ const CONCLUSION_COLORS: Record<string, string> = {
 
 function formatTime(timestamp: string): string {
   const date = new Date(timestamp)
-  return date.toLocaleTimeString("en-US", { 
-    hour12: false, 
-    hour: "2-digit", 
-    minute: "2-digit", 
-    second: "2-digit" 
+  return date.toLocaleTimeString("en-US", {
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
   })
 }
 
-function TerminalEntry({ 
-  activity, 
-  expanded, 
-  onToggle 
-}: { 
+function TerminalEntry({
+  activity,
+  expanded,
+  onToggle
+}: {
   activity: LLMActivity
   expanded: boolean
-  onToggle: () => void 
+  onToggle: () => void
 }) {
   const agentStyle = AGENT_STYLES[activity.agent] || AGENT_STYLES.safe
   const conclusionColor = CONCLUSION_COLORS[activity.conclusion] || CONCLUSION_COLORS.PASS
-  
+
   return (
-    <button 
+    <button
       type="button"
       className="terminal-entry hover:bg-secondary/30 cursor-pointer transition-colors w-full text-left"
       onClick={onToggle}
@@ -125,14 +125,14 @@ function TerminalEntry({
           <ChevronDown className="h-3 w-3 text-muted-foreground" />
         )}
       </div>
-      
+
       {/* Market question */}
       <div className="px-3 pb-2">
         <p className="font-mono text-[11px] text-muted-foreground truncate pl-[72px]">
           {activity.market_question}
         </p>
       </div>
-      
+
       {/* Result line */}
       <div className="flex items-center gap-2 px-3 pb-2 pl-[84px]">
         <span className="text-muted-foreground font-mono text-[10px]">►</span>
@@ -146,7 +146,7 @@ function TerminalEntry({
           {activity.duration_ms}ms
         </span>
       </div>
-      
+
       {/* Expanded details */}
       {expanded && (
         <div className="bg-secondary/20 border-t border-border/30 px-3 py-2.5 space-y-2.5 animate-fade-in">
@@ -157,16 +157,16 @@ function TerminalEntry({
               {activity.reasoning}
             </p>
           </div>
-          
+
           {/* Data sources */}
           {activity.data_sources && activity.data_sources.length > 0 && (
             <div className="pl-[72px]">
               <span className="text-muted-foreground/60 font-mono text-[9px] uppercase">Sources</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {activity.data_sources.map((source, i) => (
-                  <Badge 
-                    key={i} 
-                    variant="secondary" 
+                  <Badge
+                    key={i}
+                    variant="secondary"
                     className="font-mono text-[9px] bg-secondary text-muted-foreground h-4 rounded"
                   >
                     {source}
@@ -175,7 +175,7 @@ function TerminalEntry({
               </div>
             </div>
           )}
-          
+
           {/* Metrics */}
           <div className="flex items-center gap-4 pl-[72px] pt-1">
             <span className="font-mono text-[9px] text-muted-foreground/60">
@@ -191,7 +191,12 @@ function TerminalEntry({
   )
 }
 
-export function LLMTerminal() {
+interface LLMTerminalProps {
+  agentFilter?: string
+  className?: string
+}
+
+export function LLMTerminal(props: LLMTerminalProps) {
   const [data, setData] = useState<LLMActivityData | null>(null)
   const [loading, setLoading] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -244,10 +249,10 @@ export function LLMTerminal() {
     return () => {
       try {
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
-      } catch {}
+      } catch { }
       try {
         wsRef.current?.close()
-      } catch {}
+      } catch { }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -260,37 +265,40 @@ export function LLMTerminal() {
   }, [data?.activities?.length])
 
   const stats = data?.stats
-  const activities = data?.activities || []
+  const activities = (data?.activities || [])
+    .filter(a => !props.agentFilter || a.agent.toLowerCase() === props.agentFilter.toLowerCase())
 
   return (
-    <div className="h-full flex flex-col bg-background font-mono">
-      {/* Terminal Header */}
-      <div className="shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-border/40 glass">
-        <div className="flex items-center gap-2">
-          <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-[11px] font-semibold text-foreground">LLM TERMINAL</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <Circle className={`h-2 w-2 ${loading ? "text-amber-400" : "text-emerald-400"} fill-current`} />
-            <span className="text-[9px] text-muted-foreground">
-              {loading ? "syncing" : "live"}
-            </span>
+    <div className={`h-full flex flex-col bg-background font-mono ${props.className || ""}`}>
+      {/* Terminal Header - Only show if not embedded/filtered */}
+      {!props.agentFilter && (
+        <div className="shrink-0 flex items-center justify-between px-3 py-2.5 border-b border-border/40 glass">
+          <div className="flex items-center gap-2">
+            <Terminal className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-[11px] font-semibold text-foreground">LLM TERMINAL</span>
           </div>
-          <Button
-            onClick={fetchData}
-            disabled={loading}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0 hover:bg-secondary"
-          >
-            <RefreshCw className={`h-3 w-3 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <Circle className={`h-2 w-2 ${loading ? "text-amber-400" : "text-emerald-400"} fill-current`} />
+              <span className="text-[9px] text-muted-foreground">
+                {loading ? "syncing" : "live"}
+              </span>
+            </div>
+            <Button
+              onClick={fetchData}
+              disabled={loading}
+              size="sm"
+              variant="ghost"
+              className="h-6 w-6 p-0 hover:bg-secondary"
+            >
+              <RefreshCw className={`h-3 w-3 text-muted-foreground ${loading ? "animate-spin" : ""}`} />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Terminal Body */}
-      <div 
+      <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto overflow-x-hidden terminal-scroll"
       >

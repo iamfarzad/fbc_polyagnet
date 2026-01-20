@@ -38,12 +38,16 @@ except ImportError:
 
 load_dotenv()
 
-# --- CONFIGURATION ---
-MIN_BET_USD = 5.00                 # Unified $5 minimum across all agents
-MAX_BET_USD = 10.00                # Increased to $10 for more impact on $130 balance
-BET_PERCENT = 0.15                 # 15% of bankroll per bet
-MIN_CONFIDENCE = 0.55              # Lowered to 55% to be more aggressive
-SCAN_INTERVAL = 60                 # 1 minute for faster scanning
+# --- CONFIGURATION (DEFAULTS) ---
+DEFAULT_MIN_BET = 5.00
+DEFAULT_MAX_BET = 10.00
+DEFAULT_BET_PCT = 0.15
+DEFAULT_MIN_CONF = 0.55
+DEFAULT_SCAN_INTERVAL = 60
+
+# --- NEW INTELLIGENCE IMPORTS ---
+from agents.utils.config import load_config
+from agents.application.smart_context import SmartContext
 
 # Polymarket Sports Series IDs (for direct Gamma API)
 SPORTS_SERIES = {
@@ -89,21 +93,23 @@ class SportsTrader:
     AGENT_NAME = "sports_trader"
 
     def __init__(self, dry_run=True):
-        self.dry_run = dry_run
+        # Load Config
+        self.config = load_config("sports_trader")
+        self.dry_run = dry_run or self.config.get("global_dry_run", False)
+        
+        # Intelligence Layer
+        self.smart_context = SmartContext()
+        
         self.pm = Polymarket()
         self.validator = Validator(SharedConfig(), agent_name=self.AGENT_NAME)
-
-        # Check global dry run state from Supabase and override local setting
-        try:
-            from agents.utils.supabase_client import get_supabase_state
-            supabase = get_supabase_state()
-            if supabase:
-                global_dry_run = supabase.get_global_dry_run()
-                self.dry_run = global_dry_run
-                print(f"🔄 Overriding local dry_run={dry_run} with global dry_run={global_dry_run}")
-        except Exception as e:
-            print(f"⚠️ Could not check global dry run: {e}. Using local setting.")
         
+        # Config Values with defaults
+        self.min_bet = self.config.get("min_bet", DEFAULT_MIN_BET)
+        self.max_bet = self.config.get("max_bet", DEFAULT_MAX_BET)
+        self.bet_pct = self.config.get("bet_size_percent", DEFAULT_BET_PCT)
+        self.min_conf = self.config.get("min_confidence", DEFAULT_MIN_CONF)
+        self.scan_interval = self.config.get("scan_interval", DEFAULT_SCAN_INTERVAL)
+
         # Initialize Shared Context with robust import check
         try:
             from agents.utils.context import get_context, LLMActivity
@@ -136,10 +142,36 @@ class SportsTrader:
         print(f"="*60)
         print(f"🏟️ SPORTS TRADER - Direct Polymarket Mode")
         print(f"="*60)
-        print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE'}")
+        print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE'}")
         print(f"Data Source: Polymarket Gamma API (NO external API needed)")
-        print(f"Scan Interval: {SCAN_INTERVAL}s ({SCAN_INTERVAL//60} mins)")
+        print(f"Scan Interval: {self.scan_interval}s")
         print(f"Balance: ${self.balance:.2f}")
+
+        # Self-Learning State
+        self.last_learning_time = 0
+        self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+
+    def run_learning_cycle(self):
+        """Run post-trade analysis to learn from mistakes."""
+        # Late import to avoid circular dependencies if any
+        try:
+            from agents.utils.mistake_analyzer import MistakeAnalyzer
+            analyzer = MistakeAnalyzer(agent_name=self.AGENT_NAME) 
+        except ImportError:
+            return
+
+        now = time.time()
+        if now - self.last_learning_time > self.LEARNING_INTERVAL:
+            try:
+                print("   🧠 Starting Self-Learning Cycle...")
+                lessons = analyzer.analyze_completed_trades(limit=5)
+                if lessons:
+                    print(f"   🎓 Learned {len(lessons)} new lessons from recent trades.")
+                else:
+                    print("   🧠 No new lessons to learn this cycle.")
+                self.last_learning_time = now
+            except Exception as e:
+                print(f"   ⚠️ Self-learning cycle failed: {e}")
 
     def _state_file_paths(self) -> List[str]:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -390,7 +422,12 @@ class SportsTrader:
             return
 
         try:
-            order_args = OrderArgs(
+            # SECURITY: Hard Cap Enforcement
+                if size > 5.0:
+                    print(f"      ⚠️ Capping bet size to $5.00 (was ${size:.2f})")
+                    size = 5.0
+
+                order_args = OrderArgs(
                 token_id=str(token_id),
                 price=round(price + 0.01, 2), # Add 1c buffer for sports fills
                 size=size / price,
@@ -539,12 +576,12 @@ class SportsTrader:
                 print(f"      ⚠️ Validator Error: {e}")
                 continue
             
-            if is_valid and conf >= MIN_CONFIDENCE:
+            if is_valid and conf >= self.min_conf:
                 print(f"      ✅ GREEN LIGHT: {reason} (conf: {conf*100:.0f}%)")
                 
                 # Calculate bet size
-                bet_size = min(MAX_BET_USD, max(MIN_BET_USD, self.balance * BET_PERCENT))
-                if self.balance < MIN_BET_USD:
+                bet_size = min(5.0, min(self.max_bet, max(self.min_bet, self.balance * self.bet_pct))) # HARD CAP $5
+                if self.balance < self.min_bet:
                     print(f"      💸 Insufficient balance: ${self.balance:.2f}")
                     continue
                 
@@ -576,7 +613,7 @@ class SportsTrader:
                         print(f"      ⚠️ Failed to log PASS activity: {e}")
 
             # Log BET activity (Green Light)
-            if is_valid and conf >= MIN_CONFIDENCE and self.context and self.LLMActivity:
+            if is_valid and conf >= self.min_conf and self.context and self.LLMActivity:
                 import uuid
                 try:
                     self.context.log_llm_activity(self.LLMActivity(
@@ -631,6 +668,13 @@ class SportsTrader:
                 print("Paused via local state file.")
                 time.sleep(60)
                 continue
+            
+            # Check Config
+            current_config = load_config("sports_trader")
+            if not current_config.get("active", True):
+                 print("Paused via Config. Sleeping...")
+                 time.sleep(60)
+                 continue
 
             # 1. Auto-Redeem winning positions
             if self.redeemer:
@@ -670,8 +714,13 @@ class SportsTrader:
                 print(f"Error scanning markets: {e}")
             
             self.save_state()
-            print(f"\n⏳ Next scan in {SCAN_INTERVAL//60} minutes...")
-            time.sleep(SCAN_INTERVAL)
+            
+            # 4. Self-Learning Cycle
+            self.run_learning_cycle()
+
+            self.save_state()
+            print(f"\n⏳ Next scan in {self.scan_interval}s...")
+            time.sleep(self.scan_interval)
 
 if __name__ == "__main__":
     is_live = "--live" in sys.argv

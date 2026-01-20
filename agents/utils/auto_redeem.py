@@ -106,7 +106,10 @@ class AutoRedeemer:
         print(f"🔄 AutoRedeemer initialized")
         print(f"   Address: {self.address}")
         print(f"   Has PK: {bool(self.private_key)}")
-        print(f"   RPC: {POLYGON_RPC[:30]}...")
+
+        # Failure tracking to prevent loops
+        self.failed_attempts = {}
+
 
     def get_positions_from_api(self) -> List[Dict]:
         """Get current positions from Polymarket API."""
@@ -262,6 +265,12 @@ class AutoRedeemer:
 
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
         if not self.private_key: return None
+        
+        # STOP ZOMBIE LOOP: Check failures
+        if self.failed_attempts.get(condition_id, 0) > 3:
+            # print(f"   🛑 Skipping {condition_id[:10]}... (Too many failures)")
+            return None
+            
         try:
             if not condition_id.startswith("0x"): condition_id = "0x" + condition_id
             condition_bytes = bytes.fromhex(condition_id[2:].zfill(64))
@@ -349,6 +358,7 @@ class AutoRedeemer:
 
         except Exception as e:
             print(f"   ❌ Redemption error: {e}")
+            self.failed_attempts[condition_id] = self.failed_attempts.get(condition_id, 0) + 1
             return None
 
     def settlement_sniper(self):

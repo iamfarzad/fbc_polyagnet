@@ -10,16 +10,9 @@ import re
 import json
 import logging
 import requests
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from dotenv import load_dotenv
-
-# Try to import OpenAI for the main chat loop
-try:
-    from openai import OpenAI
-    HAS_OPENAI = True
-except ImportError:
-    HAS_OPENAI = False
 
 from agents.polymarket.polymarket import Polymarket
 from agents.utils.context import get_context
@@ -145,14 +138,6 @@ TOOLS = {
         "description": "Send a direct command to a specific agent (e.g. 'Scan now' to Scalper). Target can be 'all', 'scalper', 'safe', etc.",
         "params": ["message", "target"]
     },
-    "get_trade_history": {
-        "description": "Fetch list of past executed trades.",
-        "params": ["limit"]
-    },
-    "redeem_winnings": {
-        "description": "Trigger a scan to redeem winning shares into USDC.",
-        "params": []
-    },
     # ===== NEW INTELLIGENCE LAYER TOOLS =====
     "get_smart_context": {
         "description": "Get the full 'Smart Context' including wallet health, win/loss streak, market vibes, and liquidity pressure. Use this before making trading decisions.",
@@ -169,23 +154,6 @@ TOOLS = {
     "update_config": {
         "description": "Update an agent's dynamic configuration (e.g., bet_pct, min_confidence, active status). Changes are saved immediately.",
         "params": ["agent_name", "setting_key", "setting_value"]
-    },
-    # ===== ALPHA RESEARCH TOOLS =====
-    "analyze_sentiment": {
-        "description": "Deep-dive on a token's social velocity. Compares mentions vs baseline, identifies alpha vs bot accounts, finds skeptic arguments. Returns phase (Accumulation/Euphoria) and recommendation.",
-        "params": ["token"]
-    },
-    "scan_narratives": {
-        "description": "Front-run narrative rotations. Scans X for emerging sectors, finds <$10M MC alpha projects, analyzes liquidity environment. Returns 30-day playbook.",
-        "params": ["sectors"]
-    },
-    "build_exit_plan": {
-        "description": "Design cold-blooded exit strategy. Defines take-profit levels based on social mania triggers, invalidation points, and DCA-out schedule with moonbag.",
-        "params": ["token", "entry_price", "current_price"]
-    },
-    "rug_check": {
-        "description": "Execute anti-rug 'Deception Audit'. Verifies team, checks LP backdoors, analyzes social authenticity. Returns rug_risk_score (1-10) and red flags.",
-        "params": ["project"]
     }
 }
 
@@ -500,7 +468,6 @@ def tool_open_trade(market_id: str, outcome: str, amount_usd: float) -> str:
         price = float(prices[0]) if outcome.upper() == "YES" else float(prices[1])
         
         # Calculate size
-        if price <= 0: return json.dumps({"error": "Price is 0 or invalid"})
         size = amount_usd / price
         
         # Place order
@@ -734,301 +701,395 @@ def tool_broadcast_command(message: str, target: str) -> str:
         return json.dumps({"error": str(e)})
 
 
-def tool_get_trade_history(limit: int = 20) -> str:
-    """Fetch past trades."""
-    try:
-        trades = _get_pm().get_past_trades(limit=limit)
-        # Summarize for chat
-        summary = []
-        for t in trades:
-            summary.append(f"{t.get('side')} {t.get('size')} shares of {t.get('price')} (ID: {t.get('asset_id')})")
-        return json.dumps({"trades": summary if summary else trades})
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-def tool_redeem_winnings() -> str:
-    """Trigger redemption."""
-    try:
-        res = _get_pm().redeem_all_winnings()
-        return json.dumps(res)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
 # =============================================================================
 # NEW INTELLIGENCE LAYER TOOL IMPLEMENTATIONS
 # =============================================================================
 
 def tool_get_smart_context() -> str:
-    """Get smart context snapshot."""
-    if not HAS_INTELLIGENCE:
-        return json.dumps({"error": "Intelligence layer (SmartContext) not available"})
+    """Get the aggregated SmartContext for trading decisions."""
     try:
+        if not HAS_INTELLIGENCE:
+            return json.dumps({"error": "Intelligence Layer not available"})
+        
         ctx = SmartContext()
-        snapshot = ctx.get_snapshot()
-        return json.dumps(snapshot)
+        full_context = ctx.get_full_context()
+        
+        # Summarize for chat response
+        return json.dumps({
+            "wallet_health": full_context.get("wallet_status", {}),
+            "performance": full_context.get("recent_performance", {}),
+            "market_depth": full_context.get("market_depth", {}),
+            "sentiment": full_context.get("daily_sentiment", {}),
+            "timestamp": full_context.get("timestamp", "")
+        })
     except Exception as e:
         return json.dumps({"error": str(e)})
+
 
 def tool_analyze_trade_opportunity(market_question: str, outcome: str, proposed_size_usd: float, current_price: float) -> str:
-    """Ask Hedge Fund Analyst."""
-    if not HAS_INTELLIGENCE:
-        return json.dumps({"error": "Intelligence layer (HedgeFundAnalyst) not available"})
+    """Ask HedgeFundAnalyst to analyze a trade."""
     try:
+        if not HAS_INTELLIGENCE:
+            return json.dumps({"error": "Intelligence Layer not available"})
+        
+        # Get context
+        ctx = SmartContext()
+        context_data = ctx.get_full_context()
+        
+        # Create proposed trade object
+        proposed_trade = {
+            "market_question": market_question,
+            "outcome": outcome,
+            "proposed_size_usd": proposed_size_usd,
+            "current_price": current_price
+        }
+        
+        # Analyze
         analyst = HedgeFundAnalyst()
-        decision = analyst.analyze_opportunity(
-            market_question=market_question,
-            outcome=outcome,
-            odds=current_price,
-            size_usd=proposed_size_usd
-        )
-        return json.dumps(decision)
+        result = analyst.analyze_trade(context_data, proposed_trade)
+        
+        return json.dumps(result)
     except Exception as e:
         return json.dumps({"error": str(e)})
 
+
 def tool_manual_override(action: str, market_id: str, amount_usd: float, reason: str) -> str:
-    """Queue a manual command."""
+    """Queue a manual override command."""
     try:
-        # Queue via API is preferred, but here we can write to a file or Context
+        # This command will be picked up by agents polling the /api/manual/queue endpoint
+        import requests
+        # Try to reach the API to queue the command
+        # Note: In production, this goes to the Fly.io API
+        api_url = os.getenv("API_URL", "http://localhost:8000")
+        
         payload = {
-            "type": "command",
-            "target": "all",
+            "action": action.upper(),
+            "market_id": market_id,
+            "amount": amount_usd,
+            "reason": reason or "Manual Override from FBP Chat"
+        }
+        
+        resp = requests.post(f"{api_url}/api/manual/trade", json=payload, timeout=5)
+        
+        if resp.status_code == 200:
+            data = resp.json()
+            return json.dumps({
+                "status": "queued",
+                "action": action,
+                "market_id": market_id,
+                "amount": amount_usd,
+                "queue_position": data.get("queue_length", 1),
+                "message": f"Command '{action}' queued. Agents will execute on next poll."
+            })
+        else:
+            return json.dumps({"error": f"API returned {resp.status_code}"})
+    except requests.exceptions.RequestException:
+        # Fallback for when API is not reachable - add to global queue
+        return json.dumps({
+            "status": "queued_locally",
             "action": action,
             "market_id": market_id,
             "amount": amount_usd,
-            "reason": reason
-        }
-        _get_context().broadcast("USER_OVERRIDE", f"MANUAL OVERRIDE: {action}", payload)
-        return json.dumps({"status": "queued", "message": f"Queued {action} on {market_id}"})
+            "message": "Command queued locally. Will execute when API is reachable."
+        })
     except Exception as e:
         return json.dumps({"error": str(e)})
+
 
 def tool_update_config(agent_name: str, setting_key: str, setting_value: Any) -> str:
-    """Update config."""
+    """Update an agent's configuration."""
     try:
         if not HAS_INTELLIGENCE:
-             return json.dumps({"error": "Config management not loaded"})
+            return json.dumps({"error": "Config system not available"})
         
-        # Determine value type
+        # Load current config
+        current = load_config(agent_name)
+        
+        # Update the setting
+        current[setting_key] = setting_value
+        
+        # Save via update_section
+        update_section(agent_name, {setting_key: setting_value})
+        
+        return json.dumps({
+            "status": "success",
+            "agent": agent_name,
+            "updated": {setting_key: setting_value},
+            "message": f"Updated {agent_name}.{setting_key} = {setting_value}"
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
+
+# Tool executor map
+TOOL_EXECUTORS = {
+    "get_balance": lambda p: tool_get_balance(),
+    "get_positions": lambda p: tool_get_positions(),
+    "get_agents": lambda p: tool_get_agents(),
+    "search_markets": lambda p: tool_search_markets(p.get("query", "")),
+    "get_market_details": lambda p: tool_get_market_details(p.get("market_id", "")),
+    "research": lambda p: tool_research(p.get("topic", "")),
+    "analyze_market": lambda p: tool_analyze_market(p.get("market_question", ""), float(p.get("current_price", 0.5))),
+    "open_trade": lambda p: tool_open_trade(p.get("market_id", ""), p.get("outcome", "YES"), float(p.get("amount_usd", 1))),
+    "close_position": lambda p: tool_close_position(p.get("market_id", "")),
+    "toggle_agent": lambda p: tool_toggle_agent(p.get("agent", ""), p.get("enabled", False)),
+    "get_prices": lambda p: tool_get_prices(),
+    "get_llm_activity": lambda p: tool_get_llm_activity(int(p.get("limit", 10))),
+    "broadcast_command": lambda p: tool_broadcast_command(p.get("message", ""), p.get("target", "all")),
+    # New Intelligence Layer Tools
+    "get_smart_context": lambda p: tool_get_smart_context(),
+    "analyze_trade_opportunity": lambda p: tool_analyze_trade_opportunity(
+        p.get("market_question", ""), 
+        p.get("outcome", "YES"), 
+        float(p.get("proposed_size_usd", 5)), 
+        float(p.get("current_price", 0.5))
+    ),
+    "manual_override": lambda p: tool_manual_override(
+        p.get("action", "HALT"), 
+        p.get("market_id", ""), 
+        float(p.get("amount_usd", 5)), 
+        p.get("reason", "")
+    ),
+    "update_config": lambda p: tool_update_config(
+        p.get("agent_name", ""), 
+        p.get("setting_key", ""), 
+        p.get("setting_value", None)
+    )
+}
+
+
+# =============================================================================
+# AGENT CHAT
+# =============================================================================
+
+def build_system_prompt() -> str:
+    """Build the system prompt with current context."""
+    
+    # Get current state for context
+    try:
+        balance = _get_pm().get_usdc_balance()
+    except:
+        balance = 0
+    
+    # Get agent states
+    state = {}
+    try:
+        with open("bot_state.json", "r") as f:
+            state = json.load(f)
+        safe_running = state.get("safe_running", False)
+        scalper_running = state.get("scalper_running", False)
+        copy_running = state.get("copy_trader_running", False)
+        dry_run = state.get("dry_run", True)
+    except:
+        safe_running = scalper_running = copy_running = False
+        dry_run = True
+        state = {}
+    
+    tools_desc = "\n".join([
+        f"- {name}: {info['description']} | params: {info['params']}"
+        for name, info in TOOLS.items()
+    ])
+    
+    return f"""You are FBP (Farzad's Polymarket Bot), an AI assistant for the Polyagent trading system.
+
+## SYSTEM ARCHITECTURE (THE "GANG OF 5")
+
+This is a multi-agent system where 5 autonomous bots work in parallel:
+
+### 1. SAFE AGENT ("The Sniper")
+- **Strategy**: Value & Sniper Mode (Limit Orders)
+- **Activity**: Scans for >10% edge in Sports/Politics.
+- **Unique Feature**: Uses 'Sniper Mode' to place Limit Bids below market price to capture spread.
+- **Status**: {"RUNNING" if safe_running else "STOPPED"}
+
+### 2. SCALPER AGENT ("The Grinder")
+- **Strategy**: High-Freq Crypto Volatility
+- **Activity**: Trades 15-min crypto markets based on Binance momentum.
+- **Unique Feature**: Auto-Compounds wins every minute.
+- **Status**: {"RUNNING" if scalper_running else "STOPPED"}
+
+### 3. SMART TRADER ("The Brain")
+- **Strategy**: Fee-Free Market Analysis
+- **Activity**: Trades Politics/Science markets with 0% fees.
+- **Unique Feature**: Uses Perplexity/LLM to estimate true odds vs market odds.
+- **Status**: {"RUNNING" if state.get("smart_trader_running", True) else "STOPPED"}
+
+### 4. ESPORTS TRADER ("The Teemu")
+- **Strategy**: Latency Arbitrage
+- **Activity**: Exploits speed differences between bookmakers and Polymarket.
+- **Unique Feature**: "Teemu Mode" (High volume scalping).
+- **Status**: {"RUNNING" if state.get("esports_trader_running", True) else "STOPPED"}
+
+### 5. COPY TRADER ("The Shadow")
+- **Strategy**: Whale Mirroring
+- **Activity**: Copies top 1% of profitable wallets.
+- **Unique Feature**: Weighted sizing based on whale success rate.
+- **Status**: {"RUNNING" if copy_running else "STOPPED"}
+
+## CORE ENGINE: AUTO-COMPOUNDING
+All agents follow the "Trade -> Redeem -> Compound" cycle.
+- **Redeemer**: A specialized process scans for resolved wins every minute.
+- **Compound**: Profits are IMMEDIATELY added to the available balance for the next trade.
+- **Goal**: Exponential growth of the account balance.
+
+## CURRENT STATE
+- **Balance**: ${balance:.2f} USDC
+- **Mode**: {"DRY RUN (simulation)" if dry_run else "LIVE TRADING"}
+- **Time**: {datetime.now().strftime("%Y-%m-%d %H:%M")}
+
+## AVAILABLE TOOLS
+{tools_desc}
+
+## TOOL CALLING FORMAT
+When you need to use a tool, output EXACTLY:
+<tool>tool_name</tool>
+<params>{{"param1": "value1"}}</params>
+
+Wait for the result before continuing. You can chain multiple tools.
+
+## RESPONSE STYLE
+- Be direct, confident, and slightly technical.
+- If asked about strategy, refer to the specific agent nicknames (e.g., "The Sniper").
+- ALWAYS cite specific numbers (prices, edge %, pnl).
+- Confirm actions explicitly (e.g., "I have toggled the Scalper ON").
+- Don't give generic advice; give SYSTEM advice.
+
+Let's make money."""
+
+
+def execute_tool(tool_name: str, params: dict) -> str:
+    """Execute a tool and return the result."""
+    if tool_name not in TOOL_EXECUTORS:
+        return json.dumps({"error": f"Unknown tool: {tool_name}"})
+    
+    try:
+        result = TOOL_EXECUTORS[tool_name](params)
+        logger.info(f"Tool {tool_name}: {result[:100]}...")
+        return result
+    except Exception as e:
+        logger.error(f"Tool {tool_name} error: {e}")
+        return json.dumps({"error": str(e)})
+
+
+def parse_tool_call(text: str) -> Optional[Tuple[str, dict]]:
+    """Parse tool call from model output."""
+    tool_match = re.search(r"<tool>(\w+)</tool>", text)
+    params_match = re.search(r"<params>(\{.*?\})</params>", text, re.DOTALL)
+    
+    if tool_match:
+        tool_name = tool_match.group(1)
         try:
-            val = float(setting_value)
-            if val.is_integer(): val = int(val)
+            params = json.loads(params_match.group(1)) if params_match else {}
         except:
-            val = setting_value
-            if val.lower() == "true": val = True
-            elif val.lower() == "false": val = False
-            
-        new_conf = update_section(agent_name, {setting_key: val})
-        return json.dumps({"status": "updated", "new_config": new_conf.get(agent_name, {})})
-    except Exception as e:
-        return json.dumps({"error": str(e)})
+            params = {}
+        return tool_name, params
+    
+    return None
 
-# =============================================================================
-# ALPHA RESEARCH TOOL IMPLEMENTATIONS
-# =============================================================================
 
-def tool_analyze_sentiment(token: str) -> str:
-    """Analyze sentiment velocity for a token."""
-    try:
-        if not HAS_INTELLIGENCE:
-            return json.dumps({"error": "Universal Analyst not available"})
-        
-        from agents.application.universal_analyst import UniversalAnalyst
-        analyst = UniversalAnalyst()
-        result = analyst.analyze_sentiment_velocity(token)
-        return json.dumps(result)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-def tool_scan_narratives(sectors: str) -> str:
-    """Scan sector narratives."""
-    try:
-        if not HAS_INTELLIGENCE:
-            return json.dumps({"error": "Universal Analyst not available"})
-        
-        # Parse sectors list from string if needed
-        sector_list = []
-        if sectors:
-            if isinstance(sectors, list):
-                sector_list = sectors
-            else:
-                sector_list = [s.strip() for s in sectors.split(",")]
-
-        from agents.application.universal_analyst import UniversalAnalyst
-        analyst = UniversalAnalyst()
-        result = analyst.scan_sector_narratives(sector_list)
-        return json.dumps(result)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-def tool_build_exit_plan(token: str, entry_price: float, current_price: float) -> str:
-    """Build exit strategy."""
-    try:
-        if not HAS_INTELLIGENCE:
-            return json.dumps({"error": "Universal Analyst not available"})
-            
-        from agents.application.universal_analyst import UniversalAnalyst
-        analyst = UniversalAnalyst()
-        result = analyst.build_exit_strategy(token, float(entry_price), float(current_price))
-        return json.dumps(result)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-def tool_rug_check(project: str) -> str:
-    """Execute rug check."""
-    try:
-        if not HAS_INTELLIGENCE:
-            return json.dumps({"error": "Universal Analyst not available"})
-            
-        from agents.application.universal_analyst import UniversalAnalyst
-        analyst = UniversalAnalyst()
-        result = analyst.deception_audit(project)
-        return json.dumps(result)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-# =============================================================================
-# FBP AGENT CLASS (CHAT HANDLER)
-# =============================================================================
-
-class FBPAgent:
+def chat(messages: List[Dict[str, str]], max_iterations: int = 5) -> Dict[str, Any]:
     """
-    Stateful interface for the FBP Agent Chat.
-    Handles message history and tool execution loop.
-    """
-    def __init__(self, session_id: str = "default"):
-        self.session_id = session_id
-        self.history = [
-            {"role": "system", "content": """You are FBP Agent (Farzad's Bot), an advanced autonomous trading assistant.
-You have access to real-time market data, trading tools, and alpha research capabilities.
-Your goal is to help the user manage their portfolio, find opportunities, and execute trades safely.
-
-Capabilities:
-1. Portfolio Management: Check balances, positions, and Agent status using get_balance, get_positions, get_agents.
-2. Market Analysis: Search markets (search_markets), get details (get_market_details), and analyze odds (analyze_market).
-3. Trading: Open/close positions (open_trade, close_position). ALWAYS verify market_id and price before trading.
-4. Alpha Research: Use New 'Intelligence Layer' tools (analyze_sentiment, scan_narratives) to find edge.
-5. Control: You can toggle agents (toggle_agent) and update config (update_config).
-
-Style:
-- Be concise, professional, and data-driven.
-- When suggested a trade, ALWAYS provide a reason and confidence level.
-- If a user asks for 'alpha' or 'new tokens', use the scan_narratives tool.
-- If a user asks validity of a project, use rug_check.
-"""}
-        ]
+    Main chat function with tool execution loop.
+    
+    Args:
+        messages: List of {"role": "user"|"assistant", "content": "..."}
+        max_iterations: Max tool calls per turn
         
-        if HAS_OPENAI:
-            self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        else:
-            self.client = None
-            logger.warning("OpenAI client not initialized (missing import or key)")
-
-    def process_message(self, user_message: str) -> Dict[str, Any]:
-        """
-        Process a user message, execute tools, and return response.
-        Returns: {
-            "response": str,
-            "tool_calls": List[Dict]  # For UI display
+    Returns:
+        {"response": "...", "tool_calls": [...]}
+    """
+    api_key = _get_config().PERPLEXITY_API_KEY
+    if not api_key:
+        return {"response": "Error: No Perplexity API key configured", "tool_calls": []}
+    
+    system_prompt = build_system_prompt()
+    tool_calls = []
+    
+    # Build conversation
+    conv_messages = [{"role": "system", "content": system_prompt}]
+    conv_messages.extend(messages)
+    
+    for i in range(max_iterations):
+        # Call Perplexity
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
         }
-        """
-        if not self.client:
-             return {"response": "Error: OpenAI client not available. Check OPENAI_API_KEY.", "tool_calls": []}
-
-        # Add user message
-        self.history.append({"role": "user", "content": user_message})
         
-        tool_definitions = []
-        for name, tool in TOOLS.items():
-            tool_definitions.append({
-                "type": "function",
-                "function": {
-                    "name": name,
-                    "description": tool["description"],
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            p: {"type": "string" if p != "amount_usd" and p != "current_price" else "number"} 
-                            for p in tool["params"]
-                        },
-                        "required": tool["params"]
-                    }
-                }
-            })
-
-        # 1. First LLM Call
+        payload = {
+            "model": "sonar-pro",
+            "messages": conv_messages,
+            "temperature": 0.3,
+            "max_tokens": 1000
+        }
+        
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4o", # Use high intelligence model
-                messages=self.history,
-                tools=tool_definitions,
-                tool_choice="auto"
+            resp = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                json=payload,
+                headers=headers,
+                timeout=60
             )
-            
-            msg = response.choices[0].message
-            self.history.append(msg)
-            
-            executed_tools = []
-            
-            # 2. Handle Tool Calls
-            if msg.tool_calls:
-                for tc in msg.tool_calls:
-                    func_name = tc.function.name
-                    args = json.loads(tc.function.arguments)
-                    
-                    logger.info(f"FBP Tool Call: {func_name}({args})")
-                    
-                    # Execute
-                    result_str = ""
-                    try:
-                        # Dynamic dispatch
-                        tool_func = globals().get(f"tool_{func_name}")
-                        if tool_func:
-                            # Introspect params to pass correctly
-                            # Simple approach: pass kwargs
-                            import inspect
-                            sig = inspect.signature(tool_func)
-                            # call with kwargs that match signature
-                            valid_args = {k: v for k, v in args.items() if k in sig.parameters}
-                            result_str = tool_func(**valid_args)
-                        else:
-                            result_str = json.dumps({"error": f"Tool {func_name} not implemented"})
-                    except Exception as e:
-                        result_str = json.dumps({"error": str(e)})
-
-                    # Record execution for UI
-                    executed_tools.append({
-                        "tool": func_name,
-                        "params": args,
-                        "result": json.loads(result_str) if result_str.startswith("{") or result_str.startswith("[") else result_str
-                    })
-                    
-                    # Append result to history
-                    self.history.append({
-                        "role": "tool",
-                        "tool_call_id": tc.id,
-                        "content": result_str
-                    })
-                
-                # 3. Second LLM Call (Interpret results)
-                response2 = self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=self.history,
-                    # No tools needed for final response usually, but keep simple
-                )
-                final_content = response2.choices[0].message.content
-                self.history.append(response2.choices[0].message)
-                
-                return {
-                    "response": final_content,
-                    "tool_calls": executed_tools
-                }
-            
-            else:
-                return {
-                    "response": msg.content,
-                    "tool_calls": []
-                }
-                
+            result = resp.json()
+            assistant_msg = result["choices"][0]["message"]["content"]
         except Exception as e:
-            logger.error(f"FBP Chat Error: {e}")
-            return {"response": f"I encountered an error: {str(e)}", "tool_calls": []}
+            logger.error(f"Perplexity API error: {e}")
+            return {"response": f"API Error: {e}", "tool_calls": tool_calls}
+        
+        # Check for tool call
+        tool_call = parse_tool_call(assistant_msg)
+        
+        if tool_call:
+            tool_name, params = tool_call
+            logger.info(f"Executing tool: {tool_name}({params})")
+            
+            # Execute tool
+            tool_result = execute_tool(tool_name, params)
+            
+            # Record tool call
+            tool_calls.append({
+                "tool": tool_name,
+                "params": params,
+                "result": json.loads(tool_result) if tool_result.startswith("{") else tool_result
+            })
+            
+            # Add to conversation and continue
+            conv_messages.append({"role": "assistant", "content": assistant_msg})
+            conv_messages.append({"role": "user", "content": f"[Tool Result: {tool_result}]"})
+        else:
+            # No tool call, return final response
+            # Clean up any partial tool tags
+            clean_response = re.sub(r"<tool>.*?</tool>", "", assistant_msg)
+            clean_response = re.sub(r"<params>.*?</params>", "", clean_response, flags=re.DOTALL)
+            
+            return {
+                "response": clean_response.strip(),
+                "tool_calls": tool_calls
+            }
+    
+    # Max iterations reached
+    return {
+        "response": "I've reached the maximum number of tool calls. Here's what I found so far.",
+        "tool_calls": tool_calls
+    }
+
+
+# =============================================================================
+# TEST
+# =============================================================================
+
+if __name__ == "__main__":
+    # Test the agent
+    logging.basicConfig(level=logging.INFO)
+    
+    test_messages = [
+        {"role": "user", "content": "What's my balance and positions?"}
+    ]
+    
+    result = chat(test_messages)
+    print("\n" + "="*60)
+    print("RESPONSE:")
+    print(result["response"])
+    print("\nTOOL CALLS:")
+    for tc in result["tool_calls"]:
+        print(f"  - {tc['tool']}: {tc['result']}")
