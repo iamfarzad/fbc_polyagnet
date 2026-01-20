@@ -11,7 +11,7 @@ primary_region = "ams"
 
 [processes]
   api = "python3 -m uvicorn agents.api:app --host 0.0.0.0 --port 8000"
-  safe = "python3 -m agents.application.pyml_trader"
+  safe = "python3 -m agents.application.safe_trader"
   scalper = "python3 -m agents.application.pyml_scalper --live"
   copy = "python3 -m agents.application.pyml_copy_trader --live"
   smart = "python3 -m agents.application.smart_trader --live"
