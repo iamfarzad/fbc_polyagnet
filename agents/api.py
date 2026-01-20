@@ -444,8 +444,11 @@ class ManualTradePayload(BaseModel):
     amount: float
     reason: str = "Manual Override"
 
-# Global Queue for Manual Commands
-MANUAL_COMMAND_QUEUE = []
+# Global Queue for Manual Commands (Targeted)
+MANUAL_COMMAND_QUEUE = {
+    "esports": [],
+    "scalper": []
+}
 
 # Global Chat Sessions
 CHAT_SESSIONS: Dict[str, Any] = {}
@@ -507,21 +510,40 @@ def update_agent_config(payload: ConfigUpdatePayload):
 @app.post("/api/manual/trade")
 def manual_trade(cmd: ManualTradePayload):
     """Queue a manual override command."""
-    logger.warning(f"🚨 MANUAL OVERRIDE: {cmd.action} on {cmd.market_id} (${cmd.amount})")
-    MANUAL_COMMAND_QUEUE.append(cmd.dict())
-    return {"status": "queued", "queue_length": len(MANUAL_COMMAND_QUEUE)}
+    # Logic to determine target agent
+    target = "scalper" # Default
+    if "esports" in cmd.market_id.lower() or " vs " in cmd.market_id.lower() or "game" in cmd.market_id.lower():
+         target = "esports"
+    
+    logger.warning(f"🚨 MANUAL OVERRIDE ({target}): {cmd.action} on {cmd.market_id} (${cmd.amount})")
+    
+    if target in MANUAL_COMMAND_QUEUE:
+        MANUAL_COMMAND_QUEUE[target].append(cmd.dict())
+        queue_len = len(MANUAL_COMMAND_QUEUE[target])
+    else:
+        # Fallback if unknown target, put in scalper
+        MANUAL_COMMAND_QUEUE["scalper"].append(cmd.dict())
+        queue_len = len(MANUAL_COMMAND_QUEUE["scalper"])
+        
+    return {"status": "queued", "target": target, "queue_length": queue_len}
 
 @app.get("/api/manual/queue")
-def get_manual_queue(agent_name: Optional[str] = None):
+def get_manual_queue(agent_name: str):
     """
     Agents poll this endpoint to see if there are manual commands.
-    Returns the next command in queue (FIFO).
+    Returns the next command in queue (FIFO) for the specific agent.
     """
-    if MANUAL_COMMAND_QUEUE:
-        # For now, simplistic FIFO. 
-        # In a real system, we might filter by market_id or agent_target.
-        cmd = MANUAL_COMMAND_QUEUE.pop(0) 
-        return {"command": cmd, "remaining": len(MANUAL_COMMAND_QUEUE)}
+    # Normalize agent name
+    target = "scalper"
+    if agent_name and "esport" in agent_name.lower():
+        target = "esports"
+    elif agent_name and "scalper" in agent_name.lower():
+        target = "scalper"
+        
+    if target in MANUAL_COMMAND_QUEUE and MANUAL_COMMAND_QUEUE[target]:
+        cmd = MANUAL_COMMAND_QUEUE[target].pop(0) 
+        return {"command": cmd, "remaining": len(MANUAL_COMMAND_QUEUE[target])}
+    
     return {"command": None}
 
 @app.get("/api/dashboard", response_model=DashboardData)

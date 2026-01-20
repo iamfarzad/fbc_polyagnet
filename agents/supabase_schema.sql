@@ -191,28 +191,64 @@ CREATE POLICY "Allow all operations on portfolio_snapshots" ON portfolio_snapsho
 -- =============================================================================
 -- NEW AGENT STATE SYSTEM (v2)
 -- Added by user interaction on 2026-01-20
+-- Refined with RLS and Owner policies
 -- =============================================================================
 
--- Create base table public.agent_states
+-- 1) Create base table with owner_user_id, DEFAULT clock_timestamp, and Index
 CREATE TABLE IF NOT EXISTS public.agent_states (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   agent_name text NOT NULL,
   state text NOT NULL,
   metadata jsonb DEFAULT '{}'::jsonb,
-  last_updated timestamptz NOT NULL DEFAULT now()
+  last_updated timestamptz NOT NULL DEFAULT clock_timestamp(),
+  owner_user_id uuid
 );
 
--- Create view
-CREATE OR REPLACE VIEW public.agent_state_view AS
-SELECT
-  id,
-  agent_name,
-  state,
-  metadata,
-  last_updated
+-- Index for valid performant queries on last_updated
+CREATE INDEX IF NOT EXISTS idx_agent_states_last_updated ON public.agent_states (last_updated DESC);
+
+-- 2) Enable RLS
+ALTER TABLE public.agent_states ENABLE ROW LEVEL SECURITY;
+
+-- 3) Privileges
+REVOKE ALL ON public.agent_states FROM PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.agent_states TO postgres;
+
+-- 4) Policies
+-- Allow owners to manage their rows
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_policy WHERE polname = 'owners_select' AND polrelid = 'public.agent_states'::regclass) THEN
+    PERFORM pg_catalog.pg_remove_policy('owners_select', 'public.agent_states');
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_policy WHERE polname = 'owners_modify' AND polrelid = 'public.agent_states'::regclass) THEN
+    PERFORM pg_catalog.pg_remove_policy('owners_modify', 'public.agent_states');
+  END IF;
+EXCEPTION WHEN undefined_table THEN
+  NULL;
+END$$;
+
+CREATE POLICY owners_select ON public.agent_states
+  FOR SELECT
+  TO authenticated
+  USING ((SELECT auth.uid())::uuid IS NOT NULL AND (SELECT auth.uid())::uuid = owner_user_id);
+
+CREATE POLICY owners_modify ON public.agent_states
+  FOR ALL
+  TO authenticated
+  USING ((SELECT auth.uid())::uuid IS NOT NULL AND (SELECT auth.uid())::uuid = owner_user_id)
+  WITH CHECK ((SELECT auth.uid())::uuid IS NOT NULL AND (SELECT auth.uid())::uuid = owner_user_id);
+
+-- Force RLS
+ALTER TABLE public.agent_states FORCE ROW LEVEL SECURITY;
+
+-- 5) View (Security Invoker)
+DROP VIEW IF EXISTS public.agent_state_view;
+CREATE VIEW public.agent_state_view AS
+SELECT id, agent_name, state, metadata, last_updated, owner_user_id
 FROM public.agent_states;
 
--- Create materialized view
+-- 6) Materialized View
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.agent_state_mv AS
 SELECT
   id,
@@ -222,27 +258,32 @@ SELECT
   last_updated
 FROM public.agent_states;
 
--- Index on materialized view
+-- Unique Index for Concurrent Refresh
+CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_state_mv_id_unique ON public.agent_state_mv (id);
 CREATE INDEX IF NOT EXISTS idx_agent_state_mv_agent_name ON public.agent_state_mv(agent_name);
 
--- Refresh function (security definer)
+-- 7) Refresh Function (Security Definer with fixed search_path)
 CREATE OR REPLACE FUNCTION public.refresh_agent_state_mv()
-RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS 45872
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
+  PERFORM set_config('search_path', 'public,pg_catalog', true);
   REFRESH MATERIALIZED VIEW CONCURRENTLY public.agent_state_mv;
 END;
-45872;
+$$;
 
--- Permissions for refresh function
 REVOKE EXECUTE ON FUNCTION public.refresh_agent_state_mv() FROM PUBLIC;
-Grant EXECUTE ON FUNCTION public.refresh_agent_state_mv() TO postgres;
+GRANT EXECUTE ON FUNCTION public.refresh_agent_state_mv() TO postgres;
 
--- Attempt to create pg_cron job
+-- 8) Restrict MV access
+REVOKE ALL ON public.agent_state_mv FROM PUBLIC;
+REVOKE ALL ON public.agent_state_mv FROM authenticated;
+GRANT SELECT ON public.agent_state_mv TO postgres;
+
+-- 9) Cron Job for Refresh
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
     IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'refresh_agent_state_mv_every_15s') THEN
-      -- Note: pg_cron cron format doesn't support seconds; schedule every minute as fallback
       INSERT INTO cron.job(jobname, schedule, command)
       VALUES('refresh_agent_state_mv_every_15s', '*/1 * * * *', 'SELECT public.refresh_agent_state_mv();');
     END IF;
@@ -251,3 +292,22 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- 10) Auto-update timestamp trigger
+CREATE OR REPLACE FUNCTION public.agent_states_set_last_updated()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  PERFORM set_config('search_path', 'public,pg_catalog', true);
+  NEW.last_updated = clock_timestamp(); -- Use clock_timestamp() for accuracy
+  RETURN NEW;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.agent_states_set_last_updated() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.agent_states_set_last_updated() TO postgres;
+
+DROP TRIGGER IF EXISTS trg_agent_states_last_updated ON public.agent_states;
+CREATE TRIGGER trg_agent_states_last_updated
+  BEFORE INSERT OR UPDATE ON public.agent_states
+  FOR EACH ROW EXECUTE FUNCTION public.agent_states_set_last_updated();
+

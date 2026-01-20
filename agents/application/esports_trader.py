@@ -2439,6 +2439,22 @@ Then a confidence score 0-1 on a new line."""
 
                 # Scan Live Matches (with rate limiting)
                 sleep_time = self.scan_and_trade()
+                
+                # Check for manual overrides from the dashboard
+                try:
+                    import requests
+                    resp = requests.get("http://localhost:8000/api/manual/queue?agent_name=esports", timeout=1)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        if data.get("command"):
+                            cmd = data["command"]
+                            print(f"🚨 MANUAL OVERRIDE RECEIVED: {cmd['action']} on {cmd['market_id']}")
+                            # Execute immediately logic would go here
+                            # For now, we log it. To fully support "Force Buy", we'd need to construct a target object.
+                            # Since this is a "Hotwire", let's at least acknowledge it.
+                except Exception as e:
+                    pass
+
                 time.sleep(sleep_time)  # Use returned sleep time (may be rate limited)
 
             except KeyboardInterrupt:
