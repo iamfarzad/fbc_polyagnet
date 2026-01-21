@@ -9,3 +9,10 @@ node_modules/
 dist/
 build/
 *.DS_Store
+
+# Security & Logs
+*.log
+*_paper.log
+shared_context.json
+agents/bot_state.json
+bot_state.json
