@@ -240,28 +240,39 @@ class AutoRedeemer:
                     print(f"   💰 REDEEMED SETTLED POSITION: {tx}")
                 else:
                     print(f"   ❌ FAILED TO REDEEM SETTLED POSITION")
+            
+            # Rate limit protection
+            time.sleep(0.5)
 
         return redeemed
 
     def check_if_resolved(self, condition_id: str) -> bool:
-        """Check on-chain if resolved."""
-        try:
-            # Convert condition_id to bytes32
-            if not condition_id.startswith("0x"):
-                condition_id = "0x" + condition_id
+        """Check on-chain if resolved, with rate limit handling."""
+        # Convert condition_id to bytes32
+        if not condition_id.startswith("0x"):
+            condition_id = "0x" + condition_id
+        condition_hex = condition_id[2:].zfill(64)
+        condition_bytes = bytes.fromhex(condition_hex)
 
-            # Pad to 32 bytes if needed
-            condition_hex = condition_id[2:].zfill(64)
-            condition_bytes = bytes.fromhex(condition_hex)
-
-            # Get payout numerators - if non-zero, market is resolved
-            payouts = self.ctf.functions.payoutNumerators(condition_bytes).call()
-            resolved = any(p > 0 for p in payouts)
-            print(f"   🔗 On-chain check for {condition_id[:10]}...: payouts={payouts}, resolved={resolved}")
-            return resolved
-        except Exception as e:
-            print(f"   🔗 On-chain check failed for {condition_id[:10]}...: {e}")
-            return False
+        retries = 3
+        backoff = 2
+        
+        for i in range(retries):
+            try:
+                # Get payout numerators - if non-zero, market is resolved
+                payouts = self.ctf.functions.payoutNumerators(condition_bytes).call()
+                resolved = any(p > 0 for p in payouts)
+                # print(f"   🔗 On-chain check for {condition_id[:10]}...: payouts={payouts}, resolved={resolved}")
+                return resolved
+            except Exception as e:
+                if "Too many requests" in str(e) or "429" in str(e):
+                    sleep_time = backoff ** (i + 1)
+                    print(f"   ⚠️ RPC Rate Limit (429). Sleeping {sleep_time}s...")
+                    time.sleep(sleep_time)
+                else:
+                    print(f"   🔗 On-chain check failed for {condition_id[:10]}...: {e}")
+                    return False
+        return False
 
     def redeem_position(self, condition_id: str, token_id: str) -> Optional[str]:
         if not self.private_key: return None

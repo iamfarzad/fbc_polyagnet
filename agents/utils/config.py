@@ -13,7 +13,7 @@ DEFAULT_CONFIG = {
     "global_dry_run": True,
     
     "esports": {
-        "active": True,
+        "active": False,
         "mode": "aggressive",  # safe, aggressive, degen
         "max_size": 20.0,
         "min_edge": 0.02,
@@ -22,29 +22,29 @@ DEFAULT_CONFIG = {
     "scalper": {
         "active": True,
         "mode": "high_freq",   # high_freq, sniper
-        "max_size": 0.50,      # Default conservative
+        "max_size": 500.00,      # Default conservative
         "min_spread": 0.01,
         "use_llm_sentiment": False
     },
     "copy_trader": {
-        "active": True,
+        "active": False,
         "whale_tier": "gold",  # gold (trusted), silver (all)
         "max_copy_amount": 5.0,
         "fade_whales": False   # If True, bet AGAINST the whale
     },
     "smart_politics": {
-        "active": True,
+        "active": False,
         "max_size": 10.0,
         "min_confidence": 0.75
     },
     "sports_trader": {
-        "active": True,
+        "active": False,
         "leagues": ["NFL", "NBA", "MLB"],
         "max_size": 10.0,
         "min_edge": 0.03
     },
     "safe_trader": {
-        "active": True,
+        "active": False,
         "max_size": 5.0,
         "min_edge_pct": 15.0
     }

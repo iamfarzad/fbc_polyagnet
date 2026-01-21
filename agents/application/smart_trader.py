@@ -21,6 +21,9 @@ import requests
 from typing import Optional, Dict, List, Tuple
 from dotenv import load_dotenv
 
+CHECK_INTERVAL = 300  # 5 minutes
+MIN_EDGE_PERCENT = 10  # 10% edge required
+
 # Add parent paths for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -722,16 +725,21 @@ Only output the JSON, nothing else."""
                 "smart_trader_mode": "DRY RUN" if self.dry_run else "LIVE"
             }
             
+            # Resolve correct path: agents/bot_state.json
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # agents/
+            state_file = os.path.join(base_dir, "bot_state.json")
+            
             # Load existing state
             try:
-                with open("bot_state.json", "r") as f:
-                    existing = json.load(f)
-                existing.update(state)
-                state = existing
+                if os.path.exists(state_file):
+                    with open(state_file, "r") as f:
+                        existing = json.load(f)
+                    existing.update(state)
+                    state = existing
             except:
                 pass
             
-            with open("bot_state.json", "w") as f:
+            with open(state_file, "w") as f:
                 json.dump(state, f, indent=2)
                 
         except Exception as e:

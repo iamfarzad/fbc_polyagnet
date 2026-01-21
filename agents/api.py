@@ -313,6 +313,9 @@ class DashboardData(BaseModel):
     unrealizedPnl: float
     gasSpent: float
     total_redeemed: float = 0.0
+    scalp_profits_instant: float = 0.0
+    estimated_rebate_daily: float = 0.0
+    compounding_velocity: int = 0
     costs: Dict[str, float] = {}
     riskStatus: Dict[str, Any] # {safe: bool, message: str}
     agents: Dict[str, Dict[str, Any]]
@@ -758,7 +761,10 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "dryRun": state.get("dry_run", True),
         "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "walletAddress": wallet_address,
-        "maxBetAmount": state.get("dynamic_max_bet", 0.50) # Default 0.50 per manual override
+        "maxBetAmount": state.get("dynamic_max_bet", 0.50), # Default 0.50 per manual override
+        "scalp_profits_instant": sum(t['amount'] * 0.015 for t in all_trades if "Sell" in t.get('side', '')), # Approx 1.5% profit on Sells
+        "estimated_rebate_daily": vol_24h * 0.00035, # ~3.5bps avg maker rebate
+        "compounding_velocity": trade_count
     }
     
     # Update cache

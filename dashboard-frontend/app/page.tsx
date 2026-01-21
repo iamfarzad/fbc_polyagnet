@@ -29,6 +29,9 @@ interface DashboardData {
   unrealizedPnl: number
   gasSpent: number
   total_redeemed: number
+  scalp_profits_instant: number
+  estimated_rebate_daily: number
+  compounding_velocity: number
   costs: {
     openai: number
     perplexity: number
@@ -352,6 +355,16 @@ export default function Dashboard() {
         <div className="lg:col-span-3 flex flex-col gap-4">
           <AISuggestions />
           <AgentNetwork agents={agents} onToggle={toggleAgent} />
+
+          <FinancialsCard
+            data={{
+              ...data,
+              scalp_profits_instant: data.scalp_profits_instant || 0,
+              estimated_rebate_daily: data.estimated_rebate_daily || 0,
+              compounding_velocity: data.compounding_velocity || 0
+            }}
+          />
+
           <ActivityFeed className="flex-1 min-h-[200px]" />
         </div>
       </main>

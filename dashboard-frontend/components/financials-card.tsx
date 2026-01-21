@@ -15,6 +15,9 @@ interface FinancialsProps {
             neural_total: number
             infra_total: number
         }
+        scalp_profits_instant: number
+        estimated_rebate_daily: number
+        compounding_velocity: number
     }
 }
 
@@ -64,6 +67,35 @@ export function FinancialsCard({ data }: FinancialsProps) {
                     <div className="flex justify-between items-center text-[10px] mt-1">
                         <span className="text-muted-foreground">Polygon Gas (Est):</span>
                         <span className="text-red-400/80 font-mono">-${data.gasSpent.toFixed(2)}</span>
+                    </div>
+
+                    <Separator className="bg-border/20 my-2" />
+
+                    {/* Scalper Intel */}
+                    <div className="mt-4 space-y-1 bg-emerald-500/5 p-2 rounded border border-emerald-500/10">
+                        <div className="flex justify-between items-center text-[9px] text-emerald-500 font-bold uppercase">
+                            <span>Scalper Intel</span>
+                            <span className="animate-pulse">● Instant</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                            <span className="text-muted-foreground">Scalp Profits:</span>
+                            <span className="text-emerald-400">
+                                +${data.scalp_profits_instant.toFixed(2)}
+                            </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-muted-foreground">Velocity:</span>
+                            <span className="text-emerald-500/80">{data.compounding_velocity}x / day</span>
+                        </div>
+
+                        <Separator className="bg-border/20 my-1" />
+
+                        <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-muted-foreground">Pending Rebate:</span>
+                            <span className="text-blue-400">
+                                +${data.estimated_rebate_daily.toFixed(2)} (Daily)
+                            </span>
+                        </div>
                     </div>
 
                     <Separator className="bg-border/20 my-2" />

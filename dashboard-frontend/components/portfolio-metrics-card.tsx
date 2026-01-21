@@ -74,13 +74,16 @@ export function PortfolioMetricsCard({
                     </div>
                 </div>
 
-                {/* Trades */}
+                {/* Velocity */}
                 <div className="bg-card/50 p-4 space-y-1">
                     <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-violet-500" />
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Trades</span>
+                        <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Velocity</span>
                     </div>
-                    <div className="text-lg font-bold">{tradeCount}</div>
+                    <div className="text-lg font-bold">
+                        {tradeCount}<span className="text-muted-foreground/50 text-xs">/48</span>
+                    </div>
+                    <div className="text-[9px] text-violet-400 font-medium">Cycles Today</div>
                 </div>
             </div>
 

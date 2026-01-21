@@ -1,12 +1,12 @@
 """
-HYBRID SNIPER SCALPER (Production Ready)
-Optimized for 2026 Polymarket Fee Structure (~3% Taker Fees).
+SMART MAKER-ONLY SCALPER (Production Ready)
+Optimized for 2026 Polymarket Fee Structure (~0% Maker Fees).
 
 STRATEGY:
 1. Discovery: Scans 15-min "Up or Down" crypto markets.
 2. Entry: Smart Maker (Queue Jumper). Jumps big walls, joins small ones.
-3. Exit: Hybrid. Try Maker first, panic to Taker if PnL hits -2%.
-4. Safety: Dynamic timeouts (3s vs 15s) based on Binance volatility.
+3. Exit: Smart Maker Chasing. 100% Limit orders, chasing best ask every 3s.
+4. Safety: Dynamic timeouts (1s vs 10s) based on Binance volatility.
 """
 
 import os
@@ -66,27 +66,32 @@ from agents.utils.TradeRecorder import record_trade, update_agent_activity
 load_dotenv()
 
 # =============================================================================
-# CONFIGURATION
+# =============================================================================
+# =============================================================================
+# 4-WEEK SCALE CONFIG (MAX $500 CEILING)
 # =============================================================================
 
-# Portfolio & Size - 20% MAX ALLOCATION RULE
-MAX_POSITIONS = 5
-BET_PERCENT = 0.20                  # 20% of total wallet balance maximum allocation
-MIN_BET_USD = 5.00                  # Unified $5 minimum across all agents
-MAX_BET_USD = 5.00                  # Unified $5 max for consistent sizing
-MAX_DAILY_DRAWDOWN_PCT = 0.50       # Relaxed daily stop loss for testing
+# Portfolio & Size
+MAX_POSITIONS = 3                   # Start with 3, increase to 10 as balance grows
+BET_PERCENT = 0.33                  # Allocation stays at 33% until $1,500 balance
+MIN_BET_USD = 5.00                  
+MAX_BET_USD = 500.00                # <--- YOUR HARD CEILING
+MAX_DAILY_DRAWDOWN_PCT = 0.25       
 
-# Maker Execution (The Trap)
-LIMIT_ORDER_TIMEOUT_CALM = 10       # 10s in calm markets
-LIMIT_ORDER_TIMEOUT_VOLATILE = 2    # 2s in choppy markets (Anti-Adverse Selection)
-QUEUE_JUMP_THRESHOLD = 0.0          # Always jump to the front of the queue
-MAKER_OFFSET = 0.001                # Standard tick size
+# Sniper Execution (High-Certainty / Low-Fee)
+PRICE_CAP = 0.96                    # Stay in the low-fee "Certainty Zone"
+BASE_MOMENTUM_THRESHOLD = 0.0005    
 
-# Hybrid Exit (The Escape)
-TAKE_PROFIT_PCT = 0.025             # +2.5% Target (Maker)
-STOP_LOSS_PCT = -0.04               # -4.0% Hard Stop (Taker)
-PANIC_THRESHOLD_PCT = -0.02         # If -2.0% PnL, switch to Taker immediately
-EXIT_MAKER_TIMEOUT = 8              # Try maker exit for 8s
+# Queue Mastery
+QUEUE_JUMP_THRESHOLD = 0.0          # Always jump to the front
+MAKER_OFFSET = 0.001                # Stay at the head of the queue
+LIMIT_ORDER_TIMEOUT_CALM = 10       
+LIMIT_ORDER_TIMEOUT_VOLATILE = 1    # Rapid 1s reaction time
+EXIT_MAKER_TIMEOUT = 3              # Smart Chase every 3s
+
+# Smart Maker-Only Exit
+TAKE_PROFIT_PCT = 0.015             # Target +1.5% profit per cycle
+PANIC_THRESHOLD_PCT = -0.015        # Smart Maker Stop at -1.5%
 
 # Binance & Signal
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
@@ -96,11 +101,8 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-BASE_MOMENTUM_THRESHOLD = 0.0002    # 0.02% momentum - catch smaller moves
 MIN_LIQUIDITY_USD = 15              # Minimum order book depth
-PRICE_CAP = 0.75                    # Don't buy if price > $0.75 (risk > reward)
-MAX_POSITIONS = 5                   # Increased to 5 positions for $130 account
-MIN_SENTIMENT_CONFIDENCE = 0.51     # Lowered to 51% to be more aggressive
+MIN_SENTIMENT_CONFIDENCE = 0.30     # Lowered to 30% to catch more moves (>65% sentiment)
 
 
 class CryptoScalper:
@@ -165,13 +167,11 @@ class CryptoScalper:
         except: pass
 
         print(f"="*60)
-        print(f"🧬 HYBRID SNIPER SCALPER (Production Ready)")
+        print(f"🧬 SMART MAKER-ONLY SCALPER (Production Ready)")
         print(f"="*60)
         print(f"Mode: {'DRY RUN' if self.dry_run else '🔴 LIVE'}")
         print(f"Timeouts: {LIMIT_ORDER_TIMEOUT_VOLATILE}s (Volatile) - {LIMIT_ORDER_TIMEOUT_CALM}s (Calm)")
-        print(f"Exit: Maker first, Panic Taker at {PANIC_THRESHOLD_PCT*100}% PnL")
-        print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
-        print(f"="*60)
+        print(f"Exit: Smart Maker Chasing (Profit: {TAKE_PROFIT_PCT*100}% | Stop: {PANIC_THRESHOLD_PCT*100}%)")
         print(f"Queue Logic: Jump wall if size > ${QUEUE_JUMP_THRESHOLD}")
         print(f"="*60)
 
@@ -589,7 +589,7 @@ class CryptoScalper:
         size = base_size * volatility_multiplier.get(asset, 0.8) * experience_multiplier
         return min(MAX_BET_USD, max(MIN_BET_USD, size))
 
-    def open_position_maker(self, market, direction):
+    def open_position_maker(self, market, direction, momentum=0.0, sentiment_score=0.5):
         market_id = market["id"]
 
         # Select target token based on momentum direction
@@ -641,9 +641,9 @@ class CryptoScalper:
             print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $5.01+)")
             return False
 
-        max_size_cfg = current_config.get("max_size", 5.0)
+        max_size_cfg = current_config.get("max_size", MAX_BET_USD)
         # 20% rule but capped by config
-        size_usd = min(max_size_cfg, balance * 0.20) 
+        size_usd = min(max_size_cfg, balance * BET_PERCENT) 
         
         # 3.5 LLM CHECK (Optional)
         if self.use_llm:
@@ -720,33 +720,45 @@ class CryptoScalper:
     # -------------------------------------------------------------------------
 
     def manage_positions(self):
-        """Check exits for all active positions."""
+        """Check exits for all active positions (Smart Maker-Only)."""
         for token_id, pos in list(self.active_positions.items()):
+            # 1. Get real-time prices (Prefer WS cache)
             _, best_bid, _, best_ask = self.get_current_price(token_id)
-
-            # PnL Calc (Mark-to-Market against Best Bid)
             if best_bid == 0: continue
+
+            # 2. Calculate PnL relative to current Bid
             pnl_pct = (best_bid - pos["entry_price"]) / pos["entry_price"]
 
-            # 1. PANIC EXIT (Taker)
-            if pnl_pct < PANIC_THRESHOLD_PCT:
-                print(f"   🚨 PANIC EXIT: {pos['asset']} PnL {pnl_pct*100:.1f}%")
-                if not self.dry_run:
-                    self.pm.execute_market_order([{'metadata': {'clob_token_ids': str([None, token_id])}}], pos['size'])
-                self.panic_exits += 1
-                self.total_pnl += (pnl_pct * pos["size"] * pos["entry_price"])
-                self._log("PANIC_STOP", pos["asset"], f"Taker Exit triggered at {pnl_pct*100:.1f}% PnL", 1.0)
-                del self.active_positions[token_id]
-                continue
+            # 3. Check if we already have a pending exit order for this position
+            existing_exit = next((oid for oid, meta in self.pending_orders.items() 
+                                 if meta["type"] == "exit" and meta["token_id"] == token_id), None)
 
-            # 2. TARGET HIT (Maker)
-            if pnl_pct > TAKE_PROFIT_PCT:
-                # Place Maker Sell at Best Ask - 0.001
+            # 4. Trigger "Smart Maker" Exit if Target Hit OR Stop Loss Hit
+            if pnl_pct > TAKE_PROFIT_PCT or pnl_pct < PANIC_THRESHOLD_PCT:
+                
+                # The "Smart" part: If the market moved, cancel the old order and jump to the new front
+                if existing_exit:
+                    current_order_price = self.pending_orders[existing_exit].get("price")
+                    # If we aren't the best ask anymore, we are stuck. Cancel and re-place.
+                    target_price = round(best_ask - MAKER_OFFSET, 3)
+                    if current_order_price != target_price:
+                        print(f"   🔄 CHASING FILL: Moving {pos['asset']} exit to front of queue (${target_price})...")
+                        if not self.dry_run:
+                            try: self.pm.client.cancel(existing_exit)
+                            except: pass
+                        del self.pending_orders[existing_exit]
+                    else:
+                        continue # Already at the front, just wait for fill
+
+                # Calculate aggressive Maker exit (head of the 'Ask' queue)
                 sell_price = round(best_ask - MAKER_OFFSET, 3)
-                print(f"   💰 TARGET HIT: Placing Maker Sell @ ${sell_price}")
+                action_label = "PROFIT" if pnl_pct > TAKE_PROFIT_PCT else "STOP"
+                print(f"   💰 {action_label}: Placing Aggressive Maker Sell @ ${sell_price}")
 
                 if self.dry_run:
                     self.total_pnl += (pnl_pct * pos["size"] * pos["entry_price"])
+                    # In dry run, we assume instant fill for simplicity, or we could simulate waiting
+                    # For now, let's remove it to simulate 'filled'
                     del self.active_positions[token_id]
                     continue
 
@@ -757,12 +769,11 @@ class CryptoScalper:
                             "type": "exit",
                             "time": time.time(),
                             "token_id": token_id,
-                            "timeout": EXIT_MAKER_TIMEOUT
+                            "price": sell_price,
+                            "timeout": EXIT_MAKER_TIMEOUT # Fast rotation
                         }
-                        # We don't delete from active_positions until confirmed filled/gone
-                        # But for simplicity in this loop, we mark it 'exiting' state?
-                        # For now, just leave it. If order fills, position disappears from sync_positions.
-                except: pass
+                except Exception as e:
+                    print(f"   ❌ Maker Exit Failed: {e}")
 
     # -------------------------------------------------------------------------
     # UTILS
@@ -965,14 +976,14 @@ class CryptoScalper:
                 # Reload Config Dynamic
                 # (Optional: Check bot_state.json for updates)
                 
-                if self.redeemer:
-                    try:
-                        print("   🔄 RUNNING AUTO-REDEEMER...")
-                        result = self.redeemer.scan_and_redeem()
-                        if result and result.get('redeemed', 0) > 0:
-                            print(f"   💰 REDEEMED: {result['redeemed']} positions")
-                    except Exception as e:
-                        print(f"   ❌ REDEEMER ERROR: {e}")
+                # if self.redeemer:
+                #     try:
+                #         print("   🔄 RUNNING AUTO-REDEEMER...")
+                #         result = self.redeemer.scan_and_redeem()
+                #         if result and result.get('redeemed', 0) > 0:
+                #             print(f"   💰 REDEEMED: {result['redeemed']} positions")
+                #     except Exception as e:
+                #         print(f"   ❌ REDEEMER ERROR: {e}")
                 else:
                     print("   ⚠️ NO REDEEMER INITIALIZED")
 
@@ -1023,7 +1034,7 @@ class CryptoScalper:
                                 if momentum_signal == sentiment_signal:
                                     direction = "UP" if momentum_signal else "DOWN"
                                     print(f"   🎯 STRONG SIGNAL: {asset.upper()} {direction} ({momentum:.4f}% momentum, {confidence:.1f} confidence)")
-                                    self.open_position_maker(m, direction)
+                                    self.open_position_maker(m, direction, momentum, sentiment_score)
                                 else:
                                     print(f"   ⚠️ CONFLICTING SIGNALS: {asset.upper()} momentum={momentum:.4f}%, sentiment={sentiment_score:.2f} - SKIPPING")
                             except Exception as e:

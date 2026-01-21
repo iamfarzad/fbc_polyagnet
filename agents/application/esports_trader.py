@@ -1706,6 +1706,14 @@ class EsportsTrader:
         self.config = load_config("esports")
         self.dry_run = dry_run or self.config.get("global_dry_run", False)
         
+        # Rate Limiting
+        self.hour_start_time = time.time()
+        self.requests_this_hour = 0
+        self.minute_start_time = time.time() 
+        self.requests_this_minute = 0
+        self.api_requests_this_hour = 0
+        self.api_requests_this_minute = 0
+        
         # Initialize Intelligence Layer ("The Brain")
         self.context_system = SmartContext()
         self.vibes_analyst = LLMAnalyst()
@@ -1731,16 +1739,75 @@ class EsportsTrader:
         except Exception as e:
             print(f"⚠️ Context init failed: {e}")
             self.context = None
+            self.context = None
             self.LLMActivity = None
 
+        # Initialize AutoRedeemer
+        if HAS_REDEEMER:
+            try:
+                self.redeemer = AutoRedeemer()
+                print("✅ AutoRedeemer initialized")
+            except Exception as e:
+                print(f"⚠️ AutoRedeemer init failed: {e}")
+                self.redeemer = None
+        else:
+            self.redeemer = None
+
         # State
-        self.positions = {}  # market_id -> position data, token_id -> position data
+        self.positions = {}  # In-memory "session" positions logic
+        self.held_positions = {}  # Actual chain state for duplicates check
         self.session_trades = 0
         self.session_pnl = 0.0
+        self.last_live_poll = 0
+        self.last_activity_log = 0
 
         # Self-Learning State
         self.last_learning_time = 0
         self.LEARNING_INTERVAL = 3600 * 4  # Run analysis every 4 hours
+        
+        # Initial State Sync
+        self.sync_positions()
+
+    def sync_positions(self):
+        """Fetch active positions from Polymarket API to prevent duplicate entries."""
+        self.held_positions = {} # Reset
+        
+        if self.dry_run: 
+            return
+
+        print("   🔄 SYNC_POSITIONS: restoring state from chain...")
+        try:
+            # Access PM instance through wrapper
+            pm = self.pm_esports.pm
+            # Handle different PM wrapper versions safely
+            user = None
+            if hasattr(pm, 'funder_address') and pm.funder_address:
+                user = pm.funder_address
+            elif hasattr(pm, 'get_address_for_private_key'):
+                user = pm.get_address_for_private_key()
+            elif hasattr(pm, 'account') and hasattr(pm.account, 'address'):
+                user = pm.account.address
+                
+            if not user:
+                print("   ⚠️ Could not determine user address for sync")
+                return
+            
+            url = f"https://data-api.polymarket.com/positions?user={user}"
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                positions = resp.json()
+                count = 0
+                for p in positions:
+                    size = float(p.get("size", 0))
+                    if size > 0.1: # Filter dust
+                        self.held_positions[p["asset"]] = size
+                        count += 1
+                print(f"   ✅ Restored {count} active positions from API")
+            else:
+                print(f"   ⚠️ Failed to fetch positions: {resp.status_code}")
+                
+        except Exception as e:
+            print(f"   ⚠️ Sync positions failed: {e}")
 
     def run_learning_cycle(self):
         """Run post-trade analysis to learn from mistakes."""
@@ -1764,85 +1831,6 @@ class EsportsTrader:
             except Exception as e:
                 print(f"   ⚠️ Self-learning cycle failed: {e}")
 
-        # WALLET SYNC: Load existing positions to prevent duplicates
-        try:
-            import requests
-            # Use Polymarket Data API directly (same as dashboard)
-            dashboard_wallet = os.getenv("DASHBOARD_WALLET", "0xdb1f88Ab5B531911326788C018D397d352B7265c")
-            url = f"https://data-api.polymarket.com/positions?user={dashboard_wallet}"
-            resp = requests.get(url, timeout=10)
-
-            if resp.status_code == 200:
-                current_positions = resp.json()
-                synced_count = 0
-                for pos in current_positions:
-                    # Track by asset_id (token contract) to prevent duplicate positions
-                    asset_id = pos.get('asset', '')  # This is the token contract address
-                    if asset_id and float(pos.get('size', 0)) > 0:  # Only track positions with size > 0
-                        self.positions[asset_id] = {
-                            'size': float(pos.get('size', 0)),
-                            'value': float(pos.get('currentValue', 0)),
-                            'cost': float(pos.get('cost', 0)),
-                            'outcome': pos.get('outcome', ''),
-                            'market': pos.get('title', pos.get('question', 'Unknown')),
-                            'synced': True  # Mark as synced from wallet
-                        }
-                        synced_count += 1
-                print(f"✅ WALLET SYNC: Loaded {synced_count} existing positions from Polymarket")
-            else:
-                print(f"⚠️ WALLET SYNC: API error {resp.status_code} - continuing without sync")
-        except Exception as e:
-            print(f"⚠️ WALLET SYNC: Could not sync existing positions: {e}")
-            # Continue anyway - better to trade with potential duplicates than not trade at all
-
-        # API Rate Limiting
-        self.last_request_time = 0
-        self.api_requests_this_hour = 0
-        self.api_requests_this_minute = 0
-        self.hour_start_time = time.time()
-        self.minute_start_time = time.time()
-        
-        # Tiered Polling State
-        self.last_live_poll = 0
-        self.whale_watch_only = False
-        self.last_activity_log = 0
-        
-        # Get balance with error logging
-        try:
-            self.balance = self.pm_esports.pm.get_usdc_balance()
-            print(f"   💰 Initial balance: ${self.balance:.2f}")
-        except Exception as e:
-            print(f"   ⚠️ Balance retrieval error: {e}")
-            self.balance = 0
-        
-        print("=" * 60)
-        print("🎮 ESPORTS LIVE TRADER - TeemuTeumuTeumu Style")
-        print("=" * 60)
-        print(f"Mode: {'DRY RUN' if dry_run else '🔴 LIVE TRADING'}")
-        print(f"Balance: ${self.balance:.2f}")
-        print(f"Min Edge: {MIN_EDGE_PERCENT}% (from {'env var' if os.getenv('MIN_EDGE_PERCENT') else 'default'})")
-        print(f"Bet Size: ${MIN_BET_USD}-${MAX_BET_USD} (fixed small amounts)")
-        print(f"Strategy: Hybrid - Market edges + Live data when available")
-        print(f"Markets: 900+ live esports markets discovered")
-        print("=" * 60)
-        print()
-        
-        # Check API keys
-        has_pandascore = bool(os.getenv("PANDASCORE_API_KEY"))
-        has_riot = bool(os.getenv("RIOT_API_KEY"))
-        print(f"📡 Data Sources:")
-        print(f"   PandaScore API: {'✅' if has_pandascore else '❌ (get free key at pandascore.co)'}")
-        print(f"   Riot API: {'✅' if has_riot else '⚠️ (optional, for direct LoL data)'}")
-        print()
-        
-        # Initialize auto-redeemer for winning positions
-        self.redeemer = None
-        if HAS_REDEEMER:
-            try:
-                self.redeemer = AutoRedeemer()
-                print(f"✅ Auto-redeemer initialized")
-            except Exception as e:
-                print(f"⚠️ Auto-redeemer not available: {e}")
     
     def match_market_to_live_game(self, market: PolymarketMatch, live_matches: List[Dict]) -> Tuple[Optional[Dict], bool]:
         """
@@ -2265,7 +2253,7 @@ Then a confidence score 0-1 on a new line."""
             # Fail safe: assume low liquidity if check fails
             return min(desired_size_usd, 10.0) 
 
-    async def execute_trade(self, market: PolymarketMatch, win_prob: float, side: str, game_state: GameState = None):
+    def execute_trade(self, market: PolymarketMatch, win_prob: float, side: str, game_state: GameState = None):
         """
         Executes a trade if EV is positive and Risk Manager approves.
         """
@@ -2286,7 +2274,8 @@ Then a confidence score 0-1 on a new line."""
             print(f"   ⚠️ Failed to check open orders: {e}")
             return False
 
-        price = market.yes_price if side == "YES" else market.no_price
+        price = float(market.yes_price if side == "YES" else market.no_price)
+        win_prob = float(win_prob)
         
         # Calculate Base Edge
         edge = win_prob - price
@@ -2347,6 +2336,18 @@ Then a confidence score 0-1 on a new line."""
         
         if self.dry_run:
             print(f"   [DRY RUN] Would execute trade")
+            
+            # Record PAPER trade
+            record_trade(
+                agent_name="esports_trader",
+                market=f"{market.team1} vs {market.team2}",
+                side=side,
+                amount=bet_size,
+                price=entry_price,
+                token_id=token_id,
+                reasoning=f"[PAPER] Edge: {edge*100:.1f}% | Strategy: {strategy_name if 'strategy_name' in locals() else 'unknown'}"
+            )
+            
             self.session_trades += 1
             return True
         
@@ -2456,6 +2457,11 @@ Then a confidence score 0-1 on a new line."""
                 try:
                     self.balance = self.pm_esports.pm.get_usdc_balance()
                 except: pass
+                
+                # Mock balance for Dry Run if empty wallet
+                if self.dry_run and self.balance < 10.0:
+                    self.balance = 1000.0
+
 
                 # Conservative scaling: Use 5% of total bankroll per live match
                 current_balance = self.balance
@@ -2539,22 +2545,35 @@ Then a confidence score 0-1 on a new line."""
             }
 
             # Load existing state and update
+            # Resolve correct path: agents/bot_state.json
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # agents/
+            state_file = os.path.join(base_dir, "bot_state.json")
+
+            # Load existing state and update
             try:
-                with open("bot_state.json", "r") as f:
-                    existing = json.load(f)
-                existing.update(state_update)
-                state_update = existing
+                if os.path.exists(state_file):
+                    with open(state_file, "r") as f:
+                        existing = json.load(f)
+                    existing.update(state_update)
+                    state_update = existing
             except:
                 pass
-
-            with open("bot_state.json", "w") as f:
+            
+            with open(state_file, "w") as f:
                 json.dump(state_update, f, indent=2)
         except Exception as e:
             print(f"Error saving state: {e}")
 
     def scan_and_trade(self):
+        """Wrapper to ensure state is saved."""
+        try:
+            return self._scan_and_trade_logic()
+        finally:
+            self.save_state()
+
+    def _scan_and_trade_logic(self):
         """
-        Hybrid Strategy Scan:
+        [Internal Logic] Hybrid Strategy Scan:
         1. Discovery: Polymarket Gamma API (Series IDs) -> Finds ALL games.
         2. Signal: PandaScore/Riot Data -> Provides "Teemu Advantage" (Latency Edge).
         3. Execution: Direct CLOB.
@@ -2863,6 +2882,11 @@ Then a confidence score 0-1 on a new line."""
                             continue
                         else:
                             print(f"      🧠 VALIDATOR APPROVED: {confidence:.1f} confidence")
+                    else:
+                        # FAIL-SAFE: Do not trade without validator in Production
+                        if not self.dry_run:
+                            print(f"      🛑 TRADING BLOCKED: LLM Validator is offline")
+                            continue
 
                     # SOCIAL SIGNALS: Check whale positions and comment sentiment
                     # Only trade WITH whales, not against them
@@ -2901,6 +2925,13 @@ Then a confidence score 0-1 on a new line."""
                     # MATCH TRACKER: Prevent duplicate positions (wallet sync + same match)
                     # Check if we already have this specific token (from wallet sync)
                     target_token = market.yes_token if side == "YES" else market.no_token
+                    
+                    # 1. Check persistent chain state (restored on startup)
+                    if target_token in self.held_positions:
+                        print(f"      🎯 CHAIN SYNC BLOCKED: Already own {self.held_positions[target_token]} shares of {side} token")
+                        continue
+
+                    # 2. Check session state
                     if target_token in self.positions:
                         existing_pos = self.positions[target_token]
                         if existing_pos.get('synced', False):
@@ -2915,7 +2946,7 @@ Then a confidence score 0-1 on a new line."""
                         print(f"      🎯 MATCH TRACKER BLOCKED: Already have position on {side} for this match")
                         continue
 
-                    if self.execute_trade(market, side, true_prob, yes_price if side=="YES" else no_price):
+                    if self.execute_trade(market, true_prob, side, state):
                         trades_made += 1
                         # Track match position to prevent same match + side duplicates
                         self.positions[match_key] = {
@@ -3117,7 +3148,9 @@ Then a confidence score 0-1 on a new line."""
                 print(f"Session: {self.session_trades} trades")
                 break
             except Exception as e:
+                import traceback
                 print(f"Error: {e}")
+                traceback.print_exc()
                 time.sleep(30)
 
 
