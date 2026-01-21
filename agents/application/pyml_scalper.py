@@ -91,7 +91,7 @@ EXIT_MAKER_TIMEOUT = 3              # Smart Chase every 3s
 
 # Smart Maker-Only Exit
 TAKE_PROFIT_PCT = 0.015             # Target +1.5% profit per cycle
-PANIC_THRESHOLD_PCT = -0.015        # Smart Maker Stop at -1.5%
+PANIC_THRESHOLD_PCT = -0.050        # Smart Maker Stop at -5% (Buffer for spread)
 
 # Binance & Signal
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
