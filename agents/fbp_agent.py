@@ -280,42 +280,60 @@ def tool_get_positions() -> str:
 
 
 def tool_get_agents() -> str:
-    """Get status of all trading agents from live deployment."""
+    """Get status of all trading agents from live deployment with heartbeat check."""
     try:
-        # Try Supabase first (live deployment data)
+        import time
+        from datetime import datetime
+
+        def is_active(agent_name: str, supa_state, local_state) -> bool:
+            """Check if agent is active based on heartbeat."""
+            hb = None
+            if supa_state:
+                try:
+                    hb = supa_state.get_agent_heartbeat(agent_name)
+                except: pass
+            
+            if not hb and local_state:
+                hb = local_state.get(f"{agent_name}_heartbeat")
+                
+            if hb:
+                try:
+                    if isinstance(hb, (int, float)):
+                        if time.time() - hb < 60: return True
+                    elif isinstance(hb, str):
+                        hb_dt = datetime.fromisoformat(hb.replace('Z', '+00:00'))
+                        import datetime as dt
+                        if (dt.datetime.now(dt.timezone.utc) - hb_dt).total_seconds() < 60: return True
+                except: pass
+            
+            # Fallback
+            if supa_state:
+                try: return supa_state.is_agent_running(agent_name)
+                except: pass
+            
+            if local_state:
+                return local_state.get(f"{agent_name}_running", False)
+            
+            return False
+
+        supa = None
+        state = {}
         if HAS_SUPABASE:
-            try:
-                supa = get_supabase_state()
-                safe_running = supa.is_agent_running("safe")
-                scalper_running = supa.is_agent_running("scalper")
-                copy_running = supa.is_agent_running("copy")
-                smart_running = supa.is_agent_running("smart")
-                esports_running = supa.is_agent_running("esports")
-                sports_running = supa.is_agent_running("sport")
-                dry_run = False  # Live deployment is not dry run
-            except Exception as e:
-                logger.warning(f"Supabase not available, falling back to local: {e}")
-                # Fallback to local file
-                with open("bot_state.json", "r") as f:
-                    state = json.load(f)
-                safe_running = state.get("safe_running", False)
-                scalper_running = state.get("scalper_running", False)
-                copy_running = state.get("copy_trader_running", False)
-                smart_running = state.get("smart_trader_running", False)
-                esports_running = state.get("esports_trader_running", False)
-                sports_running = state.get("sports_trader_running", False)
-                dry_run = state.get("dry_run", True)
-        else:
-            # Fallback to local file only
+            try: supa = get_supabase_state()
+            except: pass
+            
+        try:
             with open("bot_state.json", "r") as f:
                 state = json.load(f)
-            safe_running = state.get("safe_running", False)
-            scalper_running = state.get("scalper_running", False)
-            copy_running = state.get("copy_trader_running", False)
-            smart_running = state.get("smart_trader_running", False)
-            esports_running = state.get("esports_trader_running", False)
-            sports_running = state.get("sports_trader_running", False)
-            dry_run = state.get("dry_run", True)
+        except: pass
+
+        safe_running = is_active("safe", supa, state)
+        scalper_running = is_active("scalper", supa, state)
+        copy_running = is_active("copy", supa, state)
+        smart_running = is_active("smart", supa, state)
+        esports_running = is_active("esports", supa, state)
+        sports_running = is_active("sport", supa, state)
+        dry_run = state.get("dry_run", True)
 
         return json.dumps({
             "safe": {
@@ -762,31 +780,25 @@ def tool_get_scalper_metrics() -> str:
     """Get specialized HFT metrics for the Smart Maker-Only Scalper."""
     try:
         pm = _get_pm()
-        # Fetch trades to calculate instant scalp profits (replicates api.py logic)
+        # Fetch trades to calculate instant scalp total (replicates api.py logic)
         trades = pm.get_past_trades(limit=100)
-        instant_scalp_profits = sum(t.get('amount', 0) * 0.015 for t in trades if "Sell" in t.get('side', ''))
+        instant_scalp_total = sum(t.get('amount', 0) * 0.015 for t in trades if "Sell" in t.get('side', ''))
         
-        # Fetch 24h volume for rebate calculation
-        try:
-            # Try to get 24h volume if available in state or via API
-            # For now, we'll try to fetch trade count as velocity proxy too
-            with open("bot_state.json", "r") as f:
-                state = json.load(f)
-            trade_count = state.get("stats", {}).get("tradeCount", len(trades))
-            vol_24h = state.get("stats", {}).get("volume24h", 0)
-        except:
-            trade_count = len(trades)
-            vol_24h = 0
+        # Calculate volume based on all trades in last 24h
+        total_volume_24h = sum(t.get('amount', 0) for t in trades)
+        estimated_rebate = total_volume_24h * 0.00035  # 3.5bps Maker Rebate
             
-        estimated_rebate_daily = vol_24h * 0.00035
+        with open("bot_state.json", "r") as f:
+            state = json.load(f)
+        trade_count = state.get("stats", {}).get("tradeCount", len(trades))
         
         return json.dumps({
-            "instant_scalp_profits": round(instant_scalp_profits, 2),
-            "estimated_rebate_daily": round(estimated_rebate_daily, 2),
+            "instant_scalp_total": round(instant_scalp_total, 2),
+            "estimated_rebate": round(estimated_rebate, 2),
             "compounding_velocity": trade_count,
             "daily_goal": 248.00,
             "bankroll": 150.00,
-            "net_roi": round((instant_scalp_profits / 150.0) * 100, 2)
+            "net_roi": round((instant_scalp_total / 150.0) * 100, 2)
         })
     except Exception as e:
         return json.dumps({"error": str(e)})
@@ -941,8 +953,8 @@ Your goal is to help the user manage their portfolio, find opportunities, and ex
 You are currently optimized for the **Smart Maker-Only HFT Scalper** strategy.
 
 Capabilities:
-1. Scalper Insight: Use get_scalper_metrics to get instant scalp profits, pending maker rebates, and cycle velocity. 
-   - Instant Scalp Profits come from spread capture (approx 1.5% on fills).
+1. Scalper Insight: Use get_scalper_metrics to get instant scalp total, pending maker rebates, and cycle velocity. 
+   - Instant Scalp Total comes from spread capture (approx 1.5% on fills).
    - Maker Rebates come from volume (approx 0.035%).
    - Daily Target: $248 in total income to reach $10k/month compounding.
    - Bankroll: $150 USDC base.

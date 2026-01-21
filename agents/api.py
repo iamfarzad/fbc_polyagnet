@@ -249,6 +249,34 @@ def load_state() -> Dict[str, Any]:
         "copy_heartbeat": copy_state.get("heartbeat", master.get("copy_heartbeat")),
     }
 
+def is_agent_active(agent_name: str, state: Dict[str, Any]) -> bool:
+    """Check if an agent is active based on its heartbeat."""
+    # Logic: If heartbeat is older than 60s, it's OFFLINE regardless of file flags
+    heartbeat_key = f"{agent_name}_heartbeat"
+    last_heartbeat = state.get(heartbeat_key)
+    
+    # If we have a heartbeat, check its age
+    if last_heartbeat:
+        try:
+            # Heartbeat is usually a float timestamp
+            if isinstance(last_heartbeat, (int, float)):
+                if time.time() - last_heartbeat < 60:
+                    return True
+                else:
+                    return False # Heartbeat too old
+            # Or ISO string
+            elif isinstance(last_heartbeat, str):
+                hb_dt = datetime.fromisoformat(last_heartbeat.replace('Z', '+00:00'))
+                if (datetime.now(timezone.utc) - hb_dt).total_seconds() < 60:
+                    return True
+                else:
+                    return False # Heartbeat too old
+        except:
+            pass
+            
+    # Fallback to simple running flag ONLY if no heartbeat ever received
+    return state.get(f"{agent_name}_running", False)
+
 def save_state(state: Dict[str, Any]):
     try:
         with open(STATE_FILE, 'w') as f:
@@ -601,6 +629,12 @@ def get_dashboard(background_tasks: BackgroundTasks):
             state["smart_trader_running"] = supa.is_agent_running("smart")
             state["esports_trader_running"] = supa.is_agent_running("esports")
             state["sports_trader_running"] = supa.is_agent_running("sport")
+            
+            # Sync heartbeats
+            for agent in ["safe", "scalper", "copy", "smart", "esports", "sport"]:
+                hb = supa.get_agent_heartbeat(agent)
+                if hb:
+                    state[f"{agent}_heartbeat"] = hb
         except Exception as e:
             logger.error(f"Failed to sync dashboard with Supabase: {e}")
 
@@ -687,24 +721,24 @@ def get_dashboard(background_tasks: BackgroundTasks):
     
     agents_data = {
         "safe": {
-            "running": state.get("safe_running", False),
+            "running": is_agent_active("safe", state),
             "activity": state.get("safe_last_activity", "Idle"),
             "endpoint": state.get("safe_last_endpoint", "Gamma API")
         },
         "scalper": {
-            "running": state.get("scalper_running", False),
+            "running": is_agent_active("scalper", state),
             "activity": scalper_activity,
             "endpoint": state.get("scalper_last_endpoint", "RTDS WebSocket"),
             "markets": scalper_markets,
             "prices": scalper_prices
         },
         "copyTrader": {
-            "running": state.get("copy_trader_running", False),
+            "running": is_agent_active("copy", state),
             "lastSignal": state.get("last_signal", "None"),
             "lastScan": state.get("copy_last_scan", "-")
         },
         "smartTrader": {
-            "running": state.get("smart_trader_running", True),
+            "running": is_agent_active("smart", state),
             "activity": state.get("smart_trader_last_activity", "Idle"),
             "positions": state.get("smart_trader_positions", 0),
             "trades": state.get("smart_trader_trades", 0),
@@ -712,7 +746,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
             "lastScan": state.get("smart_trader_last_scan", "-")
         },
         "esportsTrader": {
-            "running": state.get("esports_trader_running", True),
+            "running": is_agent_active("esports", state),
             "activity": state.get("esports_trader_last_activity", "Active" if state.get("esports_trader_running") else "Idle"),
             "trades": state.get("esports_trader_trades", 0),
             "mode": state.get("esports_trader_mode", "DRY RUN"),
@@ -721,7 +755,7 @@ def get_dashboard(background_tasks: BackgroundTasks):
             "strategy": "Hybrid (Teemu + Strict)"
         },
         "sportsTrader": {
-            "running": state.get("sports_trader_running", True),
+            "running": is_agent_active("sport", state),
             "activity": state.get("sports_trader_last_activity", "Active" if state.get("sports_trader_running") else "Idle"),
             "trades": state.get("sports_trader_trades", 0),
             "mode": "DRY RUN" if state.get("dry_run", True) else "LIVE",
@@ -772,7 +806,8 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "maxBetAmount": state.get("dynamic_max_bet", 0.50),
         "instant_scalp_total": round(instant_scalp_total, 2),
         "estimated_rebate": round(estimated_rebate, 2),
-        "compounding_velocity": trade_count
+        "compounding_velocity": trade_count,
+        "referenceTokenId": state.get("last_token_id", "") 
     }
     
     # Update cache

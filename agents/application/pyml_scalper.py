@@ -1002,6 +1002,11 @@ class CryptoScalper:
                     print(f"   📊 MARKETS FOUND: {len(markets) if markets else 0}")
 
                     if markets:  # Only process if we found markets
+                        # Record a reference token for the dashboard status check
+                        try:
+                            update_agent_activity(self.AGENT_NAME, "Scanning", {"last_token_id": markets[0]["up_token"]})
+                        except: pass
+                        
                         print(f"   🔍 PROCESSING {len(markets)} markets...")
                         for m in markets:
                             try:
