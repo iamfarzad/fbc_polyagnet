@@ -488,7 +488,7 @@ class Polymarket:
             OrderArgs(price=price, size=size, side=side, token_id=token_id)
         )
 
-    def place_limit_order(self, token_id: str, price: float, size: float, side: str = "BUY", fee_rate_bps: int = 0) -> Dict:
+    def place_limit_order(self, token_id: str, price: float, size: float, side: str = "BUY", fee_rate_bps: int = 0, post_only: bool = True) -> Dict:
         """
         Place a LIMIT order (Maker).
         Target specific price to capture spread/value.
@@ -503,12 +503,23 @@ class Polymarket:
             clean_price = float(price)
             clean_size = float(size)
 
-            return self.client.create_and_post_order(
-                OrderArgs(
-                    price=clean_price, size=clean_size, side=side.upper(),
-                    token_id=clean_token_id, fee_rate_bps=int(fee_rate_bps)
-                )
+            # return self.client.create_and_post_order(
+            #     OrderArgs(
+            #         price=clean_price, size=clean_size, side=side.upper(),
+            #         token_id=clean_token_id, fee_rate_bps=int(fee_rate_bps),
+            #         post_only=post_only
+            #     )
+            # )
+            
+            # FIX: create_and_post_order doesn't expose post_only in this version.
+            # We must break it down: Create -> Sign -> Post
+            order_args = OrderArgs(
+                price=clean_price, size=clean_size, side=side.upper(),
+                token_id=clean_token_id, fee_rate_bps=int(fee_rate_bps)
             )
+            signed_order = self.client.create_order(order_args)
+            return self.client.post_order(signed_order, post_only=post_only)
+
         except Exception as e:
             print(f"   ⚠️ Limit Order Failed: {e}")
             return {"error": str(e)}

@@ -131,7 +131,7 @@ class CryptoScalper:
         # State Tracking
         self.active_positions = {}      # token_id -> position_data
         self.pending_orders = {}        # order_id -> order_metadata
-        self.traded_markets = set()     # market_id cache
+        self.traded_markets = []        # market_id cache
 
         # Stats
         self.session_start = datetime.datetime.now()
@@ -596,9 +596,10 @@ class CryptoScalper:
         token_id = market["up_token"] if direction == "UP" else market["down_token"]
         opposing_token = market["down_token"] if direction == "UP" else market["up_token"]
 
-        # 1. RAPID FIRE PREVENTION: Only one attempt per 15-minute window
-        if market_id in self.traded_markets:
-            print(f"   🚫 RAPID FIRE BLOCK: Already attempted {market['asset']} this window")
+        # 1. RAPID FIRE PREVENTION: Allow 2 attempts per 15-minute window
+        attempts = self.traded_markets.count(market_id)
+        if attempts >= 2:
+            print(f"   🚫 MAX ATTEMPTS: {market['asset']} exhausted for this window")
             return False
 
         # 2. LOCKOUT CHECK: Don't buy if we already hold either side of this asset
@@ -668,7 +669,7 @@ class CryptoScalper:
                 "market_id": market["id"]
             }
             # Lock this market to prevent rapid-fire
-            self.traded_markets.add(market_id)
+            self.traded_markets.append(market_id)
             print("   ✅ [DRY] Position Opened (20% Allocation)")
             return True
 
@@ -705,7 +706,7 @@ class CryptoScalper:
                     "timeout": 5  # Fast 5s timeout to catch fills
                 }
                 # Lock this market to prevent rapid-fire
-                self.traded_markets.add(market_id)
+                self.traded_markets.append(market_id)
                 print("   ✅ [LIVE] Order Placed (20% Allocation)")
                 return True
             else:
@@ -1020,7 +1021,12 @@ class CryptoScalper:
                                 sentiment_score = self.get_market_sentiment(asset, binance_symbol)
 
                                 # Only trade if momentum exceeds threshold AND sentiment is clear
-                                if abs(momentum) < BASE_MOMENTUM_THRESHOLD:
+                                # Parse from config dynamic or fallback to hardcoded
+                                current_config = load_config("scalper")
+                                mom_threshold = current_config.get("BASE_MOMENTUM_THRESHOLD", BASE_MOMENTUM_THRESHOLD)
+                                conf_threshold = current_config.get("MIN_SENTIMENT_CONFIDENCE", MIN_SENTIMENT_CONFIDENCE)
+
+                                if abs(momentum) < mom_threshold:
                                     # Update UI with "Watching" status and momentum
                                     try:
                                         status_msg = f"STALKING | {asset.upper()} MOM {momentum:.4f}"
@@ -1030,27 +1036,27 @@ class CryptoScalper:
                                         })
                                     except: pass
                                     
-                                    print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {BASE_MOMENTUM_THRESHOLD:.4f})")
-                                    self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {BASE_MOMENTUM_THRESHOLD:.4f}", confidence=0.0, conclusion="WAIT")
+                                    print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {mom_threshold:.4f})")
+                                    self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {mom_threshold:.4f}", confidence=0.0, conclusion="WAIT")
                                     continue
 
-                                # Use BOTH momentum AND sentiment for direction
-                                momentum_signal = momentum > 0
-                                sentiment_signal = sentiment_score > 0.5  # 0.5 = neutral, >0.5 bullish, <0.5 bearish
+                                # --- AGGRESSIVE WHALE HYBRID MIX ---
+                                # 2. Volatility Override: If the move is 2x our base, we ignore sentiment
+                                VOLATILITY_OVERRIDE = mom_threshold * 2.0 
 
-                                # Only trade if sentiment confidence is high enough
-                                confidence = abs(sentiment_score - 0.5) * 2  # 0-1 scale
-                                if confidence < MIN_SENTIMENT_CONFIDENCE:
-                                    print(f"   🤔 LOW CONFIDENCE: {asset.upper()} {confidence:.1f} < {MIN_SENTIMENT_CONFIDENCE:.1f} - SKIPPING")
-                                    continue
+                                # 3. Aggressive Logic Gate
+                                is_high_velocity = abs(momentum) > VOLATILITY_OVERRIDE
+                                signals_agree = (momentum > 0) == (sentiment_score > 0.5)
+                                confidence_met = abs(sentiment_score - 0.5) * 2 >= conf_threshold
 
-                                # Only trade if momentum and sentiment agree (avoid conflicting signals)
-                                if momentum_signal == sentiment_signal:
-                                    direction = "UP" if momentum_signal else "DOWN"
-                                    print(f"   🎯 STRONG SIGNAL: {asset.upper()} {direction} ({momentum:.4f}% momentum, {confidence:.1f} confidence)")
+                                # Strike if signals agree OR if it's a high-velocity whale move
+                                if (signals_agree and confidence_met) or is_high_velocity:
+                                    direction = "UP" if momentum > 0 else "DOWN"
+                                    reason = "WHALE_OVERRIDE" if is_high_velocity and not signals_agree else "SIGNAL_SYNC"
+                                    print(f"   🎯 {reason}: {asset.upper()} {direction} ({momentum:.4f}% momentum)")
                                     self.open_position_maker(m, direction, momentum, sentiment_score)
                                 else:
-                                    print(f"   ⚠️ CONFLICTING SIGNALS: {asset.upper()} momentum={momentum:.4f}%, sentiment={sentiment_score:.2f} - SKIPPING")
+                                    print(f"   💤 SKIPPING: No volatility and signals disagree for {asset.upper()}")
                             except Exception as e:
                                 # Log but don't crash the main loop
                                 print(f"   ⚠️ Market processing error for {m.get('asset', 'unknown')}: {e}")
