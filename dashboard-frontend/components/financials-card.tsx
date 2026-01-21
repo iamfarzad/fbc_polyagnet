@@ -1,12 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { DollarSign } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
+"use client"
 
-interface FinancialsProps {
+import { Zap } from "lucide-react"
+
+export interface FinancialsProps {
     data: {
         total_redeemed: number
         gasSpent: number
-        unrealizedPnl: number
+        balance: number
         costs: {
             openai: number
             perplexity: number
@@ -22,93 +22,61 @@ interface FinancialsProps {
 }
 
 export function FinancialsCard({ data }: FinancialsProps) {
-    // Calculate True Net PnL
-    // Formula: Unrealized PnL + Redeemed - Gas - Neural Costs - Infra Costs
-    const totalOverhead = data.costs.neural_total + data.costs.infra_total
-    const trueNetPnl = (data.unrealizedPnl + data.total_redeemed) - data.gasSpent - totalOverhead
+    if (!data) return null
+
+    // Safety checks for new fields
+    const scalpProfit = data.scalp_profits_instant || 0
+    const rebate = data.estimated_rebate_daily || 0
+    const flyCost = data.costs?.fly || 0
+    // Net ROI based on initial $150 allocation. 
+    // If balance includes profit, we should use base. Assuming constant base 150 for calc.
+    const roi = ((scalpProfit / 150) * 100).toFixed(2)
 
     return (
-        <Card className="border-border/40 glass">
-            <div className="p-4">
-                <h3 className="text-[10px] text-amber-500 font-bold mb-3 uppercase tracking-wider flex items-center gap-2">
-                    <DollarSign className="h-3 w-3" /> Financials
-                </h3>
-
-                <div className="space-y-2 text-xs">
-                    {/* Revenue Top Line */}
-                    <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Total Redeemed:</span>
-                        <span className="text-emerald-400 font-mono">${data.total_redeemed.toFixed(2)}</span>
+        <div className="rounded-xl border border-border/40 glass bg-slate-950/50 overflow-hidden h-full flex flex-col justify-between">
+            <div className="p-4 flex-1 flex flex-col justify-center gap-3">
+                <div className="flex justify-between items-center mb-1">
+                    <h3 className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider flex items-center gap-2">
+                        <Zap className="h-3 w-3 fill-emerald-500" /> Scalper Performance
+                    </h3>
+                    <div className="text-[9px] border border-emerald-500/30 text-emerald-500 px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                        <span className="w-1 h-1 bg-emerald-500 rounded-full" /> LIVE CYCLE
                     </div>
+                </div>
 
-                    <Separator className="bg-border/20 my-2" />
-
-                    {/* Neural Breakdown */}
-                    <div className="flex justify-between items-center text-[10px]">
-                        <span className="text-muted-foreground">OpenAI (Auditor):</span>
-                        <span className="text-red-400 font-mono">-${data.costs.openai.toFixed(4)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
-                        <span className="text-muted-foreground">Perplexity (Research):</span>
-                        <span className="text-blue-400 font-mono">-${data.costs.perplexity.toFixed(3)} [Credit]</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px]">
-                        <span className="text-muted-foreground">Gemini (Fallback):</span>
-                        <span className="text-emerald-500 font-mono">$0.00 [Free]</span>
-                    </div>
-
-                    {/* Infra Breakdown */}
-                    <div className="flex justify-between items-center text-[10px] mt-1">
-                        <span className="text-muted-foreground font-semibold">Fly.io (8x Cluster):</span>
-                        <span className="text-red-400 font-mono">-${data.costs.fly.toFixed(3)}</span>
-                    </div>
-
-                    {/* Gas */}
-                    <div className="flex justify-between items-center text-[10px] mt-1">
-                        <span className="text-muted-foreground">Polygon Gas (Est):</span>
-                        <span className="text-red-400/80 font-mono">-${data.gasSpent.toFixed(2)}</span>
-                    </div>
-
-                    <Separator className="bg-border/20 my-2" />
-
-                    {/* Scalper Intel */}
-                    <div className="mt-4 space-y-1 bg-emerald-500/5 p-2 rounded border border-emerald-500/10">
-                        <div className="flex justify-between items-center text-[9px] text-emerald-500 font-bold uppercase">
-                            <span>Scalper Intel</span>
-                            <span className="animate-pulse">● Instant</span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-muted-foreground">Scalp Profits:</span>
-                            <span className="text-emerald-400">
-                                +${data.scalp_profits_instant.toFixed(2)}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center text-[10px]">
-                            <span className="text-muted-foreground">Velocity:</span>
-                            <span className="text-emerald-500/80">{data.compounding_velocity}x / day</span>
-                        </div>
-
-                        <Separator className="bg-border/20 my-1" />
-
-                        <div className="flex justify-between items-center text-[10px]">
-                            <span className="text-muted-foreground">Pending Rebate:</span>
-                            <span className="text-blue-400">
-                                +${data.estimated_rebate_daily.toFixed(2)} (Daily)
+                <div className="space-y-3">
+                    {/* Primary Scalp Profit (Instant) */}
+                    <div className="bg-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
+                        <div className="flex justify-between items-end">
+                            <span className="text-[10px] text-emerald-400/80 uppercase font-medium">Instant Scalp Profits</span>
+                            <span className="text-xl font-mono text-emerald-400 font-bold">
+                                +${scalpProfit.toFixed(2)}
                             </span>
                         </div>
                     </div>
 
-                    <Separator className="bg-border/20 my-2" />
+                    {/* Secondary Rebate (Daily) */}
+                    <div className="bg-blue-500/10 p-3 rounded-lg border border-blue-500/20">
+                        <div className="flex justify-between items-end">
+                            <span className="text-[10px] text-blue-400/80 uppercase font-medium">Pending Maker Rebates</span>
+                            <span className="text-xl font-mono text-blue-400 font-bold">
+                                ~${rebate.toFixed(2)}
+                            </span>
+                        </div>
+                    </div>
 
-                    {/* True Net PnL */}
-                    <div className="flex justify-between items-center font-bold">
-                        <span className="text-slate-300">TRUE NET PNL:</span>
-                        <span className={`font-mono ${trueNetPnl >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
-                            ${trueNetPnl.toFixed(2)}
-                        </span>
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                        <div className="text-center p-2 border border-border/20 rounded bg-card/30">
+                            <p className="text-[9px] text-muted-foreground uppercase">Cloud Overhead</p>
+                            <p className="text-xs font-mono text-red-400">-${flyCost.toFixed(4)}</p>
+                        </div>
+                        <div className="text-center p-2 border border-border/20 rounded bg-card/30">
+                            <p className="text-[9px] text-muted-foreground uppercase">Net ROI (150)</p>
+                            <p className={`text-xs font-mono font-bold ${Number(roi) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{roi}%</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </Card>
+        </div>
     )
 }

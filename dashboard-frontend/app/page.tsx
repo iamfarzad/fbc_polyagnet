@@ -189,13 +189,6 @@ export default function Dashboard() {
     activity: agent.activity || agent.lastSignal || "",
   }))
 
-  const greeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return "Good morning"
-    if (hour < 18) return "Good afternoon"
-    return "Good evening"
-  }
-
   const formatDate = () => {
     return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
   }
@@ -217,7 +210,7 @@ export default function Dashboard() {
             <div>
               <p className="text-[10px] text-muted-foreground">{formatDate()}</p>
               <h1 className="text-lg font-semibold tracking-tight">
-                {greeting()}, <span className="text-primary">Trader</span>
+                Hi, <span className="text-primary">Farzad</span>
               </h1>
             </div>
           </div>
@@ -271,6 +264,7 @@ export default function Dashboard() {
               equity={data.equity}
               unrealizedPnl={data.unrealizedPnl}
               tradeCount={data.compounding_velocity || data.stats?.tradeCount || 0}
+              scalperActivity={data.agents.scalper?.activity}
               aiTip="Compounding Active: 3-second chasing cycle enabled."
             />
           </div>
