@@ -145,6 +145,10 @@ TOOLS = {
         "description": "Send a direct command to a specific agent (e.g. 'Scan now' to Scalper). Target can be 'all', 'scalper', 'safe', etc.",
         "params": ["message", "target"]
     },
+    "get_scalper_metrics": {
+        "description": "Get specialized metrics for the Smart Maker-Only Scalper, including instant scalp profits, maker rebates, and compounding velocity.",
+        "params": []
+    },
     "get_trade_history": {
         "description": "Fetch list of past executed trades.",
         "params": ["limit"]
@@ -754,6 +758,39 @@ def tool_redeem_winnings() -> str:
     except Exception as e:
         return json.dumps({"error": str(e)})
 
+def tool_get_scalper_metrics() -> str:
+    """Get specialized HFT metrics for the Smart Maker-Only Scalper."""
+    try:
+        pm = _get_pm()
+        # Fetch trades to calculate instant scalp profits (replicates api.py logic)
+        trades = pm.get_past_trades(limit=100)
+        instant_scalp_profits = sum(t.get('amount', 0) * 0.015 for t in trades if "Sell" in t.get('side', ''))
+        
+        # Fetch 24h volume for rebate calculation
+        try:
+            # Try to get 24h volume if available in state or via API
+            # For now, we'll try to fetch trade count as velocity proxy too
+            with open("bot_state.json", "r") as f:
+                state = json.load(f)
+            trade_count = state.get("stats", {}).get("tradeCount", len(trades))
+            vol_24h = state.get("stats", {}).get("volume24h", 0)
+        except:
+            trade_count = len(trades)
+            vol_24h = 0
+            
+        estimated_rebate_daily = vol_24h * 0.00035
+        
+        return json.dumps({
+            "instant_scalp_profits": round(instant_scalp_profits, 2),
+            "estimated_rebate_daily": round(estimated_rebate_daily, 2),
+            "compounding_velocity": trade_count,
+            "daily_goal": 248.00,
+            "bankroll": 150.00,
+            "net_roi": round((instant_scalp_profits / 150.0) * 100, 2)
+        })
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
 # =============================================================================
 # NEW INTELLIGENCE LAYER TOOL IMPLEMENTATIONS
 # =============================================================================
@@ -901,16 +938,23 @@ class FBPAgent:
             {"role": "system", "content": """You are FBP Agent (Farzad's Bot), an advanced autonomous trading assistant.
 You have access to real-time market data, trading tools, and alpha research capabilities.
 Your goal is to help the user manage their portfolio, find opportunities, and execute trades safely.
+You are currently optimized for the **Smart Maker-Only HFT Scalper** strategy.
 
 Capabilities:
-1. Portfolio Management: Check balances, positions, and Agent status using get_balance, get_positions, get_agents.
-2. Market Analysis: Search markets (search_markets), get details (get_market_details), and analyze odds (analyze_market).
-3. Trading: Open/close positions (open_trade, close_position). ALWAYS verify market_id and price before trading.
-4. Alpha Research: Use New 'Intelligence Layer' tools (analyze_sentiment, scan_narratives) to find edge.
-5. Control: You can toggle agents (toggle_agent) and update config (update_config).
+1. Scalper Insight: Use get_scalper_metrics to get instant scalp profits, pending maker rebates, and cycle velocity. 
+   - Instant Scalp Profits come from spread capture (approx 1.5% on fills).
+   - Maker Rebates come from volume (approx 0.035%).
+   - Daily Target: $248 in total income to reach $10k/month compounding.
+   - Bankroll: $150 USDC base.
+2. Portfolio Management: Check balances, positions, and Agent status using get_balance, get_positions, get_agents.
+3. Market Analysis: Search markets (search_markets), get details (get_market_details), and analyze odds (analyze_market).
+4. Trading: Open/close positions (open_trade, close_position). ALWAYS verify market_id and price before trading.
+5. Alpha Research: Use New 'Intelligence Layer' tools (analyze_sentiment, scan_narratives) to find edge.
+6. Control: You can toggle agents (toggle_agent) and update config (update_config).
 
 Style:
 - Be concise, professional, and data-driven.
+- When asked for a status report, lead with the Scalper Performance (Income, Rebates, Velocity).
 - When suggested a trade, ALWAYS provide a reason and confidence level.
 - If a user asks for 'alpha' or 'new tokens', use the scan_narratives tool.
 - If a user asks validity of a project, use rug_check.
