@@ -87,6 +87,11 @@ class SupabaseState:
         """Check if an agent is in dry run mode."""
         state = self.get_agent_state(agent_name)
         return state.get("is_dry_run", True)
+
+    def get_agent_heartbeat(self, agent_name: str) -> Optional[str]:
+        """Get the last heartbeat timestamp for an agent."""
+        state = self.get_agent_state(agent_name)
+        return state.get("heartbeat")
     
     def update_agent_state(self, agent_name: str, updates: Dict[str, Any]) -> bool:
         """Update agent state (heartbeat, activity, etc.)."""
