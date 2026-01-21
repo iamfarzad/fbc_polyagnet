@@ -739,6 +739,14 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # 8. Open Orders
     open_orders = fetch_open_orders_helper()
 
+    # Calculate accurate metrics for HFT Scalper
+    all_sells = [t for t in all_trades if "Sell" in t.get('side', '')]
+    instant_scalp_total = sum(t.get('amount', 0) * 0.015 for t in all_sells)
+    
+    # Calculate volume based on all trades in last 24h
+    total_volume_24h = sum(t.get('amount', 0) for t in all_trades)
+    estimated_rebate = total_volume_24h * 0.00035  # 3.5bps Maker Rebate
+    
     result = {
         "balance": balance,
         "equity": equity,
@@ -756,14 +764,14 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "trades": trades,
         "stats": {
             "tradeCount": trade_count,
-            "volume24h": vol_24h
+            "volume24h": total_volume_24h
         },
         "dryRun": state.get("dry_run", True),
         "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "walletAddress": wallet_address,
-        "maxBetAmount": state.get("dynamic_max_bet", 0.50), # Default 0.50 per manual override
-        "scalp_profits_instant": sum(t['amount'] * 0.015 for t in all_trades if "Sell" in t.get('side', '')), # Approx 1.5% profit on Sells
-        "estimated_rebate_daily": vol_24h * 0.00035, # ~3.5bps avg maker rebate
+        "maxBetAmount": state.get("dynamic_max_bet", 0.50),
+        "instant_scalp_total": round(instant_scalp_total, 2),
+        "estimated_rebate": round(estimated_rebate, 2),
         "compounding_velocity": trade_count
     }
     

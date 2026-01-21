@@ -29,8 +29,8 @@ interface DashboardData {
   unrealizedPnl: number
   gasSpent: number
   total_redeemed: number
-  scalp_profits_instant: number
-  estimated_rebate_daily: number
+  instant_scalp_total: number
+  estimated_rebate: number
   compounding_velocity: number
   costs: {
     openai: number
@@ -272,8 +272,8 @@ export default function Dashboard() {
             <FinancialsCard
               data={{
                 ...data,
-                scalp_profits_instant: data.scalp_profits_instant || 0,
-                estimated_rebate_daily: data.estimated_rebate_daily || 0,
+                instant_scalp_total: data.instant_scalp_total || 0,
+                estimated_rebate: data.estimated_rebate || 0,
                 compounding_velocity: data.compounding_velocity || 0
               }}
             />
