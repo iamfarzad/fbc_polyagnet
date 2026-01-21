@@ -441,7 +441,7 @@ def fetch_trades_helper(limit=50):
                         
                     # Parse timestamp (Unix int -> readable string)
                     ts_int = t.get("timestamp")
-                    ts_str = str(datetime.fromtimestamp(ts_int)) if ts_int else str(datetime.now())
+                    ts_str = datetime.fromtimestamp(ts_int).isoformat() if ts_int else datetime.now().isoformat()
                     
                     market_title = t.get("title", "N/A")
                     outcome = t.get("outcome", "")
