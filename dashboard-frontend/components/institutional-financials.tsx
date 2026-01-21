@@ -19,16 +19,16 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
 
     return (
         <div className="space-y-4 font-mono">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                 <Landmark className="h-3 w-3 text-emerald-500" />
                 Capital Efficiency
             </h3>
 
             <div className="grid gap-3">
                 {/* Main PnL */}
-                <div className="bg-slate-900/50 border border-white/5 p-4 rounded-sm flex justify-between items-center group hover:border-emerald-500/30 transition-colors">
+                <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-emerald-500/30 transition-colors">
                     <div className="space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Instant Settled PnL</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Instant Settled PnL</span>
                         <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3 text-emerald-500 fill-emerald-500" />
                             <span className="text-2xl font-bold text-emerald-500 leading-none">
@@ -39,9 +39,9 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
                 </div>
 
                 {/* Maker Rebate */}
-                <div className="bg-slate-900/50 border border-white/5 p-4 rounded-sm flex justify-between items-center group hover:border-blue-500/30 transition-colors">
+                <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-blue-500/30 transition-colors">
                     <div className="space-y-1">
-                        <span className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Estimated Maker Rebate</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Estimated Maker Rebate</span>
                         <div className="flex items-center gap-2">
                             <span className="text-xl font-bold text-blue-400 leading-none">
                                 +${rebate.toFixed(2)}
@@ -57,7 +57,7 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
             {/* Infrastructure Footnote */}
             <div className="pt-2 flex items-center gap-2 text-[10px]">
                 <Server className="h-3 w-3 text-rose-500" />
-                <span className="text-slate-500 uppercase font-bold tracking-tight">Infrastructure Overhead (Fly.io):</span>
+                <span className="text-muted-foreground uppercase font-bold tracking-tight">Infrastructure Overhead (Fly.io):</span>
                 <span className="text-rose-500 font-bold">-${flyCost.toFixed(2)}</span>
             </div>
         </div>

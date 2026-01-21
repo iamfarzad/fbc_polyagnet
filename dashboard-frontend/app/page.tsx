@@ -122,11 +122,11 @@ export default function Dashboard() {
 
   if (!data) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-slate-950 gap-4 font-mono">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-        <p className="text-slate-500 text-[10px] uppercase tracking-widest animate-pulse">Initializing_Terminal_Core...</p>
+      <div className="flex h-screen flex-col items-center justify-center bg-background gap-4 font-mono">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-muted-foreground text-[10px] uppercase tracking-widest animate-pulse">Initializing_Terminal_Core...</p>
         {connectionError && (
-          <p className="text-[10px] text-rose-500 max-w-md text-center px-4 uppercase font-bold tracking-tighter">{connectionError}</p>
+          <p className="text-[10px] text-destructive max-w-md text-center px-4 uppercase font-bold tracking-tighter">{connectionError}</p>
         )}
       </div>
     )
@@ -141,10 +141,10 @@ export default function Dashboard() {
   }))
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans text-sm flex flex-col h-screen overflow-hidden selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-background text-foreground font-sans text-sm flex flex-col h-screen overflow-hidden selection:bg-primary/30">
 
       {/* Command Bar (Zone A) */}
-      <div className="shrink-0 border-b border-white/5 bg-slate-950 px-4 py-2 flex items-center h-10">
+      <div className="shrink-0 border-b border-border/40 bg-background px-4 py-2 flex items-center h-10">
         <TerminalHeader data={{
           walletAddress: data.walletAddress,
           dryRun: data.dryRun,
@@ -154,54 +154,54 @@ export default function Dashboard() {
       </div>
 
       {/* Main Terminal Grid */}
-      <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-0 divide-y md:divide-y-0 md:divide-x divide-white/5 min-h-0 w-full overflow-x-hidden">
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-0 divide-y md:divide-y-0 md:divide-x divide-border/40 min-h-0 w-full overflow-x-hidden">
 
         {/* Left Column: Execution (Zone B) - 4 Cols Desktop, Full Mobile */}
-        <div className="col-span-1 md:col-span-4 p-6 space-y-8 overflow-y-auto custom-scrollbar bg-slate-950/20 w-full">
+        <div className="col-span-1 md:col-span-4 p-6 space-y-8 overflow-y-auto custom-scrollbar bg-muted/20 w-full">
           <InstitutionalFinancials data={data} />
 
-          <div className="border-t border-white/5 pt-6">
+          <div className="border-t border-border/40 pt-6">
             <VelocityTracker tradeCount={data.stats.tradeCount} />
           </div>
 
-          <div className="border-t border-white/5 pt-6">
+          <div className="border-t border-border/40 pt-6">
             <ScannerStatus referenceTokenId={data.referenceTokenId} />
           </div>
 
-          <div className="border-t border-white/5 pt-6">
+          <div className="border-t border-border/40 pt-6">
             <AgentNetworkStatus agents={agents} />
           </div>
 
           {/* Connection Monitor */}
           {connectionError && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[9px] font-bold uppercase tracking-widest animate-pulse">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+            <div className="flex items-center gap-2 px-3 py-2 rounded-sm bg-destructive/10 border border-destructive/20 text-destructive text-[9px] font-bold uppercase tracking-widest animate-pulse">
+              <span className="h-1.5 w-1.5 rounded-full bg-destructive shrink-0" />
               {connectionError}
             </div>
           )}
         </div>
 
         {/* Right Column: Intelligence & Terminal (Zone C) - 8 Cols Desktop, Full Mobile */}
-        <div className="col-span-1 md:col-span-8 flex flex-col min-h-0 bg-black/10 w-full">
+        <div className="col-span-1 md:col-span-8 flex flex-col min-h-0 bg-muted/10 w-full">
 
           {/* Top Half: Momentum & Logic */}
-          <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
+          <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/40">
             <div className="p-6">
               <MomentumStalker data={data} />
             </div>
             <div className="p-6 flex flex-col gap-4">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 shrink-0">
-                <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 shrink-0">
+                <span className="h-1.5 w-1.5 bg-primary rounded-full animate-pulse" />
                 Neural_Logic_Stream
               </h3>
-              <div className="flex-1 min-h-[300px] md:min-h-0 rounded-sm overflow-hidden border border-white/5 shadow-2xl">
+              <div className="flex-1 min-h-[300px] md:min-h-0 rounded-sm overflow-hidden border border-border/40 shadow-2xl">
                 <LLMTerminal className="h-full" />
               </div>
             </div>
           </div>
 
           {/* Bottom Third: Ledger Table */}
-          <div className="h-[35%] border-t border-white/5 bg-slate-950">
+          <div className="h-[35%] border-t border-border/40 bg-background">
             <InstitutionalLedger trades={data.trades} positions={data.positions} />
           </div>
         </div>
@@ -210,20 +210,20 @@ export default function Dashboard() {
       {/* Floating Chat Button */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
-        className={`fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] z-[100] flex items-center justify-center transition-all ${chatOpen ? 'bg-rose-600 rotate-180' : 'bg-emerald-600 hover:scale-110'}`}
+        className={`fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] z-[100] flex items-center justify-center transition-all ${chatOpen ? 'bg-destructive rotate-180' : 'bg-primary hover:scale-110'}`}
       >
-        {chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
+        {chatOpen ? <X className="h-5 w-5 text-destructive-foreground" /> : <MessageSquare className="h-5 w-5 text-primary-foreground" />}
       </button>
 
       {/* FBP Chat Panel */}
       {chatOpen && (
-        <div className="fixed bottom-20 right-6 w-[calc(100vw-3rem)] md:w-[400px] h-[60vh] md:h-[550px] rounded-sm border border-white/10 bg-slate-950 shadow-2xl overflow-hidden z-[100] flex flex-col animate-in slide-in-from-bottom-4 duration-300">
-          <div className="px-4 py-2.5 border-b border-white/5 bg-black/40 flex items-center justify-between">
+        <div className="fixed bottom-20 right-6 w-[calc(100vw-3rem)] md:w-[400px] h-[60vh] md:h-[550px] rounded-sm border border-border/40 bg-background shadow-2xl overflow-hidden z-[100] flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+          <div className="px-4 py-2.5 border-b border-border/40 bg-muted/40 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="font-mono font-bold text-[10px] text-slate-300 uppercase tracking-widest">FBP:LINK_ESTABLISHED</span>
+              <span className="h-1.5 w-1.5 bg-primary rounded-full animate-pulse" />
+              <span className="font-mono font-bold text-[10px] text-foreground/80 uppercase tracking-widest">FBP:LINK_ESTABLISHED</span>
             </div>
-            <button onClick={() => setChatOpen(false)} className="text-slate-500 hover:text-white transition-colors">
+            <button onClick={() => setChatOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -241,11 +241,11 @@ export default function Dashboard() {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--border);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(16, 185, 129, 0.2);
+          background: var(--primary);
         }
       `}</style>
     </div>

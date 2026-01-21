@@ -192,7 +192,7 @@ export function AgentDetailSheet({
                             <div className="bg-muted/30 px-4 py-2 border-b border-border/40 text-xs font-medium text-muted-foreground">
                                 Recent Agent Activity
                             </div>
-                            <div className="flex-1 bg-black/20">
+                            <div className="flex-1 bg-muted/10">
                                 <LLMTerminal agentFilter={agentId} className="h-full" />
                             </div>
                         </div>

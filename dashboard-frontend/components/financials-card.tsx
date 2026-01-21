@@ -33,7 +33,7 @@ export function FinancialsCard({ data }: FinancialsProps) {
     const roi = ((scalpTotal / 150) * 100).toFixed(2)
 
     return (
-        <Card className="rounded-xl border border-border/40 glass bg-slate-950/50 overflow-hidden h-full flex flex-col justify-between">
+        <Card className="rounded-xl border border-border/40 glass bg-card overflow-hidden h-full flex flex-col justify-between">
             <div className="p-4 flex-1 flex flex-col justify-center gap-4">
                 <div className="flex justify-between items-center mb-1">
                     <h3 className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider flex items-center gap-2 font-mono">
@@ -66,13 +66,13 @@ export function FinancialsCard({ data }: FinancialsProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 pt-1 text-center">
-                        <div className="p-2 border border-border/20 rounded bg-card/30 flex flex-col justify-center">
+                        <div className="p-2 border border-border/20 rounded bg-muted/30 flex flex-col justify-center">
                             <p className="text-[9px] text-muted-foreground uppercase font-semibold">Cloud Overhead</p>
                             <p className="text-xs font-mono text-red-400 font-bold">-${flyCost.toFixed(2)}</p>
                         </div>
-                        <div className="p-2 border border-border/20 rounded bg-card/30 flex flex-col justify-center">
+                        <div className="p-2 border border-border/20 rounded bg-muted/30 flex flex-col justify-center">
                             <p className="text-[9px] text-muted-foreground uppercase font-semibold">Net Daily ROI</p>
-                            <p className="text-xs font-mono text-white font-bold">{roi}%</p>
+                            <p className="text-xs font-mono text-foreground font-bold">{roi}%</p>
                         </div>
                     </div>
                 </div>

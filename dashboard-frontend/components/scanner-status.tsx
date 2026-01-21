@@ -53,8 +53,8 @@ export function ScannerStatus({ referenceTokenId }: ScannerStatusProps) {
 
     return (
         <div className="space-y-3 font-mono">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <ShieldAlert className={`h-3 w-3 ${isSuspended ? 'text-rose-500 animate-pulse' : 'text-emerald-500'}`} />
+            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                <ShieldAlert className={`h-3 w-3 ${isSuspended ? 'text-destructive animate-pulse' : 'text-emerald-500'}`} />
                 Market Availability
             </h3>
 
@@ -75,17 +75,17 @@ export function ScannerStatus({ referenceTokenId }: ScannerStatusProps) {
                     </div>
                 </div>
             ) : (
-                <div className="bg-slate-900/50 border border-white/5 p-4 rounded-sm flex justify-between items-center group hover:border-emerald-500/30 transition-colors">
+                <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-primary/30 transition-colors">
                     <div className="flex items-center gap-3">
                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         <div className="space-y-0.5">
-                            <span className="text-[10px] text-slate-200 font-bold uppercase tracking-tight block leading-none">Scanning_Live</span>
-                            <span className="text-[9px] text-slate-500 uppercase">HFT Pipelines Clear</span>
+                            <span className="text-[10px] text-foreground font-bold uppercase tracking-tight block leading-none">Scanning_Live</span>
+                            <span className="text-[9px] text-muted-foreground uppercase">HFT Pipelines Clear</span>
                         </div>
                     </div>
                     <div className="text-right">
                         <Wifi className="h-3 w-3 text-emerald-500/40 ml-auto mb-1" />
-                        <span className="text-[8px] text-slate-500 font-bold">{lastCheck}</span>
+                        <span className="text-[8px] text-muted-foreground font-bold">{lastCheck}</span>
                     </div>
                 </div>
             )}

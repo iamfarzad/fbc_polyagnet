@@ -76,20 +76,20 @@ export function TerminalHeader({ data }: TerminalHeaderProps) {
     const utcTime = time.toUTCString().split(' ')[4]
 
     return (
-        <div className="flex items-center justify-between w-full font-mono text-[10px] tracking-tight text-slate-400">
+        <div className="flex items-center justify-between w-full font-mono text-[10px] tracking-tight text-muted-foreground">
             {/* Left: Clock, Wallet, Balance */}
             <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 border-r border-white/5 pr-4">
+                <div className="flex items-center gap-2 border-r border-border/40 pr-4">
                     <Cpu className="h-3 w-3 text-emerald-500" />
-                    <span className="text-white font-bold">{utcTime} UTC</span>
+                    <span className="text-foreground font-bold">{utcTime} UTC</span>
                 </div>
-                <div className="flex items-center gap-2 border-r border-white/5 pr-4">
+                <div className="flex items-center gap-2 border-r border-border/40 pr-4">
                     <Shield className="h-3 w-3" />
                     <span>{formatAddress(data.walletAddress)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Wallet className="h-3 w-3 text-emerald-500" />
-                    <span className="text-white font-bold">${data.balance.toFixed(2)}</span>
+                    <span className="text-foreground font-bold">${data.balance.toFixed(2)}</span>
                 </div>
             </div>
 
@@ -109,15 +109,15 @@ export function TerminalHeader({ data }: TerminalHeaderProps) {
             {/* Right: Binance Tickers & Theme */}
             <div className="flex items-center gap-4">
                 {prices.map((p) => (
-                    <div key={p.symbol} className="flex items-center gap-1.5 border-l border-white/5 pl-4 first:border-l-0">
-                        <span className="text-slate-500">{p.symbol}</span>
-                        <span className="text-white font-bold">
+                    <div key={p.symbol} className="flex items-center gap-1.5 border-l border-border/40 pl-4 first:border-l-0">
+                        <span className="text-muted-foreground">{p.symbol}</span>
+                        <span className="text-foreground font-bold">
                             {p.price.toLocaleString(undefined, { minimumFractionDigits: p.symbol === "SOL" ? 2 : 0 })}
                         </span>
                         <TrendingUp className="h-2.5 w-2.5 text-emerald-500" />
                     </div>
                 ))}
-                <div className="pl-4 border-l border-white/5">
+                <div className="pl-4 border-l border-border/40">
                     <ThemeToggle />
                 </div>
             </div>
