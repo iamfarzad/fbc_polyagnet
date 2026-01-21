@@ -60,6 +60,7 @@ interface DashboardData {
   dryRun: boolean
   lastUpdate: string
   walletAddress: string
+  referenceTokenId: string
 }
 
 // ============================================================================
@@ -153,10 +154,10 @@ export default function Dashboard() {
       </div>
 
       {/* Main Terminal Grid */}
-      <main className="flex-1 grid grid-cols-12 gap-0 divide-x divide-white/5 min-h-0">
+      <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-0 divide-y md:divide-y-0 md:divide-x divide-white/5 min-h-0 w-full overflow-x-hidden">
 
-        {/* Left Column: Execution (Zone B) - 4 Cols */}
-        <div className="col-span-4 p-6 space-y-8 overflow-y-auto custom-scrollbar bg-slate-950/20">
+        {/* Left Column: Execution (Zone B) - 4 Cols Desktop, Full Mobile */}
+        <div className="col-span-1 md:col-span-4 p-6 space-y-8 overflow-y-auto custom-scrollbar bg-slate-950/20 w-full">
           <InstitutionalFinancials data={data} />
 
           <div className="border-t border-white/5 pt-6">
@@ -180,11 +181,11 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Right Column: Intelligence & Terminal (Zone C) - 8 Cols */}
-        <div className="col-span-8 flex flex-col min-h-0 bg-black/10">
+        {/* Right Column: Intelligence & Terminal (Zone C) - 8 Cols Desktop, Full Mobile */}
+        <div className="col-span-1 md:col-span-8 flex flex-col min-h-0 bg-black/10 w-full">
 
           {/* Top Half: Momentum & Logic */}
-          <div className="flex-1 min-h-0 grid grid-cols-2 divide-x divide-white/5">
+          <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/5">
             <div className="p-6">
               <MomentumStalker data={data} />
             </div>
@@ -193,7 +194,7 @@ export default function Dashboard() {
                 <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
                 Neural_Logic_Stream
               </h3>
-              <div className="flex-1 min-h-0 rounded-sm overflow-hidden border border-white/5 shadow-2xl">
+              <div className="flex-1 min-h-[300px] md:min-h-0 rounded-sm overflow-hidden border border-white/5 shadow-2xl">
                 <LLMTerminal className="h-full" />
               </div>
             </div>
@@ -209,14 +210,14 @@ export default function Dashboard() {
       {/* Floating Chat Button */}
       <button
         onClick={() => setChatOpen(!chatOpen)}
-        className={`fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] z-50 flex items-center justify-center transition-all ${chatOpen ? 'bg-rose-600 rotate-180' : 'bg-emerald-600 hover:scale-110'}`}
+        className={`fixed bottom-6 right-6 rounded-full w-12 h-12 shadow-[0_0_20px_rgba(16,185,129,0.3)] z-[100] flex items-center justify-center transition-all ${chatOpen ? 'bg-rose-600 rotate-180' : 'bg-emerald-600 hover:scale-110'}`}
       >
         {chatOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
       </button>
 
       {/* FBP Chat Panel */}
       {chatOpen && (
-        <div className="fixed bottom-20 right-6 w-[400px] h-[550px] rounded-sm border border-white/10 bg-slate-950 shadow-2xl overflow-hidden z-50 flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+        <div className="fixed bottom-20 right-6 w-[calc(100vw-3rem)] md:w-[400px] h-[60vh] md:h-[550px] rounded-sm border border-white/10 bg-slate-950 shadow-2xl overflow-hidden z-[100] flex flex-col animate-in slide-in-from-bottom-4 duration-300">
           <div className="px-4 py-2.5 border-b border-white/5 bg-black/40 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />

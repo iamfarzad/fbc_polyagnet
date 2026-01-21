@@ -90,6 +90,7 @@ class SupabaseState:
 
     def get_agent_heartbeat(self, agent_name: str) -> Optional[str]:
         """Get the last heartbeat timestamp for an agent."""
+        # logger.debug(f"Getting heartbeat for {agent_name}")
         state = self.get_agent_state(agent_name)
         return state.get("heartbeat")
     

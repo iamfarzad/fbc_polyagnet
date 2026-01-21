@@ -79,13 +79,21 @@ const CONCLUSION_COLORS: Record<string, string> = {
 }
 
 function formatTime(timestamp: string): string {
-  const date = new Date(timestamp)
-  return date.toLocaleTimeString("en-US", {
-    hour12: false,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit"
-  })
+  try {
+    if (!timestamp) return new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+    const date = new Date(timestamp)
+    if (isNaN(date.getTime())) return "Just Now"
+
+    return date.toLocaleTimeString("en-US", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    })
+  } catch {
+    return "Just Now"
+  }
 }
 
 function TerminalEntry({
