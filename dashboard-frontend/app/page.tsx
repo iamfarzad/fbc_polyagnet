@@ -136,6 +136,7 @@ export default function Dashboard() {
     name: id.charAt(0).toUpperCase() + id.slice(1).replace(/([A-Z])/g, ' $1'),
     isActive: agent.running,
     activity: agent.activity || agent.lastSignal || "",
+    heartbeat: agent.heartbeat,
   }))
 
   return (
@@ -143,7 +144,12 @@ export default function Dashboard() {
 
       {/* Command Bar (Zone A) */}
       <div className="shrink-0 border-b border-white/5 bg-slate-950 px-4 py-2 flex items-center h-10">
-        <TerminalHeader data={{ walletAddress: data.walletAddress, dryRun: data.dryRun }} />
+        <TerminalHeader data={{
+          walletAddress: data.walletAddress,
+          dryRun: data.dryRun,
+          balance: data.balance,
+          referenceTokenId: data.referenceTokenId
+        }} />
       </div>
 
       {/* Main Terminal Grid */}

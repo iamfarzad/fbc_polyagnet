@@ -11,7 +11,7 @@
     "esports_trader": 0.15
   },
   "total_balance": 36.277704,
-  "last_update": "2026-01-20T10:14:09.106274",
+  "last_update": "2026-01-21T14:43:07.687555",
   "agent_status": {
     "safe": {
       "active": true,
@@ -51,6 +51,1708 @@
       "read_by": [
         "scalper"
       ]
+    }
+  ],
+  "llm_activity": [
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "b199b49c-795e-451f-b40c-5e7480abb4a5",
+      "timestamp": "2026-01-21T11:35:10.188387"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "0d2d6fb9-ad8c-4fff-85c9-18b8323189a9",
+      "timestamp": "2026-01-21T11:37:16.715696"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "4bb00d1b-22ee-4a25-a1f0-f9967d629b9d",
+      "timestamp": "2026-01-21T11:39:18.989644"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Dota 2: AVULUS vs 1win (BO3) - FISSURE Universe Episode 8 Play-In Group A",
+      "prompt_summary": "Skipping Dota 2: AVULUS vs 1win (BO3) -...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "4a1b06ca-e15e-4519-aba1-170d1ff834e9",
+      "timestamp": "2026-01-21T11:40:19.577598"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "caef0c0f-9277-467c-883a-733d9629e4e0",
+      "timestamp": "2026-01-21T11:41:26.244680"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Dota 2: AVULUS vs 1win (BO3) - FISSURE Universe Episode 8 Play-In Group A",
+      "prompt_summary": "Skipping Dota 2: AVULUS vs 1win (BO3) -...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "b71e3a83-db63-4d0d-b099-cf43f20eaa64",
+      "timestamp": "2026-01-21T11:42:27.128172"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "6b7ddf58-214f-49b4-87fb-2878ecc2e676",
+      "timestamp": "2026-01-21T11:43:35.894772"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "947e674b-aa20-4d78-97a1-17239076005d",
+      "timestamp": "2026-01-21T11:44:40.773898"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "0778b148-711c-4458-8312-3a85f780555d",
+      "timestamp": "2026-01-21T11:45:46.749864"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "25293d05-3db9-4d97-81c3-de7baabfec3a",
+      "timestamp": "2026-01-21T11:46:52.650341"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c3a80fc7-a29a-46ae-9e1a-b95dba01039f",
+      "timestamp": "2026-01-21T11:47:58.691527"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c363f429-0cc3-4126-988f-41f97324aaed",
+      "timestamp": "2026-01-21T11:49:03.828665"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "bc5b66a4-ae8f-4638-8903-2dea053f68c0",
+      "timestamp": "2026-01-21T11:50:10.221261"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "7791368d-14d2-48c7-a63b-207be1eb385f",
+      "timestamp": "2026-01-21T11:51:19.732356"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "b7871864-bfd6-4205-8151-23c15abfaa09",
+      "timestamp": "2026-01-21T11:52:30.039971"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "0c64bbbf-1335-463d-a2d0-8f2ea5ef397a",
+      "timestamp": "2026-01-21T11:53:42.078921"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "854e5129-c1ab-4b5a-81da-aabfbf9b88f9",
+      "timestamp": "2026-01-21T11:54:49.631442"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "208ee7aa-a170-40d0-be5c-958af54941a9",
+      "timestamp": "2026-01-21T11:55:56.563708"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "abea9db8-8060-40c9-ab71-b8fa6d027e35",
+      "timestamp": "2026-01-21T11:57:03.379283"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "2bb6e73a-e461-490d-a579-77ee5defa5ab",
+      "timestamp": "2026-01-21T11:58:09.743706"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "33ad8150-4db0-4db6-a4cf-158077999a99",
+      "timestamp": "2026-01-21T11:59:17.225087"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "cb5abcfa-50c6-4363-9881-04d126dee2fc",
+      "timestamp": "2026-01-21T12:00:31.163959"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Most kills?",
+      "prompt_summary": "Skipping Series: Most kills?...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "b44ddabc-0058-426a-b5bc-2c179bec5b1d",
+      "timestamp": "2026-01-21T12:01:31.404727"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c3f9a39c-9d13-477c-8497-5e6ddc1fae2e",
+      "timestamp": "2026-01-21T12:02:46.215821"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "a20a51d8-82f3-4810-9e1b-b06e11ad83f4",
+      "timestamp": "2026-01-21T12:04:54.538855"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Dota 2: AVULUS vs 1win (BO3) - FISSURE Universe Episode 8 Play-In Group A",
+      "prompt_summary": "Skipping Dota 2: AVULUS vs 1win (BO3) -...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5c2d6d60-4c12-4b9e-9fd8-8dce49eb518f",
+      "timestamp": "2026-01-21T12:05:57.073243"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "1e710c2f-b6ad-4b57-bf14-7c51e4c3e0bd",
+      "timestamp": "2026-01-21T12:07:09.841323"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5fc9a3b0-9a7c-4be5-b01e-5d76a9e97cdf",
+      "timestamp": "2026-01-21T12:09:16.725662"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "6ab8d8fb-9a9d-4a68-994f-e84c32b4a543",
+      "timestamp": "2026-01-21T12:11:22.288238"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "caaa3568-6813-42ce-9344-8ffae20d592d",
+      "timestamp": "2026-01-21T12:13:26.453013"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "07a47daf-4477-4f34-a0a1-6dc12e570f4c",
+      "timestamp": "2026-01-21T12:15:29.303583"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d7124040-ac70-471f-a4ff-cfe1025b8477",
+      "timestamp": "2026-01-21T12:17:38.244665"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Inner Circle Kill Handicap (-25.5) vs VP.Prodigy (+25.5)",
+      "prompt_summary": "Skipping Series: Inner Circle Kill Hand...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "3849c494-596f-4f08-b84f-c323fdcf6c2d",
+      "timestamp": "2026-01-21T12:18:38.912250"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "356c2691-dbd5-4c21-93bf-ba6fcf73576b",
+      "timestamp": "2026-01-21T12:20:10.056963"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5f019122-94a8-474b-a6e6-d879cf43fed7",
+      "timestamp": "2026-01-21T12:22:13.748142"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Most kills?",
+      "prompt_summary": "Skipping Series: Most kills?...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c1944b1f-2124-4b4e-9985-8f081234f977",
+      "timestamp": "2026-01-21T12:23:16.434692"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "adf54d49-eb31-4933-a197-6b95a5665e86",
+      "timestamp": "2026-01-21T12:24:29.371807"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Oh My God Tower Handicap (-5.5) vs Ultra Prime (+5.5)",
+      "prompt_summary": "Skipping Series: Oh My God Tower Handic...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "368bcc31-54b9-45a2-bfea-8d35a862cfc2",
+      "timestamp": "2026-01-21T12:25:33.118093"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "773414c1-d70b-4514-8ff2-02163af247ac",
+      "timestamp": "2026-01-21T12:26:54.938547"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "04f903bc-6c1a-47e0-b981-07f67bd845d0",
+      "timestamp": "2026-01-21T12:27:57.068860"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d682609a-9fd6-4a31-8741-41cc69c04cc6",
+      "timestamp": "2026-01-21T12:29:17.484388"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Oh My God Tower Handicap (-5.5) vs Ultra Prime (+5.5)",
+      "prompt_summary": "Skipping Series: Oh My God Tower Handic...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "bcd00b38-3557-462b-adef-a96bc1648d2d",
+      "timestamp": "2026-01-21T12:30:18.690555"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "96750dcb-4bd6-41da-8f0e-628959849162",
+      "timestamp": "2026-01-21T12:31:31.019032"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Oh My God Tower Handicap (-5.5) vs Ultra Prime (+5.5)",
+      "prompt_summary": "Skipping Series: Oh My God Tower Handic...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d4489ca6-8f1a-4ad1-b5b8-b2ab0773a59d",
+      "timestamp": "2026-01-21T12:32:39.591378"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "2cd7f5e2-2fa2-448c-a05b-edb7cdf7876a",
+      "timestamp": "2026-01-21T12:33:54.916589"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "20d6c484-002b-46fc-ac4d-79ebb3ed0c4e",
+      "timestamp": "2026-01-21T12:34:56.217572"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "be3e839b-8b9f-4413-b1bf-08e1434838cc",
+      "timestamp": "2026-01-21T12:36:08.828968"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "e17db485-f0f8-4cf6-8e45-b44c76d098aa",
+      "timestamp": "2026-01-21T12:37:11.488294"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "010e5a96-4ab9-4156-9dbb-2b8608fab842",
+      "timestamp": "2026-01-21T12:38:25.024931"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "7385cc2b-55e0-4d74-aa28-a1b81b84634d",
+      "timestamp": "2026-01-21T12:39:26.562923"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "e4f6496b-d730-4cd0-9ecd-0e54ea720ef1",
+      "timestamp": "2026-01-21T12:40:37.864744"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "959aa5d6-afd3-4b17-9325-fd3338d9b9e9",
+      "timestamp": "2026-01-21T12:42:45.325340"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "14358a2f-eb34-41bb-99f0-358179782d04",
+      "timestamp": "2026-01-21T12:44:52.574266"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "abcffc7b-386d-4f2e-8aaf-909efbcaef21",
+      "timestamp": "2026-01-21T12:46:57.863168"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "70f38f04-0202-4df8-9a94-cb1a49712b99",
+      "timestamp": "2026-01-21T12:48:59.409686"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "cf2479f7-7a83-43f0-a8be-ad4804ea6b86",
+      "timestamp": "2026-01-21T12:50:00.625881"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "68219e3a-36fe-4aba-a5ce-90d6b3181f3d",
+      "timestamp": "2026-01-21T12:51:08.463581"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "129903d5-3057-4146-80dc-bae3978b3218",
+      "timestamp": "2026-01-21T12:52:19.020223"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d95efa44-c70e-4345-8880-3868e8db1642",
+      "timestamp": "2026-01-21T12:53:28.048972"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "74b03647-0f6f-42fc-a552-51e6c0f9a082",
+      "timestamp": "2026-01-21T12:54:35.420985"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "e2008954-3926-45e0-a0ac-cc23c5d77e06",
+      "timestamp": "2026-01-21T12:55:43.974438"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "0a00253b-58a0-48b0-84b7-a88fe226ec54",
+      "timestamp": "2026-01-21T12:56:54.385555"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d9b81ee7-92bc-4bd0-9378-db4f829d7f07",
+      "timestamp": "2026-01-21T12:58:02.523844"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "e9239b5f-757d-45e7-aa00-f23b9a9ab715",
+      "timestamp": "2026-01-21T12:59:11.454789"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "05b5c11a-8fcd-4402-a336-4daafc94d920",
+      "timestamp": "2026-01-21T13:00:28.646312"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "ec4664e1-ff6b-4d9d-aea3-b14e5d28c77d",
+      "timestamp": "2026-01-21T13:01:30.484167"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "0b5f4875-dfe6-4418-a5ed-6e7dbc6e5d92",
+      "timestamp": "2026-01-21T13:02:41.325921"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "d3f4e499-ada5-4226-b525-b9ac05e23248",
+      "timestamp": "2026-01-21T13:03:45.757787"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "f4c21aa3-e64e-4bc1-8d2d-3215a876958d",
+      "timestamp": "2026-01-21T13:04:53.512821"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "59619ba1-6720-4830-b887-e4c2ba047f7a",
+      "timestamp": "2026-01-21T13:05:54.983932"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "e296f6f3-be72-489b-91af-23aaa0d8a751",
+      "timestamp": "2026-01-21T13:07:17.072366"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c068003c-0396-42a9-8ad5-1b69378dc7d1",
+      "timestamp": "2026-01-21T13:08:21.311473"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "133dfc2c-47ad-467a-bc93-6b45d87f7730",
+      "timestamp": "2026-01-21T13:09:37.954892"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "b14e1ff7-baab-4c73-9d3b-e5cd130a75f2",
+      "timestamp": "2026-01-21T13:10:43.101966"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5e89944d-a3fe-4582-ac36-f685b4ed44ec",
+      "timestamp": "2026-01-21T13:12:23.777830"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Most inhibitors?",
+      "prompt_summary": "Skipping Series: Most inhibitors?...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "29977640-eee1-49ca-b9c8-edcc2363cdba",
+      "timestamp": "2026-01-21T13:13:27.586357"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "ca933290-80c8-4fa6-b6a9-136f17c6d724",
+      "timestamp": "2026-01-21T13:15:11.110160"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Oh My God Tower Handicap (-5.5) vs Ultra Prime (+5.5)",
+      "prompt_summary": "Skipping Series: Oh My God Tower Handic...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "dcf3c152-2dff-441f-ba8a-48fd29fa62cb",
+      "timestamp": "2026-01-21T13:16:12.832444"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "2444e6f9-c865-4b6d-a06f-89eacf9bf5d6",
+      "timestamp": "2026-01-21T13:17:49.162329"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: DRX Tower Handicap (-3.5) vs DN SOOPers (+3.5)",
+      "prompt_summary": "Skipping Series: DRX Tower Handicap (-3...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "f5f1b518-46a8-493f-adb6-f36b47ae987e",
+      "timestamp": "2026-01-21T13:18:49.628893"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "96de1e07-714a-4f89-9841-eed5d69259e1",
+      "timestamp": "2026-01-21T13:20:23.290715"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "33f45441-a6e1-4faf-9c80-4dc66c9adbe9",
+      "timestamp": "2026-01-21T13:21:26.283208"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c3dfd969-b8d1-401b-8427-32f1445517ed",
+      "timestamp": "2026-01-21T13:22:48.591726"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Oh My God Tower Handicap (-5.5) vs Ultra Prime (+5.5)",
+      "prompt_summary": "Skipping Series: Oh My God Tower Handic...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c795d11b-f016-4691-a07b-ae993728ce80",
+      "timestamp": "2026-01-21T13:23:49.013541"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c25aeb72-b408-4a95-af16-f5473193a5b9",
+      "timestamp": "2026-01-21T13:25:18.782607"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Series: Most inhibitors?",
+      "prompt_summary": "Skipping Series: Most inhibitors?...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "58ae6f81-5679-495a-bb96-47ea2c5ed8b5",
+      "timestamp": "2026-01-21T13:26:20.500068"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5a2a8190-9473-4a7b-80c0-0f1ec01a6129",
+      "timestamp": "2026-01-21T13:27:55.996329"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Games Total: O/U 2.5",
+      "prompt_summary": "Skipping Games Total: O/U 2.5...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "a11029a4-07e6-4754-9c65-d966044fb1ac",
+      "timestamp": "2026-01-21T13:29:02.861618"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "a95585b2-8432-4831-96ac-b000414c99f6",
+      "timestamp": "2026-01-21T13:30:15.191613"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "64287a03-3c1b-4251-8a16-e8cc6b6032e0",
+      "timestamp": "2026-01-21T13:31:23.870473"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c3665586-a15c-4e59-9597-24510a19f973",
+      "timestamp": "2026-01-21T13:32:30.611751"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "8e02e250-9596-4f34-9483-934a0b757814",
+      "timestamp": "2026-01-21T13:33:37.098380"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "5a11d69e-cc94-44a9-91cb-f1498818a2d9",
+      "timestamp": "2026-01-21T13:34:46.983675"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "6accb5ab-f0f3-417f-a60e-103268e5adbe",
+      "timestamp": "2026-01-21T13:35:57.447714"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "7f78a92e-54b7-4e03-858a-8a5bb812e2c1",
+      "timestamp": "2026-01-21T13:37:09.088156"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "7ad66bf2-363c-490c-99c1-f4bf3d467ccf",
+      "timestamp": "2026-01-21T13:38:22.136251"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "f6d87cbd-d09a-45f1-8eac-82581f622b31",
+      "timestamp": "2026-01-21T13:39:31.912111"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "4b33ab4c-dae3-4bee-aa2a-53ec172ba6ea",
+      "timestamp": "2026-01-21T13:40:42.424282"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "7daae349-d9e1-4496-8155-984ded4287e9",
+      "timestamp": "2026-01-21T13:41:55.777547"
+    },
+    {
+      "agent": "esports_trader",
+      "action_type": "SCAN",
+      "market_question": "Counter-Strike: Leo Team vs ALGO Esports (BO1)",
+      "prompt_summary": "Skipping Counter-Strike: Leo Team vs AL...",
+      "reasoning": "No live Pandascore data available for this match. Skipping to avoid gambling on random odds.",
+      "conclusion": "WAIT (No Data)",
+      "confidence": 0.0,
+      "data_sources": [
+        "Polymarket"
+      ],
+      "duration_ms": 0,
+      "tokens_used": 0,
+      "cost_usd": 0.0,
+      "id": "c3199410-13cc-4fc0-8dc6-925625026429",
+      "timestamp": "2026-01-21T13:43:07.564506"
     }
   ]
 }

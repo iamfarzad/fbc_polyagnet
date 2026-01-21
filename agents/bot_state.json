@@ -10,7 +10,11 @@
   "safe_last_activity": "OFFLINE",
   "safe_last_endpoint": "-",
   "safe_heartbeat": "",
-  "esports_trader_last_activity": "OFFLINE",
-  "esports_trader_mode": "LIVE",
-  "recent_trades": []
+  "esports_trader_last_activity": "Trades: 0 | Watching 0 positions",
+  "esports_trader_mode": "DRY RUN",
+  "recent_trades": [],
+  "esports_trader_trades": 0,
+  "esports_trader_pnl": 0.0,
+  "esports_trader_last_scan": "14:43:07",
+  "esports_trader_api_usage": "154/1000 requests this hour"
 }

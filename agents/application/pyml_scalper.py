@@ -1021,6 +1021,15 @@ class CryptoScalper:
 
                                 # Only trade if momentum exceeds threshold AND sentiment is clear
                                 if abs(momentum) < BASE_MOMENTUM_THRESHOLD:
+                                    # Update UI with "Watching" status and momentum
+                                    try:
+                                        status_msg = f"STALKING | {asset.upper()} MOM {momentum:.4f}"
+                                        update_agent_activity(self.AGENT_NAME, status_msg, {
+                                            "last_token_id": markets[0]["up_token"],
+                                            "momentum": momentum
+                                        })
+                                    except: pass
+                                    
                                     print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {BASE_MOMENTUM_THRESHOLD:.4f})")
                                     self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {BASE_MOMENTUM_THRESHOLD:.4f}", confidence=0.0, conclusion="WAIT")
                                     continue

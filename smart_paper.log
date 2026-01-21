@@ -1,0 +1,922 @@
+   🔐 Corrupt or missing L2 keys. Re-deriving from wallet...
+   ✅ NEW API KEY: 0e5667e9-67ec-b3c4-8112-1609b588a164
+   ✅ NEW SECRET: kVeEXkoC20TycECI9ur4...
+   ✅ NEW PASSPHRASE: 8a1d85e7310ed3ae0a73af675d4d428f6e1fa7ee2eb50f70417569d676389edf
+   🔐 No User credentials found, deriving from private key...
+   🏦 AutoRedeemer using dashboard wallet: 0xdb1f88Ab5B531911326788C018D397d352B7265c (Proxy: 0xdb1f88Ab5B531911326788C018D397d352B7265c)
+MAAX VELOCITY ACTIVATED
+🔄 AutoRedeemer initialized
+   Address: 0xdb1f88Ab5B531911326788C018D397d352B7265c
+   Has PK: True
+✅ Auto-redeemer initialized
+============================================================
+🧠 SMART TRADER - Fee-Free Markets
+============================================================
+Mode: DRY RUN
+Max Positions: 10
+Bet Size: 15%
+Min Edge Required: 10%
+Strategy: LLM Analysis → Bet if Edge → Hold to Resolution
+Balance: $0.01
+============================================================
+
+
+🧠 SMART TRADER ACTIVE
+   Scanning every 300s
+   Focus: Fee-free markets with 10%+ edge
+
+
+[10:01:54] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   📡 Watchlist Updated: Monitoring 2 active resolutions.
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:06:57] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:11:59] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:17:00] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:22:15] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   ⚠️ RPC Rate Limit (429). Sleeping 8s...
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:27:35] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:32:50] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   ⚠️ RPC Rate Limit (429). Sleeping 8s...
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:38:07] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:43:10] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:48:11] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:53:13] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[10:58:22] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:03:24] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   ⚠️ RPC Rate Limit (429). Sleeping 4s...
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:08:34] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   ⚠️ RPC Rate Limit (429). Sleeping 2s...
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:13:40] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:18:42] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:23:47] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:28:49] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:33:52] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:38:54] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:43:56] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:48:58] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:54:00] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[11:59:02] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:04:04] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:09:06] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:14:08] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:19:10] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:24:12] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:29:17] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:34:20] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:39:25] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:44:27] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:49:29] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:54:33] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[12:59:37] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:04:42] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:09:47] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:14:49] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:19:52] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:24:55] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:29:58] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:35:01] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🎯 TARGET REACHED: Counter-Strike: Team Nemesis vs FORZE Re (Checking oracle...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🎯 TARGET REACHED: Dota 2: Team Liquid vs Virtus.pro - Game (Checking oracle...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:40:08] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:45:12] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:50:15] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[13:55:18] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[14:00:23] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[14:05:26] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[14:10:30] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...
+   📡 REDEEMER: Found 2 positions from API
+   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+   📡 Processing position 2: Dota 2: Team Liquid vs Virtus.pro - Game (size: 8.09)
+   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔍 Resolution check result: False
+   🔍 Checking if Dota 2: Team Liquid vs Virtus.... is resolved (cond_id: 0x5cfaa3d5...)
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+   🔍 Resolution check result: False
+   🔗 On-chain check failed for 0x980973c2...: execution reverted
+   🔗 On-chain check failed for 0x5cfaa3d5...: execution reverted
+Smart Trader paused via Supabase. Sleeping...
+
+   ⏳ Next scan in 300s...
+
+[14:15:33] Scanning fee-free markets...
+   🔄 Checking for redeemable positions...

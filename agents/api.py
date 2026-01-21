@@ -723,18 +723,19 @@ def get_dashboard(background_tasks: BackgroundTasks):
         "safe": {
             "running": is_agent_active("safe", state),
             "activity": state.get("safe_last_activity", "Idle"),
-            "endpoint": state.get("safe_last_endpoint", "Gamma API")
+            "endpoint": state.get("safe_last_endpoint", "Gamma API"),
+            "heartbeat": state.get("safe_heartbeat")
         },
         "scalper": {
             "running": is_agent_active("scalper", state),
             "activity": scalper_activity,
-            "endpoint": state.get("scalper_last_endpoint", "RTDS WebSocket"),
-            "markets": scalper_markets,
-            "prices": scalper_prices
+            "endpoint": state.get("scalper_last_endpoint", "Gamma API"),
+            "heartbeat": state.get("scalper_heartbeat")
         },
         "copyTrader": {
             "running": is_agent_active("copy", state),
-            "lastSignal": state.get("last_signal", "None"),
+            "lastSignal": state.get("copy_last_signal", "No signals"),
+            "heartbeat": state.get("copy_heartbeat"),
             "lastScan": state.get("copy_last_scan", "-")
         },
         "smartTrader": {
@@ -772,36 +773,56 @@ def get_dashboard(background_tasks: BackgroundTasks):
 
     # 8. Open Orders
     open_orders = fetch_open_orders_helper()
+    # Calculate daily metrics (Rolling 24h)
+    now = time.time()
+    day_ago = now - 86400
+    
+    daily_trades = []
+    for t in all_trades: # Using all_trades as it's already fetched and used for 24h volume
+        try:
+            # Handle string ISO or float timestamp
+            t_time = t.get("time")
+            if isinstance(t_time, str):
+                ts = datetime.fromisoformat(t_time.replace('Z', '+00:00')).timestamp()
+            else:
+                ts = float(t_time)
+            
+            if ts > day_ago:
+                daily_trades.append(t)
+        except: pass
 
-    # Calculate accurate metrics for HFT Scalper
-    all_sells = [t for t in all_trades if "Sell" in t.get('side', '')]
-    instant_scalp_total = sum(t.get('amount', 0) * 0.015 for t in all_sells)
+    trade_count = len(daily_trades)
     
-    # Calculate volume based on all trades in last 24h
-    total_volume_24h = sum(t.get('amount', 0) for t in all_trades)
-    estimated_rebate = total_volume_24h * 0.00035  # 3.5bps Maker Rebate
+    # Calculate Instant Scalp Total (PnL from closed positions)
+    # This comes from the 'pnl_history' or similar tracking
+    instant_scalp_total = state.get("total_pnl", 0.0) 
     
-    result = {
-        "balance": balance,
+    # Calculate Estimated Rebate (Volume * 3.5bps)
+    # 3.5bps = 0.00035
+    volume_24h = sum(float(t.get("amount", 0)) for t in daily_trades)
+    estimated_rebate = volume_24h * 0.00035
+
+    result = { # Changed from dashboard_data to result to match existing variable name
+        "balance": balance, # Changed from wallet_balance to balance
         "equity": equity,
         "unrealizedPnl": unrealized_pnl,
-        "gasSpent": gas_spent,
-        "total_redeemed": total_redemptions,
-        "costs": costs,
+        "gasSpent": gas_spent, # Changed from state.get("gas_spent", 0.0) to gas_spent
+        "total_redeemed": total_redemptions, # Changed from state.get("total_redeemed", 0) to total_redemptions
+        "costs": costs, # Added costs
         "riskStatus": {
-            "safe": risk_safe,
-            "message": risk_msg
+            "safe": risk_safe, # Changed from True to risk_safe
+            "message": risk_msg # Changed from "Protocol Safe. All systems nominal." to risk_msg
         },
         "agents": agents_data,
         "positions": positions,
-        "openOrders": open_orders,
-        "trades": trades,
+        "openOrders": open_orders, # Changed from open_orders to openOrders
+        "trades": trades, # Changed from recent_trades[-50:] to trades
         "stats": {
             "tradeCount": trade_count,
-            "volume24h": total_volume_24h
+            "volume24h": volume_24h
         },
-        "dryRun": state.get("dry_run", True),
-        "lastUpdate": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "dryRun": state.get("dry_run", True), # Changed from is_dry_run_mode to state.get("dry_run", True)
+        "lastUpdate": datetime.now(timezone.utc).isoformat(),
         "walletAddress": wallet_address,
         "maxBetAmount": state.get("dynamic_max_bet", 0.50),
         "instant_scalp_total": round(instant_scalp_total, 2),
