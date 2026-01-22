@@ -812,12 +812,14 @@ class CryptoScalper:
             _, best_bid, _, best_ask = self.get_current_price(token_id)
             if best_bid == 0:
                 # 👻 GHOST TRAP: If Ask indicates a profit ("Liquidity Mirage"), use it to place a Maker Sell.
-                # This ensures we don't freeze when the price spikes but there are no buyers yet.
                 if best_ask > 0 and best_ask > pos["entry_price"] * 1.10:
                      print(f"   👻 GHOST TRAP ACTIVATED: Bid 0, but Ask ${best_ask}. placing Maker Sell.")
                      best_bid = best_ask # Virtual Bid to trigger profit logic below
                 else:
-                     continue
+                     # 🚨 CRASH DETECTED: Bid is 0 and Ask is not profitable.
+                     # We must treat this as -100% PnL so the Panic Dump logic triggers below.
+                     # Do NOT continue/skip. Fall through with best_bid = 0.
+                     best_bid = 0.0
 
             # 2. Calculate PnL relative to current Bid
             pnl_pct = (best_bid - pos["entry_price"]) / pos["entry_price"]
