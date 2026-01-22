@@ -74,7 +74,7 @@ load_dotenv()
 # Portfolio & Size
 MAX_POSITIONS = 3                   # Start with 3
 BET_PERCENT = 0.99                  # ALL IN (Phoenix Mode)
-MIN_BET_USD = 0.10                  # <--- LOWERED TO $0.10 FOR EXTREME RECOVERY
+MIN_BET_USD = 0.01                  # <--- LOWERED TO $0.01 FOR DUST RECOVERY
 MAX_BET_USD = 500.00                
 MAX_DAILY_DRAWDOWN_PCT = 999.0      # <--- IGNORE ALL LOSS LIMITS
 
