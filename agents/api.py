@@ -450,48 +450,73 @@ def fetch_positions_helper():
     return []
 
 def fetch_trades_helper(limit=50):
+    trades = []
+    
+    # 1. Fetch from Supabase (Internal Ledger)
+    if HAS_SUPABASE:
+        try:
+            supa = get_supabase_state()
+            supa_trades = supa.get_recent_trades(limit=limit)
+            for t in supa_trades:
+                trades.append({
+                    "time": t.get("created_at") or datetime.now().isoformat(),
+                    "market": t.get("market_question", "Internal Trade"),
+                    "side": t.get("side", "UNKNOWN"),
+                    "amount": float(t.get("size_usd", 0)),
+                    "source": "supabase"
+                })
+        except Exception as e:
+            logger.error(f"Error fetching trades from Supabase: {e}")
+
+    # 2. Fetch from Polymarket Data API (On-chain Activity)
     pm = get_pm()
-    if not pm: return []
-    try:
-        # Use Activity Endpoint with DASHBOARD_WALLET for consolidated view
-        url = f"https://data-api.polymarket.com/activity?user={DASHBOARD_WALLET}&limit={limit}&offset=0"
-        import requests
-        resp = requests.get(url, timeout=5)
-        
-        if resp.status_code == 200:
-            raw = resp.json()
-            trades = []
-            for t in raw:
-                try:
-                    # Filter for TRADE type only
-                    if t.get("type") != "TRADE":
+    if pm:
+        try:
+            # Use Activity Endpoint with DASHBOARD_WALLET for consolidated view
+            url = f"https://data-api.polymarket.com/activity?user={DASHBOARD_WALLET}&limit={limit}&offset=0"
+            import requests
+            resp = requests.get(url, timeout=5)
+            
+            if resp.status_code == 200:
+                raw = resp.json()
+                for t in raw:
+                    try:
+                        # Filter for TRADE type only
+                        if t.get("type") != "TRADE":
+                            continue
+                            
+                        # Parse timestamp (Unix int -> readable string)
+                        ts_int = t.get("timestamp")
+                        ts_str = datetime.fromtimestamp(ts_int).isoformat() if ts_int else datetime.now().isoformat()
+                        
+                        market_title = t.get("title", "N/A")
+                        outcome = t.get("outcome", "")
+                        
+                        # Construct Side (e.g. "Buy No")
+                        side = t.get("side", "UNKNOWN")
+                        if outcome:
+                            side = f"{side} {outcome}"
+                            
+                        # Check if this trade is already present (deduplicate)
+                        # We use market and approx time for simple dedup
+                        is_duplicate = any(d["market"] == market_title and abs((datetime.fromisoformat(d["time"].replace('Z', '+00:00')) - datetime.fromisoformat(ts_str.replace('Z', '+00:00'))).total_seconds()) < 60 for d in trades if d.get("source") == "supabase")
+                        
+                        if not is_duplicate:
+                            trades.append({
+                                "time": ts_str, 
+                                "market": market_title,
+                                "side": side,
+                                "amount": float(t.get("usdcSize", 0)), # Use USD size
+                                "source": "polymarket"
+                            })
+                    except Exception: 
                         continue
-                        
-                    # Parse timestamp (Unix int -> readable string)
-                    ts_int = t.get("timestamp")
-                    ts_str = datetime.fromtimestamp(ts_int).isoformat() if ts_int else datetime.now().isoformat()
-                    
-                    market_title = t.get("title", "N/A")
-                    outcome = t.get("outcome", "")
-                    
-                    # Construct Side (e.g. "Buy No")
-                    side = t.get("side", "UNKNOWN")
-                    if outcome:
-                        side = f"{side} {outcome}"
-                        
-                    trades.append({
-                        "time": ts_str, 
-                        "market": market_title,
-                        "side": side,
-                        "amount": float(t.get("usdcSize", 0)) # Use USD size
-                    })
-                except Exception as e: 
-                    # logger.error(f"Error parsing trade: {e}")
-                    continue
-            return trades
-    except Exception as e:
-        logger.error(f"Error fetching trades: {e}")
-    return []
+        except Exception as e:
+            logger.error(f"Error fetching trades from Polymarket API: {e}")
+            
+    # Sort all trades by time descending
+    trades.sort(key=lambda x: x["time"], reverse=True)
+    return trades[:limit]
 
 # --- New Config & Manual Override Models ---
 class ConfigUpdatePayload(BaseModel):
