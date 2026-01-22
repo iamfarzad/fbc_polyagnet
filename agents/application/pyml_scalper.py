@@ -591,8 +591,8 @@ class CryptoScalper:
         balance = self.get_balance()
         
         # PHOENIX RECOVERY MODE
-        if balance < 10.0:
-            print(f"   🔥 PHOENIX MODE ACTIVE (Balance ${balance:.2f} < $10)")
+        if balance < 50.0:
+            print(f"   🔥 PHOENIX MODE ACTIVE (Balance ${balance:.2f} < $50)")
             # Leave $0.10 for gas/fees if needed, otherwise use 90%
             safe_max = max(1.0, balance * 0.90)
             return min(MAX_BET_USD, float(safe_max))
@@ -666,7 +666,7 @@ class CryptoScalper:
 
                  # PHOENIX SNIPER: If Ask is super cheap (<= 0.05), just TAKE it.
                  # We want those 1 cent shares.
-                 if self.get_balance() < 10.0 and best_ask <= 0.05:
+                 if self.get_balance() < 50.0 and best_ask <= 0.05:
                       entry_price = round(float(best_ask), 2)
                       is_taker = True
                       print(f"   🦅 PHOENIX SNIPE: Taking cheap shares at ${entry_price}!")
