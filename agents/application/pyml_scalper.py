@@ -651,10 +651,11 @@ class CryptoScalper:
             if best_bid <= 0.05 and best_ask >= 0.95:
                  print(f"   👻 EMPTY MARKET DETECTED (Spread: {best_bid}-{best_ask})")
                  # Seed liquidity based on sentiment (conservative)
-                 # e.g. Sentiment 0.60 -> Bid 0.40. Sentiment 0.40 -> Bid 0.20.
-                 target_price = max(0.10, min(0.90, sentiment_score - 0.10))
+                 # FIXED: Allow 1c-5c seeds. Old $0.10 floor caused deadlock with Hard Cap.
+                 # e.g. Sentiment 0.60 -> Bid 0.04. Sentiment 0.40 -> Bid 0.02.
+                 target_price = max(0.01, min(0.05, sentiment_score * 0.10))
                  entry_price = round(target_price, 2)
-                 print(f"   💡 SEEDING QUOTE @ {entry_price} (based on sentiment {sentiment_score:.2f})")
+                 print(f"   💡 SEEDING QUOTE @ {entry_price} (Sentiment {sentiment_score:.2f} -> 1c-5c Range)")
             else:
                  # Standard Queue Jump
                  print(f"   🔍 BEST BID: {best_bid}")
