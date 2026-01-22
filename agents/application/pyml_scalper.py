@@ -1204,14 +1204,24 @@ class CryptoScalper:
                                     self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {mom_threshold:.4f}", confidence=0.0, conclusion="WAIT")
                                     continue
 
-                                # --- SAFE ENTRY LOGIC (WHALE OVERRIDE REMOVED) ---
+                                # --- SAFE ENTRY LOGIC (PHOENIX OVERRIDE) ---
                                 
                                 signals_agree = (momentum > 0) == (sentiment_score > 0.5)
                                 confidence_met = abs(sentiment_score - 0.5) * 2 >= conf_threshold
 
+                                # Phoenix Mode: Trust Sentiment over Momentum if aggressive
+                                if BET_PERCENT > 0.5 and abs(sentiment_score - 0.5) > 0.1:
+                                     print(f"   🔥 PHOENIX OVERRIDE: Trusting Sentiment {sentiment_score:.2f} despite Momentum {momentum:.4f}%")
+                                     signals_agree = True
+                                     confidence_met = True
+
                                 # STRICTER LOGIC: MUST HAVE AGREEMENT and CONFIDENCE
                                 if signals_agree and confidence_met:
-                                    direction = "UP" if momentum > 0 else "DOWN"
+                                    # In Phoenix Mode, follow Sentiment. Otherwise follow Momentum (they match).
+                                    if BET_PERCENT > 0.5: 
+                                        direction = "UP" if sentiment_score > 0.5 else "DOWN"
+                                    else:
+                                        direction = "UP" if momentum > 0 else "DOWN"
                                     print(f"   🎯 SIGNAL SYNC: {asset.upper()} {direction} (Mom={momentum:.4f}%, Sent={sentiment_score:.2f})")
                                     self.open_position_maker(m, direction, momentum, sentiment_score)
                                 else:
