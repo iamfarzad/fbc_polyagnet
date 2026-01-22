@@ -73,10 +73,10 @@ load_dotenv()
 
 # Portfolio & Size
 MAX_POSITIONS = 3                   # Start with 3
-BET_PERCENT = 0.33                  # Allocation stays at 33% 
-MIN_BET_USD = 1.00                  # <--- LOWERED FOR RECOVERY (Phoenix Mode)
+BET_PERCENT = 0.99                  # ALL IN (Phoenix Mode)
+MIN_BET_USD = 0.10                  # <--- LOWERED TO $0.10 FOR EXTREME RECOVERY
 MAX_BET_USD = 500.00                
-MAX_DAILY_DRAWDOWN_PCT = 5.0        # <--- RELAXED: Set to 500% to ignore legacy losses (Phoenix Recovery)
+MAX_DAILY_DRAWDOWN_PCT = 999.0      # <--- IGNORE ALL LOSS LIMITS
 
 # Sniper Execution
 PRICE_CAP = 0.96                    
@@ -852,12 +852,11 @@ class CryptoScalper:
                  print(f"   🚀 TRIGGERING PREDATORY EXIT @ ${predatory_price}")
 
             # 4. Trigger "Smart Maker" Exit if Target Hit OR Stop Loss Hit
-            if pnl_pct > TAKE_PROFIT_PCT or pnl_pct < PANIC_THRESHOLD_PCT:
-                
-                # The "Smart" part: If the market moved, cancel the old order and jump to the new front
+            # 4. Trigger Exit if Target Hit OR Stop Loss Hit
+            if pnl_pct > TAKE_PROFIT_PCT:
+                # --- PROFIT MODE: Smart Maker (Chase Ask) ---
                 if existing_exit:
                     current_order_price = self.pending_orders[existing_exit].get("price")
-                    # If we aren't the best ask anymore, we are stuck. Cancel and re-place.
                     target_price = round(best_ask - MAKER_OFFSET, 2)
                     if current_order_price != target_price:
                         print(f"   🔄 CHASING FILL: Moving {pos['asset']} exit to front of queue (${target_price})...")
@@ -866,32 +865,43 @@ class CryptoScalper:
                             except: pass
                         del self.pending_orders[existing_exit]
                     else:
-                        continue # Already at the front, just wait for fill
+                        continue 
 
-                # Calculate aggressive Maker exit (head of the 'Ask' queue)
                 sell_price = round(best_ask - MAKER_OFFSET, 2)
-                action_label = "PROFIT" if pnl_pct > TAKE_PROFIT_PCT else "STOP"
-                print(f"   💰 {action_label}: Placing Aggressive Maker Sell @ ${sell_price}")
+                print(f"   💰 PROFIT: Placing Aggressive Maker Sell @ ${sell_price}")
 
-                if self.dry_run:
-                    self.total_pnl += (pnl_pct * pos["size"] * pos["entry_price"])
-                    # In dry run, we assume instant fill for simplicity, or we could simulate waiting
-                    # For now, let's remove it to simulate 'filled'
-                    del self.active_positions[token_id]
-                    continue
+                if not self.dry_run:
+                    try:
+                        resp = self.pm.place_limit_order(token_id, sell_price, pos["size"], "SELL")
+                        if resp.get("orderID"):
+                            self.pending_orders[resp["orderID"]] = {
+                                "type": "exit", "time": time.time(), "token_id": token_id, "price": sell_price,
+                                "timeout": EXIT_MAKER_TIMEOUT
+                            }
+                    except Exception as e:
+                        print(f"   ❌ Maker Exit Failed: {e}")
 
-                try:
-                    resp = self.pm.place_limit_order(token_id, sell_price, pos["size"], "SELL")
-                    if resp.get("orderID"):
-                        self.pending_orders[resp["orderID"]] = {
-                            "type": "exit",
-                            "time": time.time(),
-                            "token_id": token_id,
-                            "price": sell_price,
-                            "timeout": EXIT_MAKER_TIMEOUT # Fast rotation
-                        }
-                except Exception as e:
-                    print(f"   ❌ Maker Exit Failed: {e}")
+            elif pnl_pct < PANIC_THRESHOLD_PCT:
+                # --- PANIC MODE: Taker Dump (Hit Bid) ---
+                print(f"   🚨 PANIC DUMP: PnL {pnl_pct*100:.2f}% < {PANIC_THRESHOLD_PCT*100}%! FORCE SELLING!")
+                
+                # Cancel any existing maker orders to free up balance
+                if existing_exit:
+                    if not self.dry_run:
+                        try: self.pm.client.cancel(existing_exit)
+                        except: pass
+                    del self.pending_orders[existing_exit]
+
+                if not self.dry_run:
+                    try:
+                        # Place LIMIT SELL @ 0.00 to cross the entire spread and fill instantly (Taker)
+                        # This behaves like a Market Sell
+                        resp = self.pm.place_limit_order(token_id, 0.00, pos["size"], "SELL")
+                        if resp.get("orderID"):
+                            print(f"   ✅ DUMPED {pos['asset']} @ MARKET PRICE")
+                            del self.active_positions[token_id] # Assume instant fill
+                    except Exception as e:
+                        print(f"   ❌ Panic Dump Failed: {e}")
 
     # -------------------------------------------------------------------------
     # UTILS
