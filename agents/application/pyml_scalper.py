@@ -76,7 +76,7 @@ MAX_POSITIONS = 3                   # Start with 3
 BET_PERCENT = 0.33                  # Allocation stays at 33% 
 MIN_BET_USD = 1.00                  # <--- LOWERED FOR RECOVERY (Phoenix Mode)
 MAX_BET_USD = 500.00                
-MAX_DAILY_DRAWDOWN_PCT = 0.25       
+MAX_DAILY_DRAWDOWN_PCT = 5.0        # <--- RELAXED: Set to 500% to ignore legacy losses (Phoenix Recovery)
 
 # Sniper Execution
 PRICE_CAP = 0.96                    
