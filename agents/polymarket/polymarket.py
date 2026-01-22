@@ -524,6 +524,17 @@ class Polymarket:
             print(f"   ⚠️ Limit Order Failed: {e}")
             return {"error": str(e)}
 
+    def cancel_all_orders(self):
+        """Cancel ALL open orders to free up liquidity."""
+        try:
+            print("   🧨 Cancelling ALL open orders...")
+            self.client.cancel_all()
+            print("   ✅ All orders cancelled.")
+            return True
+        except Exception as e:
+            print(f"   ⚠️ Cancel All Failed: {e}")
+            return False
+
     def execute_market_order(self, market, amount) -> str:
         token_id = ast.literal_eval(market[0].dict()["metadata"]["clob_token_ids"])[1]
         order_args = MarketOrderArgs(
@@ -760,9 +771,10 @@ class Polymarket:
         """Fetch past trade history."""
         try:
             # Use self.client to fetch trade history
-            # The exact method depends on py-clob-client version, but usually get_trades or get_trade_history
-            trades = self.client.get_trades(limit=limit)
-            return trades
+            # The py-clob-client get_trades typically doesn't take 'limit' directly or uses pagination params
+            # We will try without arguments first, then slice
+            trades = self.client.get_trades()
+            return trades[:limit] if trades else []
         except Exception as e:
             print(f"Failed to fetch trade history: {e}")
             return []

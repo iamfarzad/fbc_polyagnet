@@ -638,6 +638,15 @@ class CryptoScalper:
             print(f"   🔍 PRICE RESULT: {price_result}")
             _, best_bid, _, best_ask = price_result
             
+            # --- PHOENIX MODE: MINIMUM SHARE CHECK ---
+            # Polymarket enforces a minimum order size of 5 SHARES.
+            if self.get_balance() < 5.0 and self.get_balance() > 0:
+                 max_price = self.get_balance() / 5.1 # Buffer
+                 if best_bid > max_price and best_bid > 0:
+                      print(f"   ⚠️ TOO EXPENSIVE: Bid ${best_bid} > Max ${max_price:.2f} (Need 5 shares). Skip.")
+                      return False
+            # ----------------------------------------
+            
             # EMPTY MARKET LOGIC: If Bid is floor (0.0) or near zero, use Sentiment
             if best_bid <= 0.05 and best_ask >= 0.95:
                  print(f"   👻 EMPTY MARKET DETECTED (Spread: {best_bid}-{best_ask})")
