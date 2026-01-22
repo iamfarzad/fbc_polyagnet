@@ -638,12 +638,12 @@ class CryptoScalper:
             print(f"   🔍 PRICE RESULT: {price_result}")
             _, best_bid, _, best_ask = price_result
             
-            # --- PHOENIX MODE: MINIMUM SHARE CHECK ---
-            # Polymarket enforces a minimum order size of 5 SHARES.
-            if self.get_balance() < 5.0 and self.get_balance() > 0:
-                 max_price = self.get_balance() / 5.1 # Buffer
-                 if best_bid > max_price and best_bid > 0:
-                      print(f"   ⚠️ TOO EXPENSIVE: Bid ${best_bid} > Max ${max_price:.2f} (Need 5 shares). Skip.")
+            # --- PHOENIX MODE: HARD PRICE CAP ---
+            # STRICT RULE: If balance < $50, we ONLY buy "lottery tickets" (1c-5c).
+            # We rejected the old "affordability" logic which allowed expensive buys on deposit.
+            if self.get_balance() < 50.0:
+                 if best_bid > 0.05:
+                      print(f"   🔥 PHOENIX REJECT: Bid ${best_bid} > $0.05. Cheap shares only.")
                       return False
             # ----------------------------------------
             
