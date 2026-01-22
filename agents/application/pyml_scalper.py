@@ -638,20 +638,23 @@ class CryptoScalper:
             print(f"   🔍 PRICE RESULT: {price_result}")
             _, best_bid, _, best_ask = price_result
             
-            # --- PHOENIX MODE: HARD PRICE CAP (10¢) ---
-            # STRICT RULE: If balance < $50, we ONLY buy up to 10 cents.
+            # --- PHOENIX MODE: HARD PRICE CAP ---
+            # STRICT RULE: If balance < $50, we ONLY buy "lottery tickets" (1c-5c).
+            # We rejected the old "affordability" logic which allowed expensive buys on deposit.
             if self.get_balance() < 50.0:
-                 if best_bid > 0.10:
-                      print(f"   🔥 PHOENIX REJECT: Bid ${best_bid} > $0.10. Limit 10c Strategy.")
+                 if best_bid > 0.05:
+                      print(f"   🔥 PHOENIX REJECT: Bid ${best_bid} > $0.05. Cheap shares only.")
                       return False
             # ----------------------------------------
             
-            # EMPTY MARKET LOGIC: If Bid is floor (0.0) or near zero, use Fixed 10c
+            # EMPTY MARKET LOGIC: If Bid is floor (0.0) or near zero, use Sentiment
             if best_bid <= 0.05 and best_ask >= 0.95:
                  print(f"   👻 EMPTY MARKET DETECTED (Spread: {best_bid}-{best_ask})")
-                 # Seed liquidity at fixed $0.10 (The "All In" Limit)
-                 entry_price = 0.10
-                 print(f"   💡 SEEDING QUOTE @ {entry_price} (Fixed 10c Strategy)")
+                 # Seed liquidity based on sentiment (conservative)
+                 # e.g. Sentiment 0.60 -> Bid 0.40. Sentiment 0.40 -> Bid 0.20.
+                 target_price = max(0.10, min(0.90, sentiment_score - 0.10))
+                 entry_price = round(target_price, 2)
+                 print(f"   💡 SEEDING QUOTE @ {entry_price} (based on sentiment {sentiment_score:.2f})")
             else:
                  # Standard Queue Jump
                  print(f"   🔍 BEST BID: {best_bid}")
@@ -661,9 +664,9 @@ class CryptoScalper:
                  potential_price = round(float(best_bid) + 0.01, 2) 
                  is_taker = False # Default to Maker
 
-                 # PHOENIX SNIPER: If Ask is cheap (<= 0.10), just TAKE it.
-                 # We want those shares now.
-                 if self.get_balance() < 50.0 and best_ask <= 0.10:
+                 # PHOENIX SNIPER: If Ask is super cheap (<= 0.05), just TAKE it.
+                 # We want those 1 cent shares.
+                 if self.get_balance() < 50.0 and best_ask <= 0.05:
                       entry_price = round(float(best_ask), 2)
                       is_taker = True
                       print(f"   🦅 PHOENIX SNIPE: Taking cheap shares at ${entry_price}!")
@@ -692,10 +695,10 @@ class CryptoScalper:
             print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 2¢-92¢ range")
             return False
 
-        # --- PHOENIX HARD CAP (FINAL CHECK - 10¢) ---
-        # Catch-all: Ensure that even if we "Seed" an empty market, we don't pay > 10c
-        if self.get_balance() < 50.0 and entry_price > 0.10:
-            print(f"   🔥 PHOENIX REJECT (FINAL): Entry ${entry_price:.2f} > $0.10 Hard Cap")
+        # --- PHOENIX HARD CAP (FINAL CHECK) ---
+        # Catch-all: Ensure that even if we "Seed" an empty market, we don't pay > 5c
+        if self.get_balance() < 50.0 and entry_price > 0.05:
+            print(f"   🔥 PHOENIX REJECT (FINAL): Entry ${entry_price:.2f} > $0.05 Hard Cap")
             return False
         # --------------------------------------
 
