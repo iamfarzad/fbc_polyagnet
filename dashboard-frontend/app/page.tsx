@@ -73,14 +73,7 @@ interface DashboardData {
 
 // ... (rest of component)
 
-{/* Bottom Third: Ledger Table */ }
-<div className="h-[35%] border-t border-border/40 bg-background">
-  <InstitutionalLedger
-    trades={data.trades}
-    positions={data.positions}
-    openOrders={data.openOrders || []} // [NEW] Pass openOrders
-  />
-</div>
+
 
 
 // ============================================================================
