@@ -72,26 +72,26 @@ load_dotenv()
 # =============================================================================
 
 # Portfolio & Size
-MAX_POSITIONS = 3                   # Start with 3, increase to 10 as balance grows
-BET_PERCENT = 0.33                  # Allocation stays at 33% until $1,500 balance
-MIN_BET_USD = 5.00                  
-MAX_BET_USD = 500.00                # <--- YOUR HARD CEILING
+MAX_POSITIONS = 3                   # Start with 3
+BET_PERCENT = 0.33                  # Allocation stays at 33% 
+MIN_BET_USD = 1.00                  # <--- LOWERED FOR RECOVERY (Phoenix Mode)
+MAX_BET_USD = 500.00                
 MAX_DAILY_DRAWDOWN_PCT = 0.25       
 
-# Sniper Execution (High-Certainty / Low-Fee)
-PRICE_CAP = 0.96                    # Stay in the low-fee "Certainty Zone"
+# Sniper Execution
+PRICE_CAP = 0.96                    
 BASE_MOMENTUM_THRESHOLD = 0.0005    
 
 # Queue Mastery
-QUEUE_JUMP_THRESHOLD = 0.0          # Always jump to the front
-MAKER_OFFSET = 0.001                # Stay at the head of the queue
-LIMIT_ORDER_TIMEOUT_CALM = 10       
-LIMIT_ORDER_TIMEOUT_VOLATILE = 1    # Rapid 1s reaction time
-EXIT_MAKER_TIMEOUT = 3              # Smart Chase every 3s
+QUEUE_JUMP_THRESHOLD = 0.0          
+MAKER_OFFSET = 0.001                
+LIMIT_ORDER_TIMEOUT_CALM = 45       
+LIMIT_ORDER_TIMEOUT_VOLATILE = 15    
+EXIT_MAKER_TIMEOUT = 10             
 
 # Smart Maker-Only Exit
-TAKE_PROFIT_PCT = 0.015             # Target +1.5% profit per cycle
-PANIC_THRESHOLD_PCT = -0.050        # Smart Maker Stop at -5% (Buffer for spread)
+TAKE_PROFIT_PCT = 0.015             
+PANIC_THRESHOLD_PCT = -0.050        
 
 # Binance & Signal
 BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
@@ -101,8 +101,8 @@ BINANCE_SYMBOLS = {
     "solusdt": "solana",
     "xrpusdt": "xrp"
 }
-MIN_LIQUIDITY_USD = 15              # Minimum order book depth
-MIN_SENTIMENT_CONFIDENCE = 0.30     # Lowered to 30% to catch more moves (>65% sentiment)
+MIN_LIQUIDITY_USD = 15              
+MIN_SENTIMENT_CONFIDENCE = 0.30     
 
 
 class CryptoScalper:
@@ -293,10 +293,23 @@ class CryptoScalper:
         # Fallback to REST API
         try:
             book = self.pm.client.get_order_book(token_id)
+            
+            # SAFE CASTING with Validation
             best_bid = float(book.bids[0].price) if book.bids else 0.0
             bid_size = float(book.bids[0].size) if book.bids else 0.0
             best_ask = float(book.asks[0].price) if book.asks else 1.0
+            
+            # SANITY CHECK: Probability markets must be 0-1
+            # If we see > 1.0, it's garbage or we are mapped to the wrong thing
+            if best_bid > 1.0 or best_ask > 1.05: 
+                 print(f"   ⚠️ PRICE SANITY FAIL: Bid={best_bid}, Ask={best_ask} (Token: {token_id})")
+                 return 0.5, 0.0, 0.0, 1.0
+
             if best_bid == 0 and best_ask == 1: return 0.5, 0.0, 0.0, 1.0
+
+            # 4. EXPENSIVE ENTRY GUARD (New)
+            # If price is > $0.80, we need really good reasons to buy
+            # (Logic applied in trading loop, but good to inspect here)
 
             price_data = ((best_bid + best_ask)/2, best_bid, bid_size, best_ask)
             # Cache the REST data
@@ -304,7 +317,9 @@ class CryptoScalper:
                 self.price_cache = {}
             self.price_cache[token_id] = (time.time(), price_data)
             return price_data
-        except: return 0.5, 0.0, 0.0, 1.0
+        except Exception as e: 
+            # print(f"Price Fetch Error: {e}") # Reduce noise
+            return 0.5, 0.0, 0.0, 1.0
 
     def calculate_momentum(self, symbol):
         """Calculate momentum as % change over last 30 seconds."""
@@ -572,8 +587,17 @@ class CryptoScalper:
         return True
 
     def get_optimal_bet_size(self, asset):
-        """Scale bet size based on asset volatility and correlation."""
-        base_size = self.get_balance() * BET_PERCENT
+        """Scale bet size. PHOENIX MODE: If balance < $5, go all in (90%)."""
+        balance = self.get_balance()
+        
+        # PHOENIX RECOVERY MODE
+        if balance < 10.0:
+            print(f"   🔥 PHOENIX MODE ACTIVE (Balance ${balance:.2f} < $10)")
+            # Leave $0.10 for gas/fees if needed, otherwise use 90%
+            safe_max = max(1.0, balance * 0.90)
+            return min(MAX_BET_USD, float(safe_max))
+
+        base_size = balance * BET_PERCENT
 
         # Scale down for volatile assets
         volatility_multiplier = {
@@ -612,23 +636,52 @@ class CryptoScalper:
         try:
             price_result = self.get_current_price(token_id)
             print(f"   🔍 PRICE RESULT: {price_result}")
-            _, best_bid, _, _ = price_result
-            print(f"   🔍 BEST BID: {best_bid} (type: {type(best_bid)})")
-            entry_price = round(float(best_bid) + MAKER_OFFSET, 3)
-            print(f"   🔍 ENTRY PRICE: {entry_price} (type: {type(entry_price)})")
+            _, best_bid, _, best_ask = price_result
+            
+            # EMPTY MARKET LOGIC: If Bid is floor (0.0) or near zero, use Sentiment
+            if best_bid <= 0.05 and best_ask >= 0.95:
+                 print(f"   👻 EMPTY MARKET DETECTED (Spread: {best_bid}-{best_ask})")
+                 # Seed liquidity based on sentiment (conservative)
+                 # e.g. Sentiment 0.60 -> Bid 0.40. Sentiment 0.40 -> Bid 0.20.
+                 target_price = max(0.10, min(0.90, sentiment_score - 0.10))
+                 entry_price = round(target_price, 2)
+                 print(f"   💡 SEEDING QUOTE @ {entry_price} (based on sentiment {sentiment_score:.2f})")
+            else:
+                 # Standard Queue Jump
+                 print(f"   🔍 BEST BID: {best_bid}")
+                 
+                 # MAKER PRICING LOGIC
+                 # Try to beat the bid, but NEVER cross the ask (or we get rejected as Taker)
+                 potential_price = round(float(best_bid) + 0.01, 2) 
+                 
+                 if potential_price < best_ask:
+                     entry_price = potential_price
+                     print(f"   💡 INCREMENT: Bumping bid to ${entry_price} (Queue Front)")
+                 else:
+                     entry_price = round(float(best_bid), 2)
+                     print(f"   💡 JOINING: Spread too tight, joining bid at ${entry_price}")
+
+            print(f"   🔍 ENTRY PRICE: {entry_price}")
         except Exception as e:
             print(f"   ❌ PRICE ERROR: {e}")
             return False
 
-        # LIFECYCLE TEST: Accept any reasonable price for testing
-        if entry_price > 0.95 or entry_price < 0.001:
-            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 0.1¢-95¢ range")
+        # LIFECYCLE TEST: Stricter bounds to avoid "Bait"
+        # Min $0.02 (was $0.001) to avoid worthless options
+        # Max $0.92 (was $0.95) to ensure some upside room
+        if entry_price > 0.92 or entry_price < 0.02:
+            print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 2¢-92¢ range")
             return False
 
         # PRICE CAP: Don't buy if entry price > $0.75 (risk > reward)
-        if entry_price > PRICE_CAP:
-            print(f"   ⚠️ PRICE TOO HIGH: ${entry_price:.3f} > ${PRICE_CAP:.2f} (Risk > Reward)")
-            return False
+        # UNLESS sentiment is super high
+        if entry_price > PRICE_CAP: 
+             # Check if sentiment justifies the high price
+             if sentiment_score < 0.75:
+                 print(f"   ⚠️ PRICE TOO HIGH: ${entry_price:.3f} > ${PRICE_CAP:.2f} and Sentiment {sentiment_score:.2f} < 0.75")
+                 return False
+             else:
+                 print(f"   ⚠️ PRICE HIGH but SENTIMENT STRONG: ${entry_price:.3f} (Allowed)")
 
         # 0. CONFIG CHECK
         current_config = load_config("scalper")
@@ -638,8 +691,8 @@ class CryptoScalper:
 
         # 3. Size Calculation (Config-aware)
         balance = self.get_balance()
-        if balance < 5.01:
-            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $5.01+)")
+        if balance < 0.99:
+            print(f"   ❌ INSUFFICIENT BALANCE: ${balance:.2f} (need $1.00+)")
             return False
 
         max_size_cfg = current_config.get("max_size", MAX_BET_USD)
@@ -675,7 +728,8 @@ class CryptoScalper:
 
         try:
             # Send the order to the sanitized Polymarket class
-            resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps)
+            # EXPLICITLY set post_only=True to ensure we never pay taker fees
+            resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps, post_only=True)
             if resp.get("orderID"):
                 # Record trade using TradeRecorder
                 record_trade(
@@ -703,7 +757,8 @@ class CryptoScalper:
                 self.pending_orders[resp.get("orderID")] = {
                     "type": "entry", "token_id": token_id, "asset": market["asset"],
                     "side": direction, "price": entry_price, "time": time.time(),
-                    "timeout": 5  # Fast 5s timeout to catch fills
+                    "timeout": 5,  # Note: logic uses global constant overrides now
+                    "market_id": market["id"]
                 }
                 # Lock this market to prevent rapid-fire
                 self.traded_markets.append(market_id)
@@ -734,6 +789,31 @@ class CryptoScalper:
             existing_exit = next((oid for oid, meta in self.pending_orders.items() 
                                  if meta["type"] == "exit" and meta["token_id"] == token_id), None)
 
+            # --- PREDATORY MOMENTUM TRAP (Shark Mode) ---
+            # If we see high velocity (the same signal that baited us before),
+            # we use it to SELL into the chasers.
+            price_momentum = self.calculate_momentum(BINANCE_SYMBOLS.get(pos["asset"]))
+            if price_momentum > 0.0005: # > 0.05% in 30s is a spike
+                 print(f"   🎣 PREDATORY TRAP: High Momentum ({price_momentum:.4f}%) detected on {pos['asset']}!")
+                 
+                 # Sell at the Ask (or slightly higher if spread is wide)
+                 # We want to be the "Whale" selling to the chasers
+                 predatory_price = round(best_ask, 2)
+                 
+                 if existing_exit:
+                     curr_price = self.pending_orders[existing_exit].get("price")
+                     if curr_price < predatory_price:
+                         print(f"   ⤴️ RAISING OFFER: Moving sell from ${curr_price} to ${predatory_price} to catch spike")
+                         if not self.dry_run:
+                            try: self.pm.client.cancel(existing_exit)
+                            except: pass
+                         del self.pending_orders[existing_exit]
+                         existing_exit = None # Force new order placement below
+                 
+                 # Force pnl_pct to trigger the exit block below effectively
+                 pnl_pct = 999.0 # Virtual profit trigger
+                 print(f"   🚀 TRIGGERING PREDATORY EXIT @ ${predatory_price}")
+
             # 4. Trigger "Smart Maker" Exit if Target Hit OR Stop Loss Hit
             if pnl_pct > TAKE_PROFIT_PCT or pnl_pct < PANIC_THRESHOLD_PCT:
                 
@@ -741,7 +821,7 @@ class CryptoScalper:
                 if existing_exit:
                     current_order_price = self.pending_orders[existing_exit].get("price")
                     # If we aren't the best ask anymore, we are stuck. Cancel and re-place.
-                    target_price = round(best_ask - MAKER_OFFSET, 3)
+                    target_price = round(best_ask - MAKER_OFFSET, 2)
                     if current_order_price != target_price:
                         print(f"   🔄 CHASING FILL: Moving {pos['asset']} exit to front of queue (${target_price})...")
                         if not self.dry_run:
@@ -752,7 +832,7 @@ class CryptoScalper:
                         continue # Already at the front, just wait for fill
 
                 # Calculate aggressive Maker exit (head of the 'Ask' queue)
-                sell_price = round(best_ask - MAKER_OFFSET, 3)
+                sell_price = round(best_ask - MAKER_OFFSET, 2)
                 action_label = "PROFIT" if pnl_pct > TAKE_PROFIT_PCT else "STOP"
                 print(f"   💰 {action_label}: Placing Aggressive Maker Sell @ ${sell_price}")
 
@@ -809,16 +889,49 @@ class CryptoScalper:
                 if not self.dry_run:
                     try: self.pm.client.cancel(oid)
                     except: pass
+                
+                # REFUND ATTEMPT if no partial fill occurred
+                # (We only want to burn an attempt if we actually TRADED)
+                # Note: This requires knowing if we got a partial fill. 
+                # For now, we assume if it's still in pending, it's 0 fill (since we move to active completely on any sync)
+                # But to be safe, we check if we hold the token in sync_positions next.
+                
+                # Remove from traded_markets to allow retry immediately
+                market_id = meta.get("market_id")
+                if market_id and market_id in self.traded_markets:
+                    self.traded_markets.remove(market_id)
+                    print(f"   ♻️  REFUNDED ATTEMPT for {meta.get('asset', '?')} (Timeout with no fill)")
+
                 del self.pending_orders[oid]
 
                 # If exit failed, we might need to panic next loop.
                 # (Position remains in active_positions so it will be picked up by manage_positions again)
 
     def check_circuit_breaker(self):
-        if self.total_pnl < (self.initial_balance * -MAX_DAILY_DRAWDOWN_PCT):
-            print(f"   🛑 CIRCUIT BREAKER: Down {MAX_DAILY_DRAWDOWN_PCT*100}%")
+        """Calculate Equity = Balance + Unrealized PnL."""
+        unrealized_pnl = 0.0
+        
+        # Calculate unrealized PnL from active positions
+        for token_id, pos in self.active_positions.items():
+            current_price_data = self.get_current_price(token_id)
+            # conservative: use best BID to exit
+            current_bid = current_price_data[1] 
+            
+            # Pne = (Current - Entry) * Size
+            position_val = (current_bid - pos["entry_price"]) * pos["size"]
+            unrealized_pnl += position_val
+
+        total_equity_change = self.total_pnl + unrealized_pnl
+        drawdown_limit = self.initial_balance * -MAX_DAILY_DRAWDOWN_PCT
+        
+        if total_equity_change < drawdown_limit:
+            print(f"   🛑 CIRCUIT BREAKER TRIGGERED!")
+            print(f"   Realized PnL: ${self.total_pnl:.2f}")
+            print(f"   Unrealized PnL: ${unrealized_pnl:.2f}")
+            print(f"   Total Delta: ${total_equity_change:.2f} (Limit: ${drawdown_limit:.2f})")
             self.circuit_breaker_triggered = True
             return True
+            
         return False
 
     def on_binance_message(self, ws, message):
@@ -957,6 +1070,10 @@ class CryptoScalper:
 
 
     def run(self):
+        # 0. CLEAN SLATE: Cancel all existing orders to free up balance
+        # This fixes the "Insufficient Funds" issue by removing stale/orphan orders
+        self.pm.cancel_all_orders()
+
         # 1. Start Feed
         threading.Thread(target=self.run_binance_ws, daemon=True).start()
         print("   ⏳ Connecting to Binance...")
@@ -1040,23 +1157,23 @@ class CryptoScalper:
                                     self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {mom_threshold:.4f}", confidence=0.0, conclusion="WAIT")
                                     continue
 
-                                # --- AGGRESSIVE WHALE HYBRID MIX ---
-                                # 2. Volatility Override: If the move is 2x our base, we ignore sentiment
-                                VOLATILITY_OVERRIDE = mom_threshold * 2.0 
-
-                                # 3. Aggressive Logic Gate
-                                is_high_velocity = abs(momentum) > VOLATILITY_OVERRIDE
+                                # --- SAFE ENTRY LOGIC (WHALE OVERRIDE REMOVED) ---
+                                
                                 signals_agree = (momentum > 0) == (sentiment_score > 0.5)
                                 confidence_met = abs(sentiment_score - 0.5) * 2 >= conf_threshold
 
-                                # Strike if signals agree OR if it's a high-velocity whale move
-                                if (signals_agree and confidence_met) or is_high_velocity:
+                                # STRICTER LOGIC: MUST HAVE AGREEMENT and CONFIDENCE
+                                if signals_agree and confidence_met:
                                     direction = "UP" if momentum > 0 else "DOWN"
-                                    reason = "WHALE_OVERRIDE" if is_high_velocity and not signals_agree else "SIGNAL_SYNC"
-                                    print(f"   🎯 {reason}: {asset.upper()} {direction} ({momentum:.4f}% momentum)")
+                                    print(f"   🎯 SIGNAL SYNC: {asset.upper()} {direction} (Mom={momentum:.4f}%, Sent={sentiment_score:.2f})")
                                     self.open_position_maker(m, direction, momentum, sentiment_score)
                                 else:
-                                    print(f"   💤 SKIPPING: No volatility and signals disagree for {asset.upper()}")
+                                    # Detailed rejection log
+                                    if not signals_agree:
+                                        reason = "Signals Disagree"
+                                    else:
+                                        reason = "Low Confidence"
+                                    print(f"   💤 SKIPPING {asset.upper()}: {reason} (Mom={momentum:.4f}%, Sent={sentiment_score:.2f})")
                             except Exception as e:
                                 # Log but don't crash the main loop
                                 print(f"   ⚠️ Market processing error for {m.get('asset', 'unknown')}: {e}")
