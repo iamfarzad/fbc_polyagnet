@@ -1,6 +1,10 @@
 "use client"
 
-import { Cpu, Activity, Clock } from "lucide-react"
+import { useState } from "react"
+import { Cpu, Activity, Clock, Loader2 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { toast } from "sonner"
+import { getApiUrl } from "@/lib/api-url"
 
 interface Agent {
     id: string
@@ -14,7 +18,22 @@ interface AgentNetworkStatusProps {
     agents: Agent[]
 }
 
+const AGENT_NAMES: Record<string, string> = {
+    safe: "safe",
+    scalper: "scalper",
+    copy: "copyTrader",   // Map API ID to Toggle ID if different
+    copyTrader: "copyTrader",
+    smart: "smartTrader",
+    smartTrader: "smartTrader",
+    esports: "esportsTrader",
+    esportsTrader: "esportsTrader",
+    sport: "sportsTrader",
+    sportsTrader: "sportsTrader"
+}
+
 export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
+    const [loadingId, setLoadingId] = useState<string | null>(null)
+
     // Process agents with heartbeat logic
     const processedAgents = agents.map(agent => {
         let isAlive = agent.isActive;
@@ -41,6 +60,29 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
 
     const runningAgents = processedAgents.filter(a => a.isAlive);
 
+    const toggleAgent = async (agentId: string, currentState: boolean) => {
+        setLoadingId(agentId)
+        try {
+            // Map simple ID to backend expected toggle ID
+            // "safe" -> "safe"
+            // "copy" -> "copyTrader" etc
+            const target = AGENT_NAMES[agentId] || agentId
+
+            const res = await fetch(`${getApiUrl()}/api/toggle-agent`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ agent: target })
+            })
+
+            if (!res.ok) throw new Error("Failed to toggle")
+            toast.success(`${agentId.toUpperCase()} ${!currentState ? "Started" : "Paused"}`)
+        } catch (error) {
+            toast.error(`Failed to toggle ${agentId}`)
+        } finally {
+            setLoadingId(null)
+        }
+    }
+
     return (
         <div className="space-y-4 font-mono">
             <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
@@ -58,8 +100,8 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
                             <span className={`text-[10px] font-bold uppercase tracking-tight ${agent.isAlive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                 {agent.id.replace(/([A-Z])/g, '_$1').toUpperCase()}
                             </span>
-                            <span className="text-[9px] text-muted-foreground truncate max-w-[180px]">
-                                {agent.activity || "LISTENING_STATE"}
+                            <span className="text-[9px] text-muted-foreground truncate max-w-[150px]">
+                                {loadingId === agent.id ? "UPDATING_STATE..." : (agent.activity || "LISTENING_STATE")}
                             </span>
                         </div>
                         <div className="flex items-center gap-3">
@@ -67,12 +109,13 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
                                 <Clock className="h-2.5 w-2.5" />
                                 <span className={agent.secondsAgo > 60 ? "text-rose-500" : "text-emerald-500"}>{agent.timeAgo}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <div className={`h-1.5 w-1.5 rounded-full ${agent.isAlive ? 'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)] animate-pulse' : 'bg-muted'}`} />
-                                <span className={`text-[9px] font-bold uppercase ${agent.isAlive ? 'text-emerald-500' : 'text-muted-foreground'}`}>
-                                    {agent.isAlive ? "ONLINE" : "OFFLINE"}
-                                </span>
-                            </div>
+
+                            <Switch
+                                checked={agent.isActive} // Use raw active state for switch, not 'isAlive' (heartbeat)
+                                onCheckedChange={() => toggleAgent(agent.id, agent.isActive)}
+                                disabled={loadingId === agent.id}
+                                className="scale-75 data-[state=checked]:bg-emerald-500"
+                            />
                         </div>
                     </div>
                 ))}
@@ -85,3 +128,4 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
         </div>
     )
 }
+

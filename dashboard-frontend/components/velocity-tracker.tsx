@@ -4,11 +4,11 @@ import { Zap, Timer } from "lucide-react"
 
 interface VelocityTrackerProps {
     tradeCount: number
+    dailyGoal?: number
 }
 
-export function VelocityTracker({ tradeCount }: VelocityTrackerProps) {
-    const goals = 248
-    const progress = Math.min((tradeCount / goals) * 100, 100)
+export function VelocityTracker({ tradeCount, dailyGoal = 100 }: VelocityTrackerProps) {
+    const progress = Math.min((tradeCount / dailyGoal) * 100, 100)
 
     return (
         <div className="space-y-4 font-mono">
@@ -24,7 +24,7 @@ export function VelocityTracker({ tradeCount }: VelocityTrackerProps) {
                         <div className="flex items-center gap-2">
                             <Zap className="h-3 w-3 text-emerald-500 fill-emerald-500" />
                             <span className="text-xl font-bold text-foreground leading-none">
-                                {tradeCount} / {goals}
+                                {tradeCount} / {dailyGoal}
                             </span>
                         </div>
                     </div>
@@ -44,9 +44,10 @@ export function VelocityTracker({ tradeCount }: VelocityTrackerProps) {
                 </div>
 
                 <div className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-widest text-center relative z-10 pt-1">
-                    Target_Frequency: 48 Cycles Per Hour
+                    Target_Frequency: {(dailyGoal / 24).toFixed(1)} Cycles Per Hour
                 </div>
             </div>
         </div>
     )
 }
+

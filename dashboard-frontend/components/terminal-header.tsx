@@ -1,24 +1,19 @@
-"use client"
-
 import { useState, useEffect } from "react"
-import { Shield, Zap, TrendingUp, Cpu, Wallet, Wifi } from "lucide-react"
+import { Shield, Zap, TrendingUp, Cpu, Wallet, Wifi, AlertTriangle } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { WarRoom } from "@/components/war-room"
+import { Button } from "@/components/ui/button"
 
 interface BinancePrice {
     symbol: string
     price: number
 }
 
-interface TerminalHeaderProps {
-    data: {
-        walletAddress: string
-        dryRun: boolean
-        balance: number
-        referenceTokenId?: string
-    }
-}
+// ... (keep interface TerminalHeaderProps)
 
 export function TerminalHeader({ data }: TerminalHeaderProps) {
+    // ... (keep existing state and effects for prices/marketStatus)
     const [time, setTime] = useState(new Date())
     const [prices, setPrices] = useState<BinancePrice[]>([
         { symbol: "BTC", price: 0 },
@@ -106,8 +101,19 @@ export function TerminalHeader({ data }: TerminalHeaderProps) {
                 </div>
             </div>
 
-            {/* Right: Binance Tickers & Theme */}
+            {/* Right: War Room, Binance Tickers & Theme */}
             <div className="flex items-center gap-4">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="h-5 text-[9px] px-2 font-bold animate-pulse hover:animate-none">
+                            <AlertTriangle className="h-3 w-3 mr-1" /> WAR ROOM
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="border-red-900/50 bg-background/95 backdrop-blur-xl sm:max-w-[600px]">
+                        <WarRoom />
+                    </DialogContent>
+                </Dialog>
+
                 {prices.map((p) => (
                     <div key={p.symbol} className="flex items-center gap-1.5 border-l border-border/40 pl-4 first:border-l-0">
                         <span className="text-muted-foreground">{p.symbol}</span>

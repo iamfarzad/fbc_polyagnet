@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
-  Brain, 
-  RefreshCw, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  Zap, 
+import {
+  Brain,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Zap,
   DollarSign,
   TrendingUp,
   Search,
@@ -81,14 +81,14 @@ const CONCLUSION_STYLES: Record<string, string> = {
   TIMEOUT: "bg-orange-500/20 text-orange-400",
 }
 
-function ActivityCard({ activity, expanded, onToggle }: { 
+function ActivityCard({ activity, expanded, onToggle }: {
   activity: LLMActivity
   expanded: boolean
-  onToggle: () => void 
+  onToggle: () => void
 }) {
   const agentColor = AGENT_COLORS[activity.agent] || "bg-zinc-500/20 text-zinc-400"
   const conclusionStyle = CONCLUSION_STYLES[activity.conclusion] || CONCLUSION_STYLES.PASS
-  
+
   const timeAgo = (timestamp: string) => {
     const diff = Date.now() - new Date(timestamp).getTime()
     const mins = Math.floor(diff / 60000)
@@ -101,7 +101,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
 
   return (
     <div className="group rounded-lg border border-border/50 bg-card/30 hover:bg-card/50 transition-all">
-      <div 
+      <div
         className="flex items-start gap-3 p-3 cursor-pointer"
         onClick={onToggle}
       >
@@ -110,7 +110,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
           {AGENT_ICONS[activity.agent]}
           <span className="uppercase">{activity.agent}</span>
         </div>
-        
+
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -126,7 +126,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
             {activity.market_question}
           </p>
         </div>
-        
+
         {/* Right Side: Conclusion + Confidence */}
         <div className="flex items-center gap-2">
           <div className={`rounded px-2 py-0.5 text-[10px] font-bold ${conclusionStyle}`}>
@@ -147,7 +147,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
           )}
         </div>
       </div>
-      
+
       {/* Expanded Details */}
       {expanded && (
         <div className="border-t border-border/30 px-3 py-3 space-y-3 bg-background/50">
@@ -158,7 +158,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
               {activity.prompt_summary}
             </p>
           </div>
-          
+
           {/* Reasoning */}
           <div>
             <span className="font-mono text-[10px] uppercase text-muted-foreground">LLM Reasoning</span>
@@ -166,16 +166,16 @@ function ActivityCard({ activity, expanded, onToggle }: {
               {activity.reasoning}
             </p>
           </div>
-          
+
           {/* Data Sources */}
           {activity.data_sources && activity.data_sources.length > 0 && (
             <div>
               <span className="font-mono text-[10px] uppercase text-muted-foreground">Sources</span>
               <div className="flex flex-wrap gap-1 mt-1">
                 {activity.data_sources.map((source, i) => (
-                  <Badge 
-                    key={i} 
-                    variant="secondary" 
+                  <Badge
+                    key={i}
+                    variant="secondary"
                     className="font-mono text-[10px] bg-primary/10"
                   >
                     {source}
@@ -184,7 +184,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
               </div>
             </div>
           )}
-          
+
           {/* Metrics */}
           <div className="flex items-center gap-4 pt-2 border-t border-border/30">
             <div className="flex items-center gap-1 text-muted-foreground">
@@ -206,7 +206,7 @@ function ActivityCard({ activity, expanded, onToggle }: {
   )
 }
 
-export function LLMActivityFeed() {
+export function LLMActivityFeed({ className }: { className?: string }) {
   const [data, setData] = useState<LLMActivityData | null>(null)
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState<string>("all")
@@ -237,7 +237,7 @@ export function LLMActivityFeed() {
   const activities = data?.activities || []
 
   return (
-    <Card className="border-border/50 bg-card/50 backdrop-blur">
+    <Card className={`border-0 bg-transparent shadow-none ${className}`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ export function LLMActivityFeed() {
             <span className="text-xs">Refresh</span>
           </Button>
         </div>
-        
+
         {/* Stats Row */}
         {stats && (
           <div className="grid grid-cols-4 gap-2 mt-3">
@@ -296,7 +296,7 @@ export function LLMActivityFeed() {
           </div>
         )}
       </CardHeader>
-      
+
       <CardContent className="pt-0">
         {/* Filter Tabs */}
         <Tabs value={filter} onValueChange={setFilter} className="mb-3">
@@ -307,7 +307,7 @@ export function LLMActivityFeed() {
             <TabsTrigger value="copy" className="text-xs">Copy</TabsTrigger>
           </TabsList>
         </Tabs>
-        
+
         {/* Activity List */}
         <ScrollArea className="h-[400px] pr-3">
           <div className="space-y-2">
@@ -333,13 +333,13 @@ export function LLMActivityFeed() {
             )}
           </div>
         </ScrollArea>
-        
+
         {/* Agent Stats Footer */}
         {stats?.by_agent && (
           <div className="mt-3 pt-3 border-t border-border/30">
             <div className="grid grid-cols-3 gap-2">
               {Object.entries(stats.by_agent).map(([agent, agentStats]) => (
-                <div 
+                <div
                   key={agent}
                   className={`rounded-md border p-2 ${AGENT_COLORS[agent]}`}
                 >

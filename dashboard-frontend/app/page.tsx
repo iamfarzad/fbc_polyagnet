@@ -10,13 +10,12 @@ import { InstitutionalLedger } from "@/components/institutional-ledger"
 import { AgentNetworkStatus } from "@/components/agent-network-status"
 import { VelocityTracker } from "@/components/velocity-tracker"
 import { ScannerStatus } from "@/components/scanner-status"
-import { LLMTerminal } from "@/components/llm-terminal"
+import { LLMActivityFeed } from "@/components/llm-activity-feed"
 import { FBPChat } from "@/components/fbp-chat"
 import { getApiUrl, getWsUrl } from "@/lib/api-url"
 
-// ============================================================================
-// TYPES
-// ============================================================================
+
+// ... (existing imports)
 
 interface DashboardData {
   balance: number
@@ -47,6 +46,15 @@ interface DashboardData {
     value: number
     pnl: number
   }>
+  openOrders: Array<{  // [NEW] Added openOrders
+    id: string
+    market: string
+    side: string
+    price: number
+    size: number
+    filled: number
+    status: string
+  }>
   trades: Array<{
     time: string
     market: string
@@ -62,6 +70,18 @@ interface DashboardData {
   walletAddress: string
   referenceTokenId: string
 }
+
+// ... (rest of component)
+
+{/* Bottom Third: Ledger Table */ }
+<div className="h-[35%] border-t border-border/40 bg-background">
+  <InstitutionalLedger
+    trades={data.trades}
+    positions={data.positions}
+    openOrders={data.openOrders || []} // [NEW] Pass openOrders
+  />
+</div>
+
 
 // ============================================================================
 // MAIN COMPONENT
@@ -195,14 +215,18 @@ export default function Dashboard() {
                 Neural_Logic_Stream
               </h3>
               <div className="flex-1 min-h-[300px] md:min-h-0 rounded-sm overflow-hidden border border-border/40 shadow-2xl">
-                <LLMTerminal className="h-full" />
+                <LLMActivityFeed className="h-full w-full" />
               </div>
             </div>
           </div>
 
           {/* Bottom Third: Ledger Table */}
           <div className="h-[35%] border-t border-border/40 bg-background">
-            <InstitutionalLedger trades={data.trades} positions={data.positions} />
+            <InstitutionalLedger
+              trades={data.trades}
+              positions={data.positions}
+              openOrders={data.openOrders || []}
+            />
           </div>
         </div>
       </main>

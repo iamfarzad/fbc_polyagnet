@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react"
-import { 
+import {
   Send, Bot, User, Wrench, Loader2, Trash2, Sparkles,
   TrendingUp, TrendingDown, Wallet, Activity, Power, PowerOff,
   DollarSign, BarChart3, Search, Brain, Zap, ExternalLink
@@ -52,7 +52,19 @@ export function FBPChat() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [sessionId] = useState(() => `session-${Date.now()}`)
+
+  // [MODIFIED] Persistent Session ID
+  const [sessionId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('fbp_session_id')
+      if (stored) return stored
+      const newId = `session-${Date.now()}`
+      localStorage.setItem('fbp_session_id', newId)
+      return newId
+    }
+    return `session-${Date.now()}`
+  })
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -167,7 +179,7 @@ export function FBPChat() {
             <p className="text-xs text-muted-foreground mb-6 max-w-[250px]">
               Your AI trading assistant with real-time market access.
             </p>
-            
+
             {/* Suggestions */}
             <div className="flex flex-wrap gap-2 justify-center max-w-[300px] stagger">
               {SUGGESTIONS.map((s, i) => (
@@ -186,7 +198,7 @@ export function FBPChat() {
             <MessageBubble key={idx} message={msg} />
           ))
         )}
-        
+
         {isLoading && (
           <div className="flex items-center gap-2 text-violet-600 dark:text-violet-400 px-2 animate-fade-in">
             <div className="flex gap-1">
@@ -197,7 +209,7 @@ export function FBPChat() {
             <span className="text-xs">FBP is thinking...</span>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -461,7 +473,7 @@ function MessageBubble({ message }: { message: Message }) {
               <span>{message.toolCalls.length} tool{message.toolCalls.length > 1 ? "s" : ""} used</span>
               <span className="opacity-50">{expanded ? "▼" : "▶"}</span>
             </button>
-            
+
             {expanded && (
               <div className="space-y-2">
                 {message.toolCalls.map((tc, i) => {
