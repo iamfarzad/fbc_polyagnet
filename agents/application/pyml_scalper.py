@@ -810,7 +810,14 @@ class CryptoScalper:
         for token_id, pos in list(self.active_positions.items()):
             # 1. Get real-time prices (Prefer WS cache)
             _, best_bid, _, best_ask = self.get_current_price(token_id)
-            if best_bid == 0: continue
+            if best_bid == 0:
+                # 👻 GHOST TRAP: If Ask indicates a profit ("Liquidity Mirage"), use it to place a Maker Sell.
+                # This ensures we don't freeze when the price spikes but there are no buyers yet.
+                if best_ask > 0 and best_ask > pos["entry_price"] * 1.10:
+                     print(f"   👻 GHOST TRAP ACTIVATED: Bid 0, but Ask ${best_ask}. placing Maker Sell.")
+                     best_bid = best_ask # Virtual Bid to trigger profit logic below
+                else:
+                     continue
 
             # 2. Calculate PnL relative to current Bid
             pnl_pct = (best_bid - pos["entry_price"]) / pos["entry_price"]
