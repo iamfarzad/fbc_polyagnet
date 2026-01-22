@@ -695,6 +695,13 @@ class CryptoScalper:
             print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 2¢-92¢ range")
             return False
 
+        # --- PHOENIX HARD CAP (FINAL CHECK) ---
+        # Catch-all: Ensure that even if we "Seed" an empty market, we don't pay > 5c
+        if self.get_balance() < 50.0 and entry_price > 0.05:
+            print(f"   🔥 PHOENIX REJECT (FINAL): Entry ${entry_price:.2f} > $0.05 Hard Cap")
+            return False
+        # --------------------------------------
+
         # PRICE CAP: Don't buy if entry price > $0.75 (risk > reward)
         # UNLESS sentiment is super high
         if entry_price > PRICE_CAP: 
