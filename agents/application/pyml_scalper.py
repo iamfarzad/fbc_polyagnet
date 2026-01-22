@@ -662,15 +662,28 @@ class CryptoScalper:
                  # MAKER PRICING LOGIC
                  # Try to beat the bid, but NEVER cross the ask (or we get rejected as Taker)
                  potential_price = round(float(best_bid) + 0.01, 2) 
+                 is_taker = False # Default to Maker
+
+                 # PHOENIX SNIPER: If Ask is super cheap (<= 0.05), just TAKE it.
+                 # We want those 1 cent shares.
+                 if self.get_balance() < 10.0 and best_ask <= 0.05:
+                      entry_price = round(float(best_ask), 2)
+                      is_taker = True
+                      print(f"   🦅 PHOENIX SNIPE: Taking cheap shares at ${entry_price}!")
                  
-                 if potential_price < best_ask:
-                     entry_price = potential_price
-                     print(f"   💡 INCREMENT: Bumping bid to ${entry_price} (Queue Front)")
+                 elif potential_price < best_ask:
+                      entry_price = potential_price
+                      print(f"   💡 INCREMENT: Bumping bid to ${entry_price} (Queue Front)")
                  else:
-                     entry_price = round(float(best_bid), 2)
-                     print(f"   💡 JOINING: Spread too tight, joining bid at ${entry_price}")
+                      entry_price = round(float(best_bid), 2)
+                      print(f"   💡 JOINING: Spread too tight, joining bid at ${entry_price}")
 
             print(f"   🔍 ENTRY PRICE: {entry_price}")
+            
+            if entry_price <= 0.0:
+                print("   ⚠️ Invalid Entry Price 0.0. Skipping.")
+                return False
+                
         except Exception as e:
             print(f"   ❌ PRICE ERROR: {e}")
             return False
