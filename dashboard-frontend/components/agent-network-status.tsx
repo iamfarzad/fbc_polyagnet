@@ -91,15 +91,15 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
                 {processedAgents.map((agent) => (
                     <div
                         key={agent.id}
-                        className={`bg-card border ${agent.isAlive ? 'border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.05)]' : 'border-border/40'} p-2 rounded-sm flex justify-between items-center transition-all group h-[50px]`}
+                        className={`bg-card border ${agent.isAlive ? 'border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.05)]' : 'border-border/40'} p-2 rounded-sm flex justify-between items-center transition-all group h-[40px]`}
                     >
-                        <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-2">
-                                <span className={`text-[9px] font-bold uppercase tracking-tight ${agent.isAlive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        <div className="flex flex-col gap-0">
+                            <div className="flex items-center gap-1.5">
+                                <span className={`text-[8px] font-bold uppercase tracking-tight ${agent.isAlive ? 'text-foreground' : 'text-muted-foreground'}`}>
                                     {agent.id.replace(/([A-Z])/g, '_$1').toUpperCase()}
                                 </span>
                             </div>
-                            <span className="text-[8px] text-muted-foreground truncate max-w-[80px]">
+                            <span className="text-[7px] text-muted-foreground truncate max-w-[80px]">
                                 {loadingId === agent.id ? "UPDATING..." : (agent.activity || "LISTENING")}
                             </span>
                         </div>

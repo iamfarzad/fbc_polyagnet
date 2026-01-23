@@ -42,12 +42,12 @@ export function MomentumStalker({ data }: MomentumStalkerProps) {
                 </Tooltip>
             </div>
 
-            <div className="flex-1 bg-card border border-border/40 rounded-sm p-6 flex flex-col justify-center gap-8 relative overflow-hidden shadow-sm">
+            <div className="flex-1 bg-card border border-border/40 rounded-sm p-4 flex flex-col justify-center gap-4 relative overflow-hidden shadow-sm">
                 {/* Decorative Grid */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-background"
-                    style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                    style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
 
-                <div className="relative z-10 space-y-3">
+                <div className="relative z-10 space-y-2">
                     <div className="flex justify-between text-[10px] font-bold uppercase tracking-tight">
                         <span className="text-muted-foreground">Current Velocity</span>
                         <span className={currentMom >= trigger ? "text-emerald-500 font-black" : "text-amber-500"}>

@@ -445,7 +445,7 @@ class CryptoScalper:
             if time.time() - cache_time < 1.0:  # Use cache if < 1 second old
                 return cached_data
 
-        # Fallback to REST API
+            # Fallback to REST API
         try:
             book = self.pm.client.get_order_book(token_id)
             
@@ -463,20 +463,45 @@ class CryptoScalper:
 
             if best_bid == 0 and best_ask == 1: return 0.5, 0.0, 0.0, 1.0, 0.0
             
+            # SAFE return 5 values
             return (best_bid + best_ask)/2, best_bid, bid_size, best_ask, ask_size
 
             # 4. EXPENSIVE ENTRY GUARD (New)
             # If price is > $0.80, we need really good reasons to buy
             # (Logic applied in trading loop, but good to inspect here)
 
-            price_data = ((best_bid + best_ask)/2, best_bid, bid_size, best_ask)
+            price_data = ((best_bid + best_ask)/2, best_bid, bid_size, best_ask, ask_size)
             # Cache the REST data
             if not hasattr(self, 'price_cache'):
                 self.price_cache = {}
             self.price_cache[token_id] = (time.time(), price_data)
             return price_data
         except Exception as e: 
-            return 0.5, 0.0, 0.0, 1.0
+            return 0.5, 0.0, 0.0, 1.0, 0.0
+
+    # -------------------------------------------------------------------------
+    # MOMENTUM & SENTIMENT HELPERS
+    # -------------------------------------------------------------------------
+    
+    # ... (skipping unchanged momentum methods) ...
+
+
+    # -------------------------------------------------------------------------
+    # COMMAND HANDLING (New)
+    # -------------------------------------------------------------------------
+
+    def process_commands(self):
+        """Check for and execute user commands from the context."""
+        if self.simulate: return # Bypassing in sim
+        
+        # FIX: Use SharedContext explicitly for commands
+        try:
+            from agents.utils.context import get_context
+            ctx = get_context()
+            if not ctx: return
+
+            commands = ctx.get_user_commands("scalper")
+            for cmd in commands:
 
     def calculate_momentum(self, symbol):
         """Calculate recent price momentum from Binance deque (Percentage)."""

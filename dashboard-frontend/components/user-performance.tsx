@@ -43,44 +43,44 @@ export function UserPerformance({ data }: UserPerformanceProps) {
     const isPositive = totalPnL >= 0
 
     return (
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-2">
             {/* Top Card: Stats Overview */}
-            <Card className="p-3 border-border/40 bg-card rounded-xl flex flex-col justify-center h-[90px]">
+            <Card className="p-2 border-border/40 bg-card rounded-sm flex flex-col justify-center h-[70px]">
                 <div className="flex justify-between items-end">
                     <div className="space-y-0.5">
-                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Positions</p>
-                        <p className="text-lg font-mono font-bold text-foreground">${data.positions_value.toFixed(2)}</p>
+                        <p className="text-[8px] uppercase text-muted-foreground font-bold tracking-wide">Positions</p>
+                        <p className="text-sm font-mono font-bold text-foreground">${data.positions_value.toFixed(2)}</p>
                     </div>
-                    <Separator orientation="vertical" className="h-8 bg-border/50" />
+                    <Separator orientation="vertical" className="h-6 bg-border/50" />
                     <div className="space-y-0.5">
-                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Best Win</p>
-                        <p className="text-lg font-mono font-bold text-emerald-500">${data.biggest_win.toFixed(2)}</p>
+                        <p className="text-[8px] uppercase text-muted-foreground font-bold tracking-wide">Best Win</p>
+                        <p className="text-sm font-mono font-bold text-emerald-500">${data.biggest_win.toFixed(2)}</p>
                     </div>
-                    <Separator orientation="vertical" className="h-8 bg-border/50" />
+                    <Separator orientation="vertical" className="h-6 bg-border/50" />
                     <div className="space-y-0.5">
-                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Predictions</p>
-                        <p className="text-lg font-mono font-bold text-foreground">{data.predictions_count}</p>
+                        <p className="text-[8px] uppercase text-muted-foreground font-bold tracking-wide">Predictions</p>
+                        <p className="text-sm font-mono font-bold text-foreground">{data.predictions_count}</p>
                     </div>
                 </div>
             </Card>
 
             {/* Bottom Card: PnL Graph */}
-            <Card className="p-4 border-border/40 bg-card rounded-xl h-[160px] flex flex-col relative overflow-hidden">
+            <Card className="p-3 border-border/40 bg-card rounded-sm h-[140px] flex flex-col relative overflow-hidden">
                 <div className="flex justify-between items-start z-10">
                     <div>
-                        <div className="flex items-center gap-2 text-muted-foreground mb-0.5">
-                            <span className="text-[10px] font-bold uppercase tracking-wide">Net PnL</span>
+                        <div className="flex items-center gap-1 text-muted-foreground mb-0.5">
+                            <span className="text-[9px] font-bold uppercase tracking-wide">Net PnL</span>
                         </div>
-                        <h2 className={`text-2xl font-mono font-bold tracking-tighter ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <h2 className={`text-xl font-mono font-bold tracking-tighter ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
                             {isPositive ? "+" : ""}${totalPnL.toFixed(2)}
                         </h2>
-                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">All-Time</p>
+                        <p className="text-[8px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">All-Time</p>
                     </div>
                     <div className="flex gap-1">
                         {['1D', '1W', '1M', 'ALL'].map(period => (
                             <button
                                 key={period}
-                                className={`px-2 py-1 text-[10px] font-bold rounded-sm ${period === 'ALL' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
+                                className={`px-1.5 py-0.5 text-[8px] font-bold rounded-[2px] ${period === 'ALL' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'}`}
                             >
                                 {period}
                             </button>

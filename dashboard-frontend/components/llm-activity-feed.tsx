@@ -102,48 +102,48 @@ function ActivityCard({ activity, expanded, onToggle }: {
   return (
     <div className="group rounded-lg border border-border/50 bg-card/30 hover:bg-card/50 transition-all">
       <div
-        className="flex items-start gap-3 p-3 cursor-pointer"
+        className="flex items-start gap-2 p-2 cursor-pointer"
         onClick={onToggle}
       >
         {/* Agent Badge */}
-        <div className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-medium ${agentColor}`}>
+        <div className={`flex items-center gap-1 rounded-full border px-1.5 py-0 text-[9px] font-medium ${agentColor}`}>
           {AGENT_ICONS[activity.agent]}
           <span className="uppercase">{activity.agent}</span>
         </div>
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono text-[9px] text-muted-foreground">
               {activity.action_type.toUpperCase()}
             </span>
-            <span className="text-muted-foreground/50">•</span>
-            <span className="font-mono text-[10px] text-muted-foreground">
+            <span className="text-muted-foreground/50 text-[9px]">•</span>
+            <span className="font-mono text-[9px] text-muted-foreground">
               {timeAgo(activity.timestamp)}
             </span>
           </div>
-          <p className="font-mono text-xs text-foreground truncate mt-1">
+          <p className="font-mono text-[10px] text-foreground truncate mt-0.5">
             {activity.market_question}
           </p>
         </div>
 
         {/* Right Side: Conclusion + Confidence */}
-        <div className="flex items-center gap-2">
-          <div className={`rounded px-2 py-0.5 text-[10px] font-bold ${conclusionStyle}`}>
+        <div className="flex items-center gap-1.5">
+          <div className={`rounded px-1.5 py-0 text-[9px] font-bold ${conclusionStyle}`}>
             {activity.conclusion}
           </div>
           <div className="text-right">
-            <div className="font-mono text-xs font-semibold text-foreground">
+            <div className="font-mono text-[10px] font-semibold text-foreground">
               {(activity.confidence * 100).toFixed(0)}%
             </div>
-            <div className="font-mono text-[10px] text-muted-foreground">
+            <div className="font-mono text-[8px] text-muted-foreground">
               {activity.duration_ms}ms
             </div>
           </div>
           {expanded ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            <ChevronUp className="h-3 w-3 text-muted-foreground" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
           )}
         </div>
       </div>
@@ -260,36 +260,36 @@ export function LLMActivityFeed({ className }: { className?: string }) {
 
         {/* Stats Row */}
         {stats && (
-          <div className="grid grid-cols-4 gap-2 mt-3">
-            <div className="rounded-md bg-background/50 p-2 text-center">
-              <div className="font-mono text-lg font-bold text-foreground">
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            <div className="rounded-md bg-background/50 p-1.5 text-center">
+              <div className="font-mono text-sm font-bold text-foreground">
                 {stats.total_calls}
               </div>
-              <div className="font-mono text-[10px] text-muted-foreground">
+              <div className="font-mono text-[8px] text-muted-foreground">
                 Total Calls
               </div>
             </div>
-            <div className="rounded-md bg-background/50 p-2 text-center">
-              <div className="font-mono text-lg font-bold text-emerald-400">
+            <div className="rounded-md bg-background/50 p-1.5 text-center">
+              <div className="font-mono text-sm font-bold text-emerald-400">
                 {stats.decisions?.BET || 0}
               </div>
-              <div className="font-mono text-[10px] text-muted-foreground">
+              <div className="font-mono text-[8px] text-muted-foreground">
                 BET Signals
               </div>
             </div>
-            <div className="rounded-md bg-background/50 p-2 text-center">
-              <div className="font-mono text-lg font-bold text-foreground">
+            <div className="rounded-md bg-background/50 p-1.5 text-center">
+              <div className="font-mono text-sm font-bold text-foreground">
                 {(stats.avg_confidence * 100).toFixed(0)}%
               </div>
-              <div className="font-mono text-[10px] text-muted-foreground">
+              <div className="font-mono text-[8px] text-muted-foreground">
                 Avg Confidence
               </div>
             </div>
-            <div className="rounded-md bg-background/50 p-2 text-center">
-              <div className="font-mono text-lg font-bold text-amber-400">
+            <div className="rounded-md bg-background/50 p-1.5 text-center">
+              <div className="font-mono text-sm font-bold text-amber-400">
                 ${stats.total_cost_usd?.toFixed(3) || "0.000"}
               </div>
-              <div className="font-mono text-[10px] text-muted-foreground">
+              <div className="font-mono text-[8px] text-muted-foreground">
                 Total Cost
               </div>
             </div>

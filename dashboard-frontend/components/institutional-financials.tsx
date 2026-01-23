@@ -17,21 +17,21 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
     const flyCost = data?.costs?.fly || 0
 
     return (
-        <div className="space-y-4 font-mono">
-            <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+        <div className="space-y-3 font-mono">
+            <h3 className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
                 <Landmark className="h-3 w-3 text-emerald-500" />
                 Capital Efficiency
             </h3>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
                 {/* Main PnL */}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="bg-card border border-border/40 p-3 rounded-sm flex flex-col justify-between h-[80px] group hover:border-emerald-500/30 transition-colors shadow-sm">
-                            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Instant Settled PnL</span>
+                        <div className="bg-card border border-border/40 p-2 rounded-sm flex flex-col justify-between h-[60px] group hover:border-emerald-500/30 transition-colors shadow-sm">
+                            <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-tight">Instant Settled PnL</span>
                             <div className="flex items-center gap-2">
                                 <Zap className="h-3 w-3 text-emerald-500 fill-emerald-500" />
-                                <span className="text-xl font-bold text-emerald-500 leading-none">
+                                <span className="text-lg font-bold text-emerald-500 leading-none">
                                     +${scalpTotal.toFixed(2)}
                                 </span>
                             </div>
@@ -45,15 +45,15 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
                 {/* Maker Rebate */}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="bg-card border border-border/40 p-3 rounded-sm flex flex-col justify-between h-[80px] group hover:border-blue-500/30 transition-colors shadow-sm">
+                        <div className="bg-card border border-border/40 p-2 rounded-sm flex flex-col justify-between h-[60px] group hover:border-blue-500/30 transition-colors shadow-sm">
                             <div className="flex justify-between items-start">
-                                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Maker Rebate</span>
-                                <div className="text-[9px] text-blue-400/50 font-bold border border-blue-400/20 px-1 py-0.5 rounded-[2px]">
+                                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-tight">Maker Rebate</span>
+                                <div className="text-[8px] text-blue-400/50 font-bold border border-blue-400/20 px-1 py-0 rounded-[2px]">
                                     3.5 BPS
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="text-xl font-bold text-blue-400 leading-none">
+                                <span className="text-lg font-bold text-blue-400 leading-none">
                                     +${rebate.toFixed(2)}
                                 </span>
                             </div>
