@@ -1,7 +1,6 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { ShieldAlert, Activity, Wifi, WifiOff } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface ScannerStatusProps {
     referenceTokenId?: string
@@ -58,37 +57,44 @@ export function ScannerStatus({ referenceTokenId }: ScannerStatusProps) {
                 Market Availability
             </h3>
 
-            {isSuspended ? (
-                <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-sm space-y-2 animate-in fade-in duration-500">
-                    <div className="flex items-center gap-2">
-                        <WifiOff className="h-4 w-4 text-rose-500" />
-                        <span className="text-xs font-bold text-rose-500 uppercase tracking-tighter">
-                            Market Suspended - Standby
-                        </span>
-                    </div>
-                    <p className="text-[9px] text-rose-500/70 leading-relaxed uppercase">
-                        {error ? "Terminal Timeout: CLOB API UNREACHABLE" : "Liquidity Filter: Base Fee 0bps detected"}
-                    </p>
-                    <div className="pt-1 flex items-center justify-between">
-                        <span className="text-[8px] text-rose-500/50">DOWNTIME_PROTOCOL_ACTIVE</span>
-                        <span className="text-[8px] text-rose-500/50 font-bold">{lastCheck}</span>
-                    </div>
-                </div>
-            ) : (
-                <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-primary/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <div className="space-y-0.5">
-                            <span className="text-[10px] text-foreground font-bold uppercase tracking-tight block leading-none">Scanning_Live</span>
-                            <span className="text-[9px] text-muted-foreground uppercase">HFT Pipelines Clear</span>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    {isSuspended ? (
+                        <div className="bg-rose-500/10 border border-rose-500/20 p-4 rounded-sm space-y-2 animate-in fade-in duration-500 shadow-sm cursor-help">
+                            <div className="flex items-center gap-2">
+                                <WifiOff className="h-4 w-4 text-rose-500" />
+                                <span className="text-xs font-bold text-rose-500 uppercase tracking-tighter">
+                                    Market Suspended - Standby
+                                </span>
+                            </div>
+                            <p className="text-[9px] text-rose-500/70 leading-relaxed uppercase">
+                                {error ? "Terminal Timeout: CLOB API UNREACHABLE" : "Liquidity Filter: Base Fee 0bps detected"}
+                            </p>
+                            <div className="pt-1 flex items-center justify-between">
+                                <span className="text-[8px] text-rose-500/50">DOWNTIME_PROTOCOL_ACTIVE</span>
+                                <span className="text-[8px] text-rose-500/50 font-bold">{lastCheck}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div className="text-right">
-                        <Wifi className="h-3 w-3 text-emerald-500/40 ml-auto mb-1" />
-                        <span className="text-[8px] text-muted-foreground font-bold">{lastCheck}</span>
-                    </div>
-                </div>
-            )}
+                    ) : (
+                        <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-primary/30 transition-colors shadow-sm cursor-help">
+                            <div className="flex items-center gap-3">
+                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <div className="space-y-0.5">
+                                    <span className="text-[10px] text-foreground font-bold uppercase tracking-tight block leading-none">Scanning_Live</span>
+                                    <span className="text-[9px] text-muted-foreground uppercase">HFT Pipelines Clear</span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <Wifi className="h-3 w-3 text-emerald-500/40 ml-auto mb-1" />
+                                <span className="text-[8px] text-muted-foreground font-bold">{lastCheck}</span>
+                            </div>
+                        </div>
+                    )}
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-zinc-900 border-zinc-800 text-zinc-400 font-bold uppercase text-[9px] max-w-[200px]">
+                    Real-time market liquidity and stability check via Polymarket CLOB base-fee monitoring.
+                </TooltipContent>
+            </Tooltip>
         </div>
     )
 }

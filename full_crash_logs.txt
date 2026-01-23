@@ -1,0 +1,212 @@
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   📊 SOLANA Sentiment: Trend=0.50, Momentum=0.52, Volatility=1.00, Strength=0.50, Bias=0.60 → 0.614
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   🎯 SIGNAL SYNC: SOLANA UP (Mom=0.0005%, Sent=0.61)
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   🔍 PRICE RESULT: (0.5, 0.001, 50.0, 0.999)
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   👻 EMPTY MARKET DETECTED (Spread: 0.001-0.999)
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   💡 SEEDING QUOTE @ 0.05 (Sentiment 0.61 -> 1c-5c Range)
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m]   🔍 ENTRY PRICE: 0.05
+[2m2026-01-22T14:27:28Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m][32m INFO[0m Sending signal SIGTERM to main child process w/ PID 645
+[2m2026-01-22T14:27:29Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m][32m INFO[0m Main child exited with signal (with signal 'SIGTERM', core dumped? false)
+[2m2026-01-22T14:27:29Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m][32m INFO[0m Starting clean up.
+[2m2026-01-22T14:27:29Z[0m app[48ed433f419408] [32mams[0m [[34minfo[0m][  146.164268] reboot: Restarting system
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:28:13,479 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:28:13Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:28:14Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:28:15,793 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:28:15,845 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:28:15Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:28:15,925 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:29:16,091 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:29:16Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:29:17Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:29:17Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:29:17Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:29:18,307 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:29:18,338 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:29:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:29:18,437 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:30:18,646 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:30:18Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:30:19Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:30:19Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:30:19Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:30:19Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:30:20Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:30:20Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:30:20Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:30:21,178 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:30:21,230 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:30:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:30:21,446 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:31:21,571 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:31:21Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:31:22Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:31:22Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:31:22Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:31:22Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:31:22Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:31:23Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:31:23Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:31:23Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:31:23Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:31:23Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:31:24,069 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:31:24,119 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:31:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:31:24,194 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:32:24,327 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:32:24Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:32:25Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:32:26,648 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:32:26,685 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:32:26Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:32:26,962 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:33:27,120 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 3 positions from API
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Solana Up or Down - January 22, 9:15AM-9 (size: 79.74)
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 2: Bitcoin Up or Down - January 22, 9:15AM- (size: 22.64)
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 3: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Solana Up or Down - January 22... is resolved (cond_id: 0xf3ae0783...)
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Bitcoin Up or Down - January 2... is resolved (cond_id: 0x88a93b62...)
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:33:27Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:33:28Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:33:28Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:33:28Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:33:29,358 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:33:29,391 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:33:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:33:29,519 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...
+[2m2026-01-22T14:34:29Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:34:29,921 - httpx - INFO - HTTP Request: GET https://thxejjhpnzzigjcvizxl.supabase.co/rest/v1/agent_state?agent_name=eq.safe&select=* "HTTP/1.1 200 OK"
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 REDEEMER: Found 1 positions from API
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   📡 Processing position 1: Counter-Strike: Team Nemesis vs FORZE Re (size: 21.81)
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Checking if Counter-Strike: Team Nemesis v... is resolved (cond_id: 0x980973c2...)
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔍 Resolution check result: False
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0xf3ae0783...: execution reverted
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x980973c2...: execution reverted
+[2m2026-01-22T14:34:30Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]   🔗 On-chain check failed for 0x88a93b62...: execution reverted
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:34:31,056 - httpx - INFO - HTTP Request: GET https://gamma-api.polymarket.com/markets?limit=100&active=true "HTTP/1.1 200 OK"
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]'endDate'
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:34:31,083 - PyMLBot - INFO - Found 0 high-prob, 0 arb opportunities.
+[2m2026-01-22T14:34:31Z[0m app[286e959a754348] [32mams[0m [[34minfo[0m]2026-01-22 14:34:31,163 - PyMLBot - INFO - Sleeping for 60 seconds (Safe Scan Interval)...

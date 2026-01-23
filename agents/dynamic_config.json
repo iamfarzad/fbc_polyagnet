@@ -1,1 +1,11 @@
-{}
+{
+    "scalper": {
+        "active": true,
+        "mode": "high_freq",
+        "max_size": 500.0,
+        "min_spread": 0.01,
+        "use_llm_sentiment": false,
+        "BASE_MOMENTUM_THRESHOLD": 0.0002,
+        "MIN_SENTIMENT_CONFIDENCE": 0.15
+    }
+}

@@ -355,6 +355,11 @@ class DashboardData(BaseModel):
     lastUpdate: str
     walletAddress: str  # Bot's wallet address
     maxBetAmount: float = 0.50
+    # New Polymarket-style metrics
+    positions_value: float = 0.0
+    biggest_win: float = 0.0
+    predictions_count: int = 0
+    pnl_history: List[Dict[str, Any]] = []
 
 # --- Helper Functions ---
 
@@ -796,6 +801,45 @@ def get_dashboard(background_tasks: BackgroundTasks):
     # Record snapshot in background
     background_tasks.add_task(record_snapshot, balance, equity, unrealized_pnl)
 
+    # --- NEW: Polymarket-style Stats ---
+    # 1. Positions Value (Current Value)
+    positions_value = sum(float(p.get("value", 0)) for p in positions)
+
+    # 2. Predictions Count (Total Trades)
+    # Use simple trade count for now
+    predictions_count = trade_count
+
+    # 3. Biggest Win (Profit)
+    # We scan all trades for REDEMPTION or SELL with > 0 return
+    # Since we only have 'amount' (size_usd), we need to infer profit or use PnL from supabase
+    biggest_win = 0.0
+    for t in all_trades:
+        # Check if it's a "win" (Redemption is pure profit usually? No, it's $1 * shares)
+        # Approximate: Look for largest REDEMPTION amount
+        try:
+           side = t.get("side", "").upper()
+           market = t.get("market", "")
+           amount = float(t.get("amount", 0))
+           
+           if "REDEEM" in side or "REDEMPTION" in market.upper():
+               # Redemption amount is revenue. Profit = Revenue - Cost.
+               # Without cost tracking per trade, we can just show "Gross Win" or try to find biggest PnL
+               # User screenshot shows "Biggest Win $29.60".
+               # Let's use the raw amount for redemptions as a proxy for "Win Value" for now
+               if amount > biggest_win:
+                   biggest_win = amount
+        except: pass
+    
+    # 4. PnL History (For Graph)
+    # Use the existing get_history logic
+    pnl_history = []
+    try:
+        hist_data = get_history(period="ALL") # Using ALL for the chart
+        if isinstance(hist_data, dict) and "history" in hist_data:
+             pnl_history = hist_data["history"]
+    except Exception as e:
+        logger.error(f"Failed to fetch pnl history for dashboard: {e}")
+
     # 8. Open Orders
     open_orders = fetch_open_orders_helper()
     # Calculate daily metrics (Rolling 24h)
@@ -846,14 +890,18 @@ def get_dashboard(background_tasks: BackgroundTasks):
             "tradeCount": trade_count,
             "volume24h": volume_24h
         },
-        "dryRun": state.get("dry_run", True), # Changed from is_dry_run_mode to state.get("dry_run", True)
+        "dryRun": state.get("dry_run", True),
         "lastUpdate": datetime.now(timezone.utc).isoformat(),
         "walletAddress": wallet_address,
         "maxBetAmount": state.get("dynamic_max_bet", 0.50),
         "instant_scalp_total": round(instant_scalp_total, 2),
         "estimated_rebate": round(estimated_rebate, 2),
         "compounding_velocity": trade_count,
-        "referenceTokenId": state.get("last_token_id", "") 
+        "referenceTokenId": state.get("last_token_id", ""),
+        "positions_value": positions_value,
+        "biggest_win": biggest_win,
+        "predictions_count": predictions_count,
+        "pnl_history": pnl_history
     }
     
     # Update cache

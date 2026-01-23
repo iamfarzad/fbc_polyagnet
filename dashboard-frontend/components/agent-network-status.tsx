@@ -1,8 +1,7 @@
-"use client"
-
 import { useState } from "react"
-import { Cpu, Activity, Clock, Loader2 } from "lucide-react"
+import { Cpu, Activity, Clock, Loader2, Info } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import { getApiUrl } from "@/lib/api-url"
 
@@ -64,8 +63,6 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
         setLoadingId(agentId)
         try {
             // Map simple ID to backend expected toggle ID
-            // "safe" -> "safe"
-            // "copy" -> "copyTrader" etc
             const target = AGENT_NAMES[agentId] || agentId
 
             const res = await fetch(`${getApiUrl()}/api/toggle-agent`, {
@@ -94,21 +91,43 @@ export function AgentNetworkStatus({ agents }: AgentNetworkStatusProps) {
                 {processedAgents.map((agent) => (
                     <div
                         key={agent.id}
-                        className={`bg-card border ${agent.isAlive ? 'border-emerald-500/20' : 'border-border/40 opacity-50'} p-3 rounded-sm flex justify-between items-center transition-all`}
+                        className={`bg-card border ${agent.isAlive ? 'border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.05)]' : 'border-border/40'} p-3 rounded-sm flex justify-between items-center transition-all group`}
                     >
                         <div className="flex flex-col gap-0.5">
-                            <span className={`text-[10px] font-bold uppercase tracking-tight ${agent.isAlive ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                {agent.id.replace(/([A-Z])/g, '_$1').toUpperCase()}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className={`text-[10px] font-bold uppercase tracking-tight ${agent.isAlive ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                    {agent.id.replace(/([A-Z])/g, '_$1').toUpperCase()}
+                                </span>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Info className="h-2.5 w-2.5 text-muted-foreground/30 hover:text-muted-foreground cursor-help transition-colors" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="bg-zinc-900 border-zinc-800 text-zinc-400 font-bold uppercase text-[9px]">
+                                        {agent.id === 'safe' && "Conservative risk-mitigation module."}
+                                        {agent.id === 'scalper' && "High-frequency crypto spread capturing module."}
+                                        {agent.id === 'copy' && "Social sentiment and whale wallet mimicry module."}
+                                        {agent.id === 'smart' && "Cross-market arbitrage and correlation module."}
+                                        {agent.id === 'esports' && "Real-time game-state and prediction manifold."}
+                                        {agent.id === 'sport' && "Direct Gamma-API sports liquidity harvester."}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
                             <span className="text-[9px] text-muted-foreground truncate max-w-[150px]">
                                 {loadingId === agent.id ? "UPDATING_STATE..." : (agent.activity || "LISTENING_STATE")}
                             </span>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-bold border-r border-border/40 pr-3 mr-1">
-                                <Clock className="h-2.5 w-2.5" />
-                                <span className={agent.secondsAgo > 60 ? "text-rose-500" : "text-emerald-500"}>{agent.timeAgo}</span>
-                            </div>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-bold border-r border-border/40 pr-3 mr-1 cursor-help">
+                                        <Clock className="h-2.5 w-2.5" />
+                                        <span className={agent.secondsAgo > 60 ? "text-rose-500" : "text-emerald-500"}>{agent.timeAgo}</span>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-zinc-900 border-zinc-800 text-zinc-400 font-bold uppercase text-[9px]">
+                                    Last neural heartbeat from node
+                                </TooltipContent>
+                            </Tooltip>
 
                             <Switch
                                 checked={agent.isActive} // Use raw active state for switch, not 'isAlive' (heartbeat)

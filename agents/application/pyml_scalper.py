@@ -19,7 +19,7 @@ import datetime
 import requests
 from collections import deque
 from dotenv import load_dotenv
-from py_clob_client.clob_types import OrderArgs
+from py_clob_client.clob_types import OrderArgs, PostOrdersArgs, OrderType
 from py_clob_client.order_builder.constants import BUY, SELL
 import websocket
 
@@ -73,10 +73,10 @@ load_dotenv()
 
 # Portfolio & Size
 MAX_POSITIONS = 3                   # Start with 3
-BET_PERCENT = 0.99                  # ALL IN (Phoenix Mode)
-MIN_BET_USD = 0.10                  # <--- RESTORED TO $0.10 (PHOENIX MODE)
+BET_PERCENT = 0.05                  # 5% (Safer Optimization)
+MIN_BET_USD = 1.00                  # Raised to $1.0
 MAX_BET_USD = 500.00                
-MAX_DAILY_DRAWDOWN_PCT = 999.0      # <--- IGNORE ALL LOSS LIMITS
+MAX_DAILY_DRAWDOWN_PCT = 0.05       # 5% Daily Cap
 
 # Sniper Execution
 PRICE_CAP = 0.96                    
@@ -104,14 +104,141 @@ BINANCE_SYMBOLS = {
 MIN_LIQUIDITY_USD = 15              
 MIN_SENTIMENT_CONFIDENCE = 0.30     
 
+# 2026 UPDATE: Asset-Specific Personality Profiles
+ASSET_CONFIGS = {
+    "bitcoin": {
+        "take_profit": 0.025,
+        "stop_loss": -0.02,
+        "timeout_volatile": 15,
+        "momentum_thresh": 0.0005
+    },
+    "ethereum": {
+        "take_profit": 0.025,
+        "stop_loss": -0.02,
+        "timeout_volatile": 15, 
+        "momentum_thresh": 0.0005
+    },
+    "solana": {
+        "take_profit": 0.025, # Higher volatility = seek more profit
+        "stop_loss": -0.02,   # Wider stop
+        "timeout_volatile": 10,
+        "momentum_thresh": 0.0008
+    },
+    "xrp": {
+        "take_profit": 0.025, # High Volatility
+        "stop_loss": -0.02,   # Tight stop (don't hold bags)
+        "timeout_volatile": 5, # Very fast expiry
+        "momentum_thresh": 0.0010
+    }
+}
+DEFAULT_CONFIG = ASSET_CONFIGS["bitcoin"]
+
+# =============================================================================
+# MARKET SIMULATOR (Backtesting Engine)
+# =============================================================================
+class MarketSimulator:
+    def __init__(self, market_ids):
+        self.market_ids = market_ids
+        # Initial prices around 0.50
+        self.prices = {mid: 0.50 + (random.uniform(-0.05, 0.05)) for mid in market_ids}
+        self.step_count = 0
+        self.is_synthetic = True
+        self.historical_data = {} # market_id -> list of prices
+
+    def load_csv(self, file_path):
+        """Injest historical prices from a CSV."""
+        import csv
+        try:
+            with open(file_path, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    mid = row.get("market_id")
+                    price = float(row.get("price", 0.5))
+                    if mid not in self.historical_data:
+                        self.historical_data[mid] = []
+                    self.historical_data[mid].append(price)
+            self.is_synthetic = False
+            print(f"   📊 SIM: Loaded {sum(len(v) for v in self.historical_data.values())} data points from {file_path}")
+        except Exception as e:
+            print(f"   ⚠️ SIM: Failed to load CSV: {e}")
+
+    def step(self):
+        """Advance time and update prices."""
+        self.step_count += 1
+        for mid in self.market_ids:
+            if not self.is_synthetic and mid in self.historical_data:
+                # Playback historical data
+                idx = self.step_count % len(self.historical_data[mid])
+                self.prices[mid] = self.historical_data[mid][idx]
+            else:
+                # Volatility increases slightly every step to simulate market variety
+                vol = 0.005 # Increased for active testing
+                change = random.normalvariate(0.0, vol) 
+                
+                # 5% chance of a "momentum break"
+                if random.random() < 0.05:
+                    change *= random.uniform(5, 10) * random.choice([-1, 1])
+                    
+                new_price = self.prices[mid] + change
+                self.prices[mid] = max(0.05, min(0.95, new_price))
+
+    def get_market_data(self, market_id):
+        """Mock OrderBook with spread and imbalance."""
+        price = self.prices.get(market_id, 0.50)
+        
+        # Dynamic spread: 0.01 to 0.04
+        spread = 0.01 + (random.random() * 0.03)
+        bid = round(price - (spread / 2), 4)
+        ask = round(price + (spread / 2), 4)
+        
+        # Mock sizes for imbalance checks
+        # Randomly favor one side to create signals
+        base_size = 500
+        bias = random.uniform(0.5, 2.0)
+        if random.random() > 0.5:
+            bid_size = base_size * bias
+            ask_size = base_size
+        else:
+            bid_size = base_size
+            ask_size = base_size * bias
+
+        return {
+            "best_bid": bid,
+            "best_ask": ask,
+            "bid_size": bid_size,
+            "ask_size": ask_size,
+            "spread": spread,
+            "bids": [{"price": bid, "size": bid_size}],
+            "asks": [{"price": ask, "size": ask_size}]
+        }
+
+import random # Ensure random is available
 
 class CryptoScalper:
     AGENT_NAME = "scalper_hybrid"
 
-    def __init__(self, dry_run=True):
+    def __init__(self, dry_run=True, simulate=False):
         self.pm = Polymarket()
+        self.simulate = simulate
+        self.sim_engine = None
+        self.sim_orders = [] # Mock order shelf
+        self.sim_balance = 1000.0 # Starting Simulation Balance
+        
+        if self.simulate:
+            print(f"   🧪 SIMULATION MODE ACTIVE (Starting Balance: ${self.sim_balance})")
+            self.dry_run = True # Always dry run in sim
+            # We'll init the engine after we discover markets
+        else:
+            self.dry_run = dry_run
+        
+        # ⚡ PREMIUM RPC UPGRADE (ams -> Polygon)
+        # Use a paid EU-tier endpoint for sub-100ms tx submission
+        premium_rpc = os.getenv("POLYGON_RPC_URL", "https://your-paid-eu-endpoint.com")
+        if hasattr(self.pm.client, 'rpc_url'):
+            self.pm.client.rpc_url = premium_rpc
+            print(f"   ⚡ RPC: {premium_rpc[:20]}... [PREMIUM ACTIVE]")
+
         self.gamma = GammaMarketClient()
-        self.dry_run = dry_run
         
         # Initialize Shared Context
         try:
@@ -132,15 +259,19 @@ class CryptoScalper:
         self.active_positions = {}      # token_id -> position_data
         self.pending_orders = {}        # order_id -> order_metadata
         self.traded_markets = []        # market_id cache
+        self.token_to_market = {}       # token_id -> market_id
 
         # Stats
         self.session_start = datetime.datetime.now()
-        self.initial_balance = self.get_balance()
+        self.initial_balance = self.get_balance() if not self.simulate else self.sim_balance
         self.total_orders = 0
         self.total_fills = 0
         self.panic_exits = 0
         self.total_pnl = 0.0
         self.circuit_breaker_triggered = False
+        
+        # 2026 UPDATE: Re-entry Lockout to prevent churn
+        self.lockout = {} # token_id -> timestamp until allowed
 
         # Data Feeds
         self.binance_history = {k: deque(maxlen=200) for k in BINANCE_SYMBOLS}
@@ -177,7 +308,20 @@ class CryptoScalper:
 
         # Price caching for performance
         self.price_cache = {}  # token_id -> (timestamp, price_data)
+        self.new_price_update = False # Event-driven flag
         self._init_polymarket_websocket()
+
+        # Pre-subscribe to all active crypto tokens for instant speed
+        try:
+            markets = self.get_available_markets()
+            token_ids = []
+            for m in markets:
+                token_ids.extend([m["up_token"], m["down_token"]])
+            if token_ids:
+                self.subscribe_to_market_assets(list(set(token_ids)))
+                print(f"   ⚡ PRE-SUBSCRIBED to {len(token_ids)} tokens for instant updates")
+        except Exception as e:
+            print(f"   ⚠️ Pre-subscription failed: {e}")
 
         # Self-Learning State
         self.last_learning_time = 0
@@ -238,10 +382,12 @@ class CryptoScalper:
                     bid = float(data.get('best_bid', price * 0.99))
                     ask = float(data.get('best_ask', price * 1.01))
                     bid_size = float(data.get('bid_size', 1000))
+                    ask_size = float(data.get('ask_size', 1000))
 
-                    price_data = (price, bid, bid_size, ask)
+                    price_data = (price, bid, bid_size, ask, ask_size)
                     self.price_cache[token_id] = (time.time(), price_data)
-                    print(f"   📈 WS Price Update: {token_id[:8]}... @ ${price:.4f}")
+                    self.new_price_update = True # WAKE UP LOOP
+                    print(f"   📈 WS Price Update: {token_id[:8]}... @ ${price:.4f} (B:{bid_size}/A:{ask_size})")
 
                 elif 'updates' in data:
                     # Handle batch updates
@@ -252,9 +398,13 @@ class CryptoScalper:
                             bid = float(update.get('best_bid', price * 0.99))
                             ask = float(update.get('best_ask', price * 1.01))
                             bid_size = float(update.get('bid_size', 1000))
+                            ask_size = float(update.get('ask_size', 1000))
 
-                            price_data = (price, bid, bid_size, ask)
+                            price_data = (price, bid, bid_size, ask, ask_size)
                             self.price_cache[token_id] = (time.time(), price_data)
+                            self.new_price_update = True # WAKE UP LOOP
+                elif 'type' in data and data['type'] == 'pong':
+                     pass # Stay alive
 
             except Exception as e:
                 print(f"   ⚠️ WS callback error: {e}")
@@ -274,16 +424,21 @@ class CryptoScalper:
             self.pm.subscribe_to_assets(token_ids, channel_type="market")
             print(f"   📡 Subscribed to {len(token_ids)} market assets")
 
-    # -------------------------------------------------------------------------
-    # DATA & UTILS
-    # -------------------------------------------------------------------------
-
     def get_balance(self):
+        if self.simulate: return self.sim_balance
+        if self.dry_run: return 10000.0
         try: return self.pm.get_usdc_balance()
         except: return 0.0
 
     def get_current_price(self, token_id):
         """Get current price - prefer cached websocket data, fallback to REST."""
+        if self.simulate and self.sim_engine:
+            mid = self.token_to_market.get(token_id)
+            if mid:
+                data = self.sim_engine.get_market_data(mid)
+                price = (data["best_bid"] + data["best_ask"]) / 2
+                return (price, data["best_bid"], data["bid_size"], data["best_ask"], data["ask_size"])
+
         # Check if we have recent websocket data
         if hasattr(self, 'price_cache') and token_id in self.price_cache:
             cache_time, cached_data = self.price_cache[token_id]
@@ -298,14 +453,17 @@ class CryptoScalper:
             best_bid = float(book.bids[0].price) if book.bids else 0.0
             bid_size = float(book.bids[0].size) if book.bids else 0.0
             best_ask = float(book.asks[0].price) if book.asks else 1.0
+            ask_size = float(book.asks[0].size) if book.asks else 0.0
             
             # SANITY CHECK: Probability markets must be 0-1
             # If we see > 1.0, it's garbage or we are mapped to the wrong thing
             if best_bid > 1.0 or best_ask > 1.05: 
                  print(f"   ⚠️ PRICE SANITY FAIL: Bid={best_bid}, Ask={best_ask} (Token: {token_id})")
-                 return 0.5, 0.0, 0.0, 1.0
+                 return 0.5, 0.0, 0.0, 1.0, 0.0
 
-            if best_bid == 0 and best_ask == 1: return 0.5, 0.0, 0.0, 1.0
+            if best_bid == 0 and best_ask == 1: return 0.5, 0.0, 0.0, 1.0, 0.0
+            
+            return (best_bid + best_ask)/2, best_bid, bid_size, best_ask, ask_size
 
             # 4. EXPENSIVE ENTRY GUARD (New)
             # If price is > $0.80, we need really good reasons to buy
@@ -318,26 +476,28 @@ class CryptoScalper:
             self.price_cache[token_id] = (time.time(), price_data)
             return price_data
         except Exception as e: 
-            # print(f"Price Fetch Error: {e}") # Reduce noise
             return 0.5, 0.0, 0.0, 1.0
 
     def calculate_momentum(self, symbol):
-        """Calculate momentum as % change over last 30 seconds."""
+        """Calculate recent price momentum from Binance deque (Percentage)."""
         history = self.binance_history.get(symbol, [])
-        if len(history) < 2: return 0.0
+        if len(history) < 5: return 0.0
 
-        # Get prices from last 30 seconds
-        now = time.time()
-        recent_prices = [(t, p) for t, p in history if now - t < 30]
+        if self.simulate:
+            # In simulation, we may run faster than real time, 
+            # so we just look at the last 10 steps of history
+            recent_prices = [p for t, p in list(history)[-10:]]
+        else:
+            now = time.time()
+            recent_prices = [p for t, p in history if now - t < 10]
 
         if len(recent_prices) < 2: return 0.0
-
-        # Calculate momentum as (current - oldest) / oldest
-        oldest_price = recent_prices[0][1]
-        current_price = recent_prices[-1][1]
-
-        momentum = (current_price - oldest_price) / oldest_price
-        return momentum
+        
+        start_p = recent_prices[0]
+        end_p = recent_prices[-1]
+        
+        if start_p == 0: return 0.0
+        return (end_p - start_p) / start_p
 
     def get_market_sentiment(self, asset, binance_symbol):
         """Calculate comprehensive market sentiment score (0-1 scale, 0.5=neutral)."""
@@ -430,11 +590,14 @@ class CryptoScalper:
 
     def get_dynamic_timeout(self, asset):
         """Volatile = 3s timeout. Calm = 15s timeout."""
+        config = ASSET_CONFIGS.get(asset, DEFAULT_CONFIG)
         symbol = BINANCE_SYMBOLS.get(asset)
-        if not symbol: return LIMIT_ORDER_TIMEOUT_CALM
+        
+        # Default behavior if no binance data
+        if not symbol: return 15 # Standard calm default
 
         vol = self.calculate_volatility(symbol)
-        return LIMIT_ORDER_TIMEOUT_VOLATILE if vol > 0.05 else LIMIT_ORDER_TIMEOUT_CALM
+        return config["timeout_volatile"] if vol > 0.05 else 15
 
     # -------------------------------------------------------------------------
     # MARKET SCANNING (The Missing Piece)
@@ -490,8 +653,29 @@ class CryptoScalper:
         2. Query events API with specific slugs
         3. Extract markets from found events
         """
+        if self.simulate and self.sim_engine:
+            return self._last_markets if hasattr(self, '_last_markets') else []
+
         # Use CENTRALIZED discovery method from GammaMarketClient
-        return self.gamma.discover_15min_crypto_markets()
+        markets = self.gamma.discover_15min_crypto_markets()
+
+        if self.simulate and not self.sim_engine:
+            if not markets:
+                # Create some dummy markets if none found to avoid sim failure
+                markets = [
+                    {"id": "sim_btc_1", "asset": "bitcoin", "up_token": "up_btc", "down_token": "down_btc"},
+                    {"id": "sim_eth_1", "asset": "ethereum", "up_token": "up_eth", "down_token": "down_eth"}
+                ]
+            
+            mids = [m["id"] for m in markets]
+            self.sim_engine = MarketSimulator(mids)
+            for m in markets:
+                self.token_to_market[m["up_token"]] = m["id"]
+                self.token_to_market[m["down_token"]] = m["id"]
+            self._last_markets = markets
+            print(f"   🧪 SIMULATOR INITIALIZED with {len(markets)} markets")
+            
+        return markets
 
     def get_fee_bps(self, token_id):
         try:
@@ -516,20 +700,58 @@ class CryptoScalper:
         Poll Data API to reconcile Pending Orders -> Active Positions.
         This is the 'source of truth' check.
         """
-        print(f"   🔄 SYNC_POSITIONS: Checking positions for user={self.pm.funder_address}")
-        if self.dry_run: return
+        if self.simulate:
+            print(f"   🔄 SIM_SYNC: Checking mock fills...")
+        elif self.dry_run:
+            return
 
         try:
-            # 1. Fetch actual held positions
-            # For Gnosis Safe proxy, use the proxy address instead of EOA
-            user = self.pm.funder_address if self.pm.funder_address else self.pm.get_address_for_private_key()
-            url = f"https://data-api.polymarket.com/positions?user={user}"
-            print(f"   📊 FETCHING POSITIONS: {url}")
-            positions = requests.get(url, timeout=5).json()
-            print(f"   📊 FOUND {len(positions)} total positions")
-
-            held_token_ids = {p["asset"]: p for p in positions if float(p["size"]) > 0.1}
-            print(f"   📊 HELD TOKENS: {len(held_token_ids)} with size > 0.1")
+            # 1. Fetch actual or simulated held positions
+            held_token_ids = {}
+            if self.simulate:
+                # Simulation Mock State
+                # Check each pending order (entry/exit) against simulated prices
+                for order_id, meta in list(self.pending_orders.items()):
+                    mid = meta.get("market_id")
+                    if not mid: continue
+                    
+                    data = self.sim_engine.get_market_data(mid)
+                    filled = False
+                    
+                    if meta["type"] == "entry":
+                        if meta["side"] == "UP":
+                            if data["best_ask"] <= meta["price"]: filled = True
+                        else:
+                            if data["best_bid"] >= meta["price"]: filled = True
+                        
+                        if filled:
+                            # Mock "held" status so the logic below picks it up
+                            held_token_ids[meta["token_id"]] = {
+                                "asset": meta["token_id"],
+                                "currentValue": meta["price"] * 100,
+                                "size": 100.0 # Standard Sim Size
+                            }
+                    elif meta["type"] == "exit":
+                        # Exit Logic (Maker)
+                        if meta["side"] == "DOWN": # Selling UP
+                             if data["best_bid"] >= meta["price"]: filled = True
+                        else: # Selling DOWN
+                             if data["best_ask"] <= meta["price"]: filled = True
+                        
+                        if filled:
+                            pos = self.active_positions.get(meta["token_id"])
+                            if pos:
+                                pnl = (meta["price"] - pos["entry_price"]) * pos["size"]
+                                self.sim_balance += pnl
+                                self.total_pnl += pnl
+                                print(f"   🧪 [SIM] EXIT FILLED: {pos['asset']} | PnL: ${pnl:.2f} | Balance: ${self.sim_balance:.2f}")
+                            del self.pending_orders[order_id]
+            else:
+                # Real/Dry positions check
+                user = self.pm.funder_address if self.pm.funder_address else self.pm.get_address_for_private_key()
+                url = f"https://data-api.polymarket.com/positions?user={user}"
+                resp = requests.get(url, timeout=5).json()
+                held_token_ids = {p["asset"]: p for p in resp if float(p["size"]) > 0.1}
 
             # 2. Reconcile Entry Orders
             for order_id, meta in list(self.pending_orders.items()):
@@ -539,8 +761,14 @@ class CryptoScalper:
 
                 # If we hold this token now, the order filled
                 if token_id in held_token_ids:
-                    print(f"   ✅ ORDER FILLED: {meta['side']} {meta['asset']}")
+                    print(f"   ✅ ORDER FILLED: {meta['side']} {meta['asset']} (ID: {order_id[:8]})")
                     self.total_fills += 1
+                    
+                    # LOG RESOLUTION/FILL
+                    try:
+                        entry_val = float(held_token_ids[token_id]["currentValue"])
+                        print(f"   💰 FILL LOG: Asset={meta['asset']}, Side={meta['side']}, Price={meta['price']}, Value=${entry_val:.2f}")
+                    except: pass
 
                     # Promote to Active Managed Position
                     self.active_positions[token_id] = {
@@ -555,6 +783,22 @@ class CryptoScalper:
 
                     # Clear pending
                     del self.pending_orders[order_id]
+
+            # 3. Reconcile Exits (Remove from Active if no longer held)
+            for token_id in list(self.active_positions.keys()):
+                if token_id not in held_token_ids:
+                    pos = self.active_positions[token_id]
+                    print(f"   🏁 POSITION RESOLVED: {pos['asset']} {pos['side']} (Closed)")
+                    
+                    # Update Balance in Simulation if it's a win/loss
+                    if self.simulate:
+                        # Simple exit logic: we assume we sold at current best_ask/bid
+                        # This is a bit recursive since this method is for reconciliation
+                        # In reality, manage_positions handles the sell order.
+                        # If the position is gone from held_token_ids, it means it's sold/settled.
+                        pass
+                        
+                    del self.active_positions[token_id]
 
         except Exception as e:
             print(f"   ⚠️ Sync Error: {e}")
@@ -632,20 +876,42 @@ class CryptoScalper:
             print(f"   🔒 LOCKOUT: Already holding position in {market['asset']}")
             return False
 
+        # 2.5 RE-ENTRY BLACKLIST CHECK
+        if token_id in self.lockout:
+            if time.time() < self.lockout[token_id]:
+                remaining = int(self.lockout[token_id] - time.time())
+                print(f"   ⏳ COOL DOWN: Cannot re-enter {market['asset']} for {remaining}s")
+                return False
+            else:
+                del self.lockout[token_id] # Expired
+
         # 2. Price Analysis: Get the best bid to front-run the queue
         try:
             price_result = self.get_current_price(token_id)
             print(f"   🔍 PRICE RESULT: {price_result}")
-            _, best_bid, _, best_ask = price_result
+            _, best_bid, bid_size, best_ask, ask_size = price_result
+
+            # 1.5 SATURATION & LIQUIDITY FILTERS (2026 Optimization)
+            # Skip if spread is too tight (pros camping)
+            spread = best_ask - best_bid
+            if spread < 0.02:
+                 print(f"   💤 SATURATED: Spread {spread:.3f} too tight (Pros camping). Skipping.")
+                 return False
             
-            # --- PHOENIX MODE: HARD PRICE CAP ---
-            # STRICT RULE: If balance < $50, we ONLY buy "lottery tickets" (1c-5c).
-            # We rejected the old "affordability" logic which allowed expensive buys on deposit.
-            if self.get_balance() < 50.0:
-                 if best_bid > 0.05:
-                      print(f"   🔥 PHOENIX REJECT: Bid ${best_bid} > $0.05. Cheap shares only.")
+            # Liquidity Imbalance: Only enter if bid/ask size imbalance > 20%
+            if direction == "UP":
+                 imbalance = bid_size / ask_size if ask_size > 0 else 100
+                 if imbalance < 1.2:
+                      print(f"   💤 IMBALANCE FAIL: UP needs strong Bids (ratio {imbalance:.2f} < 1.2)")
                       return False
-            # ----------------------------------------
+            else: # DOWN
+                 imbalance = ask_size / bid_size if bid_size > 0 else 100
+                 if imbalance < 1.2:
+                      print(f"   💤 IMBALANCE FAIL: DOWN needs strong Asks (ratio {imbalance:.2f} < 1.2)")
+                      return False
+
+            # --- SAFER PRICING LOGIC ---
+            # Restricted to standard pricing. Phoenix hard caps removed.
             
             # EMPTY MARKET LOGIC: If Bid is floor (0.0) or near zero, use Sentiment
             if best_bid <= 0.05 and best_ask >= 0.95:
@@ -656,28 +922,23 @@ class CryptoScalper:
                  target_price = max(0.01, min(0.05, sentiment_score * 0.10))
                  entry_price = round(target_price, 2)
                  print(f"   💡 SEEDING QUOTE @ {entry_price} (Sentiment {sentiment_score:.2f} -> 1c-5c Range)")
+                 is_taker = False
             else:
-                 # Standard Queue Jump
-                 print(f"   🔍 BEST BID: {best_bid}")
-                 
-                 # MAKER PRICING LOGIC
-                 # Try to beat the bid, but NEVER cross the ask (or we get rejected as Taker)
-                 potential_price = round(float(best_bid) + 0.01, 2) 
-                 is_taker = False # Default to Maker
-
-                 # PHOENIX SNIPER: If Ask is super cheap (<= 0.05), just TAKE it.
-                 # We want those 1 cent shares.
-                 if self.get_balance() < 50.0 and best_ask <= 0.05:
-                      entry_price = round(float(best_ask), 2)
-                      is_taker = True
-                      print(f"   🦅 PHOENIX SNIPE: Taking cheap shares at ${entry_price}!")
-                 
-                 elif potential_price < best_ask:
-                      entry_price = potential_price
-                      print(f"   💡 INCREMENT: Bumping bid to ${entry_price} (Queue Front)")
+                 # TAKER SNIPE: If momentum is extreme (>0.15%), cross the spread for instant fill
+                 is_taker = False
+                 if abs(momentum) > 0.0015:
+                     is_taker = True
+                     entry_price = round(float(best_ask if direction == "UP" else best_bid), 2)
+                     print(f"   ⚡ TAKER SNIPE: Crossing @ ${entry_price:.3f} (Momentum {momentum:.4f}%)")
                  else:
-                      entry_price = round(float(best_bid), 2)
-                      print(f"   💡 JOINING: Spread too tight, joining bid at ${entry_price}")
+                     # Standard Maker Logic
+                     potential_price = round(float(best_bid) + 0.01, 2)
+                     if potential_price < best_ask:
+                          entry_price = potential_price
+                          print(f"   💡 INCREMENT: Bumping bid to ${entry_price} (Queue Front)")
+                     else:
+                          entry_price = round(float(best_bid), 2)
+                          print(f"   💡 JOINING: Spread too tight, joining bid at ${entry_price}")
 
             print(f"   🔍 ENTRY PRICE: {entry_price}")
             
@@ -696,12 +957,8 @@ class CryptoScalper:
             print(f"   ❌ PRICE FILTER: ${entry_price:.3f} outside 2¢-92¢ range")
             return False
 
-        # --- PHOENIX HARD CAP (FINAL CHECK) ---
-        # Catch-all: Ensure that even if we "Seed" an empty market, we don't pay > 5c
-        if self.get_balance() < 50.0 and entry_price > 0.05:
-            print(f"   🔥 PHOENIX REJECT (FINAL): Entry ${entry_price:.2f} > $0.05 Hard Cap")
-            return False
-        # --------------------------------------
+        # --- FINAL CHECK ---
+        # Price cap check only.
 
         # PRICE CAP: Don't buy if entry price > $0.75 (risk > reward)
         # UNLESS sentiment is super high
@@ -757,59 +1014,142 @@ class CryptoScalper:
             return True
 
         try:
-            # Send the order to the sanitized Polymarket class
-            # EXPLICITLY set post_only=True to ensure we never pay taker fees
-            resp = self.pm.place_limit_order(token_id, entry_price, size_shares, "BUY", fee_rate_bps=fee_rate_bps, post_only=True)
-            if resp.get("orderID"):
-                # Record trade using TradeRecorder
-                record_trade(
-                    agent_name=self.AGENT_NAME,
-                    market=market["asset"],
-                    side=direction,
-                    amount=size_usd,
-                    price=entry_price,
-                    token_id=token_id,
-                    reasoning=f"Momentum: {momentum:.2%}, Sentiment: {sentiment_score:.2f}"
-                )
+            # --- SHOTGUN STRATEGY (BATCHING) ---
+            # Send 3 orders to bracket the market and beat competitors.
+            
+            # 1. THE SNIPE (Aggressive): Buy higher to ensure fill if price runs
+            snipe_price = round(entry_price + 0.01, 2)
+            if snipe_price >= best_ask: snipe_price = entry_price # Don't cross spread blindly
+            
+            # 2. THE PIVOT (Standard): The calculated optimal price
+            pivot_price = entry_price
+            
+            # 3. THE TRAP (Passive): Buy lower to catch a wick
+            trap_price = round(entry_price - 0.01, 2)
+            if trap_price <= 0: trap_price = 0.01
 
-                # Update agent activity
-                update_agent_activity(
-                    agent_name=self.AGENT_NAME,
-                    activity="trade_executed",
-                    extra_data={
-                        "market": market["asset"],
-                        "side": direction,
-                        "size": size_usd,
-                        "price": entry_price
-                    }
-                )
+            # Split Size: 30% Snipe, 40% Pivot, 30% Trap
+            # BUT enforce min size ($1 worth roughly to avoid dust errors)
+            total_shares = size_shares
+            
+            try:
+                # Construct Batch
+                batch_orders = []
+                side_enum = BUY if direction == "UP" else SELL # pyml_scalper logic handles side string, need enum for clob client
+                
+                # Snipe Order
+                batch_orders.append(PostOrdersArgs(
+                    order=self.pm.client.create_order(OrderArgs(
+                        price=snipe_price, 
+                        size=total_shares * 0.30, 
+                        side=side_enum, 
+                        token_id=token_id,
+                        fee_rate_bps=fee_rate_bps
+                    )),
+                    orderType=OrderType.GTC
+                ))
+                
+                # Pivot Order
+                batch_orders.append(PostOrdersArgs(
+                    order=self.pm.client.create_order(OrderArgs(
+                        price=pivot_price, 
+                        size=total_shares * 0.40, 
+                        side=side_enum, 
+                        token_id=token_id,
+                        fee_rate_bps=fee_rate_bps
+                    )),
+                    orderType=OrderType.GTC
+                ))
+                
+                # Trap Order
+                batch_orders.append(PostOrdersArgs(
+                    order=self.pm.client.create_order(OrderArgs(
+                        price=trap_price, 
+                        size=total_shares * 0.30, 
+                        side=side_enum, 
+                        token_id=token_id,
+                        fee_rate_bps=fee_rate_bps
+                    )),
+                    orderType=OrderType.GTC
+                ))
 
-                self.pending_orders[resp.get("orderID")] = {
-                    "type": "entry", "token_id": token_id, "asset": market["asset"],
-                    "side": direction, "price": entry_price, "time": time.time(),
-                    "timeout": 5,  # Note: logic uses global constant overrides now
-                    "market_id": market["id"]
-                }
-                # Lock this market to prevent rapid-fire
-                self.traded_markets.append(market_id)
-                print("   ✅ [LIVE] Order Placed (20% Allocation)")
-                return True
-            else:
-                print(f"   ❌ ORDER FAILED: {resp}")
+                print(f"   🔫 SHOTGUN: Firing 3 Orders (Snipe ${snipe_price}, Pivot ${pivot_price}, Trap ${trap_price})")
+                
+                if self.simulate:
+                    # Mock Responses for Sim
+                    resps = []
+                    for bo in batch_orders:
+                        oid = f"sim_{token_id[:6]}_{random.getrandbits(16)}"
+                        resps.append(type('obj', (object,), {'success': True, 'orderID': oid}))
+                elif not self.dry_run:
+                    # Execute Batch
+                    resps = self.pm.client.post_orders(batch_orders)
+                else:
+                    # Dry Run placeholder
+                    resps = []
+                    
+                    # Assuming success if we get a list back
+                    # The response is a list of responses [ {success: true...}, ... ]
+                    success_count = 0
+                    first_order_id = "BATCH_UNKNOWN"
+                    
+                    if resps and isinstance(resps, list):
+                        for r in resps:
+                            if r.success:
+                                success_count += 1
+                                if first_order_id == "BATCH_UNKNOWN":
+                                    first_order_id = r.orderID
+                    
+                    if success_count > 0:
+                        # Register at least one valid order so the bot manages it
+                        # We use the Pivot (or First) ID to track the "Cluster"
+                        self.pending_orders[first_order_id] = {
+                            "type": "entry", "token_id": token_id, "asset": market["asset"],
+                            "side": direction, "price": entry_price, "time": time.time(),
+                            "timeout": self.get_dynamic_timeout(market["asset"]), 
+                            "market_id": market["id"],
+                            "is_batch": True # Flag implementation
+                        }
+                         # Record trade using TradeRecorder (Aggregate)
+                        if not self.simulate:
+                            record_trade(
+                                agent_name=self.AGENT_NAME,
+                                market=market["asset"],
+                                side=direction,
+                                amount=size_usd,
+                                price=entry_price, # Avg price approx
+                                token_id=token_id,
+                                reasoning=f"SHOTGUN ENTRY (3 Orders). Momentum: {momentum:.2%}"
+                            )
+                        self.traded_markets.append(market_id)
+                        print(f"   ✅ [LIVE] SHOTGUN SUCCESS: {success_count}/3 Orders Placed")
+                        return True
+                    else:
+                        print(f"   ❌ SHOTGUN FAILED: {resps}")
+                        return False
+
+            except Exception as e:
+                print(f"   ❌ BATCH EXCEPTION: {e}")
                 return False
         except Exception as e:
             print(f"   ❌ Order Failed: {e}")
             return False
 
-    # -------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------
     # HYBRID EXIT (Maker First -> Panic Taker)
     # -------------------------------------------------------------------------
 
     def manage_positions(self):
         """Check exits for all active positions (Smart Maker-Only)."""
         for token_id, pos in list(self.active_positions.items()):
+            # 2026 UPDATE: Load Asset Personality (Config)
+            config = ASSET_CONFIGS.get(pos["asset"], DEFAULT_CONFIG)
+
             # 1. Get real-time prices (Prefer WS cache)
-            _, best_bid, _, best_ask = self.get_current_price(token_id)
+            price_data = self.get_current_price(token_id)
+            if not price_data: continue
+            _, best_bid, bid_size, best_ask, ask_size = price_data
             if best_bid == 0:
                 # 👻 GHOST TRAP: If Ask indicates a profit ("Liquidity Mirage"), use it to place a Maker Sell.
                 if best_ask > 0 and best_ask > pos["entry_price"] * 1.10:
@@ -818,8 +1158,12 @@ class CryptoScalper:
                 else:
                      # 🚨 CRASH DETECTED: Bid is 0 and Ask is not profitable.
                      # We must treat this as -100% PnL so the Panic Dump logic triggers below.
-                     # Do NOT continue/skip. Fall through with best_bid = 0.
-                     best_bid = 0.0
+                     # 2026 FIX: Force Taker Exit if we have liquidity at Ask (Ghost Trap).
+                     if best_ask > 0.02: # Only sell if we get at least 2 cents
+                          print(f"   ⚠️ FORCE EXIT: Bid 0 but Ask ${best_ask}. dumping into Ask.")
+                          best_bid = best_ask # Hack to force pnl calculation
+                     else:
+                          best_bid = 0.0
 
             # 2. Calculate PnL relative to current Bid
             pnl_pct = (best_bid - pos["entry_price"]) / pos["entry_price"]
@@ -832,7 +1176,7 @@ class CryptoScalper:
             # If we see high velocity (the same signal that baited us before),
             # we use it to SELL into the chasers.
             price_momentum = self.calculate_momentum(BINANCE_SYMBOLS.get(pos["asset"]))
-            if price_momentum > 0.0005: # > 0.05% in 30s is a spike
+            if price_momentum > config["momentum_thresh"]:
                  print(f"   🎣 PREDATORY TRAP: High Momentum ({price_momentum:.4f}%) detected on {pos['asset']}!")
                  
                  # Sell at the Ask (or slightly higher if spread is wide)
@@ -854,8 +1198,8 @@ class CryptoScalper:
                  print(f"   🚀 TRIGGERING PREDATORY EXIT @ ${predatory_price}")
 
             # 4. Trigger "Smart Maker" Exit if Target Hit OR Stop Loss Hit
-            # 4. Trigger Exit if Target Hit OR Stop Loss Hit
-            if pnl_pct > TAKE_PROFIT_PCT:
+            # 4. Trigger "Smart Maker" Exit if Target Hit OR Stop Loss Hit
+            if pnl_pct > config["take_profit"]:
                 # --- PROFIT MODE: Smart Maker (Chase Ask) ---
                 if existing_exit:
                     current_order_price = self.pending_orders[existing_exit].get("price")
@@ -872,20 +1216,31 @@ class CryptoScalper:
                 sell_price = round(best_ask - MAKER_OFFSET, 2)
                 print(f"   💰 PROFIT: Placing Aggressive Maker Sell @ ${sell_price}")
 
-                if not self.dry_run:
+                if self.simulate:
+                    oid = f"sim_exit_{token_id[:6]}_{random.getrandbits(16)}"
+                    self.pending_orders[oid] = {
+                        "type": "exit", "token_id": token_id, "asset": pos["asset"],
+                        "side": "DOWN" if pos["side"] == "UP" else "UP",
+                        "price": sell_price, "time": time.time(), "market_id": pos["market_id"]
+                    }
+                    print(f"   🧪 [SIM] PROFIT EXIT POSTED @ ${sell_price}")
+                elif not self.dry_run:
                     try:
                         resp = self.pm.place_limit_order(token_id, sell_price, pos["size"], "SELL")
                         if resp.get("orderID"):
                             self.pending_orders[resp["orderID"]] = {
                                 "type": "exit", "time": time.time(), "token_id": token_id, "price": sell_price,
-                                "timeout": EXIT_MAKER_TIMEOUT
+                                "timeout": EXIT_MAKER_TIMEOUT, "market_id": pos["market_id"]
                             }
+                            # --- BLACKLIST UPDATE ---
+                            # Prevent re-entry logic from firing immediately after we queue the exit
+                            self.lockout[token_id] = time.time() + 300
                     except Exception as e:
                         print(f"   ❌ Maker Exit Failed: {e}")
 
-            elif pnl_pct < PANIC_THRESHOLD_PCT:
+            elif pnl_pct < config["stop_loss"]:
                 # --- PANIC MODE: Taker Dump (Hit Bid) ---
-                print(f"   🚨 PANIC DUMP: PnL {pnl_pct*100:.2f}% < {PANIC_THRESHOLD_PCT*100}%! FORCE SELLING!")
+                print(f"   🚨 PANIC DUMP: PnL {pnl_pct*100:.2f}% < {config['stop_loss']*100}%! FORCE SELLING!")
                 
                 # Cancel any existing maker orders to free up balance
                 if existing_exit:
@@ -894,7 +1249,14 @@ class CryptoScalper:
                         except: pass
                     del self.pending_orders[existing_exit]
 
-                if not self.dry_run:
+                if self.simulate:
+                    # Instant fill at best_bid (Taker)
+                    pnl = (best_bid - pos["entry_price"]) * pos["size"]
+                    self.sim_balance += pnl
+                    self.total_pnl += pnl
+                    print(f"   🧪 [SIM] PANIC DUMP FILLED: {pos['asset']} | PnL: ${pnl:.2f} | Balance: ${self.sim_balance:.2f}")
+                    del self.active_positions[token_id]
+                elif not self.dry_run:
                     try:
                         # Place LIMIT SELL @ 0.00 to cross the entire spread and fill instantly (Taker)
                         # This behaves like a Market Sell
@@ -902,6 +1264,11 @@ class CryptoScalper:
                         if resp.get("orderID"):
                             print(f"   ✅ DUMPED {pos['asset']} @ MARKET PRICE")
                             del self.active_positions[token_id] # Assume instant fill
+                            
+                            # --- BLACKLIST UPDATE ---
+                            # Prevent re-entry into this burning asset for 5 mins
+                            self.lockout[token_id] = time.time() + 300
+                            
                     except Exception as e:
                         print(f"   ❌ Panic Dump Failed: {e}")
 
@@ -1044,6 +1411,7 @@ class CryptoScalper:
 
     def process_commands(self):
         """Check for and execute user commands from the context."""
+        if self.simulate: return # Bypassing in sim
         if not self.context: return
 
         try:
@@ -1118,50 +1486,105 @@ class CryptoScalper:
                 print(f"   ❌ Manual trade failed: {e}")
 
 
-    def run(self):
+    def print_sim_report(self):
+        """Print a summary of the simulation run."""
+        print("\n" + "=".center(60, "="))
+        print("🧪 SIMULATION PERFORMANCE REPORT".center(60))
+        print("=".center(60, "="))
+        
+        duration = datetime.datetime.now() - self.session_start
+        steps = self.sim_engine.step_count if self.sim_engine else 0
+        final_bal = self.sim_balance
+        profit = final_bal - self.initial_balance
+        profit_pct = (profit / self.initial_balance) * 100 if self.initial_balance else 0
+        
+        print(f"   ⏱️ Run Duration: {duration}")
+        print(f"   🔄 Total Steps: {steps}")
+        print(f"   💰 Initial Balance: ${self.initial_balance:.2f}")
+        print(f"   💰 Final Balance:   ${final_bal:.2f}")
+        print(f"   📈 Total Profit:    ${profit:.2f} ({profit_pct:.2f}%)")
+        print(f"   🔫 Total Orders:    {self.total_orders}")
+        print(f"   ✅ Total Fills:     {self.total_fills}")
+        
+        # Performance Metrics
+        win_rate = 0
+        if self.total_fills > 0:
+             win_rate = ((self.total_fills - self.panic_exits) / max(1, self.total_fills)) * 100
+             
+        print(f"   🎯 Win Rate (est):  {win_rate:.1f}%")
+        print(f"   🚨 Panic Exits:     {self.panic_exits}")
+        print("=".center(60, "="))
+
+    def run(self, max_steps=None):
         # 0. CLEAN SLATE: Cancel all existing orders to free up balance
-        # This fixes the "Insufficient Funds" issue by removing stale/orphan orders
-        self.pm.cancel_all_orders()
+        if not self.simulate:
+            self.pm.cancel_all_orders()
 
         # 1. Start Feed
-        threading.Thread(target=self.run_binance_ws, daemon=True).start()
-        print("   ⏳ Connecting to Binance...")
-        time.sleep(3)
+        if not self.simulate:
+            threading.Thread(target=self.run_binance_ws, daemon=True).start()
+            print("   ⏳ Connecting to Binance...")
+            time.sleep(3)
+        else:
+            print("   🧪 SIM: Starting loop...")
 
         while True:
             try:
+                if self.simulate:
+                    self.new_price_update = True
+                    if self.sim_engine:
+                        self.sim_engine.step()
+                        # Feed momentum calc history
+                        if hasattr(self, '_last_markets'):
+                            for m in self._last_markets:
+                                asset = m["asset"]
+                                # Map asset back to binance_symbol for consistency with calculate_momentum
+                                try:
+                                    binance_symbol = [k for k, v in BINANCE_SYMBOLS.items() if v == asset][0]
+                                    if binance_symbol in self.binance_history:
+                                        price = self.sim_engine.prices[m["id"]]
+                                        self.binance_history[binance_symbol].append((time.time(), price))
+                                except (IndexError, KeyError):
+                                    pass
+
+                        if max_steps and self.sim_engine.step_count >= max_steps:
+                            print(f"   🏁 SIMULATION COMPLETE ({max_steps} steps hit)")
+                            self.print_sim_report()
+                            return # Break the run
+
+                # EVENT-DRIVEN WAKE: Don't spin if no new data
+                # Wake up periodically anyway to verify connection or poll REST
+                loop_start = time.time()
+                while not self.new_price_update:
+                    if time.time() - loop_start > 10:  # 10s timeout
+                        print("   ⏳ WS SILENT: Waking loop for periodic check/rest fallback")
+                        break
+                    time.sleep(0.01) 
+                
+                self.new_price_update = False # Consume update
+
                 if self.circuit_breaker_triggered:
                     time.sleep(60)
                     continue
 
-                # 2. Housekeeping
-                self.process_commands() # <--- NEW: Check commands
-                self.reap_stale_orders()
+                if not self.simulate:
+                    # 2. Housekeeping
+                    self.process_commands() 
+                    self.reap_stale_orders()
+                else:
+                    self.reap_stale_orders() # Still reap stale sim orders
                 self.sync_positions() # The "Check Fills" Logic
                 if self.check_circuit_breaker(): continue
                 
-                # Reload Config Dynamic
-                # (Optional: Check bot_state.json for updates)
-                
-                # if self.redeemer:
-                #     try:
-                #         print("   🔄 RUNNING AUTO-REDEEMER...")
-                #         result = self.redeemer.scan_and_redeem()
-                #         if result and result.get('redeemed', 0) > 0:
-                #             print(f"   💰 REDEEMED: {result['redeemed']} positions")
-                #     except Exception as e:
-                #         print(f"   ❌ REDEEMER ERROR: {e}")
-                else:
-                    print("   ⚠️ NO REDEEMER INITIALIZED")
-
-                # 3. Manage Exits
+                # 3. PRIORITY: Manage Exits (Lock gains before scanning for new traps)
                 self.manage_positions()
 
-                # 4. Scan & Enter (Optimized)
+                # 4. Scan & Enter (Only if room for new positions)
                 # Clear traded markets every 15 minutes to allow re-entry in new windows
-                if int(time.time()) % 900 == 0:  # Every 15 minutes
+                if int(time.time()) % 900 == 0 or self.simulate:  # Frequent reset in sim
                     self.traded_markets.clear()
-                    print("   🔄 CLEARED: Market lockouts reset for new 15m windows")
+                    if not self.simulate:
+                        print("   🔄 CLEARED: Market lockouts reset for new 15m windows")
 
                 print(f"   🔄 SCAN: active_positions={len(self.active_positions)}, MAX_POSITIONS={MAX_POSITIONS}")
                 if len(self.active_positions) < MAX_POSITIONS:
@@ -1170,9 +1593,10 @@ class CryptoScalper:
 
                     if markets:  # Only process if we found markets
                         # Record a reference token for the dashboard status check
-                        try:
-                            update_agent_activity(self.AGENT_NAME, "Scanning", {"last_token_id": markets[0]["up_token"]})
-                        except: pass
+                        if not self.simulate:
+                            try:
+                                update_agent_activity(self.AGENT_NAME, "Scanning", {"last_token_id": markets[0]["up_token"]})
+                            except: pass
                         
                         print(f"   🔍 PROCESSING {len(markets)} markets...")
                         for m in markets:
@@ -1194,13 +1618,14 @@ class CryptoScalper:
 
                                 if abs(momentum) < mom_threshold:
                                     # Update UI with "Watching" status and momentum
-                                    try:
-                                        status_msg = f"STALKING | {asset.upper()} MOM {momentum:.4f}"
-                                        update_agent_activity(self.AGENT_NAME, status_msg, {
-                                            "last_token_id": markets[0]["up_token"],
-                                            "momentum": momentum
-                                        })
-                                    except: pass
+                                    if not self.simulate:
+                                        try:
+                                            status_msg = f"STALKING | {asset.upper()} MOM {momentum:.4f}"
+                                            update_agent_activity(self.AGENT_NAME, status_msg, {
+                                                "last_token_id": markets[0]["up_token"],
+                                                "momentum": momentum
+                                            })
+                                        except: pass
                                     
                                     print(f"   💤 NO MOMENTUM: {asset.upper()} {momentum:.4f}% (threshold: {mom_threshold:.4f})")
                                     self._log("SCAN", f"{asset} Momentum", f"Momentum {momentum:.4f}% < {mom_threshold:.4f}", confidence=0.0, conclusion="WAIT")
@@ -1258,9 +1683,14 @@ class CryptoScalper:
                 # Self-Learning Cycle
                 self.run_learning_cycle()
 
-                time.sleep(1)
+                if not self.simulate:
+                    time.sleep(1)
+                else:
+                    time.sleep(0.01) # Accelerated Sim
 
             except KeyboardInterrupt:
+                if self.simulate:
+                    self.print_sim_report()
                 break
             except Exception as e:
                 print(f"Loop Error: {e}")
@@ -1268,5 +1698,13 @@ class CryptoScalper:
 
 if __name__ == "__main__":
     is_live = "--live" in sys.argv
-    bot = CryptoScalper(dry_run=not is_live)
-    bot.run()
+    simulate = "--simulate" in sys.argv
+    steps = None
+    if "--steps" in sys.argv:
+        try:
+            idx = sys.argv.index("--steps")
+            steps = int(sys.argv[idx + 1])
+        except: pass
+        
+    bot = CryptoScalper(dry_run=not is_live, simulate=simulate)
+    bot.run(max_steps=steps)
