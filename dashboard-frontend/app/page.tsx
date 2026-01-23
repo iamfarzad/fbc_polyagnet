@@ -177,7 +177,7 @@ export default function Dashboard() {
         <main className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-0 divide-y md:divide-y-0 md:divide-x divide-border/40 min-h-0 w-full overflow-x-hidden">
 
           {/* Left Column: Execution (Zone B) - 4 Cols Desktop, Full Mobile */}
-          <div className="col-span-1 md:col-span-4 p-6 space-y-8 overflow-y-auto custom-scrollbar bg-muted/20 w-full">
+          <div className="col-span-1 md:col-span-4 p-4 space-y-4 overflow-y-auto custom-scrollbar bg-muted/20 w-full">
             <UserPerformance data={{
               walletAddress: data.walletAddress,
               positions_value: data.positions_value || 0,

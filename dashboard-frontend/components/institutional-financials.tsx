@@ -23,19 +23,17 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
                 Capital Efficiency
             </h3>
 
-            <div className="grid gap-3">
+            <div className="grid grid-cols-2 gap-3">
                 {/* Main PnL */}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-emerald-500/30 transition-colors shadow-sm">
-                            <div className="space-y-1">
-                                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Instant Settled PnL</span>
-                                <div className="flex items-center gap-2">
-                                    <Zap className="h-3 w-3 text-emerald-500 fill-emerald-500" />
-                                    <span className="text-2xl font-bold text-emerald-500 leading-none">
-                                        +${scalpTotal.toFixed(2)}
-                                    </span>
-                                </div>
+                        <div className="bg-card border border-border/40 p-3 rounded-sm flex flex-col justify-between h-[80px] group hover:border-emerald-500/30 transition-colors shadow-sm">
+                            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Instant Settled PnL</span>
+                            <div className="flex items-center gap-2">
+                                <Zap className="h-3 w-3 text-emerald-500 fill-emerald-500" />
+                                <span className="text-xl font-bold text-emerald-500 leading-none">
+                                    +${scalpTotal.toFixed(2)}
+                                </span>
                             </div>
                         </div>
                     </TooltipTrigger>
@@ -47,22 +45,22 @@ export function InstitutionalFinancials({ data }: InstitutionalFinancialsProps) 
                 {/* Maker Rebate */}
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="bg-card border border-border/40 p-4 rounded-sm flex justify-between items-center group hover:border-blue-500/30 transition-colors shadow-sm">
-                            <div className="space-y-1">
-                                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Estimated Maker Rebate</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xl font-bold text-blue-400 leading-none">
-                                        +${rebate.toFixed(2)}
-                                    </span>
+                        <div className="bg-card border border-border/40 p-3 rounded-sm flex flex-col justify-between h-[80px] group hover:border-blue-500/30 transition-colors shadow-sm">
+                            <div className="flex justify-between items-start">
+                                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-tight">Maker Rebate</span>
+                                <div className="text-[9px] text-blue-400/50 font-bold border border-blue-400/20 px-1 py-0.5 rounded-[2px]">
+                                    3.5 BPS
                                 </div>
                             </div>
-                            <div className="text-[10px] text-blue-400/50 font-bold border border-blue-400/20 px-1.5 py-0.5 rounded-sm">
-                                3.5 BPS
+                            <div className="flex items-center gap-2">
+                                <span className="text-xl font-bold text-blue-400 leading-none">
+                                    +${rebate.toFixed(2)}
+                                </span>
                             </div>
                         </div>
                     </TooltipTrigger>
                     <TooltipContent side="right" className="bg-blue-500 border-none text-white font-bold uppercase text-[9px]">
-                        Estimated liquidity provider rewards from Polymarket
+                        Estimated liquidity provider rewards
                     </TooltipContent>
                 </Tooltip>
             </div>

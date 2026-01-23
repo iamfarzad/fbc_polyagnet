@@ -43,38 +43,38 @@ export function UserPerformance({ data }: UserPerformanceProps) {
     const isPositive = totalPnL >= 0
 
     return (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
             {/* Top Card: Stats Overview */}
-            <Card className="p-4 border-border/40 bg-card rounded-xl flex flex-col justify-center h-[100px]">
+            <Card className="p-3 border-border/40 bg-card rounded-xl flex flex-col justify-center h-[90px]">
                 <div className="flex justify-between items-end">
-                    <div className="space-y-1">
-                        <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wide">Positions</p>
-                        <p className="text-xl font-mono font-bold text-foreground">${data.positions_value.toFixed(2)}</p>
+                    <div className="space-y-0.5">
+                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Positions</p>
+                        <p className="text-lg font-mono font-bold text-foreground">${data.positions_value.toFixed(2)}</p>
                     </div>
                     <Separator orientation="vertical" className="h-8 bg-border/50" />
-                    <div className="space-y-1">
-                        <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wide">Best Win</p>
-                        <p className="text-xl font-mono font-bold text-emerald-500">${data.biggest_win.toFixed(2)}</p>
+                    <div className="space-y-0.5">
+                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Best Win</p>
+                        <p className="text-lg font-mono font-bold text-emerald-500">${data.biggest_win.toFixed(2)}</p>
                     </div>
                     <Separator orientation="vertical" className="h-8 bg-border/50" />
-                    <div className="space-y-1">
-                        <p className="text-[10px] uppercase text-muted-foreground font-bold tracking-wide">Predictions</p>
-                        <p className="text-xl font-mono font-bold text-foreground">{data.predictions_count}</p>
+                    <div className="space-y-0.5">
+                        <p className="text-[9px] uppercase text-muted-foreground font-bold tracking-wide">Predictions</p>
+                        <p className="text-lg font-mono font-bold text-foreground">{data.predictions_count}</p>
                     </div>
                 </div>
             </Card>
 
             {/* Bottom Card: PnL Graph */}
-            <Card className="p-6 border-border/40 bg-card rounded-xl h-[180px] flex flex-col relative overflow-hidden">
+            <Card className="p-4 border-border/40 bg-card rounded-xl h-[160px] flex flex-col relative overflow-hidden">
                 <div className="flex justify-between items-start z-10">
                     <div>
-                        <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                            <span className="text-xs font-bold uppercase tracking-wide">Net PnL</span>
+                        <div className="flex items-center gap-2 text-muted-foreground mb-0.5">
+                            <span className="text-[10px] font-bold uppercase tracking-wide">Net PnL</span>
                         </div>
-                        <h2 className={`text-3xl font-mono font-bold tracking-tighter ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <h2 className={`text-2xl font-mono font-bold tracking-tighter ${isPositive ? 'text-emerald-500' : 'text-red-500'}`}>
                             {isPositive ? "+" : ""}${totalPnL.toFixed(2)}
                         </h2>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-1">All-Time</p>
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">All-Time</p>
                     </div>
                     <div className="flex gap-1">
                         {['1D', '1W', '1M', 'ALL'].map(period => (
