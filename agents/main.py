@@ -17,32 +17,32 @@ from datetime import datetime
 AGENTS = {
     "SafeAgent": {
         "module": "agents.application.pyml_trader",
-        "args": [],  # No --dry-run = live mode (reads from bot_state.json)
+        "args": ["--dry-run"],  # Enforce dry run
         "restart_delay": 5,
     },
     "ScalperAgent": {
         "module": "agents.application.pyml_scalper",
-        "args": ["--live"],
+        "args": [], # Removed --live
         "restart_delay": 3,
     },
     "CopyTrader": {
         "module": "agents.application.pyml_copy_trader",
-        "args": ["--live"],
+        "args": [], # Removed --live
         "restart_delay": 5,
     },
     "SmartAgent": {
         "module": "agents.application.smart_trader",
-        "args": ["--live"],
+        "args": [], # Removed --live
         "restart_delay": 10,
     },
     "SportsAgent": {
         "module": "agents.application.sports_trader",
-        "args": ["--live"],
+        "args": [], # Removed --live
         "restart_delay": 10,
     },
     "EsportsAgent": {
         "module": "agents.application.esports_trader",
-        "args": ["--live", "--growth"],
+        "args": ["--growth"], # Removed --live
         "restart_delay": 10,
     },
 }

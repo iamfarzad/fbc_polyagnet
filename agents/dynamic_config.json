@@ -1,4 +1,5 @@
 {
+    "global_dry_run": true,
     "scalper": {
         "active": true,
         "mode": "high_freq",
