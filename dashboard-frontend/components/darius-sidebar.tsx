@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { 
   LayoutDashboard, 
-  LayoutKanban, 
+  LayoutPanelLeft, 
   Calendar, 
   Wallet, 
   Bot, 
