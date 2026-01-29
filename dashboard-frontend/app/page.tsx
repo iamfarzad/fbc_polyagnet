@@ -178,6 +178,8 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
+
+          <div className="shrink-0 border-b border-border/40 bg-background px-4 py-2 flex items-center h-10">
             <TerminalHeader data={{
               walletAddress: data.walletAddress,
               dryRun: data.dryRun,
