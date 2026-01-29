@@ -13,6 +13,8 @@ import { ScannerStatus } from "@/components/scanner-status"
 import { LLMActivityFeed } from "@/components/llm-activity-feed"
 import { FBPChat } from "@/components/fbp-chat"
 import { UserPerformance } from "@/components/user-performance"
+import { DariusKanban } from "@/components/darius-kanban"
+import { DariusCalendar } from "@/components/darius-calendar"
 import { getApiUrl, getWsUrl } from "@/lib/api-url"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
@@ -212,7 +214,17 @@ export default function Dashboard() {
           </div>
 
           {/* Right Column: Intelligence & Terminal (Zone C) - 8 Cols Desktop, Full Mobile */}
-          <div className="col-span-1 md:col-span-8 flex flex-col min-h-0 bg-muted/10 w-full">
+          <div className="col-span-1 md:col-span-8 flex flex-col min-h-0 bg-muted/10 w-full overflow-y-auto custom-scrollbar">
+
+            {/* Darius Strategic Layer */}
+            <div className="shrink-0 p-6 space-y-6">
+              <div className="h-[400px]">
+                <DariusKanban />
+              </div>
+              <div className="h-[300px]">
+                <DariusCalendar />
+              </div>
+            </div>
 
             {/* Top Half: Momentum & Logic */}
             <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/40">
