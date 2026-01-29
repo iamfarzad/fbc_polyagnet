@@ -4,7 +4,7 @@ import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { CheckCircle2, Circle, Clock, LayoutKanban } from "lucide-react"
+import { CheckCircle, Circle, Clock, LayoutPanelLeft } from "lucide-react"
 
 interface Task {
   id: string
@@ -27,8 +27,8 @@ export function DariusKanban() {
   const columns = [
     { id: "backlog", title: "Backlog", icon: Circle },
     { id: "todo", title: "To Do", icon: Clock },
-    { id: "in-progress", title: "In Progress", icon: LayoutKanban },
-    { id: "done", title: "Done", icon: CheckCircle2 },
+    { id: "in-progress", title: "In Progress", icon: LayoutPanelLeft },
+    { id: "done", title: "Done", icon: CheckCircle },
   ]
 
   return (
