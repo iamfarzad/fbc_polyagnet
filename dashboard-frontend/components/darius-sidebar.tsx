@@ -84,8 +84,10 @@ export function DariusSidebar({
   return (
     <div 
       className={cn(
-        "flex flex-col border-r border-border/40 bg-background transition-all duration-300 h-full",
-        collapsed ? "w-14" : "w-56"
+        "flex flex-col border-r border-border/40 bg-background transition-all duration-300 h-full shrink-0",
+        collapsed ? "w-14" : "w-56",
+        "fixed md:relative z-50 md:z-0", // Floating on mobile
+        collapsed && "w-0 md:w-14 overflow-hidden" // Hide completely on mobile if collapsed
       )}
     >
       {/* Sidebar Header */}

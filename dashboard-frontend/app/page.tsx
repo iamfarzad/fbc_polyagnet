@@ -19,6 +19,7 @@ import { DariusSidebar } from "@/components/darius-sidebar"
 import { WarRoom } from "@/components/war-room"
 import { getApiUrl, getWsUrl } from "@/lib/api-url"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 interface DashboardData {
   balance: number
@@ -157,11 +158,26 @@ export default function Dashboard() {
       <div className="min-h-screen bg-background text-foreground font-sans text-sm flex flex-row h-screen overflow-hidden selection:bg-primary/30">
         
         {/* SIDEBAR */}
-        <DariusSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="hidden md:block h-full shrink-0">
+          <DariusSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
 
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Command Bar (Zone A) */}
-          <div className="shrink-0 border-b border-border/40 bg-background px-4 py-2 flex items-center h-10">
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+          {/* Mobile Tab Nav (Top) */}
+          <div className="md:hidden flex overflow-x-auto bg-muted/20 border-b border-border/40 px-2 py-1 gap-2 shrink-0 no-scrollbar">
+            {["polyagent", "kanban", "calendar", "warroom"].map(tab => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter shrink-0",
+                  activeTab === tab ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
             <TerminalHeader data={{
               walletAddress: data.walletAddress,
               dryRun: data.dryRun,
